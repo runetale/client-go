@@ -50,7 +50,7 @@ type Config struct {
 	TURNConfig *TURNConfig
 	Signal *Host
 	StorePath string
-	Auth Auth
+	AuthConfig AuthConfig
 	TLSConfig  TLSConfig
 }
 
@@ -68,7 +68,7 @@ type Host struct {
     Password string
 }
 
-type Auth struct {
+type AuthConfig struct {
 	AuthAudience string
 	AuthIssuer string
 	AuthKeysLocation string
