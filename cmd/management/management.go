@@ -1,54 +1,20 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
-	"math"
 	"os"
-	"strconv"
-	"strings"
+	"path/filepath"
 
+	"github.com/Notch-Technologies/wizy/cmd/management/config"
 	"github.com/Notch-Technologies/wizy/paths"
+	//"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
 )
-
-// TODO: (shintard) move to other directory
-type portValue struct{ n *uint16 }
-
-const DefaultPort = 443
-
-func PortValue(dst *uint16, defaultPort uint16) flag.Value {
-	*dst = defaultPort
-	return portValue{dst}
-}
-
-func (p portValue) String() string {
-	if p.n == nil {
-		return ""
-	}
-	return fmt.Sprint(*p.n)
-}
-
-func (p portValue) Set(v string) error {
-	if v == "" {
-		return errors.New("can't be the empty string")
-	}
-	if strings.Contains(v, ":") {
-		return errors.New("expecting just a port number, without a colon")
-	}
-	n, err := strconv.ParseUint(v, 10, 64) // use 64 instead of 16 to return nicer error message
-	if err != nil {
-		return fmt.Errorf("not a valid number")
-	}
-	if n > math.MaxUint16 {
-		return errors.New("out of range for port number")
-	}
-	*p.n = uint16(n)
-	return nil
-}
 
 var args struct {
 	configpath string
@@ -63,9 +29,9 @@ var args struct {
 
 func main() {
 	flag.StringVar(&args.configpath, "config", paths.DefaultManagementFile(), "path of mangement file")
-	// flag.Var(PortValue(&args.port, DefaultPort), "port", "specify the port of the management server")
+	// flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the management server")
 	// flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	// flag.StringVar(&args.storepath, "store", paths.DefaultStoreStateFile(), "path of management store state file")
+	flag.StringVar(&args.storepath, "store", paths.DefaultStoreStateFile(), "path of management store state file")
 	// flag.StringVar(&args.domain, "domain", "", "path of mangement file")
 	// flag.StringVar(&args.certfile, "cert-file", "", "path of mangement file")
 	// flag.StringVar(&args.certkey, "cert-key", "", "path of mangement file")
@@ -84,25 +50,39 @@ func main() {
 	loadConfig()
 }
 
-func loadConfig() {
+func loadConfig() config.Config {
 	b, err := ioutil.ReadFile(args.configpath)
 	switch {
+ 	case errors.Is(err, os.ErrNotExist):
+ 		return createNewConfig()
  	case err != nil:
  	    log.Fatal(err)
  	    panic("unreachable")
- 	case errors.Is(err, os.ErrNotExist):
- 	//    return writeNewConfig()
-		fmt.Println("ErrNotExist")
-		fmt.Printf("check management config file: %s\n", paths.DefaultManagementFile())
-		return
  	default:
-		// var cfg config
- 	    // if err := json.Unmarshal(b, &cfg); err != nil {
- 	    //     log.Fatalf("config: %v", err)
- 	    // }
- 	    // return cfg
-		fmt.Println("default")
-		fmt.Println(b)
-		return
+		var cfg config.Config
+ 	    if err := json.Unmarshal(b, &cfg); err != nil {
+ 	        log.Fatalf("config: %v", err)
+ 	    }
+ 	    return cfg
  	}
+}
+
+func createNewConfig() config.Config {
+	if err := os.MkdirAll(filepath.Dir(args.configpath), 0777); err != nil {
+		log.Fatal(err)
+	}
+
+	cfg := config.Config{StorePath: args.storepath}
+
+	b, err := json.MarshalIndent(cfg, "", "\t")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(args.configpath, b, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return cfg
 }
