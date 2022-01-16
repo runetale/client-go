@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Notch-Technologies/wizy/cmd/management/config"
+	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
@@ -25,14 +25,14 @@ var args struct {
 }
 
 func main() {
-	flag.StringVar(&args.configpath, "config", paths.DefaultManagementFile(), "path of mangement file")
-	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the management server")
+	flag.StringVar(&args.configpath, "config", paths.DefaultWicsFile(), "path of wics file")
+	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.storepath, "store", paths.DefaultStoreStateFile(), "path of management store state file")
-	flag.StringVar(&args.domain, "domain", "", "path of mangement file")
-	flag.StringVar(&args.certfile, "cert-file", "", "path of mangement file")
-	flag.StringVar(&args.certkey, "cert-key", "", "path of mangement file")
-	flag.BoolVar(&args.version, "version", false, "path of mangement file")
+	flag.StringVar(&args.storepath, "store", paths.DefaultWicsStateFile(), "path of wics store state file")
+	flag.StringVar(&args.domain, "domain", "", "your domain")
+	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
+	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
+	flag.BoolVar(&args.version, "version", false, "print version")
 
 	flag.Parse()
 	if flag.NArg() > 0 {
