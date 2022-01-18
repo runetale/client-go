@@ -4,20 +4,20 @@ import (
 	"runtime"
 )
 
-// File that manages the configuration of the management server.
-func DefaultManagementFile() string {
-	return "/etc/wizy/management.json"
+// File that manages the configuration of the wics server.
+func DefaultWicsFile() string {
+	return "/etc/wizy/wics.json"
 }
 
-// State file to manage the state of the Store.
-func DefaultStoreStateFile() string {
+// State file to wics the state of the Store.
+func DefaultWicsStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
-		return "/var/db/wizy/management.state"
+		return "/var/db/wizy/wics.state"
 	case "linux":
-		return "/var/lib/wizy/management.state"
+		return "/var/lib/wizy/wics.state"
 	case "darwin":
-		return "/Library/wizy/management.state"
+		return "/Library/wizy/wics.state"
 	default:
 		return ""
 	}

@@ -1,9 +1,15 @@
 package config
 
 import (
-	"time"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/Notch-Technologies/wizy/utils"
 )
 
 type Duration struct {
@@ -45,15 +51,6 @@ const (
 	HTTPS Protocol = "https"
 )
 
-type Config struct {
-	Stuns []*Host
-	TURNConfig *TURNConfig
-	Signal *Host
-	StorePath string
-	AuthConfig AuthConfig
-	TLSConfig  TLSConfig
-}
-
 type TURNConfig  struct {
 	TimeBasedCredentials bool
 	CredentialsTTL Duration
@@ -78,4 +75,57 @@ type TLSConfig struct {
 	Domain string
 	Certfile string
 	CertKey string
+}
+
+type Config struct {
+	Stuns []*Host
+	TURNConfig *TURNConfig
+	Signal *Host
+	StorePath string
+	AuthConfig AuthConfig
+	TLSConfig  TLSConfig
+}
+
+func LoadConfig(path, domain, certfile, certkey string) *Config {
+	b, err := ioutil.ReadFile(path)
+	switch {
+ 	case errors.Is(err, os.ErrNotExist):
+ 		return newConfig(path, domain, certfile, certkey)
+ 	case err != nil:
+ 	    log.Fatal(err)
+ 	    panic("failed to load cofig")
+ 	default:
+		var cfg Config
+ 	    if err := json.Unmarshal(b, &cfg); err != nil {
+ 	        log.Fatalf("config: %v", err)
+ 	    }
+		return &cfg
+ 	}
+}
+
+func newConfig(path, domain, certfile, certkey string) *Config {
+	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
+		log.Fatal(err)
+	}
+
+	cfg := Config{
+		StorePath: path,
+		TLSConfig: TLSConfig{
+			Domain: domain,
+			Certfile: certfile,
+			CertKey: certkey,
+		},
+	}
+
+	b, err := json.MarshalIndent(cfg, "", "\t")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+
+	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
+		log.Fatal(err)
+	}
+
+	return &cfg
 }
