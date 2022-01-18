@@ -55,13 +55,9 @@ func main() {
  	    log.Fatal(err)
 	}
 
-	fmt.Println(fs)
-
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
-	fmt.Println(cfg)
 
 	account := store.NewAccount(fs)
-	fmt.Println(account)
 
 	grpcServer := grpc.NewServer()
 	s, err :=  server.NewServer(cfg, account)
@@ -71,7 +67,7 @@ func main() {
 
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
-	log.Printf("started wics server: :%v", args.port)
+	log.Printf("started wics server: localhost:%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
@@ -99,7 +95,7 @@ func main() {
 		}
 	}()
 	<-stop
-	log.Println("shutdown wics server.")
+	log.Println("terminate wics server.")
 
 	grpcServer.Stop()
 }
