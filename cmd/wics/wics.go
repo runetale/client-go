@@ -31,10 +31,10 @@ var args struct {
 }
 
 func main() {
-	flag.StringVar(&args.configpath, "config", paths.DefaultWicsFile(), "path of wics file")
+	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
 	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.storepath, "store", paths.DefaultWicsStateFile(), "path of wics store state file")
+	flag.StringVar(&args.storepath, "store", paths.DefaultAccountStateFile(), "path of wics store state file")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
