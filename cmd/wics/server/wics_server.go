@@ -16,8 +16,9 @@ type Server struct {
 	account *store.Account
 	privateKey wgtypes.Key
 
-	proto.UnimplementedPeerServiceServer
-	proto.UnimplementedUserServiceServer
+	// grpcServer
+	UserServiceServer *UserServiceServer
+	PeerServiceServer *PeerServiceServer
 }
 
 func NewServer(config *config.Config, account *store.Account) (*Server, error) {
@@ -32,14 +33,34 @@ func NewServer(config *config.Config, account *store.Account) (*Server, error) {
 		account: account,
 		privateKey: key,
 
+		UserServiceServer: NewUserServiceServer(),
+		PeerServiceServer: NewPeerServiceServer(),
 	}, nil
 }
 
-func (userServer *Server) Login(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+// TODO:(shintard) create a service for each of the gRPC Servers.
+type UserServiceServer struct {
+	proto.UnimplementedUserServiceServer
+}
+
+func NewUserServiceServer() *UserServiceServer {
+	return &UserServiceServer{}
+}
+
+func (uss *UserServiceServer) Login(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	panic("not implement Login")
 }
 
-func (peerServer *Server) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+
+type PeerServiceServer struct {
+	proto.UnimplementedPeerServiceServer
+}
+
+func NewPeerServiceServer() *PeerServiceServer {
+	return &PeerServiceServer{}
+}
+
+func (pss *PeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	panic("not implement WSync")
 }
 
