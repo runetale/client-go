@@ -10,11 +10,15 @@ import (
 	"github.com/Notch-Technologies/wizy/utils"
 )
 
+type StoreManager interface {
+	GetPeer()
+}
+
 type FileStore struct {
 	path string
 }
 
-func LoadFileStore(path string) (*FileStore, error) {
+func NewFileStore(path string) (*FileStore, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -41,4 +45,8 @@ func LoadFileStore(path string) (*FileStore, error) {
 	}
 
 	return &fs, nil
+}
+
+func (fs *FileStore) GetPeer() {
+	panic("not implement GetPeer")
 }
