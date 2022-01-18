@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/state"
 	"github.com/Notch-Technologies/wizy/store"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Server struct {
@@ -24,9 +25,14 @@ type Server struct {
 func NewServer(config *config.Config, account *store.Account) (*Server, error) {
 	key, err := wgtypes.GeneratePrivateKey()
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
+
+	s, err := state.NewServerPrivateKey()
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(s.MarshalText())
 
 	return &Server{
 		config: config,
