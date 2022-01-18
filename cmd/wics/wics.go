@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
@@ -41,7 +42,7 @@ func main() {
 
 	flag.Parse()
 	if flag.NArg() > 0 {
-		log.Fatalf("does not take non-flag arguments: %q", flag.Args())
+		log.Fatalf("does not take non-flag arguments: %q.", flag.Args())
 	}
 
 	if args.version {
@@ -65,12 +66,11 @@ func main() {
 	grpcServer := grpc.NewServer()
 	s, err :=  server.NewServer(cfg, account)
 	if err != nil {
-		fmt.Println("aaa")
  	    log.Fatal(err)
 	}
 
-	proto.RegisterPeerServiceServer(grpcServer, s)
-	proto.RegisterUserServiceServer(grpcServer, s)
+	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
+	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	log.Printf("started wics server: :%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
@@ -80,20 +80,26 @@ func main() {
 
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve grpc server: %v", err)
+			log.Fatalf("failed to serve grpc server: %v.", err)
 		}
 	}()
 
-	stopCh := make(chan struct{})
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	stop := make(chan struct{})
 	go func() {
-		for range c {
-			stopCh <- struct{}{}
+		c := make(chan os.Signal, 1)
+		signal.Notify(c,
+			os.Interrupt,
+			syscall.SIGKILL,
+        	syscall.SIGTERM,
+        	syscall.SIGINT,
+		)
+		select {
+		case <-c:
+			close(stop)
 		}
 	}()
-	<-stopCh
-	log.Println("terminated wics server")
+	<-stop
+	log.Println("shutdown wics server.")
 
 	grpcServer.Stop()
 }
