@@ -12,5 +12,5 @@ service UserService {
 }
 
 service PeerService {
-	rpc Sync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc WSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
