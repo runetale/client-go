@@ -4,13 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"os"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
+	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server"
 	"github.com/Notch-Technologies/wizy/paths"
+	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
-	"github.com/Notch-Technologies/wizy/store"
+	"google.golang.org/grpc"
 )
 
 var args struct {
@@ -44,7 +48,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	fs, err := store.LoadFileStore(args.storepath)
+	fs, err := store.NewFileStore(args.storepath)
 	if err != nil {
  	    log.Fatal(err)
 	}
@@ -53,5 +57,30 @@ func main() {
 
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 	fmt.Println(cfg)
-}
 
+	account := store.NewAccount(fs)
+	fmt.Println(account)
+
+	grpcServer := grpc.NewServer()
+	se, err :=  server.NewServer(cfg, account)
+	if err != nil {
+		fmt.Println("aaa")
+ 	    log.Fatal(err)
+	}
+
+	proto.RegisterPeerServiceServer(grpcServer, se)
+	proto.RegisterUserServiceServer(grpcServer, se)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	go func() {
+		if err = grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to serve gRpc server: %v", err)
+		}
+	}()
+
+	grpcServer.Stop()
+}
