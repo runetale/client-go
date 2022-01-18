@@ -1,5 +1,7 @@
 package store
 
+// Management FileStore
+
 import (
 	"encoding/json"
 	"io/ioutil"
@@ -10,14 +12,14 @@ import (
 	"github.com/Notch-Technologies/wizy/utils"
 )
 
-type StoreManager interface {
-	GetPeer()
+type FileStoreManager interface {
 }
 
 type FileStore struct {
 	path string
 }
 
+// TODO: (shintard) user store to key store wo wakeru
 func NewFileStore(path string) (*FileStore, error) {
 	b, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -47,6 +49,3 @@ func NewFileStore(path string) (*FileStore, error) {
 	return &fs, nil
 }
 
-func (fs *FileStore) GetPeer() {
-	panic("not implement GetPeer")
-}

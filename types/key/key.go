@@ -17,14 +17,14 @@ func (k Key) Public() Key {
 	return Key(pub)
 }
 
-func ToHex(k []byte, prefix string) []byte {
+func toHex(k []byte, prefix string) []byte {
 	ret := make([]byte, len(prefix)+len(k)*2)
 	copy(ret, prefix)
 	hex.Encode(ret[len(prefix):], k)
 	return ret
 }
 
-func ParseHex(out []byte, in, prefix mem.RO) error {
+func parseHex(out []byte, in, prefix mem.RO) error {
 	if !mem.HasPrefix(in, prefix) {
 		return fmt.Errorf("key hex string doesn't have expected type prefix %s", prefix.StringCopy())
 	}

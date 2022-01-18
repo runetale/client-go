@@ -6,8 +6,8 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
-	"github.com/Notch-Technologies/wizy/state"
 	"github.com/Notch-Technologies/wizy/store"
+	"github.com/Notch-Technologies/wizy/types/key"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -23,12 +23,12 @@ type Server struct {
 }
 
 func NewServer(config *config.Config, account *store.Account) (*Server, error) {
-	key, err := wgtypes.GeneratePrivateKey()
+	k, err := wgtypes.GeneratePrivateKey()
 	if err != nil {
 		return nil, err
 	}
 
-	s, err := state.NewServerPrivateKey()
+	s, err := key.NewServerPrivateKey()
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func NewServer(config *config.Config, account *store.Account) (*Server, error) {
 	return &Server{
 		config: config,
 		account: account,
-		privateKey: key,
+		privateKey: k,
 
 		UserServiceServer: NewUserServiceServer(),
 		PeerServiceServer: NewPeerServiceServer(),

@@ -1,5 +1,7 @@
 package store
 
+// Management Account Store
+
 import "sync"
 
 type AccountManager interface {

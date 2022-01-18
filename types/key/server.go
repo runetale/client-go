@@ -1,10 +1,9 @@
-package state
+package key
 
 import (
 	"crypto/rand"
 	"go4.org/mem"
 
-	key "github.com/Notch-Technologies/wizy/types/key"
 	"github.com/Notch-Technologies/wizy/types/structs"
 )
 
@@ -15,27 +14,27 @@ const (
 
 type WicsServerPrivateState struct {
 	_ structs.Incomparable
-	key key.Key
+	key Key
 }
 
-func NewPreshared() (*key.Key, error) {
+func NewPresharedKey() (*Key, error) {
 	var k [32]byte
 	_, err := rand.Read(k[:])
 	if err != nil {
 		return nil, err
 	}
-	return (*key.Key)(&k), nil
+	return (*Key)(&k), nil
 }
 
 func NewServerPrivateKey() (WicsServerPrivateState, error) {
-	k, err := NewPreshared()
+	k, err := NewPresharedKey()
 	if err != nil {
 		return WicsServerPrivateState{}, err
 	}
 
 	k[0] &= 248
 	k[31] = (k[31] & 127) | 64
-	privateKey := (key.Key)(*k)
+	privateKey := (Key)(*k)
 
 	return WicsServerPrivateState{
 		key: privateKey,
@@ -43,10 +42,10 @@ func NewServerPrivateKey() (WicsServerPrivateState, error) {
 }
 
 func (s WicsServerPrivateState) MarshalText() ([]byte, error) {
-	return key.ToHex(s.key[:], serverPrivateKeyPrefix), nil
+	return toHex(s.key[:], serverPrivateKeyPrefix), nil
 }
 
 func (s *WicsServerPrivateState) UnmarshalText(b []byte) error {
-	return key.ParseHex(s.key[:], mem.B(b), mem.S(serverPrivateKeyPrefix))
+	return parseHex(s.key[:], mem.B(b), mem.S(serverPrivateKeyPrefix))
 }
 
