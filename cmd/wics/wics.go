@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
@@ -62,14 +63,15 @@ func main() {
 	fmt.Println(account)
 
 	grpcServer := grpc.NewServer()
-	se, err :=  server.NewServer(cfg, account)
+	s, err :=  server.NewServer(cfg, account)
 	if err != nil {
 		fmt.Println("aaa")
  	    log.Fatal(err)
 	}
 
-	proto.RegisterPeerServiceServer(grpcServer, se)
-	proto.RegisterUserServiceServer(grpcServer, se)
+	proto.RegisterPeerServiceServer(grpcServer, s)
+	proto.RegisterUserServiceServer(grpcServer, s)
+	log.Printf("started wics server: :%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
@@ -78,9 +80,20 @@ func main() {
 
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve gRpc server: %v", err)
+			log.Fatalf("failed to serve grpc server: %v", err)
 		}
 	}()
+
+	stopCh := make(chan struct{})
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		for range c {
+			stopCh <- struct{}{}
+		}
+	}()
+	<-stopCh
+	log.Println("terminated wics server")
 
 	grpcServer.Stop()
 }
