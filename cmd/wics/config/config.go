@@ -86,7 +86,7 @@ type Config struct {
 	TLSConfig  TLSConfig
 }
 
-func LoadConfig(path, domain, certfile, certkey string) Config {
+func LoadConfig(path, domain, certfile, certkey string) *Config {
 	b, err := ioutil.ReadFile(path)
 	switch {
  	case errors.Is(err, os.ErrNotExist):
@@ -99,11 +99,11 @@ func LoadConfig(path, domain, certfile, certkey string) Config {
  	    if err := json.Unmarshal(b, &cfg); err != nil {
  	        log.Fatalf("config: %v", err)
  	    }
- 	    return cfg
+		return &cfg
  	}
 }
 
-func newConfig(path, domain, certfile, certkey string) Config {
+func newConfig(path, domain, certfile, certkey string) *Config {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
@@ -127,5 +127,5 @@ func newConfig(path, domain, certfile, certkey string) Config {
 		log.Fatal(err)
 	}
 
-	return cfg
+	return &cfg
 }
