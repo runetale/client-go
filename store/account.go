@@ -7,13 +7,13 @@ type AccountManager interface {
 }
 
 type Account struct {
-	StoreManager StoreManager
+	FileStoreManager FileStoreManager
 	mu sync.Mutex
 }
 
-func NewAccount(sm StoreManager) *Account {
+func NewAccount(f FileStoreManager) *Account {
 	return &Account{
-		StoreManager: sm,
+		FileStoreManager: f,
 		mu: sync.Mutex{},
 	}
 }
