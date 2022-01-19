@@ -1,6 +1,7 @@
 package key
 
 import (
+	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -15,6 +16,16 @@ func (k Key) Public() Key {
 	var pub [32]byte
 	curve25519.ScalarBaseMult(&pub, (*[32]byte)(&k))
 	return Key(pub)
+}
+
+func (k Key) HexString() string { return hex.EncodeToString(k[:]) }
+
+func (k *Key) IsZero() bool {
+	if k == nil {
+		return true
+	}
+	var zeros Key
+	return subtle.ConstantTimeCompare(zeros[:], k[:]) == 1
 }
 
 func toHex(k []byte, prefix string) []byte {

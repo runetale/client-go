@@ -68,6 +68,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	pubk := ss.GetPublicKey()
+	fmt.Println(pubk)
+
 	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 

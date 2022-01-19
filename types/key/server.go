@@ -48,3 +48,12 @@ func (s WicsServerPrivateState) MarshalText() ([]byte, error) {
 func (s *WicsServerPrivateState) UnmarshalText(b []byte) error {
 	return parseHex(s.key[:], mem.B(b), mem.S(serverPrivateKeyPrefix))
 }
+
+func (s WicsServerPrivateState) PublicKey() string {
+	pkey := s.key.Public().HexString()
+	return pkey
+}
+
+func (s *WicsServerPrivateState) IsZero() bool {
+	return s.key.IsZero()
+}
