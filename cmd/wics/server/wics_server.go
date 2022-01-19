@@ -11,17 +11,19 @@ import (
 
 type Server struct {
 	config  *config.Config
-	account *store.Account
+	storeAccount *store.Account
+	storeServer *store.Server
 
 	// grpcServer
 	UserServiceServer *UserServiceServer
 	PeerServiceServer *PeerServiceServer
 }
 
-func NewServer(config *config.Config, account *store.Account) (*Server, error) {
+func NewServer(config *config.Config, account *store.Account, server *store.Server) (*Server, error) {
 	return &Server{
 		config:  config,
-		account: account,
+		storeAccount: account,
+		storeServer: server,
 
 		UserServiceServer: NewUserServiceServer(),
 		PeerServiceServer: NewPeerServiceServer(),

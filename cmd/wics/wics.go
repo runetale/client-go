@@ -15,7 +15,6 @@ import (
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/types/key"
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
 )
@@ -63,29 +62,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// TODO: (shintard) will remove
 	ss := store.NewServer(sfs)
 	err = ss.WritePrivateKey()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	pubk := ss.GetPublicKey()
-	fmt.Println(pubk)
-
-	// create setupkey
-	setup, err := key.NewSetupKey(ss.GetBase64Key())
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	i, err := setup.ID()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(i)
-	fmt.Println(setup.SetupKey())
-	//
 
 	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
@@ -94,7 +75,7 @@ func main() {
 	account := store.NewAccount(fs)
 
 	grpcServer := grpc.NewServer()
-	s, err := server.NewServer(cfg, account)
+	s, err := server.NewServer(cfg, account, ss)
 	if err != nil {
 		log.Fatal(err)
 	}
