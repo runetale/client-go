@@ -2,20 +2,16 @@ package server
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
 	"github.com/Notch-Technologies/wizy/store"
-	"github.com/Notch-Technologies/wizy/types/key"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Server struct {
 	config *config.Config
 	account *store.Account
-	privateKey wgtypes.Key
 
 	// grpcServer
 	UserServiceServer *UserServiceServer
@@ -23,21 +19,9 @@ type Server struct {
 }
 
 func NewServer(config *config.Config, account *store.Account) (*Server, error) {
-	k, err := wgtypes.GeneratePrivateKey()
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := key.NewServerPrivateKey()
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(s.MarshalText())
-
 	return &Server{
 		config: config,
 		account: account,
-		privateKey: k,
 
 		UserServiceServer: NewUserServiceServer(),
 		PeerServiceServer: NewPeerServiceServer(),
