@@ -41,6 +41,7 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 	}
 }
 
+// TOOD: (shintard) Refactor Config Scheme
 type Protocol string
 
 const (
