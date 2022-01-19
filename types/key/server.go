@@ -2,6 +2,8 @@ package key
 
 import (
 	"crypto/rand"
+	"encoding/base64"
+
 	"go4.org/mem"
 
 	"github.com/Notch-Technologies/wizy/types/structs"
@@ -40,6 +42,8 @@ func NewServerPrivateKey() (WicsServerPrivateState, error) {
 		key: privateKey,
 	}, nil
 }
+
+func (s *WicsServerPrivateState) String() string { return base64.StdEncoding.EncodeToString(s.key[:]) }
 
 func (s WicsServerPrivateState) MarshalText() ([]byte, error) {
 	return toHex(s.key[:], serverPrivateKeyPrefix), nil
