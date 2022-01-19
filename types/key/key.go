@@ -56,4 +56,3 @@ func fromHexChar(c byte) (byte, bool) {
 
 	return 0, false
 }
-

@@ -9,10 +9,10 @@ import (
 )
 
 var versionCmd = &ffcli.Command{
-	Name: "version",
-	Usage: "version",
+	Name:      "version",
+	Usage:     "version",
 	ShortHelp: "Show Wizy Version",
-	Exec: execVersion,
+	Exec:      execVersion,
 }
 
 func execVersion(args []string) error {

@@ -41,11 +41,11 @@ func DefaultWicsServerStateFile() string {
 }
 
 func MkStateDir(dirPath string) error {
-    if err := os.MkdirAll(dirPath, 0700); err != nil {
-        return err
-    }
+	if err := os.MkdirAll(dirPath, 0700); err != nil {
+		return err
+	}
 
-    return checkStateDirPermission(dirPath)
+	return checkStateDirPermission(dirPath)
 }
 
 func checkStateDirPermission(dir string) error {
@@ -53,22 +53,22 @@ func checkStateDirPermission(dir string) error {
 		perm = 700
 	)
 
-    if filepath.Base(dir) != "wizy" {
-        return nil
-    }
+	if filepath.Base(dir) != "wizy" {
+		return nil
+	}
 
-    fi, err := os.Stat(dir)
-    if err != nil {
-        return err
-    }
+	fi, err := os.Stat(dir)
+	if err != nil {
+		return err
+	}
 
-    if !fi.IsDir() {
-        return fmt.Errorf("expected %q is a directory, but %v", dir, fi.Mode())
-    }
+	if !fi.IsDir() {
+		return fmt.Errorf("expected %q is a directory, but %v", dir, fi.Mode())
+	}
 
-    if fi.Mode().Perm() == perm {
-        return nil
-    }
-    return os.Chmod(dir, perm)
+	if fi.Mode().Perm() == perm {
+		return nil
+	}
+
+	return os.Chmod(dir, perm)
 }
-

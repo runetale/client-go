@@ -10,7 +10,7 @@ import (
 )
 
 type Server struct {
-	config *config.Config
+	config  *config.Config
 	account *store.Account
 
 	// grpcServer
@@ -20,7 +20,7 @@ type Server struct {
 
 func NewServer(config *config.Config, account *store.Account) (*Server, error) {
 	return &Server{
-		config: config,
+		config:  config,
 		account: account,
 
 		UserServiceServer: NewUserServiceServer(),
@@ -41,7 +41,6 @@ func (uss *UserServiceServer) Login(context.Context, *emptypb.Empty) (*emptypb.E
 	panic("not implement Login")
 }
 
-
 type PeerServiceServer struct {
 	proto.UnimplementedPeerServiceServer
 }
@@ -53,4 +52,3 @@ func NewPeerServiceServer() *PeerServiceServer {
 func (pss *PeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	panic("not implement WSync")
 }
-

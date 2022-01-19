@@ -13,32 +13,32 @@ import (
 )
 
 type Duration struct {
-    time.Duration
+	time.Duration
 }
 
 func (d Duration) MarshalJSON() ([]byte, error) {
-    return json.Marshal(d.String())
+	return json.Marshal(d.String())
 }
 
 func (d *Duration) UnmarshalJSON(b []byte) error {
-    var v interface{}
-    if err := json.Unmarshal(b, &v); err != nil {
-        return err
-    }
-    switch value := v.(type) {
-    case float64:
-        d.Duration = time.Duration(value)
-        return nil
-    case string:
-        var err error
-        d.Duration, err = time.ParseDuration(value)
-        if err != nil {
-            return err
-        }
-        return nil
-    default:
-        return errors.New("invalid duration")
-    }
+	var v interface{}
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	switch value := v.(type) {
+	case float64:
+		d.Duration = time.Duration(value)
+		return nil
+	case string:
+		var err error
+		d.Duration, err = time.ParseDuration(value)
+		if err != nil {
+			return err
+		}
+		return nil
+	default:
+		return errors.New("invalid duration")
+	}
 }
 
 type Protocol string
@@ -51,37 +51,37 @@ const (
 	HTTPS Protocol = "https"
 )
 
-type TURNConfig  struct {
+type TURNConfig struct {
 	TimeBasedCredentials bool
-	CredentialsTTL Duration
-	Secret string
-	Turns []*Host
+	CredentialsTTL       Duration
+	Secret               string
+	Turns                []*Host
 }
 
 type Host struct {
-    Protocol Protocol
-    URL      string
-    Username string
-    Password string
+	Protocol Protocol
+	URL      string
+	Username string
+	Password string
 }
 
 type AuthConfig struct {
-	AuthAudience string
-	AuthIssuer string
+	AuthAudience     string
+	AuthIssuer       string
 	AuthKeysLocation string
 }
 
 type TLSConfig struct {
-	Domain string
+	Domain   string
 	Certfile string
-	CertKey string
+	CertKey  string
 }
 
 type Config struct {
-	Stuns []*Host
+	Stuns      []*Host
 	TURNConfig *TURNConfig
-	Signal *Host
-	StorePath string
+	Signal     *Host
+	StorePath  string
 	AuthConfig AuthConfig
 	TLSConfig  TLSConfig
 }
@@ -89,18 +89,18 @@ type Config struct {
 func LoadConfig(path, domain, certfile, certkey string) *Config {
 	b, err := ioutil.ReadFile(path)
 	switch {
- 	case errors.Is(err, os.ErrNotExist):
- 		return newConfig(path, domain, certfile, certkey)
- 	case err != nil:
- 	    log.Fatal(err)
- 	    panic("failed to load cofig")
- 	default:
+	case errors.Is(err, os.ErrNotExist):
+		return newConfig(path, domain, certfile, certkey)
+	case err != nil:
+		log.Fatal(err)
+		panic("failed to load cofig")
+	default:
 		var cfg Config
- 	    if err := json.Unmarshal(b, &cfg); err != nil {
- 	        log.Fatalf("config: %v", err)
- 	    }
+		if err := json.Unmarshal(b, &cfg); err != nil {
+			log.Fatalf("config: %v", err)
+		}
 		return &cfg
- 	}
+	}
 }
 
 func newConfig(path, domain, certfile, certkey string) *Config {
@@ -111,9 +111,9 @@ func newConfig(path, domain, certfile, certkey string) *Config {
 	cfg := Config{
 		StorePath: path,
 		TLSConfig: TLSConfig{
-			Domain: domain,
+			Domain:   domain,
 			Certfile: certfile,
-			CertKey: certkey,
+			CertKey:  certkey,
 		},
 	}
 
@@ -121,7 +121,6 @@ func newConfig(path, domain, certfile, certkey string) *Config {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
 		log.Fatal(err)

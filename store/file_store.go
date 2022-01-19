@@ -24,7 +24,7 @@ type FileStoreManager interface {
 type FileStore struct {
 	path string
 
-	mu sync.RWMutex
+	mu    sync.RWMutex
 	cache map[StateKey][]byte
 }
 
@@ -40,7 +40,7 @@ func NewFileStore(path string) (*FileStore, error) {
 				return nil, err
 			}
 			return &FileStore{
-				path: path, 
+				path:  path,
 				cache: make(map[StateKey][]byte),
 			}, nil
 		}
@@ -48,7 +48,7 @@ func NewFileStore(path string) (*FileStore, error) {
 	}
 
 	fs := &FileStore{
-		path: path,
+		path:  path,
 		cache: make(map[StateKey][]byte),
 	}
 
@@ -62,10 +62,12 @@ func NewFileStore(path string) (*FileStore, error) {
 func (s *FileStore) WriteState(id StateKey, bs []byte) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+
 	if bytes.Equal(s.cache[id], bs) {
 		return nil
 	}
 	s.cache[id] = append([]byte(nil), bs...)
+
 	bs, err := json.MarshalIndent(s.cache, "", "  ")
 	if err != nil {
 		return err
@@ -74,12 +76,13 @@ func (s *FileStore) WriteState(id StateKey, bs []byte) error {
 }
 
 func (s *FileStore) ReadState(id StateKey) ([]byte, error) {
-    s.mu.RLock()
-    defer s.mu.RUnlock()
-    bs, ok := s.cache[id]
-    if !ok {
-        return nil, ErrStateNotFound
-    }
-    return bs, nil
-}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
+	bs, ok := s.cache[id]
+	if !ok {
+		return nil, ErrStateNotFound
+	}
+
+	return bs, nil
+}

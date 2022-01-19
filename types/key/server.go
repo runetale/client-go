@@ -9,11 +9,11 @@ import (
 
 const (
 	serverPrivateKeyPrefix = "private_server_key:"
-	serverPublicKeyPrefix = "public_server_key:"
+	serverPublicKeyPrefix  = "public_server_key:"
 )
 
 type WicsServerPrivateState struct {
-	_ structs.Incomparable
+	_   structs.Incomparable
 	key Key
 }
 
@@ -48,4 +48,3 @@ func (s WicsServerPrivateState) MarshalText() ([]byte, error) {
 func (s *WicsServerPrivateState) UnmarshalText(b []byte) error {
 	return parseHex(s.key[:], mem.B(b), mem.S(serverPrivateKeyPrefix))
 }
-

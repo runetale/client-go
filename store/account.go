@@ -10,13 +10,13 @@ type AccountManager interface {
 
 type Account struct {
 	FileStoreManager FileStoreManager
-	mu sync.Mutex
+	mu               sync.Mutex
 }
 
 func NewAccount(f FileStoreManager) *Account {
 	return &Account{
 		FileStoreManager: f,
-		mu: sync.Mutex{},
+		mu:               sync.Mutex{},
 	}
 }
 

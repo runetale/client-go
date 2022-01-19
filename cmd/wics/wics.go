@@ -15,20 +15,20 @@ import (
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/version"
 	"github.com/Notch-Technologies/wizy/types/key"
+	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
 )
 
 var args struct {
-	configpath string
-	port uint16
-	verbose int
+	configpath  string
+	port        uint16
+	verbose     int
 	accountpath string
-	domain string
-	certfile string
-	certkey string
-	version bool
+	domain      string
+	certfile    string
+	certkey     string
+	version     bool
 }
 
 func main() {
@@ -54,31 +54,29 @@ func main() {
 	// create wics account state file
 	fs, err := store.NewFileStore(args.accountpath)
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
-	fmt.Println(sfs)
 
 	// write server private key to server state file
 	k, err := key.NewServerPrivateKey()
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
 	ke, err := k.MarshalText()
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
 	if err := sfs.WriteState(store.ServerPrivateKeyStateKey, ke); err != nil {
- 	    log.Fatalf("error writing server private key to store: %v", err)
+		log.Fatalf("error writing server private key to store: %v", err)
 	}
-
 
 	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
@@ -87,9 +85,9 @@ func main() {
 	account := store.NewAccount(fs)
 
 	grpcServer := grpc.NewServer()
-	s, err :=  server.NewServer(cfg, account)
+	s, err := server.NewServer(cfg, account)
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
@@ -113,8 +111,8 @@ func main() {
 		signal.Notify(c,
 			os.Interrupt,
 			syscall.SIGKILL,
-        	syscall.SIGTERM,
-        	syscall.SIGINT,
+			syscall.SIGTERM,
+			syscall.SIGINT,
 		)
 		select {
 		case <-c:
