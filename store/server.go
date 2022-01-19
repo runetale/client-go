@@ -13,20 +13,22 @@ import (
 
 type ServerManager interface {
 	WritePrivateKey() error
+	// Client側からSetupKeyとClientMachineKeyを使用してサーバーからServerPrivateKeyのPublicKeyをもらう時に使う
 	GetPublicKey() string
+	GetBase64Key() string
 }
 
 type Server struct {
 	storeManager FileStoreManager
-	privateKey	 key.WicsServerPrivateState
+	privateKey   key.WicsServerPrivateState
 
-	mu           sync.Mutex
+	mu sync.Mutex
 }
 
 func NewServer(f FileStoreManager) *Server {
 	return &Server{
 		storeManager: f,
-		mu:               sync.Mutex{},
+		mu:           sync.Mutex{},
 	}
 }
 
@@ -41,7 +43,7 @@ func (s *Server) WritePrivateKey() error {
 		if s.privateKey.IsZero() {
 			return fmt.Errorf("invalid zero key stored in %v key of %v", ServerPrivateKeyStateKey, s.storeManager)
 		}
-	
+
 		log.Println("server private key already exists.")
 		return nil
 	}
@@ -76,4 +78,8 @@ func (s *Server) GetPublicKey() string {
 		return ""
 	}
 	return string(key)
+}
+
+func (s *Server) GetBase64Key() string {
+	return s.privateKey.String()
 }
