@@ -16,6 +16,7 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
+	"github.com/Notch-Technologies/wizy/types/key"
 	"google.golang.org/grpc"
 )
 
@@ -23,7 +24,7 @@ var args struct {
 	configpath string
 	port uint16
 	verbose int
-	storepath string
+	accountpath string
 	domain string
 	certfile string
 	certkey string
@@ -34,7 +35,7 @@ func main() {
 	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
 	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.storepath, "store", paths.DefaultAccountStateFile(), "path of wics store state file")
+	flag.StringVar(&args.accountpath, "store", paths.DefaultAccountStateFile(), "path of account store state file")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
@@ -50,13 +51,39 @@ func main() {
 		os.Exit(0)
 	}
 
-	fs, err := store.NewFileStore(args.storepath)
+	// create wics account state file
+	fs, err := store.NewFileStore(args.accountpath)
 	if err != nil {
  	    log.Fatal(err)
 	}
 
+	// create wics server state file
+	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
+	if err != nil {
+ 	    log.Fatal(err)
+	}
+	fmt.Println(sfs)
+
+	// write server private key to server state file
+	k, err := key.NewServerPrivateKey()
+	if err != nil {
+ 	    log.Fatal(err)
+	}
+
+	ke, err := k.MarshalText()
+	if err != nil {
+ 	    log.Fatal(err)
+	}
+
+	if err := sfs.WriteState(store.ServerPrivateKeyStateKey, ke); err != nil {
+ 	    log.Fatalf("error writing server private key to store: %v", err)
+	}
+
+
+	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
+	// create new account
 	account := store.NewAccount(fs)
 
 	grpcServer := grpc.NewServer()
