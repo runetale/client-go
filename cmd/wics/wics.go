@@ -15,7 +15,6 @@ import (
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/types/key"
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
 )
@@ -63,19 +62,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// write server private key to server state file
-	k, err := key.NewServerPrivateKey()
+	ss := store.NewServer(sfs)
+	err = ss.WritePrivateKey()
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	ke, err := k.MarshalText()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := sfs.WriteState(store.ServerPrivateKeyStateKey, ke); err != nil {
-		log.Fatalf("error writing server private key to store: %v", err)
 	}
 
 	// create or open wics config file
