@@ -8,18 +8,18 @@ type AccountManager interface {
 	CreateSetupKey()
 }
 
-type Account struct {
+type AccountStore struct {
 	FileStoreManager FileStoreManager
 	mu               sync.Mutex
 }
 
-func NewAccount(f FileStoreManager) *Account {
-	return &Account{
+func NewAccount(f FileStoreManager) *AccountStore {
+	return &AccountStore{
 		FileStoreManager: f,
 		mu:               sync.Mutex{},
 	}
 }
 
-func (ac *Account) CreateSetupKey() {
+func (as *AccountStore) CreateSetupKey() {
 	panic("not implement CreateSetupKey")
 }

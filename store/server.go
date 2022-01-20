@@ -18,21 +18,21 @@ type ServerManager interface {
 	GetBase64Key() string
 }
 
-type Server struct {
+type ServerStore struct {
 	storeManager FileStoreManager
 	privateKey   key.WicsServerPrivateState
 
 	mu sync.Mutex
 }
 
-func NewServer(f FileStoreManager) *Server {
-	return &Server{
+func NewServerStore(f FileStoreManager) *ServerStore {
+	return &ServerStore{
 		storeManager: f,
 		mu:           sync.Mutex{},
 	}
 }
 
-func (s *Server) WritePrivateKey() error {
+func (s *ServerStore) WritePrivateKey() error {
 	// already exists
 	stateKey, err := s.storeManager.ReadState(ServerPrivateKeyStateKey)
 	if err == nil {
@@ -71,7 +71,7 @@ func (s *Server) WritePrivateKey() error {
 	return nil
 }
 
-func (s *Server) GetPublicKey() string {
+func (s *ServerStore) GetPublicKey() string {
 	key, err := s.storeManager.ReadState(ServerPrivateKeyStateKey)
 	if err != nil {
 		log.Fatal(err)
@@ -80,6 +80,6 @@ func (s *Server) GetPublicKey() string {
 	return string(key)
 }
 
-func (s *Server) GetBase64Key() string {
+func (s *ServerStore) GetBase64Key() string {
 	return s.privateKey.String()
 }
