@@ -62,7 +62,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	ss := store.NewServer(sfs)
+	ss := store.NewServerStore(sfs)
 	err = ss.WritePrivateKey()
 	if err != nil {
 		log.Fatal(err)
