@@ -13,7 +13,7 @@ type AccountStore struct {
 	mu               sync.Mutex
 }
 
-func NewAccount(f FileStoreManager) *AccountStore {
+func NewAccountStore(f FileStoreManager) *AccountStore {
 	return &AccountStore{
 		FileStoreManager: f,
 		mu:               sync.Mutex{},
