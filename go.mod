@@ -3,7 +3,7 @@ module github.com/Notch-Technologies/wizy
 go 1.16
 
 require (
-	github.com/go-redis/redis v6.15.9+incompatible // indirect
+	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/peterbourgon/ff v1.7.1
