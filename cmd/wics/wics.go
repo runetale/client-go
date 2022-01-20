@@ -72,7 +72,7 @@ func main() {
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
 	// create new account
-	account := store.NewAccount(fs)
+	account := store.NewAccountStore(fs)
 
 	grpcServer := grpc.NewServer()
 	s, err := server.NewServer(cfg, account, ss)
