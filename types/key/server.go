@@ -58,6 +58,11 @@ func (s WicsServerPrivateState) PublicKey() string {
 	return pkey
 }
 
+func (s WicsServerPrivateState) PrivateKey() string {
+	pkey := s.key.HexString()
+	return pkey
+}
+
 func (s *WicsServerPrivateState) IsZero() bool {
 	return s.key.IsZero()
 }
