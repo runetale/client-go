@@ -14,6 +14,7 @@ import (
 type ServerManager interface {
 	WritePrivateKey() error
 	// Client側からSetupKeyとClientMachineKeyを使用してサーバーからServerPrivateKeyのPublicKeyをもらう時に使う
+	GetPrivateKey() string
 	GetPublicKey() string
 	GetBase64Key() string
 }
