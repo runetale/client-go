@@ -27,6 +27,7 @@ func DefaultAccountStateFile() string {
 }
 
 // state file to manage the secret information of the wics server.
+// do not disclose to the outside world.
 func DefaultWicsServerStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":

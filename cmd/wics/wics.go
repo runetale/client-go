@@ -12,6 +12,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -79,6 +80,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// login to redis
+	p := os.Getenv("REDIS_PASSWORD")
+	fmt.Println("BAR:", os.Getenv("REDIS_PASSWORD"))
+	redisClient := redis.NewRedisClient(p)
+	err = redisClient.Set("a", "aaaa", 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	v, err := redisClient.Get("a")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(v)
 
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
