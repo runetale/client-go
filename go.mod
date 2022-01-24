@@ -6,6 +6,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.1.2 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/peterbourgon/ff v1.7.1
 	go4.org/mem v0.0.0-20210711025021-927187094b94 // indirect
 	golang.org/x/crypto v0.0.0-20211202192323-5770296d904e // indirect
