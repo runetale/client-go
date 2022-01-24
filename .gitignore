@@ -31,8 +31,3 @@ go.work
 ### Go Patch ###
 /vendor/
 /Godeps/
-
-<<<<<<< HEAD
-=======
-# End of https://www.toptal.com/developers/gitignore/api/go,dotenv,direnv
->>>>>>> 5f4aa40 (added gitignore)
