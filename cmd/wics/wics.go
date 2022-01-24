@@ -7,33 +7,37 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
+
+	"github.com/joho/godotenv"
 )
 
 var args struct {
-	configpath string
-	port uint16
-	verbose int
-	storepath string
-	domain string
-	certfile string
-	certkey string
-	version bool
+	configpath  string
+	port        uint16
+	verbose     int
+	accountpath string
+	domain      string
+	certfile    string
+	certkey     string
+	version     bool
 }
 
 func main() {
-	flag.StringVar(&args.configpath, "config", paths.DefaultWicsFile(), "path of wics file")
+	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
 	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.storepath, "store", paths.DefaultWicsStateFile(), "path of wics store state file")
+	flag.StringVar(&args.accountpath, "store", paths.DefaultAccountStateFile(), "path of account store state file")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
@@ -41,7 +45,7 @@ func main() {
 
 	flag.Parse()
 	if flag.NArg() > 0 {
-		log.Fatalf("does not take non-flag arguments: %q", flag.Args())
+		log.Fatalf("does not take non-flag arguments: %q.", flag.Args())
 	}
 
 	if args.version {
@@ -49,29 +53,61 @@ func main() {
 		os.Exit(0)
 	}
 
-	fs, err := store.NewFileStore(args.storepath)
+	// create wics account state file
+	fs, err := store.NewFileStore(args.accountpath)
 	if err != nil {
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
-	fmt.Println(fs)
+	// create wics server state file
+	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	ss := store.NewServerStore(sfs)
+	err = ss.WritePrivateKey()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
-	fmt.Println(cfg)
 
-	account := store.NewAccount(fs)
-	fmt.Println(account)
+	// create new account
+	account := store.NewAccountStore(fs)
 
 	grpcServer := grpc.NewServer()
-	s, err :=  server.NewServer(cfg, account)
+	s, err := server.NewServer(cfg, account, ss)
 	if err != nil {
-		fmt.Println("aaa")
- 	    log.Fatal(err)
+		log.Fatal(err)
 	}
 
-	proto.RegisterPeerServiceServer(grpcServer, s)
-	proto.RegisterUserServiceServer(grpcServer, s)
-	log.Printf("started wics server: :%v", args.port)
+	// login to redis
+
+	// getenv
+	err = godotenv.Load()
+  	if err != nil {
+    	log.Fatal("Error loading .env file")
+  	}
+	
+	p := os.Getenv("REDIS_PASSWORD")
+
+	redisClient := redis.NewRedisClient(p)
+	err = redisClient.Set("a", "aaaa", 0)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	v, err := redisClient.Get("a")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(v)
+
+	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
+	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
+	log.Printf("started wics server: localhost:%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
@@ -80,20 +116,26 @@ func main() {
 
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve grpc server: %v", err)
+			log.Fatalf("failed to serve grpc server: %v.", err)
 		}
 	}()
 
-	stopCh := make(chan struct{})
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	stop := make(chan struct{})
 	go func() {
-		for range c {
-			stopCh <- struct{}{}
+		c := make(chan os.Signal, 1)
+		signal.Notify(c,
+			os.Interrupt,
+			syscall.SIGKILL,
+			syscall.SIGTERM,
+			syscall.SIGINT,
+		)
+		select {
+		case <-c:
+			close(stop)
 		}
 	}()
-	<-stopCh
-	log.Println("terminated wics server")
+	<-stop
+	log.Println("terminate wics server.")
 
 	grpcServer.Stop()
 }
