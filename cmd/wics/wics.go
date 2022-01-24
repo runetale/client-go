@@ -18,6 +18,8 @@ import (
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
+
+	"github.com/joho/godotenv"
 )
 
 var args struct {
@@ -82,8 +84,15 @@ func main() {
 	}
 
 	// login to redis
+
+	// getenv
+	err = godotenv.Load()
+  	if err != nil {
+    	log.Fatal("Error loading .env file")
+  	}
+	
 	p := os.Getenv("REDIS_PASSWORD")
-	fmt.Println("BAR:", os.Getenv("REDIS_PASSWORD"))
+
 	redisClient := redis.NewRedisClient(p)
 	err = redisClient.Set("a", "aaaa", 0)
 	if err != nil {
