@@ -22,6 +22,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
+func init() {
+	err := godotenv.Load()
+  	if err != nil {
+    	log.Fatal("Error loading .env file")
+  	}
+}
+
 var args struct {
 	configpath  string
 	port        uint16
@@ -77,34 +84,18 @@ func main() {
 	// create new account
 	account := store.NewAccountStore(fs)
 
-	grpcServer := grpc.NewServer()
-	s, err := server.NewServer(cfg, account, ss)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// login to redis
-
-	// getenv
-	err = godotenv.Load()
-  	if err != nil {
-    	log.Fatal("Error loading .env file")
-  	}
-	
 	p := os.Getenv("REDIS_PASSWORD")
-
 	redisClient := redis.NewRedisClient(p)
-	err = redisClient.Set("a", "aaaa", 0)
+
+	// initialize new wics server
+	s, err := server.NewServer(cfg, account, ss, redisClient)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	v, err := redisClient.Get("a")
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(v)
-
+	// launch grpc server
+	grpcServer := grpc.NewServer()
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	log.Printf("started wics server: localhost:%v", args.port)
