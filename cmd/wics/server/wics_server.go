@@ -11,9 +11,9 @@ import (
 )
 
 type Server struct {
-	config  *config.Config
+	config       *config.Config
 	accountStore *store.AccountStore
-	serverStore *store.ServerStore
+	serverStore  *store.ServerStore
 
 	// grpcServer
 	UserServiceServer *UserServiceServer
@@ -22,9 +22,9 @@ type Server struct {
 
 func NewServer(config *config.Config, account *store.AccountStore, server *store.ServerStore, r *redis.RedisClient) (*Server, error) {
 	return &Server{
-		config:  config,
+		config:       config,
 		accountStore: account,
-		serverStore: server,
+		serverStore:  server,
 
 		UserServiceServer: NewUserServiceServer(r),
 		PeerServiceServer: NewPeerServiceServer(r),

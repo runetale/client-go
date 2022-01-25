@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -25,20 +24,20 @@ type RedisClientManager interface {
 
 type RedisClient struct {
 	client *redis.Client
-	ctx context.Context
+	ctx    context.Context
 }
 
 func NewRedisClient(password string) *RedisClient {
 	c := context.Background()
 	rdb := redis.NewClient(&redis.Options{
-		Addr: ":6379",
+		Addr:     ":6379",
 		Password: "yourpassword",
-		DB: 0,
+		DB:       0,
 	})
 
 	return &RedisClient{
 		client: rdb,
-		ctx: c,
+		ctx:    c,
 	}
 }
 
