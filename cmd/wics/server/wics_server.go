@@ -5,6 +5,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
 	"github.com/Notch-Technologies/wizy/store"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -19,24 +20,27 @@ type Server struct {
 	PeerServiceServer *PeerServiceServer
 }
 
-func NewServer(config *config.Config, account *store.AccountStore, server *store.ServerStore) (*Server, error) {
+func NewServer(config *config.Config, account *store.AccountStore, server *store.ServerStore, r *redis.RedisClient) (*Server, error) {
 	return &Server{
 		config:  config,
 		accountStore: account,
 		serverStore: server,
 
-		UserServiceServer: NewUserServiceServer(),
-		PeerServiceServer: NewPeerServiceServer(),
+		UserServiceServer: NewUserServiceServer(r),
+		PeerServiceServer: NewPeerServiceServer(r),
 	}, nil
 }
 
 // TODO:(shintard) create a service for each of the gRPC Servers.
 type UserServiceServer struct {
+	redis *redis.RedisClient
 	proto.UnimplementedUserServiceServer
 }
 
-func NewUserServiceServer() *UserServiceServer {
-	return &UserServiceServer{}
+func NewUserServiceServer(r *redis.RedisClient) *UserServiceServer {
+	return &UserServiceServer{
+		redis: r,
+	}
 }
 
 func (uss *UserServiceServer) Login(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
@@ -44,11 +48,14 @@ func (uss *UserServiceServer) Login(context.Context, *emptypb.Empty) (*emptypb.E
 }
 
 type PeerServiceServer struct {
+	redis *redis.RedisClient
 	proto.UnimplementedPeerServiceServer
 }
 
-func NewPeerServiceServer() *PeerServiceServer {
-	return &PeerServiceServer{}
+func NewPeerServiceServer(r *redis.RedisClient) *PeerServiceServer {
+	return &PeerServiceServer{
+		redis: r,
+	}
 }
 
 func (pss *PeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
