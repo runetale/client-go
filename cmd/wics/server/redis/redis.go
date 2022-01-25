@@ -29,7 +29,6 @@ type RedisClient struct {
 }
 
 func NewRedisClient(password string) *RedisClient {
-	fmt.Println(password)
 	c := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr: ":6379",
