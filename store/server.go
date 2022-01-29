@@ -1,6 +1,6 @@
 package store
 
-// be sure to read the `WritePrivateKey` function before using this structure!
+// be sure to read the `WritePrivateKey` function before using this structure.
 //
 
 import (
