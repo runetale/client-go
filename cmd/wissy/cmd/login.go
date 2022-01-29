@@ -1,15 +1,18 @@
 package cmd
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 
+	wics "github.com/Notch-Technologies/wizy/cmd/wics/client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/peterbourgon/ff/ffcli"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 var loginArgs struct {
@@ -46,14 +49,31 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
 
-	l := wislog.NewWisLog("login")
+	_ = wislog.NewWisLog("login")
 
-	fmt.Println(l)
-
-
+	// TOOD: (shintard) port to host to path ga kawatta baai ni taiou suru
 	conf := client.GetClientConfig(loginArgs.clientpath, loginArgs.wicshost, int(loginArgs.wicsport))
-	fmt.Println(conf)
-	fmt.Println(loginArgs.clientpath)
+
+	ctx := context.Background()
+
+	privateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
+	if err != nil {
+		log.Fatalf("failed to parse wg private key. %v", err)
+	}
+
+	wicsClient, err := wics.NewWicsClient(ctx, conf.Host, int(loginArgs.wicsport), privateKey)
+	if err != nil {
+		log.Fatalf("failed to connect wics client. %v", err)
+	}
+
+	log.Printf("connected to wics server %s", conf.Host.String())
+
+	publicKey, err := wicsClient.GetServerPublicKey()
+	if err != nil {
+		log.Fatalf("failed to get wics server public key. %v", err)
+	}
+
+	fmt.Println(publicKey)
 
 	return nil
 }

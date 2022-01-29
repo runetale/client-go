@@ -40,7 +40,6 @@ func newClientConfig(path string, host string, port int) *Config {
 		log.Fatal(err)
 	}
 
-
 	cfg := Config{
 		WgPrivateKey: privKey,
 		Host: h,
