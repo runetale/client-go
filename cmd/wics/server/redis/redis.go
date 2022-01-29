@@ -20,6 +20,7 @@ func NewRedisConfig(key string) *RedisConfig {
 type RedisClientManager interface {
 	Set(key string, value interface{}, exp time.Duration) error
 	Get(key string) (string, error)
+	HGetAll(key string, dst interface{}) error
 }
 
 type RedisClient struct {
@@ -48,3 +49,12 @@ func (r *RedisClient) Set(key string, value interface{}, exp time.Duration) erro
 func (r *RedisClient) Get(key string) (string, error) {
 	return r.client.Get(r.ctx, key).Result()
 }
+
+func (r *RedisClient) HGetAll(key string, dst interface{}) error {
+	if err := r.client.HGetAll(r.ctx, "key").Scan(&dst); err != nil {
+		return err
+	}
+	return nil
+}
+
+
