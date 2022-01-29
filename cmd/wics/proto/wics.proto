@@ -3,12 +3,19 @@ syntax = "proto3";
 package wics;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "/proto";
 
 // TODO: (shintard) separate files for each service.
 service UserService {
 	rpc Login(LoginMessage) returns (LoginMessage) {}
+	rpc GetServerPublicKey(google.protobuf.Empty) returns (GetServerPublicKeyResponse) {}
+}
+
+message GetServerPublicKeyResponse {
+	string key = 1;
+	google.protobuf.Timestamp expiresAt = 2;
 }
 
 service PeerService {
