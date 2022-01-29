@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
@@ -18,6 +19,7 @@ import (
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/joho/godotenv"
 )
@@ -87,7 +89,22 @@ func main() {
 	}
 
 	// launch grpc server
-	grpcServer := grpc.NewServer()
+	var opts []grpc.ServerOption
+	kaep := keepalive.EnforcementPolicy{
+		MinTime:             15 * time.Second,
+		PermitWithoutStream: true,
+	}
+
+	kasp := keepalive.ServerParameters{
+		MaxConnectionIdle:     15 * time.Second,
+		MaxConnectionAgeGrace: 5 * time.Second,
+		Time:                  5 * time.Second,
+		Timeout:               2 * time.Second,
+	}
+
+	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp))
+	grpcServer := grpc.NewServer(opts...)
+
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	log.Printf("started wics server: localhost:%v", args.port)

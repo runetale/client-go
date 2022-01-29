@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/go-redis/redis/v8 v8.11.4 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/peterbourgon/ff v1.7.1
