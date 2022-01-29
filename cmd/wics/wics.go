@@ -25,7 +25,7 @@ import (
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Fatal("error loading .env file")
 	}
 }
 
@@ -33,7 +33,6 @@ var args struct {
 	configpath  string
 	port        uint16
 	verbose     int
-	accountpath string
 	domain      string
 	certfile    string
 	certkey     string
@@ -44,7 +43,6 @@ func main() {
 	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
 	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.accountpath, "store", paths.DefaultAccountStateFile(), "path of account store state file")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
@@ -60,11 +58,12 @@ func main() {
 		os.Exit(0)
 	}
 
-	// create wics account state file
-	fs, err := store.NewFileStore(args.accountpath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// login to redis
+	p := os.Getenv("REDIS_PASSWORD")
+	redisClient := redis.NewRedisClient(p)
+
+	// create account store
+	account := redis.NewAccountStore(redisClient)
 
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
@@ -80,13 +79,6 @@ func main() {
 
 	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
-
-	// create new account
-	account := store.NewAccountStore(fs)
-
-	// login to redis
-	p := os.Getenv("REDIS_PASSWORD")
-	redisClient := redis.NewRedisClient(p)
 
 	// initialize new wics server
 	s, err := server.NewServer(cfg, account, ss, redisClient)
