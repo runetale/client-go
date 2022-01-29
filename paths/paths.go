@@ -9,7 +9,7 @@ import (
 
 // json file to manage the wics server startup config.
 func DefaultWicsConfigFile() string {
-	return "/etc/wizy/wics.json"
+	return "/etc/wissy/wics.json"
 }
 
 // state file to manage the secret information of the wics server.
@@ -17,23 +17,22 @@ func DefaultWicsConfigFile() string {
 func DefaultWicsServerStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
-		return "/var/db/wizy/server.state"
+		return "/var/db/wissy/server.state"
 	case "linux":
-		return "/var/lib/wizy/server.state"
+		return "/var/lib/wissy/server.state"
 	case "darwin":
-		return "/Library/wizy/server.state"
+		return "/Library/wissy/server.state"
 	default:
 		return ""
 	}
 }
 
-
 func DefaultClientConfigFile() string {
-	return "/etc/wisy/client.json"
+	return "/etc/wissy/client.json"
 }
 
 func DefaultClientLogFile() string {
-	return "/var/log/wisy/client.log"
+	return "/var/log/wissy/client.log"
 }
 
 func MkStateDir(dirPath string) error {
@@ -49,7 +48,7 @@ func checkStateDirPermission(dir string) error {
 		perm = 700
 	)
 
-	if filepath.Base(dir) != "wizy" {
+	if filepath.Base(dir) != "wissy" {
 		return nil
 	}
 
