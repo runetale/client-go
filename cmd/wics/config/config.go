@@ -82,7 +82,6 @@ type Config struct {
 	Stuns      []*Host
 	TURNConfig *TURNConfig
 	Signal     *Host
-	StorePath  string
 	AuthConfig AuthConfig
 	TLSConfig  TLSConfig
 }
@@ -110,7 +109,6 @@ func newConfig(path, domain, certfile, certkey string) *Config {
 	}
 
 	cfg := Config{
-		StorePath: path,
 		TLSConfig: TLSConfig{
 			Domain:   domain,
 			Certfile: certfile,
