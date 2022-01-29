@@ -12,20 +12,6 @@ func DefaultWicsConfigFile() string {
 	return "/etc/wizy/wics.json"
 }
 
-// state file to manage the account state.
-func DefaultAccountStateFile() string {
-	switch runtime.GOOS {
-	case "freebsd", "openbsd":
-		return "/var/db/wizy/account.state"
-	case "linux":
-		return "/var/lib/wizy/account.state"
-	case "darwin":
-		return "/Library/wizy/account.state"
-	default:
-		return ""
-	}
-}
-
 // state file to manage the secret information of the wics server.
 // do not disclose to the outside world.
 func DefaultWicsServerStateFile() string {
@@ -39,6 +25,15 @@ func DefaultWicsServerStateFile() string {
 	default:
 		return ""
 	}
+}
+
+
+func DefaultClientConfigFile() string {
+	return "/etc/wisy/client.json"
+}
+
+func DefaultClientLogFile() string {
+	return "/var/log/wisy/client.log"
 }
 
 func MkStateDir(dirPath string) error {
