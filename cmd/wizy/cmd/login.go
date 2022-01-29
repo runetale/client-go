@@ -1,87 +1,15 @@
 package cmd
 
 import (
-	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strconv"
 
-	"github.com/Notch-Technologies/wizy/cmd/wizy/tun"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/types/key"
-	"github.com/Notch-Technologies/wizy/utils"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/peterbourgon/ff/ffcli"
 )
-
-type Config struct {
-	WgPrivateKey string
-	Host *url.URL
-	IgonoreTUNs []string
-	TUNName string
-	PreSharedKey string
-}
-
-func newClientConfig() *Config {
-	if err := os.MkdirAll(filepath.Dir(loginArgs.clientpath), 0777); err != nil {
-		log.Fatal(err)
-	}
-
-	privKey, err := key.NewGenerateKey()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	scheme := loginArgs.wicshost + ":" + strconv.Itoa(int(loginArgs.wicsport))
-
-	host, err := url.Parse(scheme)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-
-	cfg := Config{
-		WgPrivateKey: privKey,
-		Host: host,
-		TUNName: tun.TunName(),
-		IgonoreTUNs: []string{},
-	}
-
-	b, err := json.MarshalIndent(cfg, "", "\t")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err = utils.AtomicWriteFile(loginArgs.clientpath, b, 0600); err != nil {
-		log.Fatal(err)
-	}
-
-	return &cfg
-}
-
-func getClientConfig() *Config {
-	b, err := ioutil.ReadFile(loginArgs.clientpath)
-	switch {
-	case errors.Is(err, os.ErrNotExist):
-		return newClientConfig()
-	case err != nil:
-		log.Fatal(err)
-		panic(err)
-	default:
-		var cfg Config
-		if err := json.Unmarshal(b, &cfg); err != nil {
-			log.Fatalf("can not read client config file. %v", err)
-		}
-		return &cfg
-	}
-}
 
 var loginArgs struct {
 	clientpath string
