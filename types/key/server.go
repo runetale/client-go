@@ -35,7 +35,9 @@ func NewServerPrivateKey() (WicsServerPrivateState, error) {
 	}
 
 	k[0] &= 248
-	k[31] = (k[31] & 127) | 64
+	k[31] &= 127
+	k[31] |= 64
+
 	privateKey := (Key)(*k)
 
 	return WicsServerPrivateState{
