@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
@@ -11,22 +12,14 @@ import (
 )
 
 type Server struct {
-	config       *config.Config
-	accountStore *store.AccountStore
-	serverStore  *store.ServerStore
-
 	// grpcServer
 	UserServiceServer *UserServiceServer
 	PeerServiceServer *PeerServiceServer
 }
 
-func NewServer(config *config.Config, account *store.AccountStore, server *store.ServerStore, r *redis.RedisClient) (*Server, error) {
+func NewServer(config *config.Config, account *redis.AccountStore, server *store.ServerStore, r *redis.RedisClient) (*Server, error) {
 	return &Server{
-		config:       config,
-		accountStore: account,
-		serverStore:  server,
-
-		UserServiceServer: NewUserServiceServer(r),
+		UserServiceServer: NewUserServiceServer(r, config, account, server),
 		PeerServiceServer: NewPeerServiceServer(r),
 	}, nil
 }
@@ -34,19 +27,42 @@ func NewServer(config *config.Config, account *store.AccountStore, server *store
 // TODO:(shintard) create a service for each of the gRPC Servers.
 type UserServiceServer struct {
 	redis *redis.RedisClient
+	config       *config.Config
+	accountStore *redis.AccountStore
+	serverStore  *store.ServerStore
+	
 	proto.UnimplementedUserServiceServer
 }
 
-func NewUserServiceServer(r *redis.RedisClient) *UserServiceServer {
+func NewUserServiceServer(
+	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
+	server *store.ServerStore,
+) *UserServiceServer {
 	return &UserServiceServer{
 		redis: r,
+		config: config,
+		accountStore: account,
+		serverStore: server,
 	}
 }
 
-func (uss *UserServiceServer) Login(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	panic("not implement Login")
+// UserService
+//
+func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage) (*proto.LoginMessage, error) {
+	a := msg.GetPublicMachineKey()
+	peer, err := uss.accountStore.GetPeer(a)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	fmt.Println(peer)
+
+	return nil, err
 }
 
+// PeerService
+//
 type PeerServiceServer struct {
 	redis *redis.RedisClient
 	proto.UnimplementedPeerServiceServer
