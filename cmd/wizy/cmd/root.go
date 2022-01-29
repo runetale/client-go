@@ -1,4 +1,4 @@
-package cli
+package cmd
 
 import (
 	"flag"
@@ -29,7 +29,7 @@ Flags and options are subject to change.
 `),
 		Subcommands: []*ffcli.Command{
 			// upCmd,
-			// loginCmd,
+			loginCmd,
 			// uninstall,
 			// installSystemDaemon,
 			versionCmd,
