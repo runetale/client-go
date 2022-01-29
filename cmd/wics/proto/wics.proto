@@ -8,9 +8,14 @@ option go_package = "/proto";
 
 // TODO: (shintard) separate files for each service.
 service UserService {
-	rpc Login(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc Login(LoginMessage) returns (LoginMessage) {}
 }
 
 service PeerService {
 	rpc WSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
+
+message LoginMessage {
+	string setupKey = 1;
+	string publicMachineKey = 2;
 }
