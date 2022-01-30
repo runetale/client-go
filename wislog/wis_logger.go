@@ -63,8 +63,8 @@ func InitWisLog(logLevel string, logFile string, dev bool) error {
 	ll := lumberjack.Logger{
 		Filename:   logFile,
 		MaxSize:    1024, //MB
-		MaxBackups: 30, // days
-		MaxAge:     90, //days
+		MaxBackups: 30,   // days
+		MaxAge:     90,   //days
 		Compress:   true,
 	}
 

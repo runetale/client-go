@@ -12,8 +12,8 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -23,11 +23,11 @@ type WicsClientManager interface {
 }
 
 type WicsClient struct {
-	privateKey wgtypes.Key
+	privateKey        wgtypes.Key
 	userServiceClient proto.UserServiceClient
 	peerServiceClient proto.PeerServiceClient
-	ctx context.Context
-	conn *grpc.ClientConn
+	ctx               context.Context
+	conn              *grpc.ClientConn
 }
 
 func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*WicsClient, error) {
@@ -49,7 +49,7 @@ func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		option,
 		grpc.WithBlock(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time: 15 * time.Second,
+			Time:    15 * time.Second,
 			Timeout: 10 * time.Second,
 		}))
 	if err != nil {
@@ -59,18 +59,17 @@ func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 	usc := proto.NewUserServiceClient(conn)
 	psc := proto.NewPeerServiceClient(conn)
 
-
 	return &WicsClient{
-		privateKey: privKey,
+		privateKey:        privKey,
 		userServiceClient: usc,
 		peerServiceClient: psc,
-		ctx: ctx,
-		conn: conn,
+		ctx:               ctx,
+		conn:              conn,
 	}, nil
 }
 
 func (wc *WicsClient) isReady() bool {
-    return wc.conn.GetState() == connectivity.Ready || wc.conn.GetState() == connectivity.Idle
+	return wc.conn.GetState() == connectivity.Ready || wc.conn.GetState() == connectivity.Idle
 }
 
 func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {

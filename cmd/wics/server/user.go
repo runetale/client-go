@@ -15,11 +15,11 @@ import (
 )
 
 type UserServiceServer struct {
-	redis *redis.RedisClient
+	redis        *redis.RedisClient
 	config       *config.Config
 	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
-	
+
 	proto.UnimplementedUserServiceServer
 }
 
@@ -28,10 +28,10 @@ func NewUserServiceServer(
 	server *store.ServerStore,
 ) *UserServiceServer {
 	return &UserServiceServer{
-		redis: r,
-		config: config,
+		redis:        r,
+		config:       config,
 		accountStore: account,
-		serverStore: server,
+		serverStore:  server,
 	}
 }
 
@@ -61,7 +61,7 @@ func (uss *UserServiceServer) GetServerPublicKey(ctx context.Context, msg *empty
 	log.Println("get server public key")
 
 	return &proto.GetServerPublicKeyResponse{
-		Key: pubicKey,
+		Key:       pubicKey,
 		ExpiresAt: expiresAt,
 	}, nil
 }

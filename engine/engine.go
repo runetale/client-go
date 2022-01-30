@@ -6,12 +6,12 @@ import (
 
 type Engine struct {
 	wislog *wislog.WisLog
-	Peer *Peer
+	Peer   *Peer
 }
 
 func NewEngine(peer *Peer, log *wislog.WisLog) *Engine {
 	return &Engine{
-		Peer: peer,
+		Peer:   peer,
 		wislog: log,
 	}
 }

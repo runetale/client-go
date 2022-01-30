@@ -17,9 +17,9 @@ import (
 
 type Config struct {
 	WgPrivateKey string
-	Host *url.URL
-	IgonoreTUNs []string
-	TUNName string
+	Host         *url.URL
+	IgonoreTUNs  []string
+	TUNName      string
 	PreSharedKey string
 }
 
@@ -42,9 +42,9 @@ func newClientConfig(path string, host string, port int) *Config {
 
 	cfg := Config{
 		WgPrivateKey: privKey,
-		Host: h,
-		TUNName: tun.TunName(),
-		IgonoreTUNs: []string{},
+		Host:         h,
+		TUNName:      tun.TunName(),
+		IgonoreTUNs:  []string{},
 	}
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
@@ -75,4 +75,3 @@ func GetClientConfig(path string, host string, port int) *Config {
 		return &cfg
 	}
 }
-

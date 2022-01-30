@@ -17,12 +17,12 @@ import (
 
 var loginArgs struct {
 	clientpath string
-	wicshost string
-	wicsport int64
-	setupkey string
-	logfile string
-	loglevel string
-	dev bool
+	wicshost   string
+	wicsport   int64
+	setupkey   string
+	logfile    string
+	loglevel   string
+	dev        bool
 }
 
 var loginCmd = &ffcli.Command{
@@ -30,17 +30,17 @@ var loginCmd = &ffcli.Command{
 	Usage:     "login",
 	ShortHelp: "login to wissy, start the management server and then run it",
 	FlagSet: (func() *flag.FlagSet {
-	fs := flag.NewFlagSet("login", flag.ExitOnError)
-	fs.StringVar(&loginArgs.clientpath, "client", paths.DefaultClientConfigFile(), "client default config file")
-	fs.StringVar(&loginArgs.wicshost, "host", "http://localhost", "wics server host url")
-	fs.Int64Var(&loginArgs.wicsport, "port", flagtype.DefaultPort, "wics server host port")
-	fs.StringVar(&loginArgs.setupkey, "key", "", "setup key issued by the wics server")
-	fs.StringVar(&loginArgs.logfile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
-	fs.StringVar(&loginArgs.loglevel, "loglevel", wislog.DebugLevelStr, "set log level")
-	fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
-	return fs
+		fs := flag.NewFlagSet("login", flag.ExitOnError)
+		fs.StringVar(&loginArgs.clientpath, "client", paths.DefaultClientConfigFile(), "client default config file")
+		fs.StringVar(&loginArgs.wicshost, "host", "http://localhost", "wics server host url")
+		fs.Int64Var(&loginArgs.wicsport, "port", flagtype.DefaultPort, "wics server host port")
+		fs.StringVar(&loginArgs.setupkey, "key", "", "setup key issued by the wics server")
+		fs.StringVar(&loginArgs.logfile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
+		fs.StringVar(&loginArgs.loglevel, "loglevel", wislog.DebugLevelStr, "set log level")
+		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
+		return fs
 	})(),
-	Exec:      execLogin,
+	Exec: execLogin,
 }
 
 func execLogin(args []string) error {

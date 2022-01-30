@@ -56,5 +56,3 @@ func (r *RedisClient) HGetAll(key string, dst interface{}) error {
 	}
 	return nil
 }
-
-

@@ -15,13 +15,13 @@ type AccountManager interface {
 }
 
 type AccountStore struct {
-	redis 			 *RedisClient
-	mu               sync.Mutex
+	redis *RedisClient
+	mu    sync.Mutex
 }
 
 func NewAccountStore(r *RedisClient) *AccountStore {
 	return &AccountStore{
-		mu:               sync.Mutex{},
+		mu: sync.Mutex{},
 	}
 }
 

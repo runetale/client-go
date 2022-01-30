@@ -2,7 +2,6 @@ package tun
 
 import "runtime"
 
-
 func TunName() string {
 	switch runtime.GOOS {
 	case "openbsd":

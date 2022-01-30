@@ -6,17 +6,17 @@ import (
 
 // Peer
 type Peer struct {
-	WgPrivateKey string
-	Host *url.URL
+	WgPrivateKey   string
+	Host           *url.URL
 	IFaceBlackList []string
-	WgIface string
+	WgIface        string
 }
 
 func NewPeer(privateKey string, host *url.URL, blackList []string, iface string) *Peer {
 	return &Peer{
-		WgPrivateKey: privateKey,
-		Host: host,
+		WgPrivateKey:   privateKey,
+		Host:           host,
 		IFaceBlackList: blackList,
-		WgIface: iface,
+		WgIface:        iface,
 	}
 }

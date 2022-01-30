@@ -33,13 +33,13 @@ func init() {
 }
 
 var args struct {
-	configpath  string
-	port        uint16
-	verbose     int
-	domain      string
-	certfile    string
-	certkey     string
-	version     bool
+	configpath string
+	port       uint16
+	verbose    int
+	domain     string
+	certfile   string
+	certkey    string
+	version    bool
 }
 
 func main() {
