@@ -19,6 +19,7 @@ type WicsServerPrivateState struct {
 	key Key
 }
 
+// TODO: (shintard) WireGuard no tukau
 func NewPresharedKey() (*Key, error) {
 	var k [32]byte
 	_, err := rand.Read(k[:])
