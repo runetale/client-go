@@ -13,8 +13,6 @@ import (
 
 type ServerManager interface {
 	WritePrivateKey() error
-	// Client側からSetupKeyとClientMachineKeyを使用してサーバーからServerPrivateKeyのPublicKeyをもらう時に使う
-	GetPrivateKey() string
 	GetPublicKey() string
 	GetBase64Key() string
 }
@@ -38,11 +36,7 @@ func (s *ServerStore) WritePrivateKey() error {
 	stateKey, err := s.storeManager.ReadState(ServerPrivateKeyStateKey)
 	if err == nil {
 		if err := s.privateKey.UnmarshalText(stateKey); err != nil {
-			return fmt.Errorf("invalid key in %s key of %v: %w", ServerPrivateKeyStateKey, s.storeManager, err)
-		}
-
-		if s.privateKey.IsZero() {
-			return fmt.Errorf("invalid zero key stored in %v key of %v", ServerPrivateKeyStateKey, s.storeManager)
+			return fmt.Errorf("unable to unmarshal %s. %v", ServerPrivateKeyStateKey, err)
 		}
 
 		log.Println("server private key already exists.")
@@ -72,7 +66,7 @@ func (s *ServerStore) WritePrivateKey() error {
 	return nil
 }
 
-func (s *ServerStore) GetPublicKey() string {
+func (s *ServerStore) GetStateKey() string {
 	key, err := s.storeManager.ReadState(ServerPrivateKeyStateKey)
 	if err != nil {
 		log.Fatal(err)
@@ -81,6 +75,6 @@ func (s *ServerStore) GetPublicKey() string {
 	return string(key)
 }
 
-func (s *ServerStore) GetBase64Key() string {
-	return s.privateKey.String()
+func (s *ServerStore) GetPublicKey() string {
+	return s.privateKey.PublicKey()
 }
