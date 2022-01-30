@@ -9,6 +9,7 @@ import (
 	wics "github.com/Notch-Technologies/wizy/cmd/wics/client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/paths"
+	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/peterbourgon/ff/ffcli"
@@ -48,8 +49,19 @@ func execLogin(args []string) error {
 	if err != nil {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
-
 	_ = wislog.NewWisLog("login")
+
+	// create client state key
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile())
+	if err != nil {
+		log.Fatalf("failed to create wics clietnt state. %v", err)
+	}
+
+	cs := store.NewClientStore(cfs)
+	err = cs.WritePrivateKey()
+	if err != nil {
+		log.Fatalf("failed to write client state private key. %v", err)
+	}
 
 	// TOOD: (shintard) port to host to path ga kawatta baai ni taiou suru
 	conf := client.GetClientConfig(loginArgs.clientpath, loginArgs.wicshost, int(loginArgs.wicsport))
