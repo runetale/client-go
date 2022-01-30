@@ -51,7 +51,7 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 }
 
 func (uss *UserServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*proto.GetServerPublicKeyResponse, error) {
-	pubicKey := uss.serverStore.GetBase64Key()
+	pubicKey := uss.serverStore.GetPublicKey()
 
 	now := time.Now().Add(24 * time.Hour)
 	secs := int64(now.Second())

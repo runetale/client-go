@@ -20,6 +20,7 @@ import (
 
 type WicsClientManager interface {
 	GetServerPublicKey() (*wgtypes.Key, error)
+	Login() (*wgtypes.Key, error)
 }
 
 type WicsClient struct {
@@ -91,4 +92,8 @@ func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {
 	}
 
 	return &pubKey, nil
+}
+
+func (wc *WicsClient) Login() (*wgtypes.Key, error) {
+	return nil, nil
 }
