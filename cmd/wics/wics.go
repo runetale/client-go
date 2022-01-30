@@ -20,6 +20,7 @@ import (
 	"github.com/Notch-Technologies/wizy/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/reflection"
 
 	"github.com/joho/godotenv"
 )
@@ -114,6 +115,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
+	reflection.Register(grpcServer)
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
 			log.Fatalf("failed to serve grpc server: %v.", err)

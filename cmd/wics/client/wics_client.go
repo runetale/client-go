@@ -12,8 +12,8 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -31,7 +31,7 @@ type WicsClient struct {
 }
 
 func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*WicsClient, error) {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	wicsctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
@@ -40,10 +40,11 @@ func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		option = grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{}))
 	}
 
-	fmt.Println(port)
+	fmt.Println("url host")
+	fmt.Println(url.Host)
 
 	conn, err := grpc.DialContext(
-		ctx,
+		wicsctx,
 		url.Host,
 		option,
 		grpc.WithBlock(),
@@ -77,7 +78,7 @@ func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {
 		return nil, fmt.Errorf("no connection wics server")
 	}
 
-	usCtx, cancel := context.WithTimeout(wc.ctx, 5*time.Second)
+	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
 	defer cancel()
 
 	res, err := wc.userServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})

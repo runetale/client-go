@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
@@ -50,13 +51,14 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 }
 
 func (uss *UserServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*proto.GetServerPublicKeyResponse, error) {
-	fmt.Println("aaa")
-	pubicKey := uss.serverStore.GetPublicKey()
+	pubicKey := uss.serverStore.GetBase64Key()
 
 	now := time.Now().Add(24 * time.Hour)
 	secs := int64(now.Second())
-	nanos := int32(now.Nanosecond())                              
+	nanos := int32(now.Nanosecond())
 	expiresAt := &timestamp.Timestamp{Seconds: secs, Nanos: nanos}
+
+	log.Println("get server public key")
 
 	return &proto.GetServerPublicKeyResponse{
 		Key: pubicKey,
