@@ -20,7 +20,7 @@ import (
 
 type WicsClientManager interface {
 	GetServerPublicKey() (*wgtypes.Key, error)
-	Login(setupKey, clientPubKey, serverPubKey string) (*wgtypes.Key, error)
+	Login(setupKey, clientPubKey, serverPubKey string) (string, error)
 }
 
 type WicsClient struct {
@@ -73,9 +73,9 @@ func (wc *WicsClient) isReady() bool {
 	return wc.conn.GetState() == connectivity.Ready || wc.conn.GetState() == connectivity.Idle
 }
 
-func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {
+func (wc *WicsClient) GetServerPublicKey() (string, error) {
 	if !wc.isReady() {
-		return nil, fmt.Errorf("no connection wics server")
+		return "", fmt.Errorf("no connection wics server")
 	}
 
 	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
@@ -83,18 +83,18 @@ func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {
 
 	res, err := wc.userServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	pubKey, err := wgtypes.ParseKey(res.Key)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &pubKey, nil
+	return pubKey.PublicKey().String(), nil
 }
 
-func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*wgtypes.Key, error) {
+func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*proto.LoginMessage, error) {
 	if !wc.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
@@ -102,10 +102,14 @@ func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*wgtyp
 	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
 	defer cancel()
 
-	wc.userServiceClient.Login(usCtx, &proto.LoginMessage{
+	msg, err := wc.userServiceClient.Login(usCtx, &proto.LoginMessage{
 		SetupKey: setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,
 	})
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
 }

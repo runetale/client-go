@@ -46,15 +46,17 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 	fmt.Println(serverPubKey)
 	fmt.Println(setupKey)
 
-	peer, err := uss.accountStore.GetPeer(clientPubKey)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-
-	fmt.Println(peer)
-
-	return nil, err
+	//_, err := uss.accountStore.GetPeer(clientPubKey)
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return nil, err
+	//}
+    //
+	return &proto.LoginMessage{
+		SetupKey: setupKey,
+		ServerPublicKey: serverPubKey,
+		ClientPublicKey: clientPubKey,
+	}, nil
 }
 
 func (uss *UserServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*proto.GetServerPublicKeyResponse, error) {
