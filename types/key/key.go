@@ -1,31 +1,24 @@
 package key
 
 import (
-	"crypto/subtle"
 	"encoding/hex"
 	"errors"
 	"fmt"
 
 	"go4.org/mem"
-	"golang.org/x/crypto/curve25519"
 )
 
-type Key [32]byte
-
-func (k Key) Public() Key {
-	var pub [32]byte
-	curve25519.ScalarBaseMult(&pub, (*[32]byte)(&k))
-	return Key(pub)
-}
-
-func (k Key) HexString() string { return hex.EncodeToString(k[:]) }
-
-func (k *Key) IsZero() bool {
-	if k == nil {
-		return true
+func fromHexChar(c byte) (byte, bool) {
+	switch {
+	case '0' <= c && c <= '9':
+		return c - '0', true
+	case 'a' <= c && c <= 'f':
+		return c - 'a' + 10, true
+	case 'A' <= c && c <= 'F':
+		return c - 'A' + 10, true
 	}
-	var zeros Key
-	return subtle.ConstantTimeCompare(zeros[:], k[:]) == 1
+
+	return 0, false
 }
 
 func toHex(k []byte, prefix string) []byte {
@@ -53,17 +46,4 @@ func parseHex(out []byte, in, prefix mem.RO) error {
 	}
 
 	return nil
-}
-
-func fromHexChar(c byte) (byte, bool) {
-	switch {
-	case '0' <= c && c <= '9':
-		return c - '0', true
-	case 'a' <= c && c <= 'f':
-		return c - 'a' + 10, true
-	case 'A' <= c && c <= 'F':
-		return c - 'A' + 10, true
-	}
-
-	return 0, false
 }

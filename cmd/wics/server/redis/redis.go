@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -21,25 +20,25 @@ func NewRedisConfig(key string) *RedisConfig {
 type RedisClientManager interface {
 	Set(key string, value interface{}, exp time.Duration) error
 	Get(key string) (string, error)
+	HGetAll(key string, dst interface{}) error
 }
 
 type RedisClient struct {
 	client *redis.Client
-	ctx context.Context
+	ctx    context.Context
 }
 
 func NewRedisClient(password string) *RedisClient {
-	fmt.Println(password)
 	c := context.Background()
 	rdb := redis.NewClient(&redis.Options{
-		Addr: ":6379",
+		Addr:     ":6379",
 		Password: "yourpassword",
-		DB: 0,
+		DB:       0,
 	})
 
 	return &RedisClient{
 		client: rdb,
-		ctx: c,
+		ctx:    c,
 	}
 }
 
@@ -49,4 +48,11 @@ func (r *RedisClient) Set(key string, value interface{}, exp time.Duration) erro
 
 func (r *RedisClient) Get(key string) (string, error) {
 	return r.client.Get(r.ctx, key).Result()
+}
+
+func (r *RedisClient) HGetAll(key string, dst interface{}) error {
+	if err := r.client.HGetAll(r.ctx, "key").Scan(&dst); err != nil {
+		return err
+	}
+	return nil
 }

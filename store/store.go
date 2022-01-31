@@ -8,4 +8,5 @@ var ErrStateNotFound = errors.New("state not found")
 
 const (
 	ServerPrivateKeyStateKey = StateKey("server-private-key")
+	ClientPrivateKeyStateKey = StateKey("client-private-key")
 )
