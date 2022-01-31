@@ -38,8 +38,15 @@ func NewUserServiceServer(
 // UserService
 //
 func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage) (*proto.LoginMessage, error) {
-	a := msg.GetPublicMachineKey()
-	peer, err := uss.accountStore.GetPeer(a)
+	clientPubKey := msg.GetClientPublicKey()
+	serverPubKey := msg.GetServerPublicKey()
+	setupKey := msg.GetSetupKey()
+
+	fmt.Println(clientPubKey)
+	fmt.Println(serverPubKey)
+	fmt.Println(setupKey)
+
+	peer, err := uss.accountStore.GetPeer(clientPubKey)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err

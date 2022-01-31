@@ -33,7 +33,7 @@ func (s WicsClientPrivateState) MarshalText() ([]byte, error) {
 }
 
 func (s *WicsClientPrivateState) UnmarshalText(b []byte) error {
-	return parseHex(s.privateKey[:], mem.B(b), mem.S(serverPrivateKeyPrefix))
+	return parseHex(s.privateKey[:], mem.B(b), mem.S(clientPrivateKeyPrefix))
 }
 
 func (s WicsClientPrivateState) PublicKey() string {

@@ -20,7 +20,7 @@ import (
 
 type WicsClientManager interface {
 	GetServerPublicKey() (*wgtypes.Key, error)
-	Login() (*wgtypes.Key, error)
+	Login(setupKey, clientPubKey, serverPubKey string) (*wgtypes.Key, error)
 }
 
 type WicsClient struct {
@@ -94,6 +94,18 @@ func (wc *WicsClient) GetServerPublicKey() (*wgtypes.Key, error) {
 	return &pubKey, nil
 }
 
-func (wc *WicsClient) Login() (*wgtypes.Key, error) {
+func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*wgtypes.Key, error) {
+	if !wc.isReady() {
+		return nil, fmt.Errorf("no connection wics server")
+	}
+
+	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
+	defer cancel()
+
+	wc.userServiceClient.Login(usCtx, &proto.LoginMessage{
+		SetupKey: setupKey,
+		ClientPublicKey: clientPubKey,
+		ServerPublicKey: serverPubKey,
+	})
 	return nil, nil
 }

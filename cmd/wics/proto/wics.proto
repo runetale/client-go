@@ -24,5 +24,6 @@ service PeerService {
 
 message LoginMessage {
 	string setupKey = 1;
-	string publicMachineKey = 2;
+	string clientPublicKey = 2;
+	string serverPublicKey = 3;
 }
