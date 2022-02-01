@@ -20,16 +20,16 @@ const (
 type SetupKeyType string
 
 const (
-	defaultKey SetupKeyType = "default"
+	DefaultKey SetupKeyType = "default"
 )
 
 type PermissionType string
 
 // like unix permission
 const (
-	rwxKey PermissionType = "admin"
-	rwKey  PermissionType = "manager"
-	rKey   PermissionType = "default"
+	RWXKey PermissionType = "admin"
+	RWKey  PermissionType = "manager"
+	RKey   PermissionType = "default"
 )
 
 // structure of jwt in SetupKey
@@ -47,8 +47,8 @@ type customClaims struct {
 }
 
 type SetupKey struct {
-	key          string
-	signedString string
+	Key          string
+	SignedString string
 }
 
 func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupKey, error) {
@@ -62,7 +62,7 @@ func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupK
 	id := strings.ToUpper(uuid.New().String())
 
 	claims := customClaims{
-		defaultKey,
+		DefaultKey,
 		group,
 		job,
 		permissionType,
@@ -88,33 +88,33 @@ func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupK
 	sb.WriteString(ss)
 
 	return &SetupKey{
-		key:          sb.String(),
-		signedString: signedString,
+		Key:          sb.String(),
+		SignedString: signedString,
 	}, nil
 }
 
 func (s *SetupKey) SetupKey() string {
-	setupkey := strings.Trim(s.key, setupKeyPrefix)
+	setupkey := strings.Trim(s.Key, setupKeyPrefix)
 	return setupkey
 }
 
 func (s *SetupKey) KeyType() (SetupKeyType, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.SignedString)
 	return c.KeyType, err
 }
 
 func (s *SetupKey) IsRevoked() (bool, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.SignedString)
 	return c.Revoked, err
 }
 
 func (s *SetupKey) IsExpired() (bool, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.SignedString)
 	return time.Now().After(time.Unix(c.ExpiresAt, 0)), err
 }
 
 func (s *SetupKey) ID() (string, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.SignedString)
 	return c.Id, err
 }
 

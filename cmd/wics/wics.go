@@ -119,8 +119,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	// Start API Server
-	httpServer := api.NewHTTPServer(args.port)
+	// start API Server
+	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, redisClient)
 	log.Printf("started http server: localhost:%v", args.port)
 
 	reflection.Register(grpcServer)
