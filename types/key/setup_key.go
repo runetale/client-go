@@ -1,6 +1,7 @@
 package key
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -15,19 +16,33 @@ const (
 	setupKeyPrefix = "w_"
 )
 
-// SetupKey key types.
+// key usage types.
 type SetupKeyType string
 
 const (
 	defaultKey SetupKeyType = "default"
 )
 
+type PermissionType string
+
+// like unix permission
+const (
+	rwxKey PermissionType = "admin"
+	rwKey  PermissionType = "manager"
+	rKey   PermissionType = "default"
+)
+
 // structure of jwt in SetupKey
 type customClaims struct {
-	keytype    SetupKeyType `json:"key_type"`
-	revoked    bool         `json:"revoked"`
-	createdAt  time.Time    `json:"created_at"`
-	lastusedAt time.Time    `json:"lastused_at"`
+	KeyType    SetupKeyType		`json:"key_type"`
+	Group 	   string 			`json:"group"`
+	Job 	   string 			`json:"job"`
+	Permission PermissionType	`json:"permission"`
+	Revoked    bool         	`json:"revoked"`
+
+	CreatedAt  time.Time    	`json:"created_at"`
+	LastusedAt time.Time    	`json:"lastused_at"`
+
 	*jwt.StandardClaims
 }
 
@@ -36,12 +51,11 @@ type SetupKey struct {
 	signedString string
 }
 
-// create a SetupKey using the base64-encoded value of the server private key.
-func NewSetupKey(b64key string) (*SetupKey, error) {
+func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupKey, error) {
 	var (
 		now = time.Now().Unix()
-		// expires 2 weak of setupkey
-		exp = time.Now().Add(time.Hour * 24 * 14).Unix()
+		// expires 1 weak of setupkey
+		exp = time.Now().Add(time.Hour * 24 * 7).Unix()
 		sb  strings.Builder
 	)
 
@@ -49,19 +63,23 @@ func NewSetupKey(b64key string) (*SetupKey, error) {
 
 	claims := customClaims{
 		defaultKey,
+		group,
+		job,
+		permissionType,
 		false,
 		time.Now(),
 		time.Now(),
 		&jwt.StandardClaims{
 			Id:        id,
-			Issuer:    "wizy",
+			Issuer:    sub,
 			IssuedAt:  now,
 			ExpiresAt: exp,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString([]byte(b64key))
+	signedString := os.Getenv("JWT_SECRET")
+	ss, err := token.SignedString([]byte(signedString))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +89,7 @@ func NewSetupKey(b64key string) (*SetupKey, error) {
 
 	return &SetupKey{
 		key:          sb.String(),
-		signedString: b64key,
+		signedString: signedString,
 	}, nil
 }
 
@@ -82,12 +100,12 @@ func (s *SetupKey) SetupKey() string {
 
 func (s *SetupKey) KeyType() (SetupKeyType, error) {
 	c, err := getCustomClaims(s.key, s.signedString)
-	return c.keytype, err
+	return c.KeyType, err
 }
 
 func (s *SetupKey) IsRevoked() (bool, error) {
 	c, err := getCustomClaims(s.key, s.signedString)
-	return c.revoked, err
+	return c.Revoked, err
 }
 
 func (s *SetupKey) IsExpired() (bool, error) {
