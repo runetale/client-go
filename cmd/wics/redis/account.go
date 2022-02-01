@@ -5,7 +5,7 @@ package redis
 import (
 	"sync"
 
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/model"
+	"github.com/Notch-Technologies/wizy/cmd/wics/model"
 )
 
 // TODO:(shintard) refactor store

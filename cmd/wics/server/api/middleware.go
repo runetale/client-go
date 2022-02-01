@@ -26,8 +26,6 @@ func adminMiddleware(next http.Handler) http.Handler {
     	http.Error(w, fmt.Sprintf("%s", err.Error()), http.StatusBadRequest)
 	}
 
-	fmt.Println(isAdmin)
-
     next.ServeHTTP(w, r)
   })
 }

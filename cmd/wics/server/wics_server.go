@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server/service"
 	"github.com/Notch-Technologies/wizy/store"
 )

@@ -9,6 +9,7 @@ func setupKey(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 		case http.MethodPost:
 			log.Println("post setupkey")
+
 		case http.MethodDelete:
 			log.Println("delete Setupkey")
 		default:

@@ -6,7 +6,6 @@ import (
 	"strconv"
 )
 
-
 func newMuxHandler() *http.ServeMux {
 	mux := http.NewServeMux()
 
