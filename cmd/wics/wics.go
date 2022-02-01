@@ -13,9 +13,9 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server/api"
-	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -35,14 +35,14 @@ func init() {
 }
 
 var args struct {
-	configpath	string
-	wicsport	uint16
-	port    	uint16
-	verbose   	int
-	domain   	string
-	certfile   	string
-	certkey    	string
-	version    	bool
+	configpath string
+	wicsport   uint16
+	port       uint16
+	verbose    int
+	domain     string
+	certfile   string
+	certkey    string
+	version    bool
 }
 
 func main() {

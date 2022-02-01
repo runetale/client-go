@@ -51,9 +51,9 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 	//	fmt.Println(err)
 	//	return nil, err
 	//}
-    //
+	//
 	return &proto.LoginMessage{
-		SetupKey: setupKey,
+		SetupKey:        setupKey,
 		ServerPublicKey: serverPubKey,
 		ClientPublicKey: clientPubKey,
 	}, nil

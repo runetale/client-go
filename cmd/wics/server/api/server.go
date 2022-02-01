@@ -24,7 +24,7 @@ func newApiServer(mux *http.ServeMux, port uint16) *http.Server {
 		Addr:    ":" + strconv.Itoa(int(port)),
 		Handler: mux,
 	}
-	
+
 	go func() {
 		if err := httpsrv.ListenAndServe(); err != nil {
 			log.Fatal(err)

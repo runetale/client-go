@@ -16,7 +16,7 @@ type ClientManager interface {
 
 type ClientStore struct {
 	storeManager FileStoreManager
-	privateKey key.WicsClientPrivateState
+	privateKey   key.WicsClientPrivateState
 
 	mu sync.Mutex
 }
@@ -24,7 +24,7 @@ type ClientStore struct {
 func NewClientStore(f FileStoreManager) *ClientStore {
 	return &ClientStore{
 		storeManager: f,
-		mu: sync.Mutex{},
+		mu:           sync.Mutex{},
 	}
 }
 

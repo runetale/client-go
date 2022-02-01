@@ -13,7 +13,7 @@ const (
 )
 
 type WicsClientPrivateState struct {
-	_   structs.Incomparable
+	_          structs.Incomparable
 	privateKey wgtypes.Key
 }
 

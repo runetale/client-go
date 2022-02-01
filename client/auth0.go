@@ -56,8 +56,8 @@ func IsAdmin(sub, token string) (bool, error) {
 }
 
 type roleResponse struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
