@@ -4,13 +4,22 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/api/handler"
+	"github.com/Notch-Technologies/wizy/cmd/wics/config"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
+	"github.com/Notch-Technologies/wizy/store"
 )
 
-func newMuxHandler() *http.ServeMux {
+func newMuxHandler(
+	config *config.Config, account *redis.AccountStore,
+	server *store.ServerStore, r *redis.RedisClient,
+) *http.ServeMux {
 	mux := http.NewServeMux()
 
+	sh := handler.NewSetupKeyHanlder(r, config, account, server)
 	// admin
-	mux.Handle("/api/setupkey", adminMiddleware(http.HandlerFunc(setupKey)))
+	mux.Handle("/api/setupkey", adminMiddleware(http.HandlerFunc(sh.SetupKey)))
 
 	// manager
 
@@ -34,7 +43,11 @@ func newApiServer(mux *http.ServeMux, port uint16) *http.Server {
 	return httpsrv
 }
 
-func NewHTTPServer(port uint16) *http.Server {
-	mux := newMuxHandler()
+func NewHTTPServer(
+	port uint16,config *config.Config, 
+	account *redis.AccountStore, server *store.ServerStore, 
+	r *redis.RedisClient,
+) *http.Server {
+	mux := newMuxHandler(config, account, server, r)
 	return newApiServer(mux, port)
 }
