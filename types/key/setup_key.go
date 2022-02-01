@@ -28,8 +28,8 @@ type PermissionType string
 // like unix permission
 const (
 	RWXKey PermissionType = "admin"
-	RWKey  PermissionType = "manager"
-	RKey   PermissionType = "default"
+	RWKey  PermissionType = "writer"
+	RKey   PermissionType = "reader"
 )
 
 // structure of jwt in SetupKey
