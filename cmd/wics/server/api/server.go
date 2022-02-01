@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/api/handler"
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/api/handler"
 	"github.com/Notch-Technologies/wizy/store"
 )
 
@@ -44,8 +44,8 @@ func newApiServer(mux *http.ServeMux, port uint16) *http.Server {
 }
 
 func NewHTTPServer(
-	port uint16,config *config.Config, 
-	account *redis.AccountStore, server *store.ServerStore, 
+	port uint16, config *config.Config,
+	account *redis.AccountStore, server *store.ServerStore,
 	r *redis.RedisClient,
 ) *http.Server {
 	mux := newMuxHandler(config, account, server, r)

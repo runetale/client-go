@@ -34,14 +34,14 @@ const (
 
 // structure of jwt in SetupKey
 type customClaims struct {
-	KeyType    SetupKeyType		`json:"key_type"`
-	Group 	   string 			`json:"group"`
-	Job 	   string 			`json:"job"`
-	Permission PermissionType	`json:"permission"`
-	Revoked    bool         	`json:"revoked"`
+	KeyType    SetupKeyType   `json:"key_type"`
+	Group      string         `json:"group"`
+	Job        string         `json:"job"`
+	Permission PermissionType `json:"permission"`
+	Revoked    bool           `json:"revoked"`
 
-	CreatedAt  time.Time    	`json:"created_at"`
-	LastusedAt time.Time    	`json:"lastused_at"`
+	CreatedAt  time.Time `json:"created_at"`
+	LastusedAt time.Time `json:"lastused_at"`
 
 	*jwt.StandardClaims
 }

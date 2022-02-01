@@ -35,8 +35,8 @@ func NewSetupKeyHanlder(
 }
 
 type SetupKeyRequest struct {
-	Group string
-	Job string
+	Group      string
+	Job        string
 	Permission string
 }
 
@@ -44,11 +44,11 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
 		var req SetupKeyRequest
-    	err := json.NewDecoder(r.Body).Decode(&req)
-    	if err != nil {
-    	    http.Error(w, err.Error(), http.StatusBadRequest)
-    	    return
-    	}
+		err := json.NewDecoder(r.Body).Decode(&req)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		sub := r.Header.Get("sub")
 		setupKey, err := key.NewSetupKey(sub, req.Group, req.Job, key.PermissionType(req.Permission))
