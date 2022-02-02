@@ -2,11 +2,13 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
+	"github.com/Notch-Technologies/wizy/cmd/wics/model"
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/key"
@@ -21,24 +23,26 @@ type SetupkeyHandler struct {
 	config       *config.Config
 	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
+	user        *redis.UserStore
 }
 
 func NewSetupKeyHanlder(
 	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
-	server *store.ServerStore,
+	server *store.ServerStore, user *redis.UserStore,
 ) *SetupkeyHandler {
 	return &SetupkeyHandler{
 		redis:        r,
 		config:       config,
 		accountStore: account,
 		serverStore:  server,
+		user: user,
 	}
 }
 
 type SetupKeyRequest struct {
-	Group      *string `json:"group" validate:"required"`
-	Job        *string `json:"job" validate:"required"`
-	Permission *key.PermissionType `json:"permission" validate:"required,oneof='admin' 'reader' 'writer'"`
+	Group      *string
+	Job        *string
+	Permission *key.PermissionType
 }
 
 func (r SetupKeyRequest) IsValid() (bool, error) {
@@ -47,7 +51,7 @@ func (r SetupKeyRequest) IsValid() (bool, error) {
     }
 
 	if r.Group == nil || r.Job == nil {
-        return false, fmt.Errorf("valid permission type")
+        return false, fmt.Errorf("required parameter")
 	}
 
     return true, nil
@@ -73,15 +77,33 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 		setupKey, err := key.NewSetupKey(sub, *req.Group, *req.Job, *req.Permission)
 		if err != nil {
 			http.Error(w, "failed to create setupkey", http.StatusBadRequest)
+			return
 		}
 
-		// TODO: create user to redis
+		// TODO: create network
+		// TODO: create group
+
+		_, err = h.user.CreateUser(sub, "", *req.Group, *req.Permission)
+		if err != nil {
+			if errors.Is(err, model.ErrUserAlredyExists) {
+				// TODO: get setup key, later return already exists setupkey
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			http.Error(w, fmt.Sprintf("failed to create user. %v", err), http.StatusBadRequest)
+			return
+		}
+
+		// TODO: create setup key
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(setupKey)
+		return
 	case http.MethodDelete:
 		log.Println("delete setupkey")
+		return
 	default:
 		http.Error(w, "method is not allowed", http.StatusMethodNotAllowed)
+		return
 	}
 }
