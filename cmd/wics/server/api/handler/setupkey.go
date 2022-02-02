@@ -26,12 +26,13 @@ type SetupkeyHandler struct {
 	userStore         *redis.UserStore
 	networkStore         *redis.NetworkStore
 	orgGroupStore         *redis.OrgGroupStore
+	setupKeyStore *redis.SetupKeyStore
 }
 
 func NewSetupKeyHanlder(
 	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
 	server *store.ServerStore, user *redis.UserStore, network *redis.NetworkStore,
-	group *redis.OrgGroupStore,
+	group *redis.OrgGroupStore, setupKey *redis.SetupKeyStore,
 ) *SetupkeyHandler {
 	return &SetupkeyHandler{
 		redis:        r,
@@ -41,6 +42,7 @@ func NewSetupKeyHanlder(
 		userStore:         user,
 		networkStore: network,
 		orgGroupStore: group,
+		setupKeyStore: setupKey,
 	}
 }
 
@@ -98,13 +100,30 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("failed to create organization group. %v", err), http.StatusBadRequest)
 			return
 		}
-		// TODO: create setup key store
 
-		_, err = h.userStore.CreateUser(sub, network.ID, group.ID, *req.Permission)
-		//
-
+		user, err := h.userStore.CreateUser(sub, network.ID, group.ID, *req.Permission)
+		// here
+ 
 		if err != nil {
 			if errors.Is(err, model.ErrUserAlredyExists) {
+				t, err := setupKey.KeyType()
+				if err != nil {
+					http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+					return
+				}
+
+				r, err := setupKey.IsRevoked()
+				if err != nil {
+					http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+					return
+				}
+
+				setupKey, err := h.setupKeyStore.CreateSetupKey(setupKey.Key, user.ID, t, r)
+				if err != nil {
+					http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+					return
+				}
+
 				w.Header().Set("Content-Type", "application/json")
 				json.NewEncoder(w).Encode(setupKey)
 				return
@@ -113,8 +132,26 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		t, err := setupKey.KeyType()
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+			return
+		}
+
+		r, err := setupKey.IsRevoked()
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+			return
+		}
+
+		sk, err := h.setupKeyStore.CreateSetupKey(setupKey.Key, user.ID, t, r)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to create setupkey group. %v", err), http.StatusBadRequest)
+			return
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(setupKey)
+		json.NewEncoder(w).Encode(sk)
 		return
 	case http.MethodDelete:
 		log.Println("delete setupkey")
