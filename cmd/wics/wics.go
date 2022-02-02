@@ -81,6 +81,9 @@ func main() {
 	// create group store
 	group := redis.NewOrgGroupStore(redisClient)
 
+	// create setupkey store
+	setupKey := redis.NewSetupKeyStore(redisClient)
+
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
 	if err != nil {
@@ -129,7 +132,7 @@ func main() {
 	}
 
 	// start API Server
-	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient, network, group)
+	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient, network, group, setupKey)
 	log.Printf("started http server: localhost:%v", args.port)
 
 	reflection.Register(grpcServer)
