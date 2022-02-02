@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
-	"sync"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/model"
 	"github.com/Notch-Technologies/wizy/types/key"
@@ -19,13 +18,11 @@ type UserStoreManager interface {
 
 type UserStore struct {
 	redis *RedisClient
-	mu    sync.Mutex
 }
 
 func NewUserStore(r *RedisClient) *UserStore {
 	return &UserStore{
 		redis: r,
-		mu:    sync.Mutex{},
 	}
 }
 
@@ -87,7 +84,7 @@ func (us *UserStore) setUser(um map[string]*model.User) error {
 		return err
 	}
 
-	err = us.redis.Set(string(usersKey), bytes, 0)
+	err = us.redis.Set(string(userStoreKey), bytes, 0)
 	if err != nil {
 		return err
 	}
@@ -98,7 +95,7 @@ func (us *UserStore) setUser(um map[string]*model.User) error {
 func (us *UserStore) getUsers() (map[string]*model.User, error) {
 	um := make(map[string]*model.User)
 
-	exists, err := us.redis.Exists(string(usersKey))
+	exists, err := us.redis.Exists(string(userStoreKey))
 	if err != nil {
 		return nil, err
 	}
@@ -106,7 +103,7 @@ func (us *UserStore) getUsers() (map[string]*model.User, error) {
 		return um, nil
 	}
 
-	bytes, err := us.redis.Get(string(usersKey))
+	bytes, err := us.redis.Get(string(userStoreKey))
 	if err != nil {
 		return nil, err
 	}

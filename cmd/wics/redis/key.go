@@ -3,5 +3,8 @@ package redis
 type StoreKey string
 
 const (
-	usersKey StoreKey = "users"
+	userStoreKey StoreKey = "users"
+	networkStoreKey StoreKey = "networks"
+	groupStoreKey StoreKey = "groups"
+	setupKeyStoreKey StoreKey = "setup_keys"
 )
