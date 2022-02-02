@@ -23,24 +23,27 @@ type SetupkeyHandler struct {
 	config       *config.Config
 	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
-	user         *redis.UserStore
+	userStore         *redis.UserStore
+	networkStore         *redis.NetworkStore
 }
 
 func NewSetupKeyHanlder(
 	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
-	server *store.ServerStore, user *redis.UserStore,
+	server *store.ServerStore, user *redis.UserStore, network *redis.NetworkStore,
 ) *SetupkeyHandler {
 	return &SetupkeyHandler{
 		redis:        r,
 		config:       config,
 		accountStore: account,
 		serverStore:  server,
-		user:         user,
+		userStore:         user,
+		networkStore: network,
 	}
 }
 
 type SetupKeyRequest struct {
 	Group      *string
+	Network      *string
 	Job        *string
 	Permission *key.PermissionType
 }
@@ -50,7 +53,7 @@ func (r SetupKeyRequest) IsValid() (bool, error) {
 		return false, fmt.Errorf("valid permission type")
 	}
 
-	if r.Group == nil || r.Job == nil {
+	if r.Group == nil || r.Job == nil || r.Network == nil {
 		return false, fmt.Errorf("required parameter")
 	}
 
@@ -81,11 +84,16 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// TODO: create pipe line
-		// TODO: create network
-		// TODO: create group
-		// TODO: create setup key
+		network, err := h.networkStore.CreateNetwork(*req.Network)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to create network. %v", err), http.StatusBadRequest)
+			return
+		}
 
-		_, err = h.user.CreateUser(sub, "", *req.Group, *req.Permission)
+		// TODO: create group
+		// TODO: create setup key store
+
+		_, err = h.userStore.CreateUser(sub, network.ID, *req.Group, *req.Permission)
 		if err != nil {
 			if errors.Is(err, model.ErrUserAlredyExists) {
 				w.Header().Set("Content-Type", "application/json")
