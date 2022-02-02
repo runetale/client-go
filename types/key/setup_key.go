@@ -23,13 +23,13 @@ const (
 	DefaultKey SetupKeyType = "default"
 )
 
-type PermissionType string
+type PermissionType int8
 
 // like unix permission
 const (
-	RWXKey PermissionType = "admin"
-	RWKey  PermissionType = "writer"
-	RKey   PermissionType = "reader"
+	RWXKey PermissionType = 3
+	RWKey  PermissionType = 2
+	RKey   PermissionType = 1
 )
 
 // structure of jwt in SetupKey
@@ -48,7 +48,7 @@ type customClaims struct {
 
 type SetupKey struct {
 	Key          string
-	SignedString string
+	signedString string
 }
 
 func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupKey, error) {
@@ -71,7 +71,7 @@ func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupK
 		time.Now(),
 		&jwt.StandardClaims{
 			Id:        id,
-			Issuer:    sub,
+			Issuer:    "wissy",
 			IssuedAt:  now,
 			ExpiresAt: exp,
 		},
@@ -89,7 +89,7 @@ func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupK
 
 	return &SetupKey{
 		Key:          sb.String(),
-		SignedString: signedString,
+		signedString: signedString,
 	}, nil
 }
 
@@ -99,22 +99,22 @@ func (s *SetupKey) SetupKey() string {
 }
 
 func (s *SetupKey) KeyType() (SetupKeyType, error) {
-	c, err := getCustomClaims(s.Key, s.SignedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return c.KeyType, err
 }
 
 func (s *SetupKey) IsRevoked() (bool, error) {
-	c, err := getCustomClaims(s.Key, s.SignedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return c.Revoked, err
 }
 
 func (s *SetupKey) IsExpired() (bool, error) {
-	c, err := getCustomClaims(s.Key, s.SignedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return time.Now().After(time.Unix(c.ExpiresAt, 0)), err
 }
 
 func (s *SetupKey) ID() (string, error) {
-	c, err := getCustomClaims(s.Key, s.SignedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return c.Id, err
 }
 
