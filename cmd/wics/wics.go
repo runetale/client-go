@@ -75,6 +75,9 @@ func main() {
 	// create user store
 	user := redis.NewUserStore(redisClient)
 
+	// create user store
+	network := redis.NewNetworkStore(redisClient)
+
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
 	if err != nil {
@@ -123,7 +126,7 @@ func main() {
 	}
 
 	// start API Server
-	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient)
+	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient, network)
 	log.Printf("started http server: localhost:%v", args.port)
 
 	reflection.Register(grpcServer)
