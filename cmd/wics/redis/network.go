@@ -43,7 +43,7 @@ func (ns *NetworkStore) CreateNetwork(name string) (*model.Network, error) {
 		return nil, err
 	}
 
-	nm[name] = network
+	nm[uid.String()] = network
 
 	if err := ns.setNetwork(nm); err != nil {
 		return nil, err

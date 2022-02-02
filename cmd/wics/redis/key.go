@@ -5,6 +5,6 @@ type StoreKey string
 const (
 	userStoreKey StoreKey = "users"
 	networkStoreKey StoreKey = "networks"
-	groupStoreKey StoreKey = "groups"
+	orgGroupStoreKey StoreKey = "org_groups"
 	setupKeyStoreKey StoreKey = "setup_keys"
 )
