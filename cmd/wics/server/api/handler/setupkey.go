@@ -80,21 +80,21 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// TODO: create pipe line
 		// TODO: create network
 		// TODO: create group
+		// TODO: create setup key
 
 		_, err = h.user.CreateUser(sub, "", *req.Group, *req.Permission)
 		if err != nil {
 			if errors.Is(err, model.ErrUserAlredyExists) {
-				// TODO: get setup key, later return already exists setupkey
-				http.Error(w, err.Error(), http.StatusBadRequest)
+				w.Header().Set("Content-Type", "application/json")
+				json.NewEncoder(w).Encode(setupKey)
 				return
 			}
 			http.Error(w, fmt.Sprintf("failed to create user. %v", err), http.StatusBadRequest)
 			return
 		}
-
-		// TODO: create setup key
 
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(setupKey)
