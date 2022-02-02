@@ -42,16 +42,20 @@ func NewRedisClient(password string) *RedisClient {
 	}
 }
 
+func (r *RedisClient) Exists(key string) (int64, error) {
+	return r.client.Exists(r.ctx, key).Result()
+}
+
 func (r *RedisClient) Set(key string, value interface{}, exp time.Duration) error {
 	return r.client.Set(r.ctx, key, value, exp).Err()
 }
 
-func (r *RedisClient) Get(key string) (string, error) {
-	return r.client.Get(r.ctx, key).Result()
+func (r *RedisClient) Get(key string) ([]byte, error) {
+	return r.client.Get(r.ctx, key).Bytes()
 }
 
 func (r *RedisClient) HGetAll(key string, dst interface{}) error {
-	if err := r.client.HGetAll(r.ctx, "key").Scan(&dst); err != nil {
+	if err := r.client.HGetAll(r.ctx, key).Scan(&dst); err != nil {
 		return err
 	}
 	return nil

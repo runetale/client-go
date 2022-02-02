@@ -1,7 +1,5 @@
 package redis
 
-// Management Account Store
-
 import (
 	"sync"
 
@@ -21,6 +19,7 @@ type AccountStore struct {
 
 func NewAccountStore(r *RedisClient) *AccountStore {
 	return &AccountStore{
+		redis: r,
 		mu: sync.Mutex{},
 	}
 }
