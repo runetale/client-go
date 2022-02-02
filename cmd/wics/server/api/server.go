@@ -14,11 +14,11 @@ import (
 func newMuxHandler(
 	config *config.Config, account *redis.AccountStore,
 	server *store.ServerStore, r *redis.RedisClient, user *redis.UserStore,
-	network *redis.NetworkStore,
+	network *redis.NetworkStore, group *redis.OrgGroupStore,
 ) *http.ServeMux {
 	mux := http.NewServeMux()
 
-	sh := handler.NewSetupKeyHanlder(r, config, account, server, user, network)
+	sh := handler.NewSetupKeyHanlder(r, config, account, server, user, network, group)
 	// admin
 	mux.Handle("/api/setupkey", adminMiddleware(http.HandlerFunc(sh.SetupKey)))
 
@@ -47,8 +47,9 @@ func newApiServer(mux *http.ServeMux, port uint16) *http.Server {
 func NewHTTPServer(
 	port uint16, config *config.Config,
 	account *redis.AccountStore, server *store.ServerStore,
-	user *redis.UserStore, r *redis.RedisClient, network *redis.NetworkStore,
+	user *redis.UserStore, r *redis.RedisClient, 
+	network *redis.NetworkStore, group *redis.OrgGroupStore,
 ) *http.Server {
-	mux := newMuxHandler(config, account, server, r, user, network)
+	mux := newMuxHandler(config, account, server, r, user, network, group)
 	return newApiServer(mux, port)
 }

@@ -25,11 +25,13 @@ type SetupkeyHandler struct {
 	serverStore  *store.ServerStore
 	userStore         *redis.UserStore
 	networkStore         *redis.NetworkStore
+	orgGroupStore         *redis.OrgGroupStore
 }
 
 func NewSetupKeyHanlder(
 	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
 	server *store.ServerStore, user *redis.UserStore, network *redis.NetworkStore,
+	group *redis.OrgGroupStore,
 ) *SetupkeyHandler {
 	return &SetupkeyHandler{
 		redis:        r,
@@ -38,6 +40,7 @@ func NewSetupKeyHanlder(
 		serverStore:  server,
 		userStore:         user,
 		networkStore: network,
+		orgGroupStore: group,
 	}
 }
 
@@ -90,10 +93,16 @@ func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// TODO: create group
+		group, err := h.orgGroupStore.CreateOrgGroup(*req.Group)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("failed to create organization group. %v", err), http.StatusBadRequest)
+			return
+		}
 		// TODO: create setup key store
 
-		_, err = h.userStore.CreateUser(sub, network.ID, *req.Group, *req.Permission)
+		_, err = h.userStore.CreateUser(sub, network.ID, group.ID, *req.Permission)
+		//
+
 		if err != nil {
 			if errors.Is(err, model.ErrUserAlredyExists) {
 				w.Header().Set("Content-Type", "application/json")
