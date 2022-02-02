@@ -1,24 +1,31 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/Notch-Technologies/wizy/types/key"
+)
 
 type SetupKey struct {
-	// create unique id by wissy
 	ID        string `json:"id"`
-	KeyType    string
-	Revoked    bool
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-	LastUsedAt time.Time
+	Key string `json:"key"`
+	UserID string `json:"user_id"`
+	KeyType    key.SetupKeyType `json:"key_type"` 
+	Revoked    bool `json:"revoked"`
+	CreatedAt  time.Time `json:"created_at"`
+	LastusedAt time.Time `json:"lastused_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
-func NewSetupKey(id, keytype string, revoked bool) *SetupKey {
+func NewSetupKey(id, userID, key string, keytype key.SetupKeyType, revoked bool) *SetupKey {
 	return &SetupKey{
 		ID:         id,
+		Key: key,
+		UserID: userID,
 		KeyType:    keytype,
 		Revoked:    revoked,
 		CreatedAt:  time.Now(),
+		LastusedAt: time.Now(),
 		UpdatedAt:  time.Now(),
-		LastUsedAt: time.Now(),
 	}
 }
