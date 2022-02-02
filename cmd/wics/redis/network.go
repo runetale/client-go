@@ -10,6 +10,7 @@ import (
 
 type NetworkStoreManager interface {
 	CreateNetwork() *NetworkStore
+	FindByName(name string) (*model.Network, error)
 }
 
 type NetworkStore struct {

@@ -9,7 +9,8 @@ import (
 )
 
 type OrgGroupStoreManager interface {
-
+	CreateOrgGroup(name string) (*model.OrgGroup, error)
+	FindByGroupName(name string) (*model.OrgGroup, error)
 }
 
 type OrgGroupStore struct {
