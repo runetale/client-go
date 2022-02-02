@@ -23,7 +23,7 @@ type SetupkeyHandler struct {
 	config       *config.Config
 	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
-	user        *redis.UserStore
+	user         *redis.UserStore
 }
 
 func NewSetupKeyHanlder(
@@ -35,7 +35,7 @@ func NewSetupKeyHanlder(
 		config:       config,
 		accountStore: account,
 		serverStore:  server,
-		user: user,
+		user:         user,
 	}
 }
 
@@ -46,15 +46,15 @@ type SetupKeyRequest struct {
 }
 
 func (r SetupKeyRequest) IsValid() (bool, error) {
-    if !(*r.Permission == key.RWXKey || *r.Permission == key.RWKey || *r.Permission == key.RKey || r.Permission != nil) {
-        return false, fmt.Errorf("valid permission type")
-    }
-
-	if r.Group == nil || r.Job == nil {
-        return false, fmt.Errorf("required parameter")
+	if !(*r.Permission == key.RWXKey || *r.Permission == key.RWKey || *r.Permission == key.RKey || r.Permission != nil) {
+		return false, fmt.Errorf("valid permission type")
 	}
 
-    return true, nil
+	if r.Group == nil || r.Job == nil {
+		return false, fmt.Errorf("required parameter")
+	}
+
+	return true, nil
 }
 
 func (h *SetupkeyHandler) SetupKey(w http.ResponseWriter, r *http.Request) {

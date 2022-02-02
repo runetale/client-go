@@ -9,31 +9,31 @@ import (
 
 type User struct {
 	// create unique id by wissy
-	ID      string `json:"id"`
+	ID string `json:"id"`
 	// openid providerid
-	ProviderID  string `json:"provider_id"`
+	ProviderID string `json:"provider_id"`
 	// openid provider
-	Provider    string `json:"provider"`
+	Provider string `json:"provider"`
 	// store network id
-	NetworkID   string `json:"network_id"`
+	NetworkID string `json:"network_id"`
 	// store group id
-	GroupID 	string `json:"group_id"`
-	Permission  key.PermissionType `json:"permission"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	GroupID    string             `json:"group_id"`
+	Permission key.PermissionType `json:"permission"`
+	CreatedAt  time.Time          `json:"created_at"`
+	UpdatedAt  time.Time          `json:"updated_at"`
 }
 
 func NewUser(id string, providerID string, provider string,
 	networkID string, groupID string, permission key.PermissionType) *User {
 	return &User{
-		ID:          id,
-		ProviderID:  providerID,
-		Provider:    provider,
-		NetworkID:   networkID,
-		GroupID:	 groupID,
-		Permission:  permission,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID:         id,
+		ProviderID: providerID,
+		Provider:   provider,
+		NetworkID:  networkID,
+		GroupID:    groupID,
+		Permission: permission,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 }
 

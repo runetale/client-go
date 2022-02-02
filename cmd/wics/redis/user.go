@@ -12,20 +12,20 @@ import (
 )
 
 type UserStoreManager interface {
-	CreateUser(providerID string, networkID, groupID string, 
-	permission key.PermissionType, setupKey string) (*model.User, error)
-	FindByProviderID(providerID string) (*model.User ,error)
+	CreateUser(providerID string, networkID, groupID string,
+		permission key.PermissionType, setupKey string) (*model.User, error)
+	FindByProviderID(providerID string) (*model.User, error)
 }
 
 type UserStore struct {
 	redis *RedisClient
-	mu sync.Mutex
+	mu    sync.Mutex
 }
 
 func NewUserStore(r *RedisClient) *UserStore {
 	return &UserStore{
 		redis: r,
-		mu: sync.Mutex{},
+		mu:    sync.Mutex{},
 	}
 }
 
@@ -34,7 +34,7 @@ func (us *UserStore) CreateUser(providerID string, networkid, groupid string,
 	i := strings.Index(providerID, "|")
 	provider := providerID[:i]
 	id := providerID[i+1:]
-	
+
 	// check if the user exists.
 	//
 	u, err := us.FindByProviderID(id)
@@ -61,14 +61,14 @@ func (us *UserStore) CreateUser(providerID string, networkid, groupid string,
 
 	um[id] = user
 
-    if err := us.setUser(um); err != nil {
-        return nil, err
-    }
+	if err := us.setUser(um); err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
 
-func (us *UserStore) FindByProviderID(providerID string) (*model.User ,error) {
+func (us *UserStore) FindByProviderID(providerID string) (*model.User, error) {
 	um, err := us.getUsers()
 	if err != nil {
 		return nil, err
@@ -107,17 +107,17 @@ func (us *UserStore) getUsers() (map[string]*model.User, error) {
 	}
 
 	bytes, err := us.redis.Get(string(usersKey))
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    if bytes == nil {
-        return um, err
-    }
+	if bytes == nil {
+		return um, err
+	}
 
-    if err := json.Unmarshal(bytes, &um); err != nil {
-        return nil, err
-    }
+	if err := json.Unmarshal(bytes, &um); err != nil {
+		return nil, err
+	}
 
-    return um, nil
+	return um, nil
 }
