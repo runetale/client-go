@@ -17,20 +17,20 @@ type User struct {
 	// store network id
 	NetworkID string `json:"network_id"`
 	// store group id
-	GroupID    string             `json:"group_id"`
+	OrgGroupID    string             `json:"org_group_id"`
 	Permission key.PermissionType `json:"permission"`
 	CreatedAt  time.Time          `json:"created_at"`
 	UpdatedAt  time.Time          `json:"updated_at"`
 }
 
 func NewUser(id string, providerID string, provider string,
-	networkID string, groupID string, permission key.PermissionType) *User {
+	networkID string, orgGroupID string, permission key.PermissionType) *User {
 	return &User{
 		ID:         id,
 		ProviderID: providerID,
 		Provider:   provider,
 		NetworkID:  networkID,
-		GroupID:    groupID,
+		OrgGroupID: orgGroupID,
 		Permission: permission,
 		CreatedAt:  time.Now(),
 		UpdatedAt:  time.Now(),

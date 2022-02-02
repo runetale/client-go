@@ -5,7 +5,7 @@ import "time"
 type Account struct {
 	ID         string
 	Networks   []*Network
-	UserGroups []*UserGroup
+	OrgGroups []*OrgGroup
 	Peers      []*Peer
 	Users      []*User
 	CreatedAt  time.Time
@@ -15,7 +15,7 @@ type Account struct {
 func NewAccount(id string) *Account {
 	return &Account{
 		Networks:   []*Network{},
-		UserGroups: []*UserGroup{},
+		OrgGroups: []*OrgGroup{},
 		Peers:      []*Peer{},
 		Users:      []*User{},
 		CreatedAt:  time.Now(),

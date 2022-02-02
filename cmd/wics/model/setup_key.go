@@ -3,7 +3,8 @@ package model
 import "time"
 
 type SetupKey struct {
-	ID         string
+	// create unique id by wissy
+	ID        string `json:"id"`
 	KeyType    string
 	Revoked    bool
 	CreatedAt  time.Time
