@@ -19,13 +19,15 @@ func NewRedisConfig(key string) *RedisConfig {
 
 type RedisClientManager interface {
 	Set(key string, value interface{}, exp time.Duration) error
+	HSet(key string, value interface{}) error
 	Get(key string) (string, error)
+	HGet(key string, field string) ([]byte, error)
 	HGetAll(key string, dst interface{}) error
 }
 
 type RedisClient struct {
-	client *redis.Client
-	ctx    context.Context
+	Client *redis.Client
+	Ctx    context.Context
 }
 
 func NewRedisClient(password string) *RedisClient {
@@ -37,32 +39,42 @@ func NewRedisClient(password string) *RedisClient {
 	})
 
 	return &RedisClient{
-		client: rdb,
-		ctx:    c,
+		Client: rdb,
+		Ctx:    c,
 	}
 }
 
 func (r *RedisClient) Tx(commandList func() error) error {
-	return r.client.Watch(r.ctx, func(tx *redis.Tx) error {
-		err := commandList()
+	return r.Client.Watch(r.Ctx, func(tx *redis.Tx) error {
+		_, err := tx.TxPipelined(r.Ctx, func(pipe redis.Pipeliner) error {
+			return commandList()
+		})
 		return err
 	})
 }
 
 func (r *RedisClient) Exists(key string) (int64, error) {
-	return r.client.Exists(r.ctx, key).Result()
+	return r.Client.Exists(r.Ctx, key).Result()
 }
 
 func (r *RedisClient) Set(key string, value interface{}, exp time.Duration) error {
-	return r.client.Set(r.ctx, key, value, exp).Err()
+	return r.Client.Set(r.Ctx, key, value, exp).Err()
+}
+
+func (r *RedisClient) HSet(key string, value interface{}) error {
+	return r.Client.HSet(r.Ctx, key, value).Err()
 }
 
 func (r *RedisClient) Get(key string) ([]byte, error) {
-	return r.client.Get(r.ctx, key).Bytes()
+	return r.Client.Get(r.Ctx, key).Bytes()
+}
+
+func (r *RedisClient) HGet(key string, field string) ([]byte, error) {
+	return r.Client.HGet(r.Ctx, key, field).Bytes()
 }
 
 func (r *RedisClient) HGetAll(key string, dst interface{}) error {
-	if err := r.client.HGetAll(r.ctx, key).Scan(&dst); err != nil {
+	if err := r.Client.HGetAll(r.Ctx, key).Scan(&dst); err != nil {
 		return err
 	}
 	return nil

@@ -46,9 +46,9 @@ func (os *OrgGroupStore) CreateOrgGroup(name string) (*model.OrgGroup, error) {
 
 	gm[uid.String()] = group
 
-	if err := os.setGroup(gm); err != nil {
-		return nil, err
-	}
+	//if err := os.setGroup(gm); err != nil {
+	//	return nil, err
+	//}
 
 	return group, nil
 }
@@ -72,7 +72,7 @@ func (os *OrgGroupStore) setGroup(gm map[string]*model.OrgGroup) error {
 		return err
 	}
 
-	err = os.redis.Set(string(orgGroupStoreKey), bytes, 0)
+	err = os.redis.Set(string(OrgGroupStoreKey), bytes, 0)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (os *OrgGroupStore) setGroup(gm map[string]*model.OrgGroup) error {
 func (os *OrgGroupStore) getGroups() (map[string]*model.OrgGroup, error) {
 	gm := make(map[string]*model.OrgGroup)
 
-	exists, err := os.redis.Exists(string(orgGroupStoreKey))
+	exists, err := os.redis.Exists(string(OrgGroupStoreKey))
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (os *OrgGroupStore) getGroups() (map[string]*model.OrgGroup, error) {
 		return gm, nil
 	}
 
-	bytes, err := os.redis.Get(string(orgGroupStoreKey))
+	bytes, err := os.redis.Get(string(OrgGroupStoreKey))
 	if err != nil {
 		return nil, err
 	}

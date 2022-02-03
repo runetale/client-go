@@ -58,9 +58,9 @@ func (us *UserStore) CreateUser(providerID string, networkid, groupid string,
 
 	um[id] = user
 
-	if err := us.setUser(um); err != nil {
-		return nil, err
-	}
+	//if err := us.setUser(um); err != nil {
+	//	return nil, err
+	//}
 
 	return user, nil
 }
@@ -84,7 +84,7 @@ func (us *UserStore) setUser(um map[string]*model.User) error {
 		return err
 	}
 
-	err = us.redis.Set(string(userStoreKey), bytes, 0)
+	err = us.redis.Set(string(UserStoreKey), bytes, 0)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (us *UserStore) setUser(um map[string]*model.User) error {
 func (us *UserStore) getUsers() (map[string]*model.User, error) {
 	um := make(map[string]*model.User)
 
-	exists, err := us.redis.Exists(string(userStoreKey))
+	exists, err := us.redis.Exists(string(UserStoreKey))
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (us *UserStore) getUsers() (map[string]*model.User, error) {
 		return um, nil
 	}
 
-	bytes, err := us.redis.Get(string(userStoreKey))
+	bytes, err := us.redis.Get(string(UserStoreKey))
 	if err != nil {
 		return nil, err
 	}

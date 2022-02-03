@@ -52,7 +52,7 @@ func (ss *SetupKeyStore) setSetupKey(gm map[string]*model.SetupKey) error {
 		return err
 	}
 
-	err = ss.redis.Set(string(setupKeyStoreKey), bytes, 0)
+	err = ss.redis.Set(string(SetupKeyStoreKey), bytes, 0)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (ss *SetupKeyStore) setSetupKey(gm map[string]*model.SetupKey) error {
 func (ss *SetupKeyStore) getSetupKeys() (map[string]*model.SetupKey, error) {
 	sm := make(map[string]*model.SetupKey)
 
-	exists, err := ss.redis.Exists(string(setupKeyStoreKey))
+	exists, err := ss.redis.Exists(string(SetupKeyStoreKey))
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (ss *SetupKeyStore) getSetupKeys() (map[string]*model.SetupKey, error) {
 		return sm, nil
 	}
 
-	bytes, err := ss.redis.Get(string(setupKeyStoreKey))
+	bytes, err := ss.redis.Get(string(SetupKeyStoreKey))
 	if err != nil {
 		return nil, err
 	}

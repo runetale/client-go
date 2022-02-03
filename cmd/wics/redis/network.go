@@ -44,11 +44,11 @@ func (ns *NetworkStore) CreateNetwork(name string) (*model.Network, error) {
 		return nil, err
 	}
 
-	nm[uid.String()] = network
+	nm[name] = network
 
-	if err := ns.setNetwork(nm); err != nil {
-		return nil, err
-	}
+	//if err := ns.setNetwork(nm); err != nil {
+	//	return nil, err
+	//}
 
 	return network, nil
 }
@@ -72,7 +72,7 @@ func (us *NetworkStore) setNetwork(nm map[string]*model.Network) error {
 		return err
 	}
 
-	err = us.redis.Set(string(networkStoreKey), bytes, 0)
+	err = us.redis.Set(string(NetworkStoreKey), bytes, 0)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (us *NetworkStore) setNetwork(nm map[string]*model.Network) error {
 func (ns *NetworkStore) getNetworks() (map[string]*model.Network, error) {
 	nm := make(map[string]*model.Network)
 
-	exists, err := ns.redis.Exists(string(networkStoreKey))
+	exists, err := ns.redis.Exists(string(NetworkStoreKey))
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (ns *NetworkStore) getNetworks() (map[string]*model.Network, error) {
 		return nm, nil
 	}
 
-	bytes, err := ns.redis.Get(string(networkStoreKey))
+	bytes, err := ns.redis.Get(string(NetworkStoreKey))
 	if err != nil {
 		return nil, err
 	}
