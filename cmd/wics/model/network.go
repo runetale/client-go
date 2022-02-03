@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Network struct {
 	// create unique id by wissy
@@ -27,4 +30,8 @@ func NewNetwork(id string, name string, ip string, cidr string,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
+}
+
+func (n Network) MarshalBinary() ([]byte, error) {
+	return json.Marshal(n)
 }

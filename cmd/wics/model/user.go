@@ -37,6 +37,6 @@ func NewUser(id string, providerID string, provider string,
 	}
 }
 
-func (u *User) MarshalBinary() ([]byte, error) {
+func (u User) MarshalBinary() ([]byte, error) {
 	return json.Marshal(u)
 }
