@@ -55,36 +55,14 @@ func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string,
 	if err != nil {
 		return nil, err
 	}
-
-	//err = r.redis.Tx(
-	//	func() error {
-	//		n, err := r.networkStore.CreateNetwork(network)
-	//		if err != nil || err == nil {
-	//			return errors.New("Create Error")
-	//			return err
-	//		}
-    //		
-	//		g, err := r.orgGroupStore.CreateOrgGroup(group)
-	//		if err != nil {
-	//			return err
-	//		}
-    //
-	//		user, err = r.userStore.CreateUser(sub, n.ID, g.ID, permissionType)
-	//		if err != nil {
-	//			return err
-	//		}
-	//		return nil
-	//	},
-	//)
-
-
+	
+	// TOOD: (shintard) refactor transaction watch
 	err = r.redis.Client.Watch(r.redis.Ctx, func(tx *re.Tx) error {
 		_, err := tx.TxPipelined(r.redis.Ctx, func(pipe re.Pipeliner) error {
 			// create network
 			n, err := r.networkStore.CreateNetwork(network)
 			bytes, err := json.Marshal(n)
-			if err != nil || err == nil {
-				return errors.New("errorrr")
+			if err != nil {
 				return err
 			}
 			pipe.Set(r.redis.Ctx, string(redis.NetworkStoreKey), bytes, 0)
