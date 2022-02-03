@@ -29,7 +29,7 @@ func newMuxHandler(
 	return mux
 }
 
-func newApiServer(mux *http.ServeMux, port uint16) *http.Server {
+func listen(mux *http.ServeMux, port uint16) *http.Server {
 	httpsrv := &http.Server{
 		Addr:    ":" + strconv.Itoa(int(port)),
 		Handler: mux,
@@ -51,5 +51,5 @@ func NewHTTPServer(
 	network *redis.NetworkStore, group *redis.OrgGroupStore, setupKey *redis.SetupKeyStore,
 ) *http.Server {
 	mux := newMuxHandler(config, account, server, r, user, network, group, setupKey)
-	return newApiServer(mux, port)
+	return listen(mux, port)
 }
