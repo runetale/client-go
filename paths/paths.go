@@ -42,7 +42,6 @@ func DefaultWicsClientStateFile() string {
 	}
 }
 
-
 func DefaultClientConfigFile() string {
 	return "/etc/wissy/client.json"
 }

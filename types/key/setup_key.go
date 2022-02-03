@@ -1,6 +1,7 @@
 package key
 
 import (
+	"os"
 	"strings"
 	"time"
 
@@ -15,53 +16,70 @@ const (
 	setupKeyPrefix = "w_"
 )
 
-// SetupKey key types.
+// key usage types.
 type SetupKeyType string
 
 const (
-	defaultKey SetupKeyType = "default"
+	DefaultKey SetupKeyType = "default"
+)
+
+type PermissionType int8
+
+// like unix permission
+const (
+	RWXKey PermissionType = 3
+	RWKey  PermissionType = 2
+	RKey   PermissionType = 1
 )
 
 // structure of jwt in SetupKey
 type customClaims struct {
-	keytype    SetupKeyType `json:"key_type"`
-	revoked    bool         `json:"revoked"`
-	createdAt  time.Time    `json:"created_at"`
-	lastusedAt time.Time    `json:"lastused_at"`
+	KeyType    SetupKeyType   `json:"key_type"`
+	Group      string         `json:"group"`
+	Job        string         `json:"job"`
+	Permission PermissionType `json:"permission"`
+	Revoked    bool           `json:"revoked"`
+
+	CreatedAt  time.Time `json:"created_at"`
+	LastusedAt time.Time `json:"lastused_at"`
+
 	*jwt.StandardClaims
 }
 
 type SetupKey struct {
-	key          string
+	Key          string
 	signedString string
 }
 
-// create a SetupKey using the base64-encoded value of the server private key.
-func NewSetupKey(b64key string) (*SetupKey, error) {
+func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupKey, error) {
 	var (
 		now = time.Now().Unix()
-		// expires 2 weak of setupkey
-		exp = time.Now().Add(time.Hour * 24 * 14).Unix()
+		// expires 1 weak of setupkey
+		exp = time.Now().Add(time.Hour * 24 * 7).Unix()
 		sb  strings.Builder
 	)
 
 	id := strings.ToUpper(uuid.New().String())
 
 	claims := customClaims{
-		defaultKey,
+		DefaultKey,
+		group,
+		job,
+		permissionType,
 		false,
 		time.Now(),
 		time.Now(),
 		&jwt.StandardClaims{
 			Id:        id,
-			Issuer:    "wizy",
+			Issuer:    "wissy",
 			IssuedAt:  now,
 			ExpiresAt: exp,
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString([]byte(b64key))
+	signedString := os.Getenv("JWT_SECRET")
+	ss, err := token.SignedString([]byte(signedString))
 	if err != nil {
 		return nil, err
 	}
@@ -70,33 +88,33 @@ func NewSetupKey(b64key string) (*SetupKey, error) {
 	sb.WriteString(ss)
 
 	return &SetupKey{
-		key:          sb.String(),
-		signedString: b64key,
+		Key:          sb.String(),
+		signedString: signedString,
 	}, nil
 }
 
 func (s *SetupKey) SetupKey() string {
-	setupkey := strings.Trim(s.key, setupKeyPrefix)
+	setupkey := strings.Trim(s.Key, setupKeyPrefix)
 	return setupkey
 }
 
 func (s *SetupKey) KeyType() (SetupKeyType, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
-	return c.keytype, err
+	c, err := getCustomClaims(s.Key, s.signedString)
+	return c.KeyType, err
 }
 
 func (s *SetupKey) IsRevoked() (bool, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
-	return c.revoked, err
+	c, err := getCustomClaims(s.Key, s.signedString)
+	return c.Revoked, err
 }
 
 func (s *SetupKey) IsExpired() (bool, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return time.Now().After(time.Unix(c.ExpiresAt, 0)), err
 }
 
 func (s *SetupKey) ID() (string, error) {
-	c, err := getCustomClaims(s.key, s.signedString)
+	c, err := getCustomClaims(s.Key, s.signedString)
 	return c.Id, err
 }
 

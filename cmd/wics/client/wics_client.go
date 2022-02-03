@@ -103,7 +103,7 @@ func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*proto
 	defer cancel()
 
 	msg, err := wc.userServiceClient.Login(usCtx, &proto.LoginMessage{
-		SetupKey: setupKey,
+		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,
 	})

@@ -11,7 +11,8 @@ import (
 
 type portValue struct{ n *uint16 }
 
-const DefaultPort = 443
+const DefaultWicsPort = 443
+const DefaultApiPort = 8080
 
 func PortValue(dst *uint16, defaultPort uint16) flag.Value {
 	*dst = defaultPort

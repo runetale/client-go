@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -12,8 +13,9 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server"
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
+	"github.com/Notch-Technologies/wizy/cmd/wics/server/api"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -34,6 +36,7 @@ func init() {
 
 var args struct {
 	configpath string
+	wicsport   uint16
 	port       uint16
 	verbose    int
 	domain     string
@@ -44,7 +47,8 @@ var args struct {
 
 func main() {
 	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
-	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultPort), "port", "specify the port of the wics server")
+	flag.Var(flagtype.PortValue(&args.wicsport, flagtype.DefaultWicsPort), "wics-port", "specify the port of the wics server")
+	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultApiPort), "port", "specify the port of the http server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
@@ -67,6 +71,18 @@ func main() {
 
 	// create account store
 	account := redis.NewAccountStore(redisClient)
+
+	// create user store
+	user := redis.NewUserStore(redisClient)
+
+	// create network store
+	network := redis.NewNetworkStore(redisClient)
+
+	// create group store
+	group := redis.NewOrgGroupStore(redisClient)
+
+	// create setupkey store
+	setupKey := redis.NewSetupKeyStore(redisClient)
 
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
@@ -108,12 +124,16 @@ func main() {
 
 	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
-	log.Printf("started wics server: localhost:%v", args.port)
+	log.Printf("started wics server: localhost:%v", args.wicsport)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.wicsport))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
+	// start API Server
+	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient, network, group, setupKey)
+	log.Printf("started http server: localhost:%v", args.port)
 
 	reflection.Register(grpcServer)
 	go func() {
@@ -138,6 +158,9 @@ func main() {
 	}()
 	<-stop
 	log.Println("terminate wics server.")
-
 	grpcServer.Stop()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	httpServer.Shutdown(ctx)
 }

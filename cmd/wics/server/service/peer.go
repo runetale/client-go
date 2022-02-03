@@ -1,10 +1,10 @@
-package server
+package service
 
 import (
 	"context"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

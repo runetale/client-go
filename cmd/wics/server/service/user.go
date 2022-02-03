@@ -1,4 +1,4 @@
-package server
+package service
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
 	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/redis"
+	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -51,9 +51,9 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 	//	fmt.Println(err)
 	//	return nil, err
 	//}
-    //
+	//
 	return &proto.LoginMessage{
-		SetupKey: setupKey,
+		SetupKey:        setupKey,
 		ServerPublicKey: serverPubKey,
 		ClientPublicKey: clientPubKey,
 	}, nil

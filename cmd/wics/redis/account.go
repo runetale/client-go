@@ -1,11 +1,9 @@
 package redis
 
-// Management Account Store
-
 import (
 	"sync"
 
-	"github.com/Notch-Technologies/wizy/cmd/wics/server/model"
+	"github.com/Notch-Technologies/wizy/cmd/wics/model"
 )
 
 // TODO:(shintard) refactor store
@@ -21,7 +19,8 @@ type AccountStore struct {
 
 func NewAccountStore(r *RedisClient) *AccountStore {
 	return &AccountStore{
-		mu: sync.Mutex{},
+		redis: r,
+		mu:    sync.Mutex{},
 	}
 }
 
