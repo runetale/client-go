@@ -32,7 +32,7 @@ func NewRedisClient(password string) *RedisClient {
 	c := context.Background()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     ":6379",
-		Password: "yourpassword",
+		Password: password,
 		DB:       0,
 	})
 
@@ -42,17 +42,11 @@ func NewRedisClient(password string) *RedisClient {
 	}
 }
 
-func (r *RedisClient) Tx(key string) error {
+func (r *RedisClient) Tx(commandList func() error) error {
 	return r.client.Watch(r.ctx, func(tx *redis.Tx) error {
-		_, err := tx.Get(r.ctx, key).Result()
-		if err != nil && err != redis.Nil {
-			return err
-		}
-		_, err = tx.Pipelined(r.ctx, func(pipe redis.Pipeliner) error {
-			return nil
-		})
+		err := commandList()
 		return err
-	}, key)
+	})
 }
 
 func (r *RedisClient) Exists(key string) (int64, error) {

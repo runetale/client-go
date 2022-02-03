@@ -45,24 +45,33 @@ func NewSetupKeyRepository(
 
 func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string, 
 	permissionType key.PermissionType) (*model.SetupKey, error) {
+	var (
+		user *model.User
+	)
 	setupKey, err := key.NewSetupKey(sub, group, job, permissionType)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: create pipe line
-	n, err := r.networkStore.CreateNetwork(network)
-	if err != nil {
-		return nil, err
-	}
+	err = r.redis.Tx(
+		func() error {
+			n, err := r.networkStore.CreateNetwork(network)
+			if err != nil {
+				return err
+			}
+    		
+			g, err := r.orgGroupStore.CreateOrgGroup(group)
+			if err != nil {
+				return err
+			}
 
-	g, err := r.orgGroupStore.CreateOrgGroup(group)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := r.userStore.CreateUser(sub, n.ID, g.ID, permissionType)
-	// here
+			user, err = r.userStore.CreateUser(sub, n.ID, g.ID, permissionType)
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	)
  
 	if err != nil {
 		if errors.Is(err, model.ErrUserAlredyExists) {
