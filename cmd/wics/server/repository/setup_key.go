@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
@@ -8,6 +9,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/key"
+	re "github.com/go-redis/redis/v8"
 )
 
 type SetupKeyRepositoryManager interface {
@@ -43,35 +45,78 @@ func NewSetupKeyRepository(
 	}
 }
 
-func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string, 
+func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string,
 	permissionType key.PermissionType) (*model.SetupKey, error) {
 	var (
 		user *model.User
 	)
+
 	setupKey, err := key.NewSetupKey(sub, group, job, permissionType)
 	if err != nil {
 		return nil, err
 	}
 
-	err = r.redis.Tx(
-		func() error {
+	//err = r.redis.Tx(
+	//	func() error {
+	//		n, err := r.networkStore.CreateNetwork(network)
+	//		if err != nil || err == nil {
+	//			return errors.New("Create Error")
+	//			return err
+	//		}
+    //		
+	//		g, err := r.orgGroupStore.CreateOrgGroup(group)
+	//		if err != nil {
+	//			return err
+	//		}
+    //
+	//		user, err = r.userStore.CreateUser(sub, n.ID, g.ID, permissionType)
+	//		if err != nil {
+	//			return err
+	//		}
+	//		return nil
+	//	},
+	//)
+
+
+	err = r.redis.Client.Watch(r.redis.Ctx, func(tx *re.Tx) error {
+		_, err := tx.TxPipelined(r.redis.Ctx, func(pipe re.Pipeliner) error {
+			// create network
 			n, err := r.networkStore.CreateNetwork(network)
-			if err != nil {
+			bytes, err := json.Marshal(n)
+			if err != nil || err == nil {
+				return errors.New("errorrr")
 				return err
 			}
-    		
+			pipe.Set(r.redis.Ctx, string(redis.NetworkStoreKey), bytes, 0)
+
+			// create group
 			g, err := r.orgGroupStore.CreateOrgGroup(group)
 			if err != nil {
 				return err
 			}
+			bytes, err = json.Marshal(g)
+			if err != nil {
+				return err
+			}
+			pipe.Set(r.redis.Ctx, string(redis.OrgGroupStoreKey), bytes, 0)
 
+			// create user
 			user, err = r.userStore.CreateUser(sub, n.ID, g.ID, permissionType)
 			if err != nil {
 				return err
 			}
-			return nil
-		},
-	)
+			bytes, err = json.Marshal(user)
+			if err != nil {
+				return err
+			}
+			pipe.Set(r.redis.Ctx, string(redis.UserStoreKey), bytes, 0)
+
+			_, err = pipe.Exec(r.redis.Ctx)
+
+			return err
+		})
+		return err
+	})
  
 	if err != nil {
 		if errors.Is(err, model.ErrUserAlredyExists) {
