@@ -1,2 +1,2 @@
 proto_gen:
-	protoc -I proto/ proto/wics.proto --go_out=. --go-grpc_out=.
+	protoc --go_out=pb --go-grpc_out=pb protos/*.proto

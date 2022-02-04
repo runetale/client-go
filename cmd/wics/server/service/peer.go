@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 
-	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type PeerServiceServer struct {
 	redis *redis.RedisClient
-	proto.UnimplementedPeerServiceServer
+	peer.UnimplementedPeerServiceServer
 }
 
 func NewPeerServiceServer(r *redis.RedisClient) *PeerServiceServer {

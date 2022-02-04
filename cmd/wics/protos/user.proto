@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./user";
+
+service UserService {
+	rpc Login(LoginMessage) returns (LoginMessage) {}
+}
+
+message LoginMessage {
+	string setupKey = 1;
+	string clientPublicKey = 2;
+	string serverPublicKey = 3;
+}

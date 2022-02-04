@@ -12,7 +12,8 @@ import (
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
-	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/pb/peer"
+	"github.com/Notch-Technologies/wizy/cmd/wics/pb/user"
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server"
 	"github.com/Notch-Technologies/wizy/cmd/wics/server/api"
@@ -73,7 +74,7 @@ func main() {
 	account := redis.NewAccountStore(redisClient)
 
 	// create user store
-	user := redis.NewUserStore(redisClient)
+	u := redis.NewUserStore(redisClient)
 
 	// create network store
 	network := redis.NewNetworkStore(redisClient)
@@ -122,8 +123,8 @@ func main() {
 	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp))
 	grpcServer := grpc.NewServer(opts...)
 
-	proto.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
-	proto.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
+	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
+	user.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	log.Printf("started wics server: localhost:%v", args.wicsport)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.wicsport))
@@ -132,7 +133,7 @@ func main() {
 	}
 
 	// start API Server
-	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, user, redisClient, network, group, setupKey)
+	httpServer := api.NewHTTPServer(args.port, cfg, account, ss, u, redisClient, network, group, setupKey)
 	log.Printf("started http server: localhost:%v", args.port)
 
 	reflection.Register(grpcServer)

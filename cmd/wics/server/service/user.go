@@ -3,15 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
-	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/wics/config"
-	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/wics/pb/user"
 	"github.com/Notch-Technologies/wizy/cmd/wics/redis"
 	"github.com/Notch-Technologies/wizy/store"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserServiceServer struct {
@@ -20,7 +16,7 @@ type UserServiceServer struct {
 	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
 
-	proto.UnimplementedUserServiceServer
+	user.UnimplementedUserServiceServer
 }
 
 func NewUserServiceServer(
@@ -35,9 +31,7 @@ func NewUserServiceServer(
 	}
 }
 
-// UserService
-//
-func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage) (*proto.LoginMessage, error) {
+func (uss *UserServiceServer) Login(ctx context.Context, msg *user.LoginMessage) (*user.LoginMessage, error) {
 	clientPubKey := msg.GetClientPublicKey()
 	serverPubKey := msg.GetServerPublicKey()
 	setupKey := msg.GetSetupKey()
@@ -52,25 +46,9 @@ func (uss *UserServiceServer) Login(ctx context.Context, msg *proto.LoginMessage
 	//	return nil, err
 	//}
 	//
-	return &proto.LoginMessage{
+	return &user.LoginMessage{
 		SetupKey:        setupKey,
 		ServerPublicKey: serverPubKey,
 		ClientPublicKey: clientPubKey,
-	}, nil
-}
-
-func (uss *UserServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*proto.GetServerPublicKeyResponse, error) {
-	pubicKey := uss.serverStore.GetPublicKey()
-
-	now := time.Now().Add(24 * time.Hour)
-	secs := int64(now.Second())
-	nanos := int32(now.Nanosecond())
-	expiresAt := &timestamp.Timestamp{Seconds: secs, Nanos: nanos}
-
-	log.Println("get server public key")
-
-	return &proto.GetServerPublicKeyResponse{
-		Key:       pubicKey,
-		ExpiresAt: expiresAt,
 	}, nil
 }
