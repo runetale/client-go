@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./user";
+
+service UserService {
+	rpc SetupKey(SetupKeyMessage) returns (SetupKeyMessage) {}
+}
+
+message SetupKeyMessage {
+	string group = 1;
+	string network = 2;
+	string job = 3;
+	string permission = 4;
+}
