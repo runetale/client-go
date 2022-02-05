@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS user_groups (
+  id INT AUTO_INCREMENT NOT NULL UNIQUE,
+
+  name VARCHAR(255) NOT NULL,
+  permission INT NOT NULL,
+
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+
+  PRIMARY KEY(id)
+);
