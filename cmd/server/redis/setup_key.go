@@ -10,7 +10,7 @@ import (
 
 type SetupKeyStoreManager interface {
 	CreateSetupKey(key, userID string,
-	keyType key.SetupKeyType, revoked bool) (*model.SetupKey, error)
+		keyType key.SetupKeyType, revoked bool) (*model.SetupKey, error)
 }
 
 type SetupKeyStore struct {
