@@ -7,14 +7,13 @@ import (
 )
 
 type SetupKey struct {
-	ID         string           `json:"id"`
-	Key        string           `json:"key"`
-	UserID     string           `json:"user_id"`
-	KeyType    key.SetupKeyType `json:"key_type"`
-	Revoked    bool             `json:"revoked"`
-	CreatedAt  time.Time        `json:"created_at"`
-	LastusedAt time.Time        `json:"lastused_at"`
-	UpdatedAt  time.Time        `json:"updated_at"`
+	ID         string           `db:"id"`
+	UserID     string           `db:"user_id"`
+	Key    	   string	 		`db:"key"`
+	KeyType    key.SetupKeyType `db:"key_type"`
+	Revoked    bool             `db:"revoked"`
+	CreatedAt  time.Time        `db:"created_at"`
+	UpdatedAt  time.Time        `db:"updated_at"`
 }
 
 func NewSetupKey(id, userID, key string, keytype key.SetupKeyType, revoked bool) *SetupKey {
@@ -25,7 +24,6 @@ func NewSetupKey(id, userID, key string, keytype key.SetupKeyType, revoked bool)
 		KeyType:    keytype,
 		Revoked:    revoked,
 		CreatedAt:  time.Now(),
-		LastusedAt: time.Now(),
 		UpdatedAt:  time.Now(),
 	}
 }
