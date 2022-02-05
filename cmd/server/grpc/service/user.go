@@ -11,10 +11,10 @@ import (
 )
 
 type UserServiceServer struct {
-	redis        *redis.RedisClient
-	config       *config.Config
-	accountStore *redis.AccountStore
-	serverStore  *store.ServerStore
+	redis              *redis.RedisClient
+	config             *config.Config
+	accountStore       *redis.AccountStore
+	serverStore        *store.ServerStore
 	setupKeyRepository *repository.SetupKeyRepository
 
 	user.UnimplementedUserServiceServer
@@ -27,15 +27,14 @@ func NewUserServiceServer(
 ) *UserServiceServer {
 	setupKeyRepository := repository.NewSetupKeyRepository(r, config, account, server, user, network, group, setupKey)
 	return &UserServiceServer{
-		redis:        r,
-		config:       config,
-		accountStore: account,
-		serverStore:  server,
+		redis:              r,
+		config:             config,
+		accountStore:       account,
+		serverStore:        server,
 		setupKeyRepository: setupKeyRepository,
 	}
 }
 
 func (uss *UserServiceServer) SetupKey(ctx context.Context, msg *user.SetupKeyMessage) (*user.SetupKeyMessage, error) {
-	return &user.SetupKeyMessage{
-	}, nil
+	return &user.SetupKeyMessage{}, nil
 }

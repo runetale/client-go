@@ -6,8 +6,8 @@ import (
 	"strconv"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
-	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"github.com/Notch-Technologies/wizy/cmd/server/grpc/api/handler"
+	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"github.com/Notch-Technologies/wizy/store"
 )
 
@@ -47,7 +47,7 @@ func listen(mux *http.ServeMux, port uint16) *http.Server {
 func NewAPIServer(
 	port uint16, config *config.Config,
 	account *redis.AccountStore, server *store.ServerStore,
-	user *redis.UserStore, r *redis.RedisClient, 
+	user *redis.UserStore, r *redis.RedisClient,
 	network *redis.NetworkStore, group *redis.OrgGroupStore, setupKey *redis.SetupKeyStore,
 ) *http.Server {
 	mux := newMuxHandler(config, account, server, r, user, network, group, setupKey)

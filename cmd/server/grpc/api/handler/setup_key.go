@@ -18,14 +18,14 @@ type SetupkeyHandlerManager interface {
 }
 
 type SetupkeyHandler struct {
-	redis        *redis.RedisClient
-	config       *config.Config
-	accountStore *redis.AccountStore
-	serverStore  *store.ServerStore
-	userStore         *redis.UserStore
-	networkStore         *redis.NetworkStore
-	orgGroupStore         *redis.OrgGroupStore
-	setupKeyStore *redis.SetupKeyStore
+	redis              *redis.RedisClient
+	config             *config.Config
+	accountStore       *redis.AccountStore
+	serverStore        *store.ServerStore
+	userStore          *redis.UserStore
+	networkStore       *redis.NetworkStore
+	orgGroupStore      *redis.OrgGroupStore
+	setupKeyStore      *redis.SetupKeyStore
 	setupKeyRepository *repository.SetupKeyRepository
 }
 
@@ -37,21 +37,21 @@ func NewSetupKeyHanlder(
 	setupKeyRepository := repository.NewSetupKeyRepository(r, config, account, server, user, network, group, setupKey)
 
 	return &SetupkeyHandler{
-		redis:        r,
-		config:       config,
-		accountStore: account,
-		serverStore:  server,
-		userStore:    user,
-		networkStore: network,
-		orgGroupStore: group,
-		setupKeyStore: setupKey,
+		redis:              r,
+		config:             config,
+		accountStore:       account,
+		serverStore:        server,
+		userStore:          user,
+		networkStore:       network,
+		orgGroupStore:      group,
+		setupKeyStore:      setupKey,
 		setupKeyRepository: setupKeyRepository,
 	}
 }
 
 type SetupKeyRequest struct {
 	Group      *string
-	Network      *string
+	Network    *string
 	Job        *string
 	Permission *key.PermissionType
 }

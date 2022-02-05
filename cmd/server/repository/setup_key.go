@@ -13,8 +13,8 @@ import (
 )
 
 type SetupKeyRepositoryManager interface {
-	CreateSetupKey(sub, group, job, network string, 
-	permissionType key.PermissionType) (*model.SetupKey, error)
+	CreateSetupKey(sub, group, job, network string,
+		permissionType key.PermissionType) (*model.SetupKey, error)
 }
 
 type SetupKeyRepository struct {
@@ -34,12 +34,12 @@ func NewSetupKeyRepository(
 	group *redis.OrgGroupStore, setupKey *redis.SetupKeyStore,
 ) *SetupKeyRepository {
 	return &SetupKeyRepository{
-		redis:        r,
-		config:       config,
-		accountStore: account,
-		serverStore:  server,
-		userStore:    user,
-		networkStore: network,
+		redis:         r,
+		config:        config,
+		accountStore:  account,
+		serverStore:   server,
+		userStore:     user,
+		networkStore:  network,
 		orgGroupStore: group,
 		setupKeyStore: setupKey,
 	}
@@ -55,7 +55,7 @@ func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string,
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// TOOD: (shintard) refactor transaction watch
 	err = r.redis.Client.Watch(r.redis.Ctx, func(tx *re.Tx) error {
 		_, err := tx.TxPipelined(r.redis.Ctx, func(pipe re.Pipeliner) error {
@@ -95,7 +95,7 @@ func (r *SetupKeyRepository) CreateSetupKey(sub, group, job, network string,
 		})
 		return err
 	})
- 
+
 	if err != nil {
 		if errors.Is(err, model.ErrUserAlredyExists) {
 			t, err := setupKey.KeyType()
