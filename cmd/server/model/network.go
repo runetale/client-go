@@ -7,15 +7,15 @@ import (
 
 type Network struct {
 	// create unique id by wissy
-	ID        string `json:"id"`
+	ID string `json:"id"`
 	// network name
-	Name      string `json:"name"`
+	Name string `json:"name"`
 	// your ip
-	IP        string `json:"ip"`
+	IP string `json:"ip"`
 	// network cidr
-	CIDR      string `json:"cidr"`
+	CIDR string `json:"cidr"`
 	// dns name
-	DNS       string `json:"dns"`
+	DNS       string    `json:"dns"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
