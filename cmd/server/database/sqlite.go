@@ -35,7 +35,7 @@ func (s *Sqlite) MigrationUp() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME + "_foreign_keys=on", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=on", driver)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (s *Sqlite) MigrationDown() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME + "_foreign_keys=off", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=off", driver)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,6 @@ func (s *Sqlite) MigrationDown() error {
 		fmt.Printf("migrate down error: %v \n", err)
 		return err
 	}
-
 
 	fmt.Println("migrrate down done with success")
 
@@ -102,15 +101,15 @@ func (s *Sqlite) Query(query string, dest interface{}, args ...interface{}) erro
 }
 
 // Single Select
-func (s *Sqlite) QueryRow(query string, dest interface{}, args ...interface{}) error {
+func (s *Sqlite) QueryRow(dest interface{}, query string, args ...interface{}) error {
 	row := s.db.QueryRow(query, args...)
 	err := row.Scan(&dest)
 	if err != nil {
-    	if err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return nil
-    	} else {
+		} else {
 			return err
-    	}
+		}
 	}
 	return nil
 }
@@ -125,7 +124,7 @@ func (s *Sqlite) Begin() (*Tx, error) {
 }
 
 type Tx struct {
-	tx          *sql.Tx
+	tx *sql.Tx
 }
 
 func (t *Tx) Exec(query string, args ...interface{}) (int64, error) {
@@ -162,11 +161,11 @@ func (t *Tx) QueryRow(query string, dest interface{}, args ...interface{}) error
 	row := t.tx.QueryRow(query, args...)
 	err := row.Scan(&dest)
 	if err != nil {
-    	if err == sql.ErrNoRows {
+		if err == sql.ErrNoRows {
 			return nil
-    	} else {
+		} else {
 			return err
-    	}
+		}
 	}
 	return nil
 }
