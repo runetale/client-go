@@ -8,9 +8,16 @@ service UserService {
 	rpc SetupKey(SetupKeyMessage) returns (SetupKeyMessage) {}
 }
 
+enum PermissionType {
+	RWXKey = 0;
+	RWKey  = 1;
+	RKey   = 2;
+}
+
 message SetupKeyMessage {
-	string group = 1;
-	string network = 2;
-	string job = 3;
-	string permission = 4;
+	int64  userGroupID = 1;
+	string orgGroupID = 2;
+	string networkID = 3;
+	string job = 4;
+	PermissionType permission = 5;
 }
