@@ -2,8 +2,8 @@ package server
 
 import (
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
+	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/grpc/service"
-	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"github.com/Notch-Technologies/wizy/store"
 )
 
@@ -14,14 +14,11 @@ type Server struct {
 }
 
 func NewServer(
-	config *config.Config, account *redis.AccountStore,
-	server *store.ServerStore, r *redis.RedisClient,
-	user *redis.UserStore, network *redis.NetworkStore,
-	group *redis.OrgGroupStore, setupKey *redis.SetupKeyStore,
+	db *database.Sqlite, config *config.Config, server *store.ServerStore,
 ) (*Server, error) {
 	return &Server{
-		UserServiceServer:    service.NewUserServiceServer(r, config, account, server, user, network, group, setupKey),
-		PeerServiceServer:    service.NewPeerServiceServer(r),
-		SessionServiceServer: service.NewSessionServiceServer(r, config, account, server),
+		UserServiceServer:    service.NewUserServiceServer(db),
+		PeerServiceServer:    service.NewPeerServiceServer(db),
+		SessionServiceServer: service.NewSessionServiceServer(db, config, server),
 	}, nil
 }

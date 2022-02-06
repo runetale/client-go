@@ -6,30 +6,26 @@ import (
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
+	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
-	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type SessionServiceServer struct {
-	redis        *redis.RedisClient
 	config       *config.Config
-	accountStore *redis.AccountStore
 	serverStore  *store.ServerStore
 
 	session.UnimplementedSessionServiceServer
 }
 
 func NewSessionServiceServer(
-	r *redis.RedisClient, config *config.Config, account *redis.AccountStore,
+	db *database.Sqlite, config *config.Config,
 	server *store.ServerStore,
 ) *SessionServiceServer {
 	return &SessionServiceServer{
-		redis:        r,
 		config:       config,
-		accountStore: account,
 		serverStore:  server,
 	}
 }

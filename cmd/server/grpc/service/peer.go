@@ -4,19 +4,17 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
-	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type PeerServiceServer struct {
-	redis *redis.RedisClient
 	peer.UnimplementedPeerServiceServer
 }
 
-func NewPeerServiceServer(r *redis.RedisClient) *PeerServiceServer {
+func NewPeerServiceServer(db *database.Sqlite) *PeerServiceServer {
 	return &PeerServiceServer{
-		redis: r,
 	}
 }
 
