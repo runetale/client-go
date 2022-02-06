@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -12,12 +11,11 @@ import (
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
+	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/grpc"
-	"github.com/Notch-Technologies/wizy/cmd/server/grpc/api"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
-	"github.com/Notch-Technologies/wizy/cmd/server/redis"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -67,24 +65,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// login to redis
-	p := os.Getenv("REDIS_PASSWORD")
-	redisClient := redis.NewRedisClient(p)
-
-	// create account store
-	account := redis.NewAccountStore(redisClient)
-
-	// create user store
-	u := redis.NewUserStore(redisClient)
-
-	// create network store
-	network := redis.NewNetworkStore(redisClient)
-
-	// create group store
-	group := redis.NewOrgGroupStore(redisClient)
-
-	// create setupkey store
-	setupKey := redis.NewSetupKeyStore(redisClient)
+	db := database.NewSqlite()
 
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
@@ -102,7 +83,7 @@ func main() {
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
 	// initialize new wics server
-	s, err := server.NewServer(cfg, account, ss, redisClient, u, network, group, setupKey)
+	s, err := server.NewServer(db, cfg, ss)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -134,10 +115,6 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	// start API Server
-	httpServer := api.NewAPIServer(args.port, cfg, account, ss, u, redisClient, network, group, setupKey)
-	log.Printf("started http server: localhost:%v", args.port)
-
 	reflection.Register(grpcServer)
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
@@ -162,8 +139,4 @@ func main() {
 	<-stop
 	log.Println("terminate wics server.")
 	grpcServer.Stop()
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	httpServer.Shutdown(ctx)
 }
