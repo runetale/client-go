@@ -1,10 +1,8 @@
 CREATE TABLE IF NOT EXISTS setup_keys (
   id INT AUTO_INCREMENT NOT NULL UNIQUE,
   user_id INT NOT NULL,
-
   key VARCHAR(255) NOT NULL UNIQUE,
   key_type INT NOT NULL,
-
   revoked BOOLEAN NOT NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,

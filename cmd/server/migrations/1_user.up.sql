@@ -2,12 +2,10 @@ CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT NOT NULL UNIQUE,
   provider_id VARCHAR(255) NOT NULL UNIQUE,
   provider VARCHAR(255) NOT NULL UNIQUE,
-
   org_id INT NOT NULL,
   network_id INT NOT NULL,
   user_group_id INT NOT NULL,
   permission INT NOT NULL,
-
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
 
