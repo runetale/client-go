@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
@@ -23,7 +24,9 @@ func NewUserServiceServer(
 }
 
 func (uss *UserServiceServer) SetupKey(ctx context.Context, msg *user.SetupKeyMessage) (*user.SetupKeyMessage, error) {
-	//uss.setupKeyUsecase.CreateSetupKey(msg.GetNetwork(), "default", msg.GetPermission(), "")
+	sub := getSub(ctx)
+	fmt.Println(sub)
 
 	return &user.SetupKeyMessage{}, nil
 }
+

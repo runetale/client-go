@@ -3,6 +3,7 @@ package grpcserver
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/Notch-Technologies/wizy/client"
@@ -36,6 +37,8 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 	if err != nil {
 		return nil, errors.New(domain.ErrInvalidValue.Error())
 	}
+
+	fmt.Println(accessToken)
 
 	isAdmin, err := client.IsAdmin(sub, accessToken)
 	if err != nil || !isAdmin {
