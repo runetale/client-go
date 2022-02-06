@@ -1,9 +1,9 @@
-package server
+package grpcserver
 
 import (
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
-	"github.com/Notch-Technologies/wizy/cmd/server/grpc/service"
+	"github.com/Notch-Technologies/wizy/cmd/server/grpc_server/service"
 	"github.com/Notch-Technologies/wizy/store"
 )
 

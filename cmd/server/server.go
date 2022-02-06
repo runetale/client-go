@@ -12,7 +12,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
-	"github.com/Notch-Technologies/wizy/cmd/server/grpc"
+	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
@@ -20,6 +20,7 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -102,7 +103,9 @@ func main() {
 		Timeout:               2 * time.Second,
 	}
 
-	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp))
+	middleware := server.NewMiddlware()
+
+	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)),)
 	grpcServer := grpc.NewServer(opts...)
 
 	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
