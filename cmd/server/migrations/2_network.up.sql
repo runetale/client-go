@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS networks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  ip VARCHAR(15) NOT NULL,
+  cidr VARCHAR(3) NOT NULL,
+  dns varchar(253) NOT NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL
+);
+
+CREATE INDEX idx_networks_name ON networks(name);
+

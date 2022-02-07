@@ -17,10 +17,10 @@ const (
 )
 
 // key usage types.
-type SetupKeyType string
+type SetupKeyType int8
 
 const (
-	DefaultKey SetupKeyType = "default"
+	DefaultKey SetupKeyType = 3
 )
 
 type PermissionType int8
@@ -34,11 +34,15 @@ const (
 
 // structure of jwt in SetupKey
 type customClaims struct {
-	KeyType    SetupKeyType   `json:"key_type"`
-	Group      string         `json:"group"`
-	Job        string         `json:"job"`
-	Permission PermissionType `json:"permission"`
-	Revoked    bool           `json:"revoked"`
+	UserID     uint         `json:"user_id"`
+	ProviderID string       `json:"provider_id"`
+	KeyType    SetupKeyType `json:"key_type"`
+
+	UserGroupID uint           `json:"user_group_id"`
+	OrgGroupID  uint           `json:"org_group_id"`
+	Job         string         `json:"job"`
+	Permission  PermissionType `json:"permission"`
+	Revoked     bool           `json:"revoked"`
 
 	CreatedAt  time.Time `json:"created_at"`
 	LastusedAt time.Time `json:"lastused_at"`
@@ -51,7 +55,9 @@ type SetupKey struct {
 	signedString string
 }
 
-func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupKey, error) {
+func NewSetupKey(
+	userID uint, providerID, job string,
+	userGroupID, orgGroupID uint, permissionType PermissionType) (*SetupKey, error) {
 	var (
 		now = time.Now().Unix()
 		// expires 1 weak of setupkey
@@ -62,8 +68,11 @@ func NewSetupKey(sub, group, job string, permissionType PermissionType) (*SetupK
 	id := strings.ToUpper(uuid.New().String())
 
 	claims := customClaims{
+		userID,
+		providerID,
 		DefaultKey,
-		group,
+		userGroupID,
+		orgGroupID,
 		job,
 		permissionType,
 		false,

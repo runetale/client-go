@@ -1,8 +1,8 @@
-### direnv ###
+# direnv
 .direnv
 .envrc
 
-### dotenv ###
+# dotenv
 .env
 
 ### Go ###
@@ -28,6 +28,9 @@
 # Go workspace file
 go.work
 
-### Go Patch ###
+# Go Patch
 /vendor/
 /Godeps/
+
+# sqlite
+*.db

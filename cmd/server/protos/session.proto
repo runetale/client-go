@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./session";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+service SessionService {
+	rpc GetServerPublicKey(google.protobuf.Empty) returns (GetServerPublicKeyResponse) {}
+}
+
+message GetServerPublicKeyResponse {
+	string key = 1;
+	google.protobuf.Timestamp expiresAt = 2;
+}
