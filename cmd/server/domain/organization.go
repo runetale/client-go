@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type OrgGroup struct {
+type Organization struct {
 	ID          uint      `db:"id"`
 	Name        string    `db:"name"`
 	DisplayName string    `db:"display_name"`
@@ -13,8 +13,8 @@ type OrgGroup struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-func NewOrgGroup(name, displayName, orgID string) *OrgGroup {
-	return &OrgGroup{
+func NewOrganization(name, displayName, orgID string) *Organization {
+	return &Organization{
 		Name:        name,
 		DisplayName: displayName,
 		OrgID:       orgID,
