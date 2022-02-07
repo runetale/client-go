@@ -102,38 +102,47 @@ func (a *Auth0Client) GetUserRoles(sub, token string) (*[]roleResponse, error) {
 	return &r, nil
 }
 
-type organizationResponse struct {
+type OrganizationResponse struct {
+	ID 			  string `json:"id"`
 	Name          string `json:"name"`
 	DisplayName   string `json:"display_name"`
-	ID 			  string `json:"id"`
 }
 
-func (a *Auth0Client) CreateOrganization(name, displayName, logoURL string, token string) (*organizationResponse, error) {
+
+func (a *Auth0Client) CreateOrganization(name, displayName string, token string) (*OrganizationResponse, error) {
 	url := fmt.Sprintf("https://%s/api/v2/organizations", a.Domain)
 
-	payload := strings.NewReader(
-		fmt.Sprintf(
-			"{\"name\": %s, \"display_name\": %s, \"branding\": [{ \"logo_url\": %s }]}",
-			name, displayName, logoURL,
-		))
+	b := fmt.Sprintf(`{"name": "%s", "display_name": "%s"}`,
+			name, displayName)
 
-	req, _ := http.NewRequest("POST", url, payload)
+	payload := strings.NewReader(b)
+
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return nil, err
+	}
 
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", token))
 	req.Header.Add("cache-control", "no-cache")
 
-	res, _ := http.DefaultClient.Do(req)
-
-	body, _ := ioutil.ReadAll(res.Body)
-
-	var r organizationResponse
-
-	if err := json.Unmarshal(body, &r); err != nil {
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
 		return nil, err
 	}
 
 	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var r OrganizationResponse
+
+	if err := json.Unmarshal(body, &r); err != nil {
+		return nil, err
+	}
 
 	return &r, nil
 }
