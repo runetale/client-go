@@ -9,13 +9,10 @@ service OrganizationService {
 }
 
 message OrganizationCreateRequest {
-	string setupKey = 1;
-	string clientPublicKey = 2;
-	string serverPublicKey = 3;
+	string Name = 1;
+	string DisplayName = 2;
 }
 
 message OrganizationCreateResponse {
-	string setupKey = 1;
-	string clientPublicKey = 2;
-	string serverPublicKey = 3;
+	string OrganizationID = 1;
 }
