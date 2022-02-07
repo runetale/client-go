@@ -21,7 +21,7 @@ func (pss *PeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.E
 	panic("not implement WSync")
 }
 
-func (uss *PeerServiceServer) Login(ctx context.Context, msg *peer.PeerLoginMessage) (*peer.PeerLoginMessage, error) {
+func (pss *PeerServiceServer) Login(ctx context.Context, msg *peer.PeerLoginMessage) (*peer.PeerLoginMessage, error) {
 	clientPubKey := msg.GetClientPublicKey()
 	serverPubKey := msg.GetServerPublicKey()
 	setupKey := msg.GetSetupKey()

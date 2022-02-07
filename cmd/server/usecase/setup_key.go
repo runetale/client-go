@@ -40,14 +40,6 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
 
-	// TODO: (shintard) when we create organization api, remove this error handling.
-	if errors.Is(err, domain.ErrNoRows) {
-		orgGroup = domain.NewOrgGroup("notch", "Notch", "aa")
-		err = s.orgRepository.CreateOrganization(orgGroup)
-		if err != nil {
-			return nil, err
-		}
-	}
 	if err != nil {
 		return nil, err
 	}

@@ -8,8 +8,8 @@ import (
 )
 
 type OrgRepositoryManager interface {
-	CreateOrganization(org *domain.OrgGroup) error
-	FindByOrganizationID(orgID string) (*domain.OrgGroup, error)
+	CreateOrganization(org *domain.Organization) error
+	FindByOrganizationID(orgID string) (*domain.Organization, error)
 }
 
 type OrgRepository struct {
@@ -22,9 +22,9 @@ func NewOrgRepository(db database.SQLExecuter) *OrgRepository {
 	}
 }
 
-func (o *OrgRepository) CreateOrganization(org *domain.OrgGroup) error {
+func (o *OrgRepository) CreateOrganization(org *domain.Organization) error {
 	lastID, err := o.db.Exec(`
-	INSERT INTO orgs (
+	INSERT INTO organizations (
 		name,
 		display_name,
 		org_id,
@@ -48,21 +48,21 @@ func (o *OrgRepository) CreateOrganization(org *domain.OrgGroup) error {
 	return nil
 }
 
-func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.OrgGroup, error) {
+func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.Organization, error) {
 	var (
-		orgGroup domain.OrgGroup
+		org domain.Organization
 	)
 
 	row := o.db.QueryRow(
 		`
 			SELECT *
-			FROM orgs
+			FROM organizations
 			WHERE
 				org_id = ?
 			LIMIT 1
 		`, orgID)
 
-	err := row.Scan(&orgGroup.ID, &orgGroup.Name, &orgGroup.DisplayName, &orgGroup.OrgID, &orgGroup.CreatedAt, &orgGroup.UpdatedAt)
+	err := row.Scan(&org.ID, &org.Name, &org.DisplayName, &org.OrgID, &org.CreatedAt, &org.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNoRows
@@ -70,5 +70,5 @@ func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.OrgGroup, er
 		return nil, err
 	}
 
-	return &orgGroup, nil
+	return &org, nil
 }
