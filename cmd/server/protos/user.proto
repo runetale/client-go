@@ -5,7 +5,7 @@ package protos;
 option go_package = "./user";
 
 service UserService {
-	rpc SetupKey(SetupKeyMessage) returns (SetupKeyMessage) {}
+	rpc SetupKey(SetupKeyRequest) returns (SetupKeyResponse) {}
 }
 
 enum PermissionType {
@@ -14,10 +14,14 @@ enum PermissionType {
 	RKey   = 2;
 }
 
-message SetupKeyMessage {
+message SetupKeyRequest {
 	uint64  userGroupID = 1;
 	string orgGroupID = 2;
 	uint64  networkID = 3;
 	string job = 4;
 	PermissionType permission = 5;
+}
+
+message SetupKeyResponse {
+	string setupKey = 1;
 }
