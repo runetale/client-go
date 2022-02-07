@@ -14,6 +14,12 @@ import (
 
 const SQLITE_DB_NAME = "wissy.db"
 
+type SQLExecuter interface {
+	Exec(query string, args ...interface{}) (int64, error)
+	Query(query string, dest interface{}, args ...interface{}) error
+	QueryRow(query string, args ...interface{}) *sql.Row
+}
+
 type Sqlite struct {
 	db *sql.DB
 }
@@ -47,7 +53,7 @@ func (s *Sqlite) MigrationUp() error {
 
 	fmt.Println("migrrate up done with success")
 
-	return err
+	return nil
 }
 
 func (s *Sqlite) MigrationDown() error {
@@ -101,17 +107,17 @@ func (s *Sqlite) Query(query string, dest interface{}, args ...interface{}) erro
 }
 
 // Single Select
-func (s *Sqlite) QueryRow(dest interface{}, query string, args ...interface{}) error {
+func (s *Sqlite) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := s.db.QueryRow(query, args...)
-	err := row.Scan(&dest)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		} else {
-			return err
-		}
-	}
-	return nil
+	//err := row.Scan(&dest)
+	//if err != nil {
+	//	if err == sql.ErrNoRows {
+	//		return domain.ErrNoRows
+	//	} else {
+	//		return err
+	//	}
+	//}
+	return row
 }
 
 func (s *Sqlite) Begin() (*Tx, error) {
@@ -157,17 +163,17 @@ func (t *Tx) Query(query string, dest interface{}, args ...interface{}) error {
 }
 
 // Single Select
-func (t *Tx) QueryRow(query string, dest interface{}, args ...interface{}) error {
+func (t *Tx) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := t.tx.QueryRow(query, args...)
-	err := row.Scan(&dest)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		} else {
-			return err
-		}
-	}
-	return nil
+	//err := row.Scan(&dest)
+	//if err != nil {
+	//	if err == sql.ErrNoRows {
+	//		return domain.ErrNoRows
+	//	} else {
+	//		return err
+	//	}
+	//}
+	return row
 }
 
 func (t *Tx) Commit() error {
