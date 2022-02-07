@@ -7,6 +7,7 @@ import (
 
 type NetworkRepositoryManager interface {
 	CreateNetwork(network *domain.Network) (*domain.Network, error)
+	FindByNetworkID(id uint) (*domain.Network, error)
 }
 
 type NetworkRepository struct {
@@ -43,4 +44,25 @@ func (n *NetworkRepository) CreateNetwork(network *domain.Network) error {
 	network.ID = uint(lastID)
 
 	return nil
+}
+
+func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
+	var (
+		network domain.Network
+	)
+
+	err := n.db.QueryRow(
+		&network,
+		`
+			SELECT *
+			FROM networks
+			WHERE
+				id = ?
+			LIMIT 1
+		`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &network, nil
 }

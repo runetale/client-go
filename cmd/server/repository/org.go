@@ -7,7 +7,7 @@ import (
 
 type OrgRepositoryManager interface {
 	CreateOrganization(org *domain.OrgGroup) error
-	GetOrganization(orgID string) (*domain.OrgGroup, error)
+	FindByOrganizationID(orgID string) (*domain.OrgGroup, error)
 }
 
 type OrgRepository struct {
@@ -46,7 +46,7 @@ func (o *OrgRepository) CreateOrganization(org *domain.OrgGroup) error {
 	return nil
 }
 
-func (o *OrgRepository) GetOrganization(orgID string) (*domain.OrgGroup, error) {
+func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.OrgGroup, error) {
 	var (
 		orgGroup domain.OrgGroup
 	)
@@ -55,7 +55,7 @@ func (o *OrgRepository) GetOrganization(orgID string) (*domain.OrgGroup, error) 
 		&orgGroup,
 		`
 			SELECT *
-			FROM daily_purchases
+			FROM orgs
 			WHERE
 				org_id = ?
 			LIMIT 1

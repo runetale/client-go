@@ -6,7 +6,8 @@ import (
 )
 
 type UserGroupRepositoryManager interface {
-	CreateOrganization(org *domain.OrgGroup) error
+	CreateUserGroup(group *domain.UserGroup) error
+	FindByUserGroupID(id uint) (*domain.UserGroup, error)
 }
 
 type UserGroupRepository struct {
@@ -41,4 +42,25 @@ func (u *UserGroupRepository) CreateUserGroup(group *domain.UserGroup) error {
 	group.ID = uint(lastID)
 
 	return nil
+}
+
+func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, error) {
+	var (
+		userGroup domain.UserGroup
+	)
+
+	err := u.db.QueryRow(
+		&userGroup,
+		`
+			SELECT *
+			FROM user_groups
+			WHERE
+				id = ?
+			LIMIT 1
+		`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &userGroup, nil
 }
