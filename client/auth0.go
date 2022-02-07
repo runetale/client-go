@@ -9,15 +9,34 @@ import (
 	"strings"
 )
 
-func GetAuth0ManagementAccessToken() (string, error) {
-	domain := os.Getenv("AUTH0_DOMAIN")
-	url := fmt.Sprintf("https://%s/oauth/token", domain)
+type Auth0Client struct {
+	Domain string
+	M2MClientID string
+	M2MClientSecret string
+	Audience string
+}
 
+func NewAuth0Client() *Auth0Client {
+	domain := os.Getenv("AUTH0_DOMAIN")
 	clientid := os.Getenv("AUTH0_M2M_CLIENT_ID")
 	clientsecret := os.Getenv("AUTH0_M2M_CLIENT_SECRET")
 	audience := os.Getenv("AUTH0_AUDIENCE")
 
-	payload := strings.NewReader(fmt.Sprintf("grant_type=client_credentials&client_id=%s&client_secret=%s&audience=%s", clientid, clientsecret, audience))
+	return &Auth0Client{
+		Domain: domain,
+		M2MClientID: clientid,
+		M2MClientSecret: clientsecret,
+		Audience: audience,
+	}
+}
+
+func (a *Auth0Client) GetAuth0ManagementAccessToken() (string, error) {
+	url := fmt.Sprintf("https://%s/oauth/token", a.Domain)
+
+	payload := strings.NewReader(
+		fmt.Sprintf("grant_type=client_credentials&client_id=%s&client_secret=%s&audience=%s",
+		a.M2MClientID, a.M2MClientSecret, a.Audience,
+	))
 
 	req, _ := http.NewRequest("POST", url, payload)
 
@@ -41,8 +60,8 @@ func GetAuth0ManagementAccessToken() (string, error) {
 	return m.AccessToken, nil
 }
 
-func IsAdmin(sub, token string) (bool, error) {
-	roles, err := GetUserRoles(sub, token)
+func (a *Auth0Client) IsAdmin(sub, token string) (bool, error) {
+	roles, err := a.GetUserRoles(sub, token)
 	if err != nil {
 		return false, err
 	}
@@ -61,9 +80,8 @@ type roleResponse struct {
 	Description string `json:"description"`
 }
 
-func GetUserRoles(sub, token string) (*[]roleResponse, error) {
-	audience := os.Getenv("AUTH0_AUDIENCE")
-	url := fmt.Sprintf("%susers/%s/roles", audience, sub)
+func (a *Auth0Client) GetUserRoles(sub, token string) (*[]roleResponse, error) {
+	url := fmt.Sprintf("%susers/%s/roles", a.Audience, sub)
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -74,6 +92,42 @@ func GetUserRoles(sub, token string) (*[]roleResponse, error) {
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var r []roleResponse
+
+	if err := json.Unmarshal(body, &r); err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	return &r, nil
+}
+
+type organizationResponse struct {
+	Name          string `json:"name"`
+	DisplayName   string `json:"display_name"`
+	ID 			  string `json:"id"`
+}
+
+func (a *Auth0Client) CreateOrganization(name, displayName, logoURL string, token string) (*organizationResponse, error) {
+	url := fmt.Sprintf("https://%s/api/v2/organizations", a.Domain)
+
+	payload := strings.NewReader(
+		fmt.Sprintf(
+			"{\"name\": %s, \"display_name\": %s, \"branding\": [{ \"logo_url\": %s }]}",
+			name, displayName, logoURL,
+		))
+
+	req, _ := http.NewRequest("POST", url, payload)
+
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("cache-control", "no-cache")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	body, _ := ioutil.ReadAll(res.Body)
+
+	var r organizationResponse
 
 	if err := json.Unmarshal(body, &r); err != nil {
 		return nil, err
