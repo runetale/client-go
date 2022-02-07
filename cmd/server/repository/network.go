@@ -65,7 +65,7 @@ func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
 		`, id)
 
 	err := row.Scan(
-		&network.ID, &network.Name, &network.IP, &network.CIDR, 
+		&network.ID, &network.Name, &network.IP, &network.CIDR,
 		&network.DNS, &network.CreatedAt, &network.UpdatedAt)
 
 	if err != nil {

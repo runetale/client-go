@@ -59,7 +59,7 @@ func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, err
 				id = ?
 			LIMIT 1
 		`, id)
-	
+
 	err := row.Scan(
 		&userGroup.ID,
 		&userGroup.Name,
