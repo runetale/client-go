@@ -15,9 +15,9 @@ enum PermissionType {
 }
 
 message SetupKeyMessage {
-	int64  userGroupID = 1;
+	uint64  userGroupID = 1;
 	string orgGroupID = 2;
-	string networkID = 3;
+	uint64  networkID = 3;
 	string job = 4;
 	PermissionType permission = 5;
 }
