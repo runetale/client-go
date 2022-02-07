@@ -14,8 +14,7 @@ type PeerServiceServer struct {
 }
 
 func NewPeerServiceServer(db *database.Sqlite) *PeerServiceServer {
-	return &PeerServiceServer{
-	}
+	return &PeerServiceServer{}
 }
 
 func (pss *PeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {

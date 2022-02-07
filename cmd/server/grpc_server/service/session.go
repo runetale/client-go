@@ -14,8 +14,8 @@ import (
 )
 
 type SessionServiceServer struct {
-	config       *config.Config
-	serverStore  *store.ServerStore
+	config      *config.Config
+	serverStore *store.ServerStore
 
 	session.UnimplementedSessionServiceServer
 }
@@ -25,8 +25,8 @@ func NewSessionServiceServer(
 	server *store.ServerStore,
 ) *SessionServiceServer {
 	return &SessionServiceServer{
-		config:       config,
-		serverStore:  server,
+		config:      config,
+		serverStore: server,
 	}
 }
 
