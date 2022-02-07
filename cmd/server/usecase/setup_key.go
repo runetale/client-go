@@ -24,7 +24,7 @@ type SetupKeyUsecase struct {
 }
 
 func NewSetupKeyUsecase(
-	db *database.Sqlite,
+	db database.SQLExecuter,
 ) *SetupKeyUsecase {
 	return &SetupKeyUsecase{
 		setupKeyRepository:  repository.NewSetupKeyRepository(db),
@@ -39,12 +39,21 @@ func NewSetupKeyUsecase(
 func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
+
+	// TODO: (shintard) when we create organization api, remove this error handling.
+	if errors.Is(err, domain.ErrNoRows) {
+		orgGroup = domain.NewOrgGroup("notch", "Notch", "aa")
+		err = s.orgRepository.CreateOrganization(orgGroup)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
 
 	network, err := s.networkRepository.FindByNetworkID(networkID)
-	if errors.Is(err, domain.ErrNotFound) {
+	if errors.Is(err, domain.ErrNoRows) {
 		network = domain.NewNetwork("default", "", "", "")
 		err = s.networkRepository.CreateNetwork(network)
 		if err != nil {
@@ -55,9 +64,8 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 		return nil, err
 	}
 
-	
 	userGroup, err := s.userGroupRepository.FindByUserGroupID(userGroupID)
-	if errors.Is(err, domain.ErrNotFound) {
+	if errors.Is(err, domain.ErrNoRows) {
 		userGroup = domain.NewUserGroup("default", permission)
 		err = s.userGroupRepository.CreateUserGroup(userGroup)
 		if err != nil {
