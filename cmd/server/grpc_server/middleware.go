@@ -15,10 +15,13 @@ type MiddlewareManager interface {
 }
 
 type Middleware struct {
+	client *client.Auth0Client
 }
 
-func NewMiddlware() *Middleware {
-	return &Middleware{}
+func NewMiddlware(client *client.Auth0Client) *Middleware {
+	return &Middleware{
+		client: client,
+	}
 }
 
 func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, err error) {
@@ -31,12 +34,12 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 		return nil, errors.New(domain.ErrInvalidValue.Error())
 	}
 
-	accessToken, err := client.GetAuth0ManagementAccessToken()
+	accessToken, err := m.client.GetAuth0ManagementAccessToken()
 	if err != nil {
 		return nil, errors.New(domain.ErrInvalidValue.Error())
 	}
 
-	isAdmin, err := client.IsAdmin(sub, accessToken)
+	isAdmin, err := m.client.IsAdmin(sub, accessToken)
 	if err != nil || !isAdmin {
 		return nil, errors.New(domain.ErrInvalidValue.Error())
 	}
