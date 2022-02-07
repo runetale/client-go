@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS peers (
-  id INT AUTO_INCREMENT NOT NULL UNIQUE,
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
   user_id INT NOT NULL,
   setup_key_id INT NOT NULL,
   org_id INT NOT NULL,
@@ -13,6 +13,5 @@ CREATE TABLE IF NOT EXISTS peers (
   FOREIGN KEY (setup_key_id) REFERENCES setup_keys(id),
   FOREIGN KEY (org_id) REFERENCES orgs(id),
   FOREIGN KEY (user_group_id) REFERENCES user_groups(id),
-  FOREIGN KEY (network_id) REFERENCES networks(id),
-  PRIMARY KEY(id)
+  FOREIGN KEY (network_id) REFERENCES networks(id)
 );

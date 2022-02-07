@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS jobs (
-  id INT AUTO_INCREMENT NOT NULL UNIQUE,
+  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
   name VARCHAR(255) NOT NULL,
   user_id INT NOT NULL,
   org_id INT NOT NULL,
@@ -7,8 +7,7 @@ CREATE TABLE IF NOT EXISTS jobs (
   updated_at DATETIME NOT NULL,
 
   FOREIGN KEY (user_id) REFERENCES users(id),
-  FOREIGN KEY (org_id) REFERENCES orgs(id),
-  PRIMARY KEY(id)
+  FOREIGN KEY (org_id) REFERENCES orgs(id)
 );
 
 CREATE INDEX idx_jobs_org_id ON jobs(org_id);
