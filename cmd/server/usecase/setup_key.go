@@ -36,12 +36,15 @@ func NewSetupKeyUsecase(
 	}
 }
 
-func (s *SetupKeyUsecase) CreateSetupKey(networkName, userGroupName, jobName, orgID string,
-	permission key.PermissionType, providerID string) (*key.SetupKey, error) {
-	orgGroup, err := s.orgRepository.GetOrganization(orgID)
+func (s *SetupKeyUsecase) CreateSetupKey(networkName, userGroupName uint64, jobName, orgID string,
+	permission key.PermissionType, sub string) (*key.SetupKey, error) {
+	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: FindByNetworkID
+	// when if not found, create default network
 
 	network := domain.NewNetwork(networkName, "", "", "")
 	err = s.networkRepository.CreateNetwork(network)
@@ -49,15 +52,17 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkName, userGroupName, jobName, or
 		return nil, err
 	}
 
+	// TODO: FindByUserGroupID
+	// when if not found, create default user group
 	userGroup := domain.NewUserGroup(userGroupName, permission)
 	err = s.userGroupRepository.CreateUserGroup(userGroup)
 	if err != nil {
 		return nil, err
 	}
 
-	i := strings.Index(providerID, "|")
-	provider := providerID[:i]
-	user := domain.NewUser(providerID, provider, network.ID, userGroup.ID, orgGroup.ID, permission)
+	i := strings.Index(sub, "|")
+	provider := sub[:i]
+	user := domain.NewUser(sub, provider, network.ID, userGroup.ID, orgGroup.ID, permission)
 
 	err = s.userRepository.CreateUser(user)
 	if err != nil && !errors.Is(err, domain.ErrUserAlredyExists) {
@@ -70,7 +75,7 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkName, userGroupName, jobName, or
 		return nil, err
 	}
 
-	setupKey, err := key.NewSetupKey(user.ID, providerID, job.Name, userGroup.ID, orgGroup.ID, permission)
+	setupKey, err := key.NewSetupKey(user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, permission)
 	if err != nil {
 		return nil, err
 	}
