@@ -36,26 +36,34 @@ func NewSetupKeyUsecase(
 	}
 }
 
-func (s *SetupKeyUsecase) CreateSetupKey(networkName, userGroupName uint64, jobName, orgID string,
+func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: FindByNetworkID
-	// when if not found, create default network
-
-	network := domain.NewNetwork(networkName, "", "", "")
-	err = s.networkRepository.CreateNetwork(network)
+	network, err := s.networkRepository.FindByNetworkID(networkID)
+	if errors.Is(err, domain.ErrNotFound) {
+		network = domain.NewNetwork("default", "", "", "")
+		err = s.networkRepository.CreateNetwork(network)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: FindByUserGroupID
-	// when if not found, create default user group
-	userGroup := domain.NewUserGroup(userGroupName, permission)
-	err = s.userGroupRepository.CreateUserGroup(userGroup)
+	
+	userGroup, err := s.userGroupRepository.FindByUserGroupID(userGroupID)
+	if errors.Is(err, domain.ErrNotFound) {
+		userGroup = domain.NewUserGroup("default", permission)
+		err = s.userGroupRepository.CreateUserGroup(userGroup)
+		if err != nil {
+			return nil, err
+		}
+	}
 	if err != nil {
 		return nil, err
 	}
