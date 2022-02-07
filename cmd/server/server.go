@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Notch-Technologies/wizy/client"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server"
@@ -107,7 +108,9 @@ func main() {
 		Timeout:               2 * time.Second,
 	}
 
-	middleware := server.NewMiddlware()
+	auth0Client := client.NewAuth0Client()
+
+	middleware := server.NewMiddlware(auth0Client)
 
 	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
 	grpcServer := grpc.NewServer(opts...)
