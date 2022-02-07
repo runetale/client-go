@@ -10,10 +10,10 @@ type JobRepositoryManager interface {
 }
 
 type JobRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
-func NewJobRepository(db *database.Sqlite) *JobRepository {
+func NewJobRepository(db database.SQLExecuter) *JobRepository {
 	return &JobRepository{
 		db: db,
 	}

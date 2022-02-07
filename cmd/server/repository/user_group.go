@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
@@ -11,10 +13,10 @@ type UserGroupRepositoryManager interface {
 }
 
 type UserGroupRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
-func NewUserGroupRepository(db *database.Sqlite) *UserGroupRepository {
+func NewUserGroupRepository(db database.SQLExecuter) *UserGroupRepository {
 	return &UserGroupRepository{
 		db: db,
 	}
@@ -49,8 +51,7 @@ func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, err
 		userGroup domain.UserGroup
 	)
 
-	err := u.db.QueryRow(
-		&userGroup,
+	row := u.db.QueryRow(
 		`
 			SELECT *
 			FROM user_groups
@@ -58,7 +59,19 @@ func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, err
 				id = ?
 			LIMIT 1
 		`, id)
+	
+	err := row.Scan(
+		&userGroup.ID,
+		&userGroup.Name,
+		&userGroup.Permission,
+		&userGroup.CreatedAt,
+		&userGroup.UpdatedAt,
+	)
+
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
 		return nil, err
 	}
 

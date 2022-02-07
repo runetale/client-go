@@ -12,11 +12,11 @@ type SetupKeyRepositoryManager interface {
 }
 
 type SetupKeyRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
 func NewSetupKeyRepository(
-	db *database.Sqlite,
+	db database.SQLExecuter,
 ) *SetupKeyRepository {
 	return &SetupKeyRepository{
 		db: db,

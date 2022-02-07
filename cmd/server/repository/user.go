@@ -10,10 +10,10 @@ type UserRepositoryManager interface {
 }
 
 type UserRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
-func NewUserRepository(db *database.Sqlite) *UserRepository {
+func NewUserRepository(db database.SQLExecuter) *UserRepository {
 	return &UserRepository{
 		db: db,
 	}

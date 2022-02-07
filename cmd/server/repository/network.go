@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
@@ -11,10 +13,10 @@ type NetworkRepositoryManager interface {
 }
 
 type NetworkRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
-func NewNetworkRepository(db *database.Sqlite) *NetworkRepository {
+func NewNetworkRepository(db database.SQLExecuter) *NetworkRepository {
 	return &NetworkRepository{
 		db: db,
 	}
@@ -26,13 +28,15 @@ func (n *NetworkRepository) CreateNetwork(network *domain.Network) error {
 		name,
 		ip,
 		cidr,
+		dns,
 		created_at,
 		updated_at
-	) VALUES (?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?, ?, ?)
 	`,
 		network.Name,
 		network.IP,
 		network.CIDR,
+		network.DNS,
 		network.CreatedAt,
 		network.UpdatedAt,
 	)
@@ -51,8 +55,7 @@ func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
 		network domain.Network
 	)
 
-	err := n.db.QueryRow(
-		&network,
+	row := n.db.QueryRow(
 		`
 			SELECT *
 			FROM networks
@@ -60,9 +63,16 @@ func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
 				id = ?
 			LIMIT 1
 		`, id)
+
+	err := row.Scan(
+		&network.ID, &network.Name, &network.IP, &network.CIDR, 
+		&network.DNS, &network.CreatedAt, &network.UpdatedAt)
+
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
 		return nil, err
 	}
-
 	return &network, nil
 }

@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
@@ -11,10 +13,10 @@ type OrgRepositoryManager interface {
 }
 
 type OrgRepository struct {
-	db *database.Sqlite
+	db database.SQLExecuter
 }
 
-func NewOrgRepository(db *database.Sqlite) *OrgRepository {
+func NewOrgRepository(db database.SQLExecuter) *OrgRepository {
 	return &OrgRepository{
 		db: db,
 	}
@@ -51,8 +53,7 @@ func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.OrgGroup, er
 		orgGroup domain.OrgGroup
 	)
 
-	err := o.db.QueryRow(
-		&orgGroup,
+	row := o.db.QueryRow(
 		`
 			SELECT *
 			FROM orgs
@@ -60,7 +61,12 @@ func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.OrgGroup, er
 				org_id = ?
 			LIMIT 1
 		`, orgID)
+
+	err := row.Scan(&orgGroup.ID, &orgGroup.Name, &orgGroup.DisplayName, &orgGroup.OrgID, &orgGroup.CreatedAt, &orgGroup.UpdatedAt)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
 		return nil, err
 	}
 
