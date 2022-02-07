@@ -14,6 +14,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/organization"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
@@ -88,8 +89,9 @@ func main() {
 	// create or open wics config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
-	// initialize new wics server
-	s, err := server.NewServer(db, cfg, ss)
+	auth0Client := client.NewAuth0Client()
+
+	s, err := server.NewServer(db, cfg, ss, auth0Client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,8 +110,6 @@ func main() {
 		Timeout:               2 * time.Second,
 	}
 
-	auth0Client := client.NewAuth0Client()
-
 	middleware := server.NewMiddlware(auth0Client)
 
 	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
@@ -118,6 +118,8 @@ func main() {
 	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	user.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServiceServer)
+	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServiceServer)
+
 	log.Printf("started wics server: localhost:%v", args.wicsport)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.wicsport))

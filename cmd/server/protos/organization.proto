@@ -9,8 +9,9 @@ service OrganizationService {
 }
 
 message OrganizationCreateRequest {
-	string Name = 1;
-	string DisplayName = 2;
+	string name = 1;
+	string displayName = 2;
+	string logoURL = 3;
 }
 
 message OrganizationCreateResponse {
