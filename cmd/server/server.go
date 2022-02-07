@@ -67,6 +67,10 @@ func main() {
 	}
 
 	db := database.NewSqlite()
+	err := db.MigrationUp()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// create wics server state file
 	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
@@ -105,7 +109,7 @@ func main() {
 
 	middleware := server.NewMiddlware()
 
-	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)),)
+	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
 	grpcServer := grpc.NewServer(opts...)
 
 	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
