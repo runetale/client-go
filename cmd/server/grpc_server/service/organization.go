@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/Notch-Technologies/wizy/client"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -34,10 +33,6 @@ func (oss *OrganizationServiceServer) Create(ctx context.Context, req *organizat
 	org, err := organizationUsecase.CreateOrganizationWithAuth0(req.GetName(), req.GetDisplayName())
 	if err != nil {
 		return nil, err
-	}
-
-	if org == nil {
-		return nil, errors.New("can not create organization")
 	}
 
 	organizationGroup, err := organizationUsecase.CreateOrganization(req.GetName(), req.GetDisplayName(), org.ID)
