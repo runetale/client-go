@@ -10,6 +10,8 @@ import (
 type OrganizationUscaseManager interface {
 	CreateOrganizationWithAuth0(name, displayName string) (*client.OrganizationResponse, error)
 	CreateOrganization(name, displayName, organizationID, logoURL string) (*domain.Organization, error)
+	CreateUser(email, password, connection string) (*client.CreateAuth0User, error)
+	AddMemberOnOrganization(userID string) error
 }
 
 type OrganizationUsecase struct {
@@ -50,3 +52,28 @@ func (o *OrganizationUsecase) CreateOrganization(name, displayName, organization
 
 	return orgGroup, nil
 }
+
+func (o *OrganizationUsecase) CreateUser(email, password, connection string) (*client.CreateAuth0User, error) {
+	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := o.auth0Client.CreateUser(email, password, connection, token)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (o *OrganizationUsecase) AddMemberOnOrganization(userID string) error {
+	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
+	if err != nil {
+		return err
+	}
+
+	err = o.auth0Client.AddMemberOnOrganization(userID, token)
+	return err
+}
+
