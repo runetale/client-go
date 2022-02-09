@@ -9,9 +9,9 @@ import (
 )
 
 type Server struct {
-	UserServiceServer    *service.UserServiceServer
-	PeerServiceServer    *service.PeerServiceServer
-	SessionServiceServer *service.SessionServiceServer
+	UserServiceServer         *service.UserServiceServer
+	PeerServiceServer         *service.PeerServiceServer
+	SessionServiceServer      *service.SessionServiceServer
 	OrganizationServiceServer *service.OrganizationServiceServer
 }
 
@@ -20,9 +20,9 @@ func NewServer(
 	server *store.ServerStore, client *client.Auth0Client,
 ) (*Server, error) {
 	return &Server{
-		UserServiceServer:    service.NewUserServiceServer(db),
-		PeerServiceServer:    service.NewPeerServiceServer(db),
-		SessionServiceServer: service.NewSessionServiceServer(db, config, server),
+		UserServiceServer:         service.NewUserServiceServer(db),
+		PeerServiceServer:         service.NewPeerServiceServer(db),
+		SessionServiceServer:      service.NewSessionServiceServer(db, config, server),
 		OrganizationServiceServer: service.NewOrganizationServiceServer(db, client),
 	}, nil
 }

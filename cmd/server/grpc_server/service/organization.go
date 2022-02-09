@@ -10,7 +10,7 @@ import (
 )
 
 type OrganizationServiceServer struct {
-	db *database.Sqlite
+	db          *database.Sqlite
 	auth0Client *client.Auth0Client
 
 	organization.UnimplementedOrganizationServiceServer
@@ -19,7 +19,7 @@ type OrganizationServiceServer struct {
 func NewOrganizationServiceServer(db *database.Sqlite, client *client.Auth0Client) *OrganizationServiceServer {
 	return &OrganizationServiceServer{
 		auth0Client: client,
-		db: db,
+		db:          db,
 	}
 }
 
@@ -42,5 +42,18 @@ func (oss *OrganizationServiceServer) Create(ctx context.Context, req *organizat
 
 	return &organization.OrganizationCreateResponse{
 		OrganizationID: organizationGroup.OrgID,
+	}, nil
+}
+
+func (oss *OrganizationServiceServer) CreateAdminUser(ctx context.Context, req *organization.OrganizationCreateAdminUserRequest) (*organization.OrganizationCreateAdminUserResponse, error) {
+	organizationUsecase := usecase.NewOrganizationUsecase(oss.db, oss.auth0Client)
+	user, err := organizationUsecase.CreateUser(req.GetEmail(), req.GetPassword(), "Username-Password-Authentication")
+	if err != nil {
+		return nil, err
+	}
+
+	err = organizationUsecase.AddMemberOnOrganization(user.UserID)
+	return &organization.OrganizationCreateAdminUserResponse{
+		OrganizationID: user.UserID,
 	}, nil
 }
