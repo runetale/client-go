@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrganizationServiceClient interface {
 	Create(ctx context.Context, in *OrganizationCreateRequest, opts ...grpc.CallOption) (*OrganizationCreateResponse, error)
+	CreateAdminUser(ctx context.Context, in *OrganizationCreateAdminUserRequest, opts ...grpc.CallOption) (*OrganizationCreateAdminUserResponse, error)
 }
 
 type organizationServiceClient struct {
@@ -42,11 +43,21 @@ func (c *organizationServiceClient) Create(ctx context.Context, in *Organization
 	return out, nil
 }
 
+func (c *organizationServiceClient) CreateAdminUser(ctx context.Context, in *OrganizationCreateAdminUserRequest, opts ...grpc.CallOption) (*OrganizationCreateAdminUserResponse, error) {
+	out := new(OrganizationCreateAdminUserResponse)
+	err := c.cc.Invoke(ctx, "/protos.OrganizationService/CreateAdminUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrganizationServiceServer is the server API for OrganizationService service.
 // All implementations must embed UnimplementedOrganizationServiceServer
 // for forward compatibility
 type OrganizationServiceServer interface {
 	Create(context.Context, *OrganizationCreateRequest) (*OrganizationCreateResponse, error)
+	CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error)
 	mustEmbedUnimplementedOrganizationServiceServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedOrganizationServiceServer struct {
 
 func (UnimplementedOrganizationServiceServer) Create(context.Context, *OrganizationCreateRequest) (*OrganizationCreateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (UnimplementedOrganizationServiceServer) CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
 }
 func (UnimplementedOrganizationServiceServer) mustEmbedUnimplementedOrganizationServiceServer() {}
 
@@ -88,6 +102,24 @@ func _OrganizationService_Create_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrganizationService_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OrganizationCreateAdminUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrganizationServiceServer).CreateAdminUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.OrganizationService/CreateAdminUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrganizationServiceServer).CreateAdminUser(ctx, req.(*OrganizationCreateAdminUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrganizationService_ServiceDesc is the grpc.ServiceDesc for OrganizationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var OrganizationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Create",
 			Handler:    _OrganizationService_Create_Handler,
+		},
+		{
+			MethodName: "CreateAdminUser",
+			Handler:    _OrganizationService_CreateAdminUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
