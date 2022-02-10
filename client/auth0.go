@@ -17,6 +17,7 @@ type Auth0Client struct {
 	Audience        string
 	DatabaseConnectionID string
 	DatabaseConnectionName string
+	AdminRoleID string
 }
 
 func NewAuth0Client() *Auth0Client {
@@ -26,6 +27,7 @@ func NewAuth0Client() *Auth0Client {
 	audience := os.Getenv("AUTH0_AUDIENCE")
 	databaseConnectionID := os.Getenv("AUTH0_DATABASE_CONNCTION_ID")
 	databaseConnectionName := os.Getenv("AUTH0_DATABASE_CONNCTION_NAME")
+	adminRoleID := os.Getenv("AUTH0_ADMIN_ROLE_ID")
 
 	return &Auth0Client{
 		Domain:          domain,
@@ -34,6 +36,7 @@ func NewAuth0Client() *Auth0Client {
 		Audience:        audience,
 		DatabaseConnectionID: databaseConnectionID,
 		DatabaseConnectionName: databaseConnectionName,
+		AdminRoleID: adminRoleID,
 	}
 }
 
@@ -277,4 +280,41 @@ func (a *Auth0Client) EnableOraganizationConnection(token, organizationID string
 	}
 
 	return nil
+}
+
+func (a *Auth0Client) AssignUserAdminRole(token, userID string) error {
+	url := fmt.Sprintf("https://%s/api/v2/roles/%s/users", a.Domain, a.AdminRoleID)
+	
+	type param struct {
+	    Users []string `json:"users"`
+	}
+	
+	p := param{Users:[]string{userID}}
+	payload, err := json.Marshal(p)
+	if err != nil {
+	    return err
+	}
+	
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	if err != nil {
+	    return err
+	}
+	
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("cache-control", "no-cache")
+	
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+	    return err
+	}
+	
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+	    return err
+	}
+	
+	defer res.Body.Close()
+	return nil
+
 }
