@@ -11,7 +11,8 @@ type OrganizationUscaseManager interface {
 	CreateOrganizationWithAuth0(name, displayName string) (*client.OrganizationResponse, error)
 	CreateOrganization(name, displayName, organizationID, logoURL string) (*domain.Organization, error)
 	CreateUser(email, password, connection string) (*client.CreateAuth0User, error)
-	AddMemberOnOrganization(userID string) error
+	AddMemberOnOrganization(userID, organizationID string) error
+	EnableOrganizationConnection(organizationID string, isAssignMembershipOnLogin bool) error
 }
 
 type OrganizationUsecase struct {
@@ -67,13 +68,23 @@ func (o *OrganizationUsecase) CreateUser(email, password, connection string) (*c
 	return user, nil
 }
 
-func (o *OrganizationUsecase) AddMemberOnOrganization(userID string) error {
+func (o *OrganizationUsecase) AddMemberOnOrganization(userID, organizationID string) error {
 	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
 	if err != nil {
 		return err
 	}
 
-	err = o.auth0Client.AddMemberOnOrganization(userID, token)
+	err = o.auth0Client.AddMemberOnOrganization(userID, organizationID, token)
+	return err
+}
+
+func (o *OrganizationUsecase) EnableOrganizationConnection(organizationID string, isAssignMembershipOnLogin bool) error {
+	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
+	if err != nil {
+		return err
+	}
+
+	err = o.auth0Client.EnableOraganizationConnection(token, organizationID, isAssignMembershipOnLogin)
 	return err
 }
 

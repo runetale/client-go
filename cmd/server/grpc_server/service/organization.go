@@ -40,6 +40,11 @@ func (oss *OrganizationServiceServer) Create(ctx context.Context, req *organizat
 		return nil, err
 	}
 
+	err = organizationUsecase.EnableOrganizationConnection(org.ID, true)
+	if err != nil {
+		return nil, err
+	}
+
 	return &organization.OrganizationCreateResponse{
 		OrganizationID: organizationGroup.OrgID,
 	}, nil
@@ -47,12 +52,16 @@ func (oss *OrganizationServiceServer) Create(ctx context.Context, req *organizat
 
 func (oss *OrganizationServiceServer) CreateAdminUser(ctx context.Context, req *organization.OrganizationCreateAdminUserRequest) (*organization.OrganizationCreateAdminUserResponse, error) {
 	organizationUsecase := usecase.NewOrganizationUsecase(oss.db, oss.auth0Client)
-	user, err := organizationUsecase.CreateUser(req.GetEmail(), req.GetPassword(), "Username-Password-Authentication")
+	user, err := organizationUsecase.CreateUser(req.GetEmail(), req.GetPassword(), oss.auth0Client.DatabaseConnectionName)
 	if err != nil {
 		return nil, err
 	}
 
-	err = organizationUsecase.AddMemberOnOrganization(user.UserID)
+	err = organizationUsecase.AddMemberOnOrganization(user.UserID, req.GetOrganizationID())
+	if err != nil {
+		return nil, err
+	}
+
 	return &organization.OrganizationCreateAdminUserResponse{
 		OrganizationID: user.UserID,
 	}, nil
