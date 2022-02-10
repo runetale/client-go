@@ -15,6 +15,8 @@ type Auth0Client struct {
 	M2MClientID     string
 	M2MClientSecret string
 	Audience        string
+	DatabaseConnectionID string
+	DatabaseConnectionName string
 }
 
 func NewAuth0Client() *Auth0Client {
@@ -22,12 +24,16 @@ func NewAuth0Client() *Auth0Client {
 	clientid := os.Getenv("AUTH0_M2M_CLIENT_ID")
 	clientsecret := os.Getenv("AUTH0_M2M_CLIENT_SECRET")
 	audience := os.Getenv("AUTH0_AUDIENCE")
+	databaseConnectionID := os.Getenv("AUTH0_DATABASE_CONNCTION_ID")
+	databaseConnectionName := os.Getenv("AUTH0_DATABASE_CONNCTION_NAME")
 
 	return &Auth0Client{
 		Domain:          domain,
 		M2MClientID:     clientid,
 		M2MClientSecret: clientsecret,
 		Audience:        audience,
+		DatabaseConnectionID: databaseConnectionID,
+		DatabaseConnectionName: databaseConnectionName,
 	}
 }
 
@@ -204,8 +210,8 @@ func (a *Auth0Client) CreateUser(email, password, connection, token string) (*Cr
 	return &r, nil
 }
 
-func (a *Auth0Client) AddMemberOnOrganization(userID, token string) error {
-	url := fmt.Sprintf("https://%s/api/v2/organizations", a.Domain)
+func (a *Auth0Client) AddMemberOnOrganization(userID, organizationID, token string) error {
+	url := fmt.Sprintf("https://%s/api/v2/organizations/%s/members", a.Domain, organizationID)
 
 	type param struct {
 		Members []string `json:"members"`
@@ -231,14 +237,8 @@ func (a *Auth0Client) AddMemberOnOrganization(userID, token string) error {
 		return err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	_, err = ioutil.ReadAll(res.Body)
 	if err != nil {
-		return err
-	}
-
-	var r OrganizationResponse
-
-	if err := json.Unmarshal(body, &r); err != nil {
 		return err
 	}
 
@@ -247,3 +247,34 @@ func (a *Auth0Client) AddMemberOnOrganization(userID, token string) error {
 	return nil
 }
 
+func (a *Auth0Client) EnableOraganizationConnection(token, organizationID string, isAssignMembershipOnLogin bool) error {
+	url := fmt.Sprintf("https://%s/api/v2/organizations/%s/enabled_connections", a.Domain, organizationID)
+
+	b := fmt.Sprintf(`{"connection_id": "%s", "assign_membership_on_login": %t}`,
+		a.DatabaseConnectionID, isAssignMembershipOnLogin)
+
+	payload := strings.NewReader(b)
+
+	req, err := http.NewRequest("POST", url, payload)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", fmt.Sprintf("Bearer %s", token))
+	req.Header.Add("cache-control", "no-cache")
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer res.Body.Close()
+
+	_, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
