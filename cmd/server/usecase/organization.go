@@ -13,6 +13,7 @@ type OrganizationUscaseManager interface {
 	CreateUser(email, password, connection string) (*client.CreateAuth0User, error)
 	AddMemberOnOrganization(userID, organizationID string) error
 	EnableOrganizationConnection(organizationID string, isAssignMembershipOnLogin bool) error
+	AssignUserAdminRole(userID string) error
 }
 
 type OrganizationUsecase struct {
@@ -88,3 +89,12 @@ func (o *OrganizationUsecase) EnableOrganizationConnection(organizationID string
 	return err
 }
 
+func (o *OrganizationUsecase) AssignAdminRole(userID string) error {
+	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
+	if err != nil {
+		return err
+	}
+
+	err = o.auth0Client.AssignUserAdminRole(token, userID)
+	return err
+}
