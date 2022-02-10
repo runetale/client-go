@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Notch-Technologies/wizy/client"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -35,6 +36,7 @@ func (oss *OrganizationServiceServer) Create(ctx context.Context, req *organizat
 		return nil, err
 	}
 
+	fmt.Println(org.ID)
 	organizationGroup, err := organizationUsecase.CreateOrganization(req.GetName(), req.GetDisplayName(), org.ID)
 	if err != nil {
 		return nil, err
@@ -58,6 +60,11 @@ func (oss *OrganizationServiceServer) CreateAdminUser(ctx context.Context, req *
 	}
 
 	err = organizationUsecase.AddMemberOnOrganization(user.UserID, req.GetOrganizationID())
+	if err != nil {
+		return nil, err
+	}
+
+	err = organizationUsecase.AssignAdminRole(user.UserID)
 	if err != nil {
 		return nil, err
 	}

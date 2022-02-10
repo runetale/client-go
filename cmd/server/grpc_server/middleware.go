@@ -31,17 +31,17 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 	}
 
 	if !strings.HasPrefix(sub, "auth0") {
-		return nil, errors.New(domain.ErrInvalidValue.Error())
+		return nil, errors.New(domain.ErrInvalidHeader.Error())
 	}
 
 	accessToken, err := m.client.GetAuth0ManagementAccessToken()
 	if err != nil {
-		return nil, errors.New(domain.ErrInvalidValue.Error())
+		return nil, errors.New(domain.ErrCanNotGetAccessToken.Error())
 	}
 
 	isAdmin, err := m.client.IsAdmin(sub, accessToken)
 	if err != nil || !isAdmin {
-		return nil, errors.New(domain.ErrInvalidValue.Error())
+		return nil, errors.New(domain.ErrNotEnoughPermission.Error( ))
 	}
 
 	newCtx = context.WithValue(ctx, "sub", sub)
