@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	wics "github.com/Notch-Technologies/wizy/cmd/wics/client"
+	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
@@ -17,12 +17,12 @@ import (
 )
 
 var loginArgs struct {
-	clientpath string
-	wicshost   string
-	wicsport   int64
-	setupkey   string
-	logfile    string
-	loglevel   string
+	clientPath string
+	serverHost   string
+	serverPort   int64
+	setupKey   string
+	logFile    string
+	logLevel   string
 	dev        bool
 }
 
@@ -32,12 +32,12 @@ var loginCmd = &ffcli.Command{
 	ShortHelp: "login to wissy, start the management server and then run it",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
-		fs.StringVar(&loginArgs.clientpath, "client", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.wicshost, "host", "http://localhost", "wics server host url")
-		fs.Int64Var(&loginArgs.wicsport, "port", flagtype.DefaultPort, "wics server host port")
-		fs.StringVar(&loginArgs.setupkey, "key", "", "setup key issued by the wics server")
-		fs.StringVar(&loginArgs.logfile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
-		fs.StringVar(&loginArgs.loglevel, "loglevel", wislog.DebugLevelStr, "set log level")
+		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
+		fs.StringVar(&loginArgs.serverHost, "host", "http://localhost", "grpc server host url")
+		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
+		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
+		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
 		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
 		return fs
 	})(),
@@ -45,7 +45,7 @@ var loginCmd = &ffcli.Command{
 }
 
 func execLogin(args []string) error {
-	err := wislog.InitWisLog(loginArgs.loglevel, loginArgs.logfile, loginArgs.dev)
+	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
@@ -54,7 +54,7 @@ func execLogin(args []string) error {
 	// create client state key
 	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile())
 	if err != nil {
-		log.Fatalf("failed to create wics clietnt state. %v", err)
+		log.Fatalf("failed to create clietnt state. %v", err)
 	}
 
 	cs := store.NewClientStore(cfs)
@@ -63,8 +63,7 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to write client state private key. %v", err)
 	}
 
-	// TOOD: (shintard) port to host to path ga kawatta baai ni taiou suru
-	conf := client.GetClientConfig(loginArgs.clientpath, loginArgs.wicshost, int(loginArgs.wicsport))
+	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
 
 	ctx := context.Background()
 
@@ -73,23 +72,25 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	wicsClient, err := wics.NewWicsClient(ctx, conf.Host, int(loginArgs.wicsport), privateKey)
+	client, err := grpc_client.NewGrpcClient(ctx, conf.Host, int(loginArgs.serverPort), privateKey)
 	if err != nil {
-		log.Fatalf("failed to connect wics client. %v", err)
+		log.Fatalf("failed to connect client. %v", err)
 	}
 
-	log.Printf("connected to wics server %s", conf.Host.String())
+	log.Printf("connected to server %s", conf.Host.String())
 
-	serverPubKey, err := wicsClient.GetServerPublicKey()
+	serverPubKey, err := client.GetServerPublicKey()
 	if err != nil {
-		log.Fatalf("failed to get wics server public key. %v", err)
+		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	a, err := wicsClient.Login(loginArgs.setupkey, cs.GetPublicKey(), serverPubKey)
-	if err != nil {
-		log.Fatalf("failed to get wics server public key. %v", err)
-	}
-	fmt.Println(a)
+	fmt.Println(serverPubKey)
+
+	//a, err := wicsClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	//if err != nil {
+	//	log.Fatalf("failed to get wics server public key. %v", err)
+	//}
+	//fmt.Println(a)
 
 	return nil
 }
