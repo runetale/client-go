@@ -30,6 +30,10 @@ func NewSessionServiceServer(
 	}
 }
 
+func (uss *SessionServiceServer) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
+	return ctx, nil
+}
+
 func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
 	pubicKey := uss.serverStore.GetPublicKey()
 
