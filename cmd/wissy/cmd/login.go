@@ -85,12 +85,13 @@ func execLogin(args []string) error {
 	}
 
 	fmt.Println(serverPubKey)
+	fmt.Println(cs.GetPublicKey())
 
-	//a, err := wicsClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
-	//if err != nil {
-	//	log.Fatalf("failed to get wics server public key. %v", err)
-	//}
-	//fmt.Println(a)
+	a, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	if err != nil {
+		log.Fatalf("failed to get wics server public key. %v", err)
+	}
+	fmt.Println(a)
 
 	return nil
 }

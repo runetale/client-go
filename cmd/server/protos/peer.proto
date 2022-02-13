@@ -7,12 +7,6 @@ option go_package = "./peer";
 import "google/protobuf/empty.proto";
 
 service PeerService {
-	rpc Login(PeerLoginMessage) returns (PeerLoginMessage) {}
 	rpc WSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
-message PeerLoginMessage {
-	string setupKey = 1;
-	string clientPublicKey = 2;
-	string serverPublicKey = 3;
-}

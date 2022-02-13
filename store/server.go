@@ -13,8 +13,8 @@ import (
 
 type ServerManager interface {
 	WritePrivateKey() error
+	GetStateKey() string
 	GetPublicKey() string
-	GetBase64Key() string
 }
 
 type ServerStore struct {

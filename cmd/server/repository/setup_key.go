@@ -31,7 +31,7 @@ func (r *SetupKeyRepository) CreateSetupKey(setupKey *domain.SetupKey) error {
   			key_type,
   			revoked,
   			created_at,
-  			updated_at,
+  			updated_at
 		) VALUES (?, ?, ?, ?, ?, ?)
 		`,
 		setupKey.UserID,

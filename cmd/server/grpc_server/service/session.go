@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 type SessionServiceServer struct {
 	config      *config.Config
 	serverStore *store.ServerStore
+	db *database.Sqlite
 
 	session.UnimplementedSessionServiceServer
 }
@@ -27,6 +29,7 @@ func NewSessionServiceServer(
 	return &SessionServiceServer{
 		config:      config,
 		serverStore: server,
+		db: db,
 	}
 }
 
@@ -47,5 +50,25 @@ func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 	return &session.GetServerPublicKeyResponse{
 		Key:       pubicKey,
 		ExpiresAt: expiresAt,
+	}, nil
+}
+
+// 1. SetupKey ga hakkou sareteiruka kakuninn suru
+// 2. server no pub key ka kensyou
+// 3. client no pub key to setup key wo set de touroku
+// 4. return to response. hituyouna jyouhouwo watasu
+func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
+	clientPubKey := msg.GetClientPublicKey()
+	serverPubKey := msg.GetServerPublicKey()
+	setupKey := msg.GetSetupKey()
+
+	fmt.Println(clientPubKey)
+	fmt.Println(serverPubKey)
+	fmt.Println(setupKey)
+
+	return &session.LoginMessage{
+		SetupKey:        setupKey,
+		ServerPublicKey: serverPubKey,
+		ClientPublicKey: clientPubKey,
 	}, nil
 }

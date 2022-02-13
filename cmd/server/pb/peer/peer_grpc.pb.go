@@ -23,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PeerServiceClient interface {
-	Login(ctx context.Context, in *PeerLoginMessage, opts ...grpc.CallOption) (*PeerLoginMessage, error)
 	WSync(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -33,15 +32,6 @@ type peerServiceClient struct {
 
 func NewPeerServiceClient(cc grpc.ClientConnInterface) PeerServiceClient {
 	return &peerServiceClient{cc}
-}
-
-func (c *peerServiceClient) Login(ctx context.Context, in *PeerLoginMessage, opts ...grpc.CallOption) (*PeerLoginMessage, error) {
-	out := new(PeerLoginMessage)
-	err := c.cc.Invoke(ctx, "/protos.PeerService/Login", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *peerServiceClient) WSync(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -57,7 +47,6 @@ func (c *peerServiceClient) WSync(ctx context.Context, in *emptypb.Empty, opts .
 // All implementations must embed UnimplementedPeerServiceServer
 // for forward compatibility
 type PeerServiceServer interface {
-	Login(context.Context, *PeerLoginMessage) (*PeerLoginMessage, error)
 	WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	mustEmbedUnimplementedPeerServiceServer()
 }
@@ -66,9 +55,6 @@ type PeerServiceServer interface {
 type UnimplementedPeerServiceServer struct {
 }
 
-func (UnimplementedPeerServiceServer) Login(context.Context, *PeerLoginMessage) (*PeerLoginMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
-}
 func (UnimplementedPeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WSync not implemented")
 }
@@ -83,24 +69,6 @@ type UnsafePeerServiceServer interface {
 
 func RegisterPeerServiceServer(s grpc.ServiceRegistrar, srv PeerServiceServer) {
 	s.RegisterService(&PeerService_ServiceDesc, srv)
-}
-
-func _PeerService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PeerLoginMessage)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(PeerServiceServer).Login(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.PeerService/Login",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerServiceServer).Login(ctx, req.(*PeerLoginMessage))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _PeerService_WSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -128,10 +96,6 @@ var PeerService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.PeerService",
 	HandlerType: (*PeerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Login",
-			Handler:    _PeerService_Login_Handler,
-		},
 		{
 			MethodName: "WSync",
 			Handler:    _PeerService_WSync_Handler,
