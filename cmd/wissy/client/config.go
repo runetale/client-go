@@ -23,13 +23,8 @@ type Config struct {
 	PreSharedKey string
 }
 
-func newClientConfig(path string, host string, port int) *Config {
+func newClientConfig(path string, host string, port int, privateKey string) *Config {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
-		log.Fatal(err)
-	}
-
-	privKey, err := key.NewGenerateKey()
-	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -41,7 +36,7 @@ func newClientConfig(path string, host string, port int) *Config {
 	}
 
 	cfg := Config{
-		WgPrivateKey: privKey,
+		WgPrivateKey: privateKey,
 		Host:         h,
 		TUNName:      tun.TunName(),
 		IgonoreTUNs:  []string{},
@@ -62,16 +57,20 @@ func newClientConfig(path string, host string, port int) *Config {
 func GetClientConfig(path string, host string, port int) *Config {
 	b, err := ioutil.ReadFile(path)
 	switch {
-	case errors.Is(err, os.ErrNotExist):
-		return newClientConfig(path, host, port)
-	case err != nil:
-		log.Fatal(err)
-		panic(err)
-	default:
+	case errors.Is(err, os.ErrExist):
 		var cfg Config
 		if err := json.Unmarshal(b, &cfg); err != nil {
 			log.Fatalf("can not read client config file. %v", err)
 		}
-		return &cfg
+		return newClientConfig(path, host, port, cfg.WgPrivateKey)
+	case err != nil:
+		log.Fatal(err)
+		panic(err)
+	default:
+		privKey, err := key.NewGenerateKey()
+		if err != nil {
+			log.Fatal(err)
+		}
+		return newClientConfig(path, host, port, privKey)
 	}
 }
