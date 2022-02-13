@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -9,6 +10,7 @@ import (
 
 type PeerRepositoryManager interface {
 	CreatePeer(peer *domain.Peer) error
+	FindBySetupKeyID(id uint) (*domain.Peer, error)
 }
 
 type PeerRepository struct {
@@ -30,16 +32,18 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
   			setup_key_id,
   			organization_id,
   			user_group_id,
+			client_pub_key,
   			network_id,
   			ip,
   			created_at,
   			updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`,
 		peer.UserID,
 		peer.SetupKeyID,
 		peer.OrganizationID,
 		peer.UserGroupID,
+		peer.ClientPubKey,
 		peer.NetworkID,
 		peer.IP,
 		peer.CreatedAt.In(time.UTC),
@@ -53,4 +57,41 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 	peer.ID = uint(lastID)
 
 	return nil
+}
+
+func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain.Peer, error) {
+	var (
+		peer domain.Peer
+	)
+
+	row := p.db.QueryRow(
+		`
+			SELECT *
+			FROM peers
+			WHERE
+  				setup_key_id = ? AND
+				client_pub_key = ?
+			LIMIT 1
+		`, id, clientPubKey)
+	err := row.Scan(
+		&peer.ID,
+		&peer.UserID,
+		&peer.SetupKeyID,
+		&peer.OrganizationID,
+		&peer.UserGroupID,
+		&peer.ClientPubKey,
+		&peer.NetworkID,
+		&peer.IP,
+		&peer.CreatedAt,
+		&peer.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &peer, nil
 }

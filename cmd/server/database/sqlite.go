@@ -82,9 +82,6 @@ func (s *Sqlite) Exec(query string, args ...interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if err != nil {
-		return 0, fmt.Errorf("%s", err.Error())
-	}
 
 	return r.LastInsertId()
 }
@@ -109,14 +106,6 @@ func (s *Sqlite) Query(query string, dest interface{}, args ...interface{}) erro
 // Single Select
 func (s *Sqlite) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := s.db.QueryRow(query, args...)
-	//err := row.Scan(&dest)
-	//if err != nil {
-	//	if err == sql.ErrNoRows {
-	//		return domain.ErrNoRows
-	//	} else {
-	//		return err
-	//	}
-	//}
 	return row
 }
 
@@ -138,10 +127,6 @@ func (t *Tx) Exec(query string, args ...interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if err != nil {
-		return 0, fmt.Errorf("%s", err.Error())
-	}
-
 	return r.LastInsertId()
 }
 

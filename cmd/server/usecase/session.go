@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
@@ -40,21 +39,23 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientPubKey, serverPubKey string)
 
 	sk, err := s.setupKeyRepository.FindBySetupKey(setupKey)
 	if err != nil {
-		fmt.Println("setup key err")
 		return nil, err
 	}
 
 	user, err := s.userRepository.FindByUserID(sk.UserID)
 	if err != nil {
-		fmt.Println("user err")
 		return nil, err
 	}
 
-	peer := domain.NewPeer(sk.ID, user.NetworkID, user.UserGroupID, user.ID, user.OrganizationID, "")
-
-	err = s.peerRepository.CreatePeer(peer)
+	peer, err := s.peerRepository.FindBySetupKeyID(sk.ID, clientPubKey)
 	if err != nil {
-		fmt.Println("peer err")
+		if errors.Is(err, domain.ErrNoRows) {
+			peer := domain.NewPeer(sk.ID, user.NetworkID, user.UserGroupID, user.ID, user.OrganizationID, "", clientPubKey)
+			err = s.peerRepository.CreatePeer(peer)
+			if err != nil {
+				return nil, err
+			}
+		}
 		return nil, err
 	}
 

@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
@@ -46,8 +44,6 @@ func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 	nanos := int32(now.Nanosecond())
 	expiresAt := &timestamp.Timestamp{Seconds: secs, Nanos: nanos}
 
-	log.Println("get server public key")
-
 	return &session.GetServerPublicKeyResponse{
 		Key:       pubicKey,
 		ExpiresAt: expiresAt,
@@ -61,12 +57,10 @@ func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMe
 
 	sessionUsecase := usecase.NewSessionUsecase(uss.db, uss.serverStore)
 
-	peer, err := sessionUsecase.CreatePeer(setupKey, clientPubKey, serverPubKey)
+	_, err := sessionUsecase.CreatePeer(setupKey, clientPubKey, serverPubKey)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(peer)
 
 	return &session.LoginMessage{
 		SetupKey:        setupKey,
