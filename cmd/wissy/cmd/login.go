@@ -3,11 +3,11 @@ package cmd
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
+	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -84,11 +84,12 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	login, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
 	if err != nil {
 		log.Fatalf("failed to get wics server public key. %v", err)
 	}
-	fmt.Println(login)
+
+	iface.CreateIface("wg0", conf.WgPrivateKey, "10.0.0.1")
 
 	return nil
 }
