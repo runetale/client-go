@@ -2,10 +2,12 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
+	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type SetupKeyRepositoryManager interface {
@@ -54,18 +56,21 @@ func (r *SetupKeyRepository) CreateSetupKey(setupKey *domain.SetupKey) error {
 }
 
 func (r *SetupKeyRepository) FindBySetupKey(setupKey string) (*domain.SetupKey, error) {
+	fmt.Println(setupKey)
 	var (
 		sk domain.SetupKey
 	)
 
+	key := key.SetupKeyPrefix + setupKey
+
 	row := r.db.QueryRow(
-		`
+	`
 		SELECT *
 		FROM setup_keys
 		WHERE
 			key = ?
 		LIMIT 1
-	`, setupKey)
+	`, key)
 
 	err := row.Scan(&sk.ID, &sk.UserID, &sk.Key, &sk.KeyType, &sk.Revoked, &sk.CreatedAt, &sk.UpdatedAt)
 	if err != nil {

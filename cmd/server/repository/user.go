@@ -27,7 +27,7 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	INSERT INTO users (
 		provider_id,
 		provider,
-		org_group_id,
+		organization_id,
 		network_id,
 		user_group_id,
 		permission,
@@ -37,7 +37,7 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	`,
 		user.ProviderID,
 		user.Provider,
-		user.OrgGroupID,
+		user.OrganizationID,
 		user.NetworkID,
 		user.UserGroupID,
 		user.Permission,
@@ -69,9 +69,10 @@ func (u *UserRepository) FindByUserID(userID uint) (*domain.User, error) {
 		`, userID)
 
 	err := row.Scan(
+		&user.ID,
 		&user.ProviderID,
 		&user.Provider,
-		&user.OrgGroupID,
+		&user.OrganizationID,
 		&user.NetworkID,
 		&user.UserGroupID,
 		&user.Permission,

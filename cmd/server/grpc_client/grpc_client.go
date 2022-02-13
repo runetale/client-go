@@ -88,12 +88,7 @@ func (wc *GrpcClient) GetServerPublicKey() (string, error) {
 		return "", err
 	}
 
-	pubKey, err := wgtypes.ParseKey(res.Key)
-	if err != nil {
-		return "", err
-	}
-
-	return pubKey.PublicKey().String(), nil
+	return res.Key, nil
 }
 
 func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*session.LoginMessage, error) {

@@ -24,14 +24,14 @@ func (o *JobRepository) CreateJob(job *domain.Job) error {
 	INSERT INTO jobs (
 		name,
 		user_id,
-		org_id,
+		organization_id,
 		created_at,
 		updated_at
 	) VALUES (?, ?, ?, ?, ?)
 	`,
 		job.Name,
 		job.UserID,
-		job.OrgID,
+		job.OrganizationID,
 		job.CreatedAt,
 		job.UpdatedAt,
 	)

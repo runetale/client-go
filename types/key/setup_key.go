@@ -13,7 +13,7 @@ import (
 //
 
 const (
-	setupKeyPrefix = "w_"
+	SetupKeyPrefix = "w_"
 )
 
 // key usage types.
@@ -93,7 +93,7 @@ func NewSetupKey(
 		return nil, err
 	}
 
-	sb.WriteString(setupKeyPrefix)
+	sb.WriteString(SetupKeyPrefix)
 	sb.WriteString(ss)
 
 	return &SetupKey{
@@ -103,7 +103,7 @@ func NewSetupKey(
 }
 
 func (s *SetupKey) SetupKey() string {
-	setupkey := strings.Trim(s.Key, setupKeyPrefix)
+	setupkey := strings.Trim(s.Key, SetupKeyPrefix)
 	return setupkey
 }
 
@@ -128,7 +128,7 @@ func (s *SetupKey) ID() (string, error) {
 }
 
 func getCustomClaims(setupkey, signedString string) (*customClaims, error) {
-	sk := strings.Trim(setupkey, setupKeyPrefix)
+	sk := strings.Trim(setupkey, SetupKeyPrefix)
 
 	token, err := jwt.ParseWithClaims(sk, &customClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signedString), nil
