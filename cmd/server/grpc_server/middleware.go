@@ -41,7 +41,7 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 
 	isAdmin, err := m.client.IsAdmin(sub, accessToken)
 	if err != nil || !isAdmin {
-		return nil, errors.New(domain.ErrNotEnoughPermission.Error( ))
+		return nil, errors.New(domain.ErrNotEnoughPermission.Error())
 	}
 
 	newCtx = context.WithValue(ctx, "sub", sub)

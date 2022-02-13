@@ -9,6 +9,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
+	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -17,7 +18,7 @@ import (
 type SessionServiceServer struct {
 	config      *config.Config
 	serverStore *store.ServerStore
-	db *database.Sqlite
+	db          *database.Sqlite
 
 	session.UnimplementedSessionServiceServer
 }
@@ -29,7 +30,7 @@ func NewSessionServiceServer(
 	return &SessionServiceServer{
 		config:      config,
 		serverStore: server,
-		db: db,
+		db:          db,
 	}
 }
 
@@ -53,18 +54,19 @@ func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 	}, nil
 }
 
-// 1. SetupKey ga hakkou sareteiruka kakuninn suru
-// 2. server no pub key ka kensyou
-// 3. client no pub key to setup key wo set de peers database ni touroku
-// 4. return to response. hituyouna jyouhouwo watasu
 func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
 	clientPubKey := msg.GetClientPublicKey()
 	serverPubKey := msg.GetServerPublicKey()
 	setupKey := msg.GetSetupKey()
 
-	fmt.Println(clientPubKey)
-	fmt.Println(serverPubKey)
-	fmt.Println(setupKey)
+	sessionUsecase := usecase.NewSessionUsecase(uss.db, uss.serverStore)
+
+	peer, err := sessionUsecase.CreatePeer(setupKey, clientPubKey, serverPubKey)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println(peer)
 
 	return &session.LoginMessage{
 		SetupKey:        setupKey,

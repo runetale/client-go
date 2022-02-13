@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -9,6 +10,7 @@ import (
 
 type SetupKeyRepositoryManager interface {
 	CreateSetupKey(setupKey *domain.SetupKey) error
+	FindBySetupKey(setupKey string) (*domain.SetupKey, error)
 }
 
 type SetupKeyRepository struct {
@@ -49,4 +51,29 @@ func (r *SetupKeyRepository) CreateSetupKey(setupKey *domain.SetupKey) error {
 	setupKey.ID = uint(lastID)
 
 	return nil
+}
+
+func (r *SetupKeyRepository) FindBySetupKey(setupKey string) (*domain.SetupKey, error) {
+	var (
+		sk domain.SetupKey
+	)
+
+	row := r.db.QueryRow(
+		`
+		SELECT *
+		FROM setup_keys
+		WHERE
+			key = ?
+		LIMIT 1
+	`, setupKey)
+
+	err := row.Scan(&sk.ID, &sk.UserID, &sk.Key, &sk.KeyType, &sk.Revoked, &sk.CreatedAt, &sk.UpdatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &sk, nil
 }

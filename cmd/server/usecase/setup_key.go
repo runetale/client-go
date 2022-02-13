@@ -92,7 +92,7 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 	if err != nil {
 		return nil, err
 	}
-	
+
 	revoked, err := sk.IsRevoked()
 	if err != nil {
 		return nil, err

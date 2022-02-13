@@ -18,8 +18,8 @@ import (
 
 var loginArgs struct {
 	clientPath string
-	serverHost   string
-	serverPort   int64
+	serverHost string
+	serverPort int64
 	setupKey   string
 	logFile    string
 	logLevel   string
@@ -84,11 +84,11 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	a, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	login, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
 	if err != nil {
 		log.Fatalf("failed to get wics server public key. %v", err)
 	}
-	fmt.Println(a)
+	fmt.Println(login)
 
 	return nil
 }

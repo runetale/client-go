@@ -39,7 +39,7 @@ func init() {
 
 var args struct {
 	configpath string
-	port   uint16
+	port       uint16
 	verbose    int
 	domain     string
 	certfile   string

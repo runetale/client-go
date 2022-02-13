@@ -26,12 +26,12 @@ type GrpcClientManager interface {
 }
 
 type GrpcClient struct {
-	privateKey        wgtypes.Key
-	userServiceClient user.UserServiceClient
-	peerServiceClient peer.PeerServiceClient
+	privateKey           wgtypes.Key
+	userServiceClient    user.UserServiceClient
+	peerServiceClient    peer.PeerServiceClient
 	sessionServiceClient session.SessionServiceClient
-	ctx               context.Context
-	conn              *grpc.ClientConn
+	ctx                  context.Context
+	conn                 *grpc.ClientConn
 }
 
 func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*GrpcClient, error) {
@@ -62,12 +62,12 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 	sec := session.NewSessionServiceClient(conn)
 
 	return &GrpcClient{
-		privateKey:        privKey,
-		userServiceClient: usc,
-		peerServiceClient: psc,
+		privateKey:           privKey,
+		userServiceClient:    usc,
+		peerServiceClient:    psc,
 		sessionServiceClient: sec,
-		ctx:               ctx,
-		conn:              conn,
+		ctx:                  ctx,
+		conn:                 conn,
 	}, nil
 }
 

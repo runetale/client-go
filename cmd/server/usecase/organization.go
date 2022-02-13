@@ -17,17 +17,17 @@ type OrganizationUscaseManager interface {
 }
 
 type OrganizationUsecase struct {
-	orgRepository       *repository.OrgRepository
-	auth0Client *client.Auth0Client
+	orgRepository *repository.OrgRepository
+	auth0Client   *client.Auth0Client
 }
 
 func NewOrganizationUsecase(
 	db database.SQLExecuter,
 	client *client.Auth0Client,
-) *OrganizationUsecase{
+) *OrganizationUsecase {
 	return &OrganizationUsecase{
 		orgRepository: repository.NewOrgRepository(db),
-		auth0Client: client,
+		auth0Client:   client,
 	}
 }
 
