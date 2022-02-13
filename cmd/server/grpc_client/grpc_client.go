@@ -7,7 +7,9 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Notch-Technologies/wizy/cmd/wics/proto"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
@@ -18,21 +20,22 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type WicsClientManager interface {
+type GrpcClientManager interface {
 	GetServerPublicKey() (*wgtypes.Key, error)
 	Login(setupKey, clientPubKey, serverPubKey string) (string, error)
 }
 
-type WicsClient struct {
+type GrpcClient struct {
 	privateKey        wgtypes.Key
-	userServiceClient proto.UserServiceClient
-	peerServiceClient proto.PeerServiceClient
+	userServiceClient user.UserServiceClient
+	peerServiceClient peer.PeerServiceClient
+	sessionServiceClient session.SessionServiceClient
 	ctx               context.Context
 	conn              *grpc.ClientConn
 }
 
-func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*WicsClient, error) {
-	wicsctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*GrpcClient, error) {
+	clientCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
@@ -41,11 +44,8 @@ func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		option = grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{}))
 	}
 
-	fmt.Println("url host")
-	fmt.Println(url.Host)
-
 	conn, err := grpc.DialContext(
-		wicsctx,
+		clientCtx,
 		url.Host,
 		option,
 		grpc.WithBlock(),
@@ -57,23 +57,25 @@ func NewWicsClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		return nil, err
 	}
 
-	usc := proto.NewUserServiceClient(conn)
-	psc := proto.NewPeerServiceClient(conn)
+	usc := user.NewUserServiceClient(conn)
+	psc := peer.NewPeerServiceClient(conn)
+	sec := session.NewSessionServiceClient(conn)
 
-	return &WicsClient{
+	return &GrpcClient{
 		privateKey:        privKey,
 		userServiceClient: usc,
 		peerServiceClient: psc,
+		sessionServiceClient: sec,
 		ctx:               ctx,
 		conn:              conn,
 	}, nil
 }
 
-func (wc *WicsClient) isReady() bool {
-	return wc.conn.GetState() == connectivity.Ready || wc.conn.GetState() == connectivity.Idle
+func (client *GrpcClient) isReady() bool {
+	return client.conn.GetState() == connectivity.Ready || client.conn.GetState() == connectivity.Idle
 }
 
-func (wc *WicsClient) GetServerPublicKey() (string, error) {
+func (wc *GrpcClient) GetServerPublicKey() (string, error) {
 	if !wc.isReady() {
 		return "", fmt.Errorf("no connection wics server")
 	}
@@ -81,7 +83,7 @@ func (wc *WicsClient) GetServerPublicKey() (string, error) {
 	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
 	defer cancel()
 
-	res, err := wc.userServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
+	res, err := wc.sessionServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
 	if err != nil {
 		return "", err
 	}
@@ -94,15 +96,15 @@ func (wc *WicsClient) GetServerPublicKey() (string, error) {
 	return pubKey.PublicKey().String(), nil
 }
 
-func (wc *WicsClient) Login(setupKey, clientPubKey, serverPubKey string) (*proto.LoginMessage, error) {
-	if !wc.isReady() {
+func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*peer.PeerLoginMessage, error) {
+	if !client.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
 
-	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
+	usCtx, cancel := context.WithTimeout(client.ctx, 10*time.Second)
 	defer cancel()
 
-	msg, err := wc.userServiceClient.Login(usCtx, &proto.LoginMessage{
+	msg, err := client.peerServiceClient.Login(usCtx, &peer.PeerLoginMessage{
 		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,

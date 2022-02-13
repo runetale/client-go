@@ -39,8 +39,7 @@ func init() {
 
 var args struct {
 	configpath string
-	wicsport   uint16
-	port       uint16
+	port   uint16
 	verbose    int
 	domain     string
 	certfile   string
@@ -50,8 +49,7 @@ var args struct {
 
 func main() {
 	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
-	flag.Var(flagtype.PortValue(&args.wicsport, flagtype.DefaultWicsPort), "wics-port", "specify the port of the wics server")
-	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultApiPort), "port", "specify the port of the http server")
+	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultGrpcServerPort), "wics-port", "specify the port of the server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
@@ -120,9 +118,9 @@ func main() {
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServiceServer)
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServiceServer)
 
-	log.Printf("started wics server: localhost:%v", args.wicsport)
+	log.Printf("started wics server: localhost:%v", args.port)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.wicsport))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
