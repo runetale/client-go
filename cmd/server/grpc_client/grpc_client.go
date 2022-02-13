@@ -96,7 +96,7 @@ func (wc *GrpcClient) GetServerPublicKey() (string, error) {
 	return pubKey.PublicKey().String(), nil
 }
 
-func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*peer.PeerLoginMessage, error) {
+func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*session.LoginMessage, error) {
 	if !client.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
@@ -104,7 +104,7 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*p
 	usCtx, cancel := context.WithTimeout(client.ctx, 10*time.Second)
 	defer cancel()
 
-	msg, err := client.peerServiceClient.Login(usCtx, &peer.PeerLoginMessage{
+	msg, err := client.sessionServiceClient.Login(usCtx, &session.LoginMessage{
 		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,

@@ -84,9 +84,6 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	fmt.Println(serverPubKey)
-	fmt.Println(cs.GetPublicKey())
-
 	a, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
 	if err != nil {
 		log.Fatalf("failed to get wics server public key. %v", err)

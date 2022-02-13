@@ -55,7 +55,7 @@ func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 
 // 1. SetupKey ga hakkou sareteiruka kakuninn suru
 // 2. server no pub key ka kensyou
-// 3. client no pub key to setup key wo set de touroku
+// 3. client no pub key to setup key wo set de peers database ni touroku
 // 4. return to response. hituyouna jyouhouwo watasu
 func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
 	clientPubKey := msg.GetClientPublicKey()
