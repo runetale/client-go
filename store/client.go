@@ -75,3 +75,7 @@ func (c *ClientStore) GetStateKey() string {
 func (c *ClientStore) GetPublicKey() string {
 	return c.privateKey.PublicKey()
 }
+
+func (c *ClientStore) GetPrivateKey() string {
+	return c.privateKey.PrivateKey()
+}

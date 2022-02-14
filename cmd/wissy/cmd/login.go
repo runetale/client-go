@@ -7,6 +7,7 @@ import (
 	"log"
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
@@ -90,12 +91,34 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get wics server public key. %v", err)
 	}
 
+	// TODO: (shintard) separate another package //
+
 	// TODO: (shintard) address flexible
 	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err
 	}
+
+	stream, err := client.ConnectStream(cs.GetPrivateKey())
+	if err != nil {
+		fmt.Printf("failed connect stream. %s", err.Error())
+		return err
+	}
+
+	go func() {
+		err := client.Receive(stream,  func(msg *negotiation.Message) error {
+			fmt.Println(msg.GetPrivateKey())
+			fmt.Println(msg.GetClientMachineKey())
+
+			return nil
+		})
+		if err != nil {
+			return
+		}
+	}()
+
+	client.WaitStreamConnected()
 
 	return nil
 }

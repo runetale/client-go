@@ -4,19 +4,26 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
 	"net/url"
+	"sync"
 	"time"
 
+	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server/service"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -30,8 +37,14 @@ type GrpcClient struct {
 	userServiceClient    user.UserServiceClient
 	peerServiceClient    peer.PeerServiceClient
 	sessionServiceClient session.SessionServiceClient
+	negotiationClient    negotiation.NegotiationClient
+	stream 				 negotiation.Negotiation_ConnectStreamClient
+
 	ctx                  context.Context
 	conn                 *grpc.ClientConn
+	mux         		 sync.Mutex
+
+	connectedCh chan struct{}
 }
 
 func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*GrpcClient, error) {
@@ -60,13 +73,17 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 	usc := user.NewUserServiceClient(conn)
 	psc := peer.NewPeerServiceClient(conn)
 	sec := session.NewSessionServiceClient(conn)
+	nc := negotiation.NewNegotiationClient(conn)
 
 	return &GrpcClient{
 		privateKey:           privKey,
 		userServiceClient:    usc,
 		peerServiceClient:    psc,
 		sessionServiceClient: sec,
+		negotiationClient:    nc,
+
 		ctx:                  ctx,
+		mux: 				  sync.Mutex{},
 		conn:                 conn,
 	}, nil
 }
@@ -75,15 +92,15 @@ func (client *GrpcClient) isReady() bool {
 	return client.conn.GetState() == connectivity.Ready || client.conn.GetState() == connectivity.Idle
 }
 
-func (wc *GrpcClient) GetServerPublicKey() (string, error) {
-	if !wc.isReady() {
+func (client *GrpcClient) GetServerPublicKey() (string, error) {
+	if !client.isReady() {
 		return "", fmt.Errorf("no connection wics server")
 	}
 
-	usCtx, cancel := context.WithTimeout(wc.ctx, 10*time.Second)
+	usCtx, cancel := context.WithTimeout(client.ctx, 10*time.Second)
 	defer cancel()
 
-	res, err := wc.sessionServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
+	res, err := client.sessionServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
 	if err != nil {
 		return "", err
 	}
@@ -109,4 +126,80 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*s
 	}
 
 	return msg, nil
+}
+
+func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
+	client.stream = nil
+	
+	md := metadata.New(map[string]string{server.ClientMachineKey: clientMachineKey})
+	ctx := metadata.NewOutgoingContext(client.ctx, md)
+	
+	stream, err := client.negotiationClient.ConnectStream(ctx, grpc.WaitForReady(true))
+	if err != nil {
+		return nil, err
+	}
+	client.stream = stream
+
+	header, err := client.stream.Header()
+	if err != nil {
+		return nil, err
+	}
+
+	registered := header.Get(server.HeaderRegisterd)
+	if len(registered) == 0 {
+		return nil, fmt.Errorf("didn't receive a registration header from the Signal server whille connecting to the streams")
+	}
+
+	return stream, nil
+}
+
+
+func (client *GrpcClient) Receive(
+	stream negotiation.Negotiation_ConnectStreamClient,
+	msgHandler func(msg *negotiation.Message) error,
+) error {
+	for {
+		msg, err := stream.Recv()
+		if s, ok := status.FromError(err); ok && s.Code() == codes.Canceled {
+			fmt.Println("stream canceled (usually indicates shutdown)")
+			return err
+		} else if s.Code() == codes.Unavailable {
+			fmt.Println("Signal Service is unavailable")
+			return err
+		} else if err == io.EOF {
+			fmt.Println("Signal Service stream closed by server")
+			return err
+		} else if err != nil {
+			return err
+		}
+		fmt.Printf("received a new message from Peer [fingerprint: %s]", msg.ClientMachineKey)
+
+
+		err = msgHandler(msg)
+
+		fmt.Println("recieve message")
+
+		if err != nil {
+			fmt.Errorf("error while handling message of Peer [key: %s] error: [%s]", msg.ClientMachineKey, err.Error())
+			//todo send something??
+		}
+	}
+}
+
+func (client *GrpcClient) WaitStreamConnected() {
+
+	ch := client.getStreamStatusChan()
+	select {
+	case <-client.ctx.Done():
+	case <-ch:
+	}
+}
+
+func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+	if client.connectedCh == nil {
+		client.connectedCh = make(chan struct{})
+	}
+	return client.connectedCh
 }
