@@ -17,22 +17,22 @@ func execCmd(command string) (string, error) {
 }
 
 func isWireGuardModule() bool {
-	out, err := execCmd("modinfo wireguard")
+	_, err := execCmd("modinfo wireguard")
 	if err != nil {
 		return false
 	}
 
-	fmt.Println(out)
-
 	return true
 }
 
-func CreateIface(ifaceName, privateKey, address string) {
+func CreateIface(ifaceName, privateKey, address string) error {
 	if isWireGuardModule() {
-		createWithKernelSpace(ifaceName, privateKey, address)
+		return createWithKernelSpace(ifaceName, privateKey, address)
 	}
 
 	createWithUserSpace()
+
+	return nil
 }
 
 func createWithKernelSpace(ifaceName, privateKey, address string) error {
@@ -52,20 +52,20 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	}
 	defer wgClient.Close()
 
-	_, err = execCmd(ipCmd + " link delete dev " + ifaceName)
+	del, err := execCmd(ipCmd + " link delete dev " + ifaceName)
 	if err != nil {
-		return err
+		fmt.Println(del)
 	}
 
 	link, err := execCmd(ipCmd + " link add dev " + ifaceName + " type wireguard ")
 	if err != nil {
-		fmt.Println(link)
+		fmt.Printf("%s, %v", link, err)
 		return err
 	}
 
 	add, err := execCmd(ipCmd + " address add dev " + ifaceName + " " + address + "/24")
 	if err != nil {
-		fmt.Println(add)
+		fmt.Printf("%s, %v", add, err)
 		return err
 	}
 
@@ -80,17 +80,23 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 
 	_, err = wgClient.Device(ifaceName)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	err = wgClient.ConfigureDevice(ifaceName, wgConf)
 	if err != nil {
 		if os.IsNotExist(err) {
-			fmt.Println("Device does not exist: ")
-			fmt.Println(err)
+			fmt.Printf("device does not exist %s.", err.Error())
 		} else {
-			fmt.Printf("This is inconvenient: %v", err)
+			fmt.Println(err)
 		}
+		return err
+	}
+
+	if up, err := execCmd(ipCmd + " link set up dev " + ifaceName); err != nil {
+		fmt.Printf("%s, %v", up, err)
+		return err
 	}
 
 	return nil

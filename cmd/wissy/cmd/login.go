@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
@@ -89,7 +90,12 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get wics server public key. %v", err)
 	}
 
-	iface.CreateIface("wg0", conf.WgPrivateKey, "10.0.0.1")
+	// TODO: (shintard) address flexible
+	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1")
+	if err != nil {
+		fmt.Printf("failed configuring Wireguard interface [%s]: %s", conf.TUNName, err.Error())
+		return err
+	}
 
 	return nil
 }
