@@ -180,8 +180,8 @@ func (client *GrpcClient) Receive(
 		fmt.Println("recieve message")
 
 		if err != nil {
-			fmt.Errorf("error while handling message of Peer [key: %s] error: [%s]", msg.ClientMachineKey, err.Error())
-			//todo send something??
+			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]", msg.ClientMachineKey, err.Error())
+			return err
 		}
 	}
 }

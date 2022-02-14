@@ -100,6 +100,7 @@ func execLogin(args []string) error {
 		return err
 	}
 
+	// connect to stream server (like a signal server)
 	stream, err := client.ConnectStream(cs.GetPrivateKey())
 	if err != nil {
 		fmt.Printf("failed connect stream. %s", err.Error())
