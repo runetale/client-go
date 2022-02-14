@@ -93,7 +93,7 @@ func execLogin(args []string) error {
 	// TODO: (shintard) address flexible
 	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1")
 	if err != nil {
-		fmt.Printf("failed configuring Wireguard interface [%s]: %s", conf.TUNName, err.Error())
+		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err
 	}
 
