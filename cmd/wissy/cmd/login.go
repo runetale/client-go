@@ -132,9 +132,9 @@ func execLogin(args []string) error {
 			return nil
 		})
 		if err != nil {
+			fmt.Println("stopping recive management server")
 			return
 		}
-		fmt.Println("stopping recive management server")
 	}()
 
 	fmt.Println("connecting management server")

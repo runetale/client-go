@@ -33,11 +33,14 @@ func NewPeerUsecase(
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	pe, err := p.peerRepository.FindByClientPubKey(clientPubKey)
 	if err != nil {
+		fmt.Println("can not find pub key")
 		return err
 	}
+	fmt.Println(pe)
 
 	peers, err := p.peerRepository.FindPeersByClientPubKey(pe.ClientPubKey)
 	if err != nil {
+		fmt.Println("can not find peers")
 		return err
 	}
 

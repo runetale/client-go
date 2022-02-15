@@ -86,11 +86,13 @@ func NewPeerServiceServer(
 }
 
 func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_SyncServer) error {
+	fmt.Println("Hello sync")
 	pu := usecase.NewPeerUsecase(pss.db, pss.serverStore, srv)
 
 	// rename client machine key -> clinet pub key
 	err := pu.InitialSync(req.GetClientMachineKey())
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 

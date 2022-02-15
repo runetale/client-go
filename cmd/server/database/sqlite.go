@@ -16,7 +16,7 @@ const SQLITE_DB_NAME = "wissy.db"
 
 type SQLExecuter interface {
 	Exec(query string, args ...interface{}) (int64, error)
-	Query(query string, dest interface{}, args ...interface{}) error
+	Query(query string, args ...interface{}) (*sql.Rows, error)
 	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
@@ -87,20 +87,20 @@ func (s *Sqlite) Exec(query string, args ...interface{}) (int64, error) {
 }
 
 // Multi Select
-func (s *Sqlite) Query(query string, dest interface{}, args ...interface{}) error {
+func (s *Sqlite) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
-		return fmt.Errorf("%s", err.Error())
+		return nil, fmt.Errorf("%s", err.Error())
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&dest)
-		if err != nil {
-			return err
-		}
-	}
+	return rows, nil
 
-	return nil
+	//for rows.next() {
+	//	err := rows.scan(&dest)
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 }
 
 // Single Select
@@ -131,20 +131,13 @@ func (t *Tx) Exec(query string, args ...interface{}) (int64, error) {
 }
 
 // Multi Select
-func (t *Tx) Query(query string, dest interface{}, args ...interface{}) error {
+func (t *Tx) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	rows, err := t.tx.Query(query, args...)
 	if err != nil {
-		return fmt.Errorf("%s", err.Error())
+		return nil, fmt.Errorf("%s", err.Error())
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&dest)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return rows, nil
 }
 
 // Single Select
