@@ -51,7 +51,7 @@ func (p *PeersUpdateManager) CreateChannel(peerKey string) chan *UpdateMessage {
 	channel := make(chan *UpdateMessage, 100)
 	p.peerChannels[peerKey] = channel
 
-	fmt.Printf("opened updates channel for a peer %s", peerKey)
+	fmt.Printf("opened updates channel for a peer %s\n", peerKey)
 	return channel
 }
 
@@ -105,6 +105,8 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 	for {
 		select {
 		case update, open := <-updateChannel:
+			fmt.Println("coming updatechannel")
+			fmt.Println(update)
 			if !open {
 				fmt.Println("channel has been close")
 				return nil

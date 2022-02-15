@@ -19,6 +19,14 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
+var (
+	stopCh    chan int
+)
+
+func init() {
+	stopCh = make(chan int)
+}
+
 var loginArgs struct {
 	clientPath string
 	serverHost string
@@ -94,7 +102,6 @@ func execLogin(args []string) error {
 
 	// TODO: (shintard) separate another package //
 
-	// TODO: (shintard) address flexible
 	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
@@ -104,12 +111,26 @@ func execLogin(args []string) error {
 	// connect to stream server (like a signal server)
 	stream, err := client.ConnectStream(cs.GetPrivateKey())
 	if err != nil {
-		fmt.Printf("failed connect stream. %s", err.Error())
 		return err
 	}
 
+	// like a signal server
+	receiveClient(client, stream)
+	syncClient(client, cs.GetPublicKey())
+
+	select {
+		case <-stopCh:
+		case <-ctx.Done():
+	}
+
+	return nil
+}
+
+func receiveClient(client *grpc_client.GrpcClient, stream negotiation.Negotiation_ConnectStreamClient) {
 	go func() {
 		err := client.Receive(stream, func(msg *negotiation.StreamMessage) error {
+			client.SyncMsgMux.Lock()
+			defer client.SyncMsgMux.Unlock()
 			fmt.Println(msg.GetPrivateKey())
 			fmt.Println(msg.GetClientMachineKey())
 
@@ -119,15 +140,20 @@ func execLogin(args []string) error {
 			return
 		}
 	}()
+	client.WaitStreamConnected()
 
-	//client.WaitStreamConnected()
 	fmt.Println("connecting signal server")
+}
 
-	// sync management
-
+func syncClient(client *grpc_client.GrpcClient, publicKey string) {
 	go func() {
-		err := client.Sync(cs.GetPublicKey(), func(update *peer.SyncResponse) error {
+		err := client.Sync(publicKey, func(update *peer.SyncResponse) error {
+			client.SyncMsgMux.Lock()
+			defer client.SyncMsgMux.Unlock()
+			fmt.Println("sync")
 			fmt.Println(update)
+
+			// TODO: (shintard) send signal offer
 
 			return nil
 		})
@@ -136,8 +162,6 @@ func execLogin(args []string) error {
 			return
 		}
 	}()
-
 	fmt.Println("connecting management server")
-	client.WaitStreamConnected()
-	return nil
 }
+

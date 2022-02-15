@@ -84,6 +84,7 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 
 		ctx:  ctx,
 		mux:  sync.Mutex{},
+
 		conn: conn,
 	}, nil
 }
@@ -185,7 +186,6 @@ func (client *GrpcClient) Receive(
 }
 
 func (client *GrpcClient) WaitStreamConnected() {
-
 	ch := client.getStreamStatusChan()
 	select {
 	case <-client.ctx.Done():
@@ -220,6 +220,8 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 			return err
 		}
 
+		fmt.Println("coming update")
+		fmt.Println(update)
 		err = msgHandler(update)
 		if err != nil {
 			return err

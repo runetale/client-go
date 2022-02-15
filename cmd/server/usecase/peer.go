@@ -54,6 +54,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("send sync response")
 
 	return nil
 }
