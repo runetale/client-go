@@ -5,10 +5,10 @@ package protos;
 option go_package = "./negotiation";
 
 service Negotiation {
-	rpc ConnectStream(stream Message) returns (stream Message) {}
+	rpc ConnectStream(stream StreamMessage) returns (stream StreamMessage) {}
 }
 
-message Message {
+message StreamMessage {
 	string privateKey = 1;
 	string clientMachineKey = 2;
 }

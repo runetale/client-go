@@ -11,6 +11,8 @@ import (
 type PeerRepositoryManager interface {
 	CreatePeer(peer *domain.Peer) error
 	FindBySetupKeyID(id uint) (*domain.Peer, error)
+	FindByClientPubKey(clientPubKey string) (*domain.Peer, error)
+	FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error)
 }
 
 type PeerRepository struct {
@@ -94,4 +96,62 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 	}
 
 	return &peer, nil
+}
+
+func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, error) {
+	var (
+		peer domain.Peer
+	)
+
+	row := p.db.QueryRow(
+		`
+			SELECT *
+			FROM peers
+			WHERE
+				client_pub_key = ?
+			LIMIT 1
+		`, clientPubKey)
+	err := row.Scan(
+		&peer.ID,
+		&peer.UserID,
+		&peer.SetupKeyID,
+		&peer.OrganizationID,
+		&peer.UserGroupID,
+		&peer.ClientPubKey,
+		&peer.NetworkID,
+		&peer.IP,
+		&peer.CreatedAt,
+		&peer.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &peer, nil
+}
+
+func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error) {
+	var (
+		peers []*domain.Peer
+	)
+
+	err := p.db.Query(
+		`
+			SELECT *
+			FROM peers
+			WHERE
+				client_pub_key = ?
+		`, peers, clientPubKey)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return peers, nil
 }

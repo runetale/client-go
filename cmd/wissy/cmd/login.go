@@ -8,6 +8,7 @@ import (
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
@@ -108,7 +109,7 @@ func execLogin(args []string) error {
 	}
 
 	go func() {
-		err := client.Receive(stream,  func(msg *negotiation.Message) error {
+		err := client.Receive(stream,  func(msg *negotiation.StreamMessage) error {
 			fmt.Println(msg.GetPrivateKey())
 			fmt.Println(msg.GetClientMachineKey())
 
@@ -119,7 +120,24 @@ func execLogin(args []string) error {
 		}
 	}()
 
-	client.WaitStreamConnected()
+	//client.WaitStreamConnected()
+	fmt.Println("connecting signal server")
 
+	// sync management
+
+	go func() {
+		err := client.Sync(cs.GetPublicKey(), func(update *peer.SyncResponse) error {
+			fmt.Println(update)
+
+			return nil
+		})
+		if err != nil {
+			return
+		}
+		fmt.Println("stopping recive management server")
+	}()
+
+	fmt.Println("connecting management server")
+	client.WaitStreamConnected()
 	return nil
 }

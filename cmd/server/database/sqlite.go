@@ -150,14 +150,6 @@ func (t *Tx) Query(query string, dest interface{}, args ...interface{}) error {
 // Single Select
 func (t *Tx) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := t.tx.QueryRow(query, args...)
-	//err := row.Scan(&dest)
-	//if err != nil {
-	//	if err == sql.ErrNoRows {
-	//		return domain.ErrNoRows
-	//	} else {
-	//		return err
-	//	}
-	//}
 	return row
 }
 

@@ -90,10 +90,11 @@ func (nss *NegotiationServiceServer) AuthFuncOverride(ctx context.Context, fullM
 }
 
 const HeaderRegisterd = "registered"
+
 func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiation_ConnectStreamServer) error {
 
 	// register peer with registry struct
-	p, err := nss.conectPeer(stream)
+	p, err := nss.registerPeer(stream)
 	if err != nil {
 		return err
 	}
@@ -108,14 +109,18 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 		return err
 	}
 
+	// When Come this?
 	for {
 		msg, err := stream.Recv()
+		fmt.Println("recv connect stream")
 		if err == io.EOF {
 			break
 		} else if err != nil {
 			return err
 		}
 		if dstPeer, found := nss.registry.Get(msg.GetPrivateKey()); found {
+			fmt.Println("Private Key with Connect Stream")
+			fmt.Println(msg.GetPrivateKey())
 			//forward the message to the target peer
 			err := dstPeer.Stream.Send(msg)
 			if err != nil {
@@ -131,7 +136,7 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 
 const ClientMachineKey = "client-machine-key"
 
-func (nss *NegotiationServiceServer) conectPeer(stream negotiation.Negotiation_ConnectStreamServer) (*Peer, error) {
+func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation_ConnectStreamServer) (*Peer, error) {
 	if meta, hasMeta := metadata.FromIncomingContext(stream.Context()); hasMeta {
 		if machineKey, found := meta[ClientMachineKey]; found {
 			p := NewPeer(machineKey[0], stream)

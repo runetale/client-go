@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PeerServiceClient interface {
-	WSync(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Sync(ctx context.Context, in *SyncMessage, opts ...grpc.CallOption) (PeerService_SyncClient, error)
 }
 
 type peerServiceClient struct {
@@ -34,20 +33,43 @@ func NewPeerServiceClient(cc grpc.ClientConnInterface) PeerServiceClient {
 	return &peerServiceClient{cc}
 }
 
-func (c *peerServiceClient) WSync(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, "/protos.PeerService/WSync", in, out, opts...)
+func (c *peerServiceClient) Sync(ctx context.Context, in *SyncMessage, opts ...grpc.CallOption) (PeerService_SyncClient, error) {
+	stream, err := c.cc.NewStream(ctx, &PeerService_ServiceDesc.Streams[0], "/protos.PeerService/Sync", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &peerServiceSyncClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type PeerService_SyncClient interface {
+	Recv() (*SyncResponse, error)
+	grpc.ClientStream
+}
+
+type peerServiceSyncClient struct {
+	grpc.ClientStream
+}
+
+func (x *peerServiceSyncClient) Recv() (*SyncResponse, error) {
+	m := new(SyncResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // PeerServiceServer is the server API for PeerService service.
 // All implementations must embed UnimplementedPeerServiceServer
 // for forward compatibility
 type PeerServiceServer interface {
-	WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Sync(*SyncMessage, PeerService_SyncServer) error
 	mustEmbedUnimplementedPeerServiceServer()
 }
 
@@ -55,8 +77,8 @@ type PeerServiceServer interface {
 type UnimplementedPeerServiceServer struct {
 }
 
-func (UnimplementedPeerServiceServer) WSync(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WSync not implemented")
+func (UnimplementedPeerServiceServer) Sync(*SyncMessage, PeerService_SyncServer) error {
+	return status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
 func (UnimplementedPeerServiceServer) mustEmbedUnimplementedPeerServiceServer() {}
 
@@ -71,22 +93,25 @@ func RegisterPeerServiceServer(s grpc.ServiceRegistrar, srv PeerServiceServer) {
 	s.RegisterService(&PeerService_ServiceDesc, srv)
 }
 
-func _PeerService_WSync_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
+func _PeerService_Sync_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SyncMessage)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(PeerServiceServer).WSync(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.PeerService/WSync",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PeerServiceServer).WSync(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(PeerServiceServer).Sync(m, &peerServiceSyncServer{stream})
+}
+
+type PeerService_SyncServer interface {
+	Send(*SyncResponse) error
+	grpc.ServerStream
+}
+
+type peerServiceSyncServer struct {
+	grpc.ServerStream
+}
+
+func (x *peerServiceSyncServer) Send(m *SyncResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // PeerService_ServiceDesc is the grpc.ServiceDesc for PeerService service.
@@ -95,12 +120,13 @@ func _PeerService_WSync_Handler(srv interface{}, ctx context.Context, dec func(i
 var PeerService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.PeerService",
 	HandlerType: (*PeerServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "WSync",
-			Handler:    _PeerService_WSync_Handler,
+			StreamName:    "Sync",
+			Handler:       _PeerService_Sync_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "protos/peer.proto",
 }

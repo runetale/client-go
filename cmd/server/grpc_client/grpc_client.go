@@ -156,7 +156,7 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 
 func (client *GrpcClient) Receive(
 	stream negotiation.Negotiation_ConnectStreamClient,
-	msgHandler func(msg *negotiation.Message) error,
+	msgHandler func(msg *negotiation.StreamMessage) error,
 ) error {
 	for {
 		msg, err := stream.Recv()
@@ -202,4 +202,29 @@ func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
 		client.connectedCh = make(chan struct{})
 	}
 	return client.connectedCh
+}
+
+func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
+	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
+		PrivateKey: client.privateKey.String(),
+		ClientMachineKey: clientMachineKey,
+	})
+	if err != nil {
+		return err
+	}
+
+	for {
+		update, err := stream.Recv()
+		if err != io.EOF {
+			return err
+		}
+		if err != nil {
+			return err
+		}
+
+		err = msgHandler(update)
+		if err != nil {
+			return err
+		}
+	}
 }

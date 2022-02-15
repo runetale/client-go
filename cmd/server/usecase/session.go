@@ -10,7 +10,7 @@ import (
 )
 
 type SessionUsecaseManager interface {
-	CreatePeer() error
+	CreatePeer(setupKey, clientPubKey, serverPubKey string) (*domain.Peer, error)
 }
 
 type SessionUsecase struct {

@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./message";
+
+message Message {
+	string privateKey = 1;
+	string clientMachineKey = 2;
+}

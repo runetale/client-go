@@ -22,7 +22,7 @@ func NewServer(
 ) (*Server, error) {
 	return &Server{
 		UserServiceServer:         service.NewUserServiceServer(db),
-		PeerServiceServer:         service.NewPeerServiceServer(db),
+		PeerServiceServer:         service.NewPeerServiceServer(db, server),
 		SessionServiceServer:      service.NewSessionServiceServer(db, config, server),
 		OrganizationServiceServer: service.NewOrganizationServiceServer(db, client),
 		NegotiationServer: service.NewNegotiationServiceServer(db),

@@ -43,8 +43,8 @@ func (c *negotiationClient) ConnectStream(ctx context.Context, opts ...grpc.Call
 }
 
 type Negotiation_ConnectStreamClient interface {
-	Send(*Message) error
-	Recv() (*Message, error)
+	Send(*StreamMessage) error
+	Recv() (*StreamMessage, error)
 	grpc.ClientStream
 }
 
@@ -52,12 +52,12 @@ type negotiationConnectStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *negotiationConnectStreamClient) Send(m *Message) error {
+func (x *negotiationConnectStreamClient) Send(m *StreamMessage) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *negotiationConnectStreamClient) Recv() (*Message, error) {
-	m := new(Message)
+func (x *negotiationConnectStreamClient) Recv() (*StreamMessage, error) {
+	m := new(StreamMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -97,8 +97,8 @@ func _Negotiation_ConnectStream_Handler(srv interface{}, stream grpc.ServerStrea
 }
 
 type Negotiation_ConnectStreamServer interface {
-	Send(*Message) error
-	Recv() (*Message, error)
+	Send(*StreamMessage) error
+	Recv() (*StreamMessage, error)
 	grpc.ServerStream
 }
 
@@ -106,12 +106,12 @@ type negotiationConnectStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *negotiationConnectStreamServer) Send(m *Message) error {
+func (x *negotiationConnectStreamServer) Send(m *StreamMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *negotiationConnectStreamServer) Recv() (*Message, error) {
-	m := new(Message)
+func (x *negotiationConnectStreamServer) Recv() (*StreamMessage, error) {
+	m := new(StreamMessage)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
