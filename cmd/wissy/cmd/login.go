@@ -109,7 +109,7 @@ func execLogin(args []string) error {
 	}
 
 	go func() {
-		err := client.Receive(stream,  func(msg *negotiation.StreamMessage) error {
+		err := client.Receive(stream, func(msg *negotiation.StreamMessage) error {
 			fmt.Println(msg.GetPrivateKey())
 			fmt.Println(msg.GetClientMachineKey())
 

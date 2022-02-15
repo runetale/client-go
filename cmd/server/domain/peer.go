@@ -8,7 +8,7 @@ type Peer struct {
 	SetupKeyID     uint      `db:"setup_key_id"`
 	OrganizationID uint      `db:"organization_id"`
 	UserGroupID    uint      `db:"user_group_id"`
-	ClientPubKey   string	 `db:"client_pub_key"`
+	ClientPubKey   string    `db:"client_pub_key"`
 	NetworkID      uint      `db:"network_id"`
 	IP             string    `db:"ip"`
 	CreatedAt      time.Time `db:"created_at"`

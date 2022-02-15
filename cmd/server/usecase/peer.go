@@ -13,9 +13,9 @@ type PeerUsecaseManger interface {
 }
 
 type PeerUsecase struct {
-	peerRepository     *repository.PeerRepository
-	serverStore        *store.ServerStore
-	peerServer 		   peer.PeerService_SyncServer
+	peerRepository *repository.PeerRepository
+	serverStore    *store.ServerStore
+	peerServer     peer.PeerService_SyncServer
 }
 
 func NewPeerUsecase(
@@ -25,8 +25,8 @@ func NewPeerUsecase(
 ) *PeerUsecase {
 	return &PeerUsecase{
 		peerRepository: repository.NewPeerRepository(db),
-		serverStore:        server,
-		peerServer: peerServer,
+		serverStore:    server,
+		peerServer:     peerServer,
 	}
 }
 
@@ -44,13 +44,13 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	fmt.Println(peers)
 
 	err = p.peerServer.Send(&peer.SyncResponse{
-		PeerConfig: &peer.PeerConfig{Address: "", Dns: ""},
-		RemotePeers: []*peer.RemotePeer{},
+		PeerConfig:        &peer.PeerConfig{Address: "", Dns: ""},
+		RemotePeers:       []*peer.RemotePeer{},
 		RemotePeerIsEmpty: true,
 	})
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }

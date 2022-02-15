@@ -64,7 +64,7 @@ func (r *SetupKeyRepository) FindBySetupKey(setupKey string) (*domain.SetupKey, 
 	key := key.SetupKeyPrefix + setupKey
 
 	row := r.db.QueryRow(
-	`
+		`
 		SELECT *
 		FROM setup_keys
 		WHERE

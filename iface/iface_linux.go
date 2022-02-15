@@ -45,7 +45,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	if err != nil {
 		return err
 	}
-	
+
 	wgClient, err := wgctrl.New()
 	if err != nil {
 		return err

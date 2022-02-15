@@ -22,8 +22,8 @@ type Peer struct {
 // NewPeer creates a new instance of a connected Peer
 func NewPeer(key string, stream negotiation.Negotiation_ConnectStreamServer) *Peer {
 	return &Peer{
-		ClientMachineKey:     key,
-		Stream: stream,
+		ClientMachineKey: key,
+		Stream:           stream,
 	}
 }
 
@@ -72,7 +72,7 @@ func (registry *Registry) Deregister(peer *Peer) {
 }
 
 type NegotiationServiceServer struct {
-	db *database.Sqlite
+	db       *database.Sqlite
 	registry *Registry
 
 	negotiation.UnimplementedNegotiationServer
@@ -80,7 +80,7 @@ type NegotiationServiceServer struct {
 
 func NewNegotiationServiceServer(db *database.Sqlite) *NegotiationServiceServer {
 	return &NegotiationServiceServer{
-		db: db,
+		db:       db,
 		registry: NewRegistry(),
 	}
 }
@@ -146,6 +146,6 @@ func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation
 			return nil, errors.New("missin connection header")
 		}
 	} else {
-			return nil, errors.New("missin stream data")
+		return nil, errors.New("missin stream data")
 	}
 }

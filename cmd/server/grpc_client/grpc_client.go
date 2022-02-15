@@ -38,11 +38,11 @@ type GrpcClient struct {
 	peerServiceClient    peer.PeerServiceClient
 	sessionServiceClient session.SessionServiceClient
 	negotiationClient    negotiation.NegotiationClient
-	stream 				 negotiation.Negotiation_ConnectStreamClient
+	stream               negotiation.Negotiation_ConnectStreamClient
 
-	ctx                  context.Context
-	conn                 *grpc.ClientConn
-	mux         		 sync.Mutex
+	ctx  context.Context
+	conn *grpc.ClientConn
+	mux  sync.Mutex
 
 	connectedCh chan struct{}
 }
@@ -82,9 +82,9 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		sessionServiceClient: sec,
 		negotiationClient:    nc,
 
-		ctx:                  ctx,
-		mux: 				  sync.Mutex{},
-		conn:                 conn,
+		ctx:  ctx,
+		mux:  sync.Mutex{},
+		conn: conn,
 	}, nil
 }
 
@@ -130,10 +130,10 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*s
 
 func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
 	client.stream = nil
-	
+
 	md := metadata.New(map[string]string{server.ClientMachineKey: clientMachineKey})
 	ctx := metadata.NewOutgoingContext(client.ctx, md)
-	
+
 	stream, err := client.negotiationClient.ConnectStream(ctx, grpc.WaitForReady(true))
 	if err != nil {
 		return nil, err
@@ -152,7 +152,6 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 
 	return stream, nil
 }
-
 
 func (client *GrpcClient) Receive(
 	stream negotiation.Negotiation_ConnectStreamClient,
@@ -173,7 +172,6 @@ func (client *GrpcClient) Receive(
 			return err
 		}
 		fmt.Printf("received a new message from Peer [fingerprint: %s]", msg.ClientMachineKey)
-
 
 		err = msgHandler(msg)
 
@@ -206,7 +204,7 @@ func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
 
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
 	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
-		PrivateKey: client.privateKey.String(),
+		PrivateKey:       client.privateKey.String(),
 		ClientMachineKey: clientMachineKey,
 	})
 	if err != nil {

@@ -66,10 +66,9 @@ func (p *PeersUpdateManager) CloseChannel(peerKey string) {
 	fmt.Printf("closed updates channel of a peer %s", peerKey)
 }
 
-
 type PeerServiceServer struct {
-	db *database.Sqlite
-	serverStore *store.ServerStore
+	db                *database.Sqlite
+	serverStore       *store.ServerStore
 	peerUpdateManager *PeersUpdateManager
 
 	peer.UnimplementedPeerServiceServer
@@ -80,8 +79,8 @@ func NewPeerServiceServer(
 	server *store.ServerStore,
 ) *PeerServiceServer {
 	return &PeerServiceServer{
-		db: db,
-		serverStore: server,
+		db:                db,
+		serverStore:       server,
 		peerUpdateManager: NewPeersUpdateManager(),
 	}
 }
@@ -96,7 +95,7 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 	}
 
 	updateChannel := pss.peerUpdateManager.CreateChannel(req.GetClientMachineKey())
-	
+
 	// TODO: create channel for connectivity state
 	fmt.Println("channel online")
 
@@ -108,7 +107,7 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 				fmt.Println("channel has been close")
 				return nil
 			}
-			
+
 			fmt.Printf("received an update for peer %s", req.GetClientMachineKey())
 
 			err = srv.SendMsg(update.Update)

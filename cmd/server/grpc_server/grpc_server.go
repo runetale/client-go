@@ -13,7 +13,7 @@ type Server struct {
 	PeerServiceServer         *service.PeerServiceServer
 	SessionServiceServer      *service.SessionServiceServer
 	OrganizationServiceServer *service.OrganizationServiceServer
-	NegotiationServer 		  *service.NegotiationServiceServer
+	NegotiationServer         *service.NegotiationServiceServer
 }
 
 func NewServer(
@@ -25,6 +25,6 @@ func NewServer(
 		PeerServiceServer:         service.NewPeerServiceServer(db, server),
 		SessionServiceServer:      service.NewSessionServiceServer(db, config, server),
 		OrganizationServiceServer: service.NewOrganizationServiceServer(db, client),
-		NegotiationServer: service.NewNegotiationServiceServer(db),
+		NegotiationServer:         service.NewNegotiationServiceServer(db),
 	}, nil
 }
