@@ -7,9 +7,8 @@ import (
 	"log"
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
-	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
-	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
+	"github.com/Notch-Technologies/wizy/engine"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
@@ -60,7 +59,7 @@ func execLogin(args []string) error {
 	if err != nil {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
-	_ = wislog.NewWisLog("login")
+	wisLog := wislog.NewWisLog("login")
 
 	// create client state key
 	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile())
@@ -114,9 +113,8 @@ func execLogin(args []string) error {
 		return err
 	}
 
-	// like a signal server
-	receiveClient(client, stream)
-	syncClient(client, cs.GetPublicKey())
+	e := engine.NewEngine(wisLog, client, stream)
+	e.Start(cs.GetPublicKey())
 
 	select {
 		case <-stopCh:
@@ -125,43 +123,3 @@ func execLogin(args []string) error {
 
 	return nil
 }
-
-func receiveClient(client *grpc_client.GrpcClient, stream negotiation.Negotiation_ConnectStreamClient) {
-	go func() {
-		err := client.Receive(stream, func(msg *negotiation.StreamMessage) error {
-			client.SyncMsgMux.Lock()
-			defer client.SyncMsgMux.Unlock()
-			fmt.Println(msg.GetPrivateKey())
-			fmt.Println(msg.GetClientMachineKey())
-
-			return nil
-		})
-		if err != nil {
-			return
-		}
-	}()
-	client.WaitStreamConnected()
-
-	fmt.Println("connecting signal server")
-}
-
-func syncClient(client *grpc_client.GrpcClient, publicKey string) {
-	go func() {
-		err := client.Sync(publicKey, func(update *peer.SyncResponse) error {
-			client.SyncMsgMux.Lock()
-			defer client.SyncMsgMux.Unlock()
-			fmt.Println("sync")
-			fmt.Println(update)
-
-			// TODO: (shintard) send signal offer
-
-			return nil
-		})
-		if err != nil {
-			fmt.Println("stopping recive management server")
-			return
-		}
-	}()
-	fmt.Println("connecting management server")
-}
-
