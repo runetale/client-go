@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	stopCh    chan int
+	stopCh chan int
 )
 
 func init() {
@@ -113,12 +113,15 @@ func execLogin(args []string) error {
 		return err
 	}
 
-	e := engine.NewEngine(wisLog, client, stream)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	e := engine.NewEngine(wisLog, client, stream, cancel, ctx)
 	e.Start(cs.GetPublicKey())
 
 	select {
-		case <-stopCh:
-		case <-ctx.Done():
+	case <-stopCh:
+	case <-ctx.Done():
 	}
 
 	return nil
