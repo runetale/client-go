@@ -27,6 +27,11 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+type Status string
+
+const StreamConnected Status = "Connected"
+const StreamDisconnected Status = "Disconnected"
+
 type GrpcClientManager interface {
 	GetServerPublicKey() (*wgtypes.Key, error)
 	Login(setupKey, clientPubKey, serverPubKey string) (string, error)
@@ -45,6 +50,8 @@ type GrpcClient struct {
 	mux  sync.Mutex
 
 	connectedCh chan struct{}
+
+	status Status
 }
 
 func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*GrpcClient, error) {
@@ -83,9 +90,9 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		negotiationClient:    nc,
 
 		ctx:  ctx,
-		mux:  sync.Mutex{},
-
 		conn: conn,
+		mux:  sync.Mutex{},
+		status:     StreamDisconnected,
 	}, nil
 }
 
@@ -155,9 +162,22 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 }
 
 func (client *GrpcClient) Receive(
-	stream negotiation.Negotiation_ConnectStreamClient,
+	clientMachineKey string,
 	msgHandler func(msg *negotiation.StreamMessage) error,
 ) error {
+	client.notifyStreamDisconnected()
+
+	if !client.Ready() {
+		return fmt.Errorf("no conection grpc client")
+	}
+
+	stream, err := client.ConnectStream(clientMachineKey)
+	if err != nil {
+		return err
+	}
+
+	client.notifyStreamConnected()
+
 	for {
 		msg, err := stream.Recv()
 		if s, ok := status.FromError(err); ok && s.Code() == codes.Canceled {
@@ -185,23 +205,6 @@ func (client *GrpcClient) Receive(
 	}
 }
 
-func (client *GrpcClient) WaitStreamConnected() {
-	ch := client.getStreamStatusChan()
-	select {
-	case <-client.ctx.Done():
-	case <-ch:
-	}
-}
-
-func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
-	client.mux.Lock()
-	defer client.mux.Unlock()
-	if client.connectedCh == nil {
-		client.connectedCh = make(chan struct{})
-	}
-	return client.connectedCh
-}
-
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
 	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
 		PrivateKey:       client.privateKey.String(),
@@ -226,5 +229,59 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 		if err != nil {
 			return err
 		}
+	}
+}
+
+func (client *GrpcClient) Ready() bool {
+	return client.conn.GetState() == connectivity.Ready || client.conn.GetState() == connectivity.Idle
+}
+
+func (client *GrpcClient) WaitStreamConnected() {
+	if client.status == StreamConnected {
+		fmt.Println("Stream Connected")
+		return
+	}
+
+	ch := client.getStreamStatusChan()
+	select {
+	case <-client.ctx.Done():
+	case <-ch:
+	}
+}
+
+func (client *GrpcClient) StreamConnected() bool {
+	return client.status == StreamConnected
+}
+
+func (client *GrpcClient) GetStatus() Status {
+	return client.status
+}
+
+func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+
+	if client.connectedCh == nil {
+		client.connectedCh = make(chan struct{})
+	}
+	return client.connectedCh
+}
+
+func (client *GrpcClient) notifyStreamDisconnected() {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+
+	client.status = StreamDisconnected
+}
+
+func (client *GrpcClient) notifyStreamConnected() {
+	client.mux.Lock()
+	defer client.mux.Unlock()
+
+	client.status = StreamConnected
+	if client.connectedCh != nil {
+		// there are goroutines waiting on this channel -> release them
+		close(client.connectedCh)
+		client.connectedCh = nil
 	}
 }
