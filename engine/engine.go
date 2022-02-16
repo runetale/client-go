@@ -129,9 +129,6 @@ func (e *Engine) syncClient(machineKey string) {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
-			fmt.Println("sync")
-			fmt.Println(update)
-
 			err := e.StartConn(update.GetRemotePeers())
 			if err != nil {
 				return err
@@ -172,7 +169,7 @@ func (e *Engine) removePeer(peerKey string) error {
 
 // starting connection
 func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
-
+	fmt.Println("(3) start conn")
 	// remove old out peers
 	remotePeerMap := make(map[string]struct{})
 	for _, p := range remotePeers {
@@ -190,12 +187,17 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 	if err != nil {
 		return err
 	}
-	//
+
+	fmt.Println("(4) remove peers")
+	fmt.Println(remotePeers)
 
 	// create connection remotePeers
 	for _, p := range remotePeers {
 		peerKey := p.GetWgPubKey()
 		peerIPs := p.GetAllowedIps()
+		fmt.Println("(5) get remote peers")
+		fmt.Println(peerKey)
+		fmt.Println(peerIPs)
 
 		if _, ok := e.peerConns[peerKey]; !ok {
 			conn, err := e.createPeerConn(peerKey, strings.Join(peerIPs, ","))

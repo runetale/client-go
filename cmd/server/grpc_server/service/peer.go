@@ -114,6 +114,7 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 
 			fmt.Printf("received an update for peer %s", req.GetClientMachineKey())
 
+			fmt.Println("send update message")
 			err = srv.SendMsg(update.Update)
 			if err != nil {
 				fmt.Println("failed to sending update message")

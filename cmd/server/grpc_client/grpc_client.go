@@ -206,7 +206,6 @@ func (client *GrpcClient) Receive(
 }
 
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
-
 	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
 		PrivateKey:       client.privateKey.String(),
 		ClientMachineKey: clientMachineKey,
@@ -215,10 +214,10 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("sync start")
+	fmt.Println("(1) sync start")
 
 	for {
-		fmt.Println("starting stream recieve")
+		fmt.Println("(2) starting stream recieve")
 		update, err := stream.Recv()
 		if err == io.EOF {
 			fmt.Println("recv error io")

@@ -36,7 +36,6 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		fmt.Println("can not find pub key")
 		return err
 	}
-	fmt.Println(pe)
 
 	peers, err := p.peerRepository.FindPeersByClientPubKey(pe.ClientPubKey)
 	if err != nil {
@@ -44,17 +43,18 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
+	fmt.Println("Initial Sync Peers")
 	fmt.Println(peers)
 
 	err = p.peerServer.Send(&peer.SyncResponse{
 		PeerConfig:        &peer.PeerConfig{Address: "", Dns: ""},
+		// TOOD: 
 		RemotePeers:       []*peer.RemotePeer{},
 		RemotePeerIsEmpty: true,
 	})
 	if err != nil {
 		return err
 	}
-	fmt.Println("send sync response")
 
 	return nil
 }
