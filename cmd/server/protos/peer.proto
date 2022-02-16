@@ -15,11 +15,12 @@ message SyncMessage {
 
 message RemotePeer {
 	string clientMachineKey = 1;
-	repeated string allowedIps = 2;
+	string wgPubKey = 2;
+	repeated string allowedIps = 3;
 }
 
 message PeerConfig {
-  string  address = 1;
+  string address = 1;
   string dns = 2;
 }
 

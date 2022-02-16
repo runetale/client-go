@@ -153,8 +153,8 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 	}
 
 	for rows.Next() {
-	    peer := new(domain.Peer)
-	    if err := rows.Scan(
+		peer := new(domain.Peer)
+		if err := rows.Scan(
 			&peer.ID,
 			&peer.UserID,
 			&peer.SetupKeyID,
@@ -166,12 +166,12 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			&peer.CreatedAt,
 			&peer.UpdatedAt,
 		); err != nil {
-	        return nil, err
-	    }       
-	    peers = append(peers, peer)
+			return nil, err
+		}
+		peers = append(peers, peer)
 	}
 	if err := rows.Err(); err != nil {
-	    panic(err)
+		panic(err)
 	}
 
 	return peers, nil

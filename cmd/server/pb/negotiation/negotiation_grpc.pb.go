@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NegotiationClient interface {
+	Send(ctx context.Context, in *Body, opts ...grpc.CallOption) (*Body, error)
 	ConnectStream(ctx context.Context, opts ...grpc.CallOption) (Negotiation_ConnectStreamClient, error)
 }
 
@@ -31,6 +32,15 @@ type negotiationClient struct {
 
 func NewNegotiationClient(cc grpc.ClientConnInterface) NegotiationClient {
 	return &negotiationClient{cc}
+}
+
+func (c *negotiationClient) Send(ctx context.Context, in *Body, opts ...grpc.CallOption) (*Body, error) {
+	out := new(Body)
+	err := c.cc.Invoke(ctx, "/protos.Negotiation/Send", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *negotiationClient) ConnectStream(ctx context.Context, opts ...grpc.CallOption) (Negotiation_ConnectStreamClient, error) {
@@ -43,8 +53,8 @@ func (c *negotiationClient) ConnectStream(ctx context.Context, opts ...grpc.Call
 }
 
 type Negotiation_ConnectStreamClient interface {
-	Send(*StreamMessage) error
-	Recv() (*StreamMessage, error)
+	Send(*Body) error
+	Recv() (*Body, error)
 	grpc.ClientStream
 }
 
@@ -52,12 +62,12 @@ type negotiationConnectStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *negotiationConnectStreamClient) Send(m *StreamMessage) error {
+func (x *negotiationConnectStreamClient) Send(m *Body) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *negotiationConnectStreamClient) Recv() (*StreamMessage, error) {
-	m := new(StreamMessage)
+func (x *negotiationConnectStreamClient) Recv() (*Body, error) {
+	m := new(Body)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -68,6 +78,7 @@ func (x *negotiationConnectStreamClient) Recv() (*StreamMessage, error) {
 // All implementations must embed UnimplementedNegotiationServer
 // for forward compatibility
 type NegotiationServer interface {
+	Send(context.Context, *Body) (*Body, error)
 	ConnectStream(Negotiation_ConnectStreamServer) error
 	mustEmbedUnimplementedNegotiationServer()
 }
@@ -76,6 +87,9 @@ type NegotiationServer interface {
 type UnimplementedNegotiationServer struct {
 }
 
+func (UnimplementedNegotiationServer) Send(context.Context, *Body) (*Body, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Send not implemented")
+}
 func (UnimplementedNegotiationServer) ConnectStream(Negotiation_ConnectStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectStream not implemented")
 }
@@ -92,13 +106,31 @@ func RegisterNegotiationServer(s grpc.ServiceRegistrar, srv NegotiationServer) {
 	s.RegisterService(&Negotiation_ServiceDesc, srv)
 }
 
+func _Negotiation_Send_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Body)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NegotiationServer).Send(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.Negotiation/Send",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NegotiationServer).Send(ctx, req.(*Body))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Negotiation_ConnectStream_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(NegotiationServer).ConnectStream(&negotiationConnectStreamServer{stream})
 }
 
 type Negotiation_ConnectStreamServer interface {
-	Send(*StreamMessage) error
-	Recv() (*StreamMessage, error)
+	Send(*Body) error
+	Recv() (*Body, error)
 	grpc.ServerStream
 }
 
@@ -106,12 +138,12 @@ type negotiationConnectStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *negotiationConnectStreamServer) Send(m *StreamMessage) error {
+func (x *negotiationConnectStreamServer) Send(m *Body) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *negotiationConnectStreamServer) Recv() (*StreamMessage, error) {
-	m := new(StreamMessage)
+func (x *negotiationConnectStreamServer) Recv() (*Body, error) {
+	m := new(Body)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -124,7 +156,12 @@ func (x *negotiationConnectStreamServer) Recv() (*StreamMessage, error) {
 var Negotiation_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.Negotiation",
 	HandlerType: (*NegotiationServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Send",
+			Handler:    _Negotiation_Send_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "ConnectStream",

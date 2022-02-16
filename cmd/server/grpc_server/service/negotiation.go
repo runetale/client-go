@@ -149,3 +149,23 @@ func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation
 		return nil, errors.New("missin stream data")
 	}
 }
+
+func (nss *NegotiationServiceServer) Send(ctx context.Context, msg *negotiation.Body) (*negotiation.Body, error) {
+	if !nss.registry.IsPeerRegistered(msg.Key) {
+		return nil, fmt.Errorf("peer %s is not registered\n", msg.Key)
+	}
+
+	if dstPeer, found := nss.registry.Get(msg.RemoteKey); found {
+		err := dstPeer.Stream.Send(&negotiation.Body{
+			Key: msg.Key,
+			RemoteKey: msg.RemoteKey,
+		})
+		if err != nil {
+			fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v", msg.Key, msg.RemoteKey, err)
+		} else {
+			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected", msg.Key, msg.RemoteKey)
+		}
+	}
+
+	return &negotiation.Body{}, nil
+}

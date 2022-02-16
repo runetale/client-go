@@ -89,10 +89,10 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		sessionServiceClient: sec,
 		negotiationClient:    nc,
 
-		ctx:  ctx,
-		conn: conn,
-		mux:  sync.Mutex{},
-		status:     StreamDisconnected,
+		ctx:    ctx,
+		conn:   conn,
+		mux:    sync.Mutex{},
+		status: StreamDisconnected,
 	}, nil
 }
 
@@ -163,7 +163,7 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 
 func (client *GrpcClient) Receive(
 	clientMachineKey string,
-	msgHandler func(msg *negotiation.StreamMessage) error,
+	msgHandler func(msg *negotiation.Body) error,
 ) error {
 	client.notifyStreamDisconnected()
 
@@ -206,20 +206,27 @@ func (client *GrpcClient) Receive(
 }
 
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
+
 	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
 		PrivateKey:       client.privateKey.String(),
 		ClientMachineKey: clientMachineKey,
 	})
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
+	fmt.Println("sync start")
 
 	for {
+		fmt.Println("starting stream recieve")
 		update, err := stream.Recv()
-		if err != io.EOF {
+		if err == io.EOF {
+			fmt.Println("recv error io")
 			return err
 		}
+
 		if err != nil {
+			fmt.Println("recv error")
 			return err
 		}
 
@@ -284,4 +291,22 @@ func (client *GrpcClient) notifyStreamConnected() {
 		close(client.connectedCh)
 		client.connectedCh = nil
 	}
+}
+
+func (client *GrpcClient) Send(msg *negotiation.Body) error {
+	if !client.Ready() {
+		return fmt.Errorf("no connection server stream")
+	}
+
+	//ctx, cancel := context.WithTimeout(client.ctx., 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	body, err := client.negotiationClient.Send(ctx, msg)
+	if err != nil {
+		return err
+	}
+	fmt.Println(body)
+
+	return nil
 }
