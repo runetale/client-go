@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/engine"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -70,7 +71,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	}
 
 	fMark := 0
-	port := 51820
+	port := engine.WgPort
 	wgConf := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,

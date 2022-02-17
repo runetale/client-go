@@ -17,13 +17,14 @@ import (
 
 type Config struct {
 	WgPrivateKey string
-	Host         *url.URL
+	ServerHost   *url.URL
 	IgonoreTUNs  []string
 	TUNName      string
 	PreSharedKey string
+	IfaceBlackList []string
 }
 
-func newClientConfig(path string, host string, port int, privateKey string) *Config {
+func newClientConfig(path string, host string, port int, privateKey string, ifaceBlackList []string) *Config {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
@@ -32,23 +33,24 @@ func newClientConfig(path string, host string, port int, privateKey string) *Con
 
 	h, err := url.Parse(scheme)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	cfg := Config{
 		WgPrivateKey: privateKey,
-		Host:         h,
+		ServerHost:         h,
 		TUNName:      tun.TunName(),
 		IgonoreTUNs:  []string{},
+		IfaceBlackList: ifaceBlackList,
 	}
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return &cfg
@@ -57,20 +59,20 @@ func newClientConfig(path string, host string, port int, privateKey string) *Con
 func GetClientConfig(path string, host string, port int) *Config {
 	b, err := ioutil.ReadFile(path)
 	switch {
-	case errors.Is(err, os.ErrExist):
-		var cfg Config
-		if err := json.Unmarshal(b, &cfg); err != nil {
-			log.Fatalf("can not read client config file. %v", err)
+	case errors.Is(err, os.ErrNotExist):
+		privKey, err := key.NewGenerateKey()
+		if err != nil {
+			panic(err)
 		}
-		return newClientConfig(path, host, port, cfg.WgPrivateKey)
+		return newClientConfig(path, host, port, privKey, []string{"ws0", "tun0"})
 	case err != nil:
 		log.Fatal(err)
 		panic(err)
 	default:
-		privKey, err := key.NewGenerateKey()
-		if err != nil {
-			log.Fatal(err)
+		var cfg Config
+		if err := json.Unmarshal(b, &cfg); err != nil {
+			log.Fatalf("can not read client config file. %v", err)
 		}
-		return newClientConfig(path, host, port, privKey)
+		return newClientConfig(path, host, port, cfg.WgPrivateKey, cfg.IfaceBlackList)
 	}
 }

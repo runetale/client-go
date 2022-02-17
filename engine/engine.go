@@ -11,11 +11,14 @@ import (
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
+	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
 	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
+
+const WgPort = 51820
 
 type EngineConfig struct {
 	WgPort  int
@@ -28,6 +31,25 @@ type EngineConfig struct {
 	IFaceBlackList map[string]struct{}
 
 	PreSharedKey *wgtypes.Key
+}
+
+func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *EngineConfig {
+	iFaceBlackList := make(map[string]struct{})
+	for i := 0; i < len(config.IfaceBlackList); i += 2 {
+		iFaceBlackList[config.IfaceBlackList[i]] = struct{}{}
+	}
+
+	fmt.Println("Engine Config")
+	fmt.Println(config.IfaceBlackList)
+	fmt.Println(iFaceBlackList)
+
+	return &EngineConfig{
+		WgIface: config.TUNName,
+		WgAddr: wgAddr,
+		IFaceBlackList: iFaceBlackList,
+		WgPrivateKey: key,
+		WgPort: WgPort,
+	}
 }
 
 type Engine struct {
@@ -57,13 +79,18 @@ func NewEngine(
 	stream negotiation.Negotiation_ConnectStreamClient,
 	cancel context.CancelFunc,
 	ctx context.Context,
+	engineConfig *EngineConfig,
 ) *Engine {
 	return &Engine{
 		client: client,
 		stream: stream,
 
+		peerConns:  map[string]*polymer.Conn{},
+
 		STUNs: []*ice.URL{},
 		TURNs: []*ice.URL{},
+
+		config: engineConfig,
 
 		syncMsgMux: &sync.Mutex{},
 
@@ -202,8 +229,11 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 		if _, ok := e.peerConns[peerKey]; !ok {
 			conn, err := e.createPeerConn(peerKey, strings.Join(peerIPs, ","))
 			if err != nil {
+				fmt.Println("create peer conn error")
 				return err
 			}
+
+			fmt.Println("create peer conn complte")
 			e.peerConns[peerKey] = conn
 
 			go e.connWorker(conn, peerKey)
@@ -220,11 +250,16 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*polymer.
 	stunTurn = append(stunTurn, e.STUNs...)
 	stunTurn = append(stunTurn, e.TURNs...)
 
+	fmt.Println("setup stun")
+
 	// create blacklist
 	interfaceBlacklist := make([]string, 0, len(e.config.IFaceBlackList))
+	fmt.Println(interfaceBlacklist)
 	for k := range e.config.IFaceBlackList {
 		interfaceBlacklist = append(interfaceBlacklist, k)
 	}
+
+	fmt.Println("setup interface BlackList")
 
 	pc := polymer.ProxyConfig{
 		RemoteKey:    peerPubKey,
@@ -233,6 +268,8 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*polymer.
 		AllowedIps:   allowedIPs,
 		PreSharedKey: e.config.PreSharedKey,
 	}
+
+	fmt.Println("setup proxy config")
 
 	config := polymer.ConnConfig{
 		Key:                peerPubKey,
@@ -243,15 +280,23 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*polymer.
 		ProxyConfig:        pc,
 	}
 
+	fmt.Println("setup conn config")
+
 	peerConn, err := polymer.NewConn(config)
 	if err != nil {
 		return nil, err
 	}
 
+	fmt.Println("setup new conn")
+
 	wgPubKey, err := wgtypes.ParseKey(peerPubKey)
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Printf("%s wg pubkey\n", wgPubKey)
+	fmt.Printf("%s peer pubkey\n", peerPubKey)
+	fmt.Printf("%s private key\n", e.config.WgPrivateKey)
 
 	signalOffer := func(uFrag string, pwd string) error {
 		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.client, false)

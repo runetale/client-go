@@ -82,12 +82,12 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	client, err := grpc_client.NewGrpcClient(ctx, conf.Host, int(loginArgs.serverPort), privateKey)
+	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), privateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
 	}
 
-	log.Printf("connected to server %s", conf.Host.String())
+	log.Printf("connected to server %s", conf.ServerHost.String())
 
 	serverPubKey, err := client.GetServerPublicKey()
 	if err != nil {
@@ -107,6 +107,9 @@ func execLogin(args []string) error {
 		return err
 	}
 
+	fmt.Println("conf")
+	fmt.Println(conf)
+
 	// connect to stream server (like a signal server)
 	stream, err := client.ConnectStream(cs.GetPrivateKey())
 	if err != nil {
@@ -116,7 +119,9 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	e := engine.NewEngine(wisLog, client, stream, cancel, ctx)
+	engineConfig := engine.NewEngineConfig(privateKey, conf, "10.0.0.1")
+
+	e := engine.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig)
 	e.Start(cs.GetPublicKey())
 
 	select {
