@@ -6,10 +6,11 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/Notch-Technologies/wizy/engine"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
+
+const wgPort = 51820
 
 func execCmd(command string) (string, error) {
 	args := strings.Fields(command)
@@ -71,7 +72,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	}
 
 	fMark := 0
-	port := engine.WgPort
+	port := wgPort
 	wgConf := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
