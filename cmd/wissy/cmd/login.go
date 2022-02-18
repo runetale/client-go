@@ -8,7 +8,7 @@ import (
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
-	"github.com/Notch-Technologies/wizy/engine"
+	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
@@ -119,9 +119,9 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := engine.NewEngineConfig(privateKey, conf, "10.0.0.1")
+	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.1")
 
-	e := engine.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig)
+	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())
 
 	select {
