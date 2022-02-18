@@ -192,7 +192,7 @@ func (client *GrpcClient) Receive(
 		} else if err != nil {
 			return err
 		}
-		fmt.Printf("received a new message from Peer [fingerprint: %s]", msg.ClientMachineKey)
+		fmt.Printf("received a new message from Peer [fingerprint: %s]\n", msg.ClientMachineKey)
 
 		err = msgHandler(msg)
 
