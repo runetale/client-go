@@ -34,6 +34,7 @@ func NewPeerUsecase(
 
 const AllowedIPsFormat = "%s/32"
 
+// client pub key is client machine public key
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	pe, err := p.peerRepository.FindByClientPubKey(clientPubKey)
 	if err != nil {
