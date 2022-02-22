@@ -8,9 +8,9 @@ import (
 
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
-	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
+	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
@@ -101,7 +101,7 @@ func execLogin(args []string) error {
 
 	// TODO: (shintard) separate another package //
 
-	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1")
+	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.2")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err
@@ -119,7 +119,7 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.1")
+	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.2")
 
 	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())

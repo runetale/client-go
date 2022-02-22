@@ -27,10 +27,10 @@ func configureDevice(iface string, config wgtypes.Config) error {
 }
 
 func UpdatePeer(
-	iface string, peerKey string, allowedIps string, 
+	iface string, peerKey string, allowedIps string,
 	keepAlive time.Duration, endpoint string,
 	preSharedKey *wgtypes.Key) error {
-	
+
 	fmt.Printf("updating interface %s peer %s: endpoint %s\n", iface, peerKey, endpoint)
 	_, ipNet, err := net.ParseCIDR(allowedIps)
 	if err != nil {
@@ -42,11 +42,11 @@ func UpdatePeer(
 		return err
 	}
 	peer := wgtypes.PeerConfig{
-		PublicKey: peerKeyParsed,
-		ReplaceAllowedIPs: true,
-		AllowedIPs: []net.IPNet{*ipNet},
+		PublicKey:                   peerKeyParsed,
+		ReplaceAllowedIPs:           true,
+		AllowedIPs:                  []net.IPNet{*ipNet},
 		PersistentKeepaliveInterval: &keepAlive,
-		PresharedKey: preSharedKey,
+		PresharedKey:                preSharedKey,
 	}
 
 	config := wgtypes.Config{
@@ -67,7 +67,7 @@ func UpdatePeer(
 
 func UpdatePeerEndpoint(iface string, peerKey string,
 	newEndpoint string) error {
-	
+
 	fmt.Printf("updating peer %s endpoint %s\n", peerKey, newEndpoint)
 
 	peerAddr, err := net.ResolveUDPAddr("udp4", newEndpoint)
