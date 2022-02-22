@@ -43,7 +43,7 @@ var loginCmd = &ffcli.Command{
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "host", "http://localhost", "grpc server host url")
+		fs.StringVar(&loginArgs.serverHost, "host", "http://172.16.165.129", "grpc server host url")
 		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
@@ -101,7 +101,7 @@ func execLogin(args []string) error {
 
 	// TODO: (shintard) separate another package //
 
-	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.2")
+	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.2/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err

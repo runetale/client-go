@@ -16,15 +16,15 @@ import (
 )
 
 type Config struct {
-	WgPrivateKey string
-	ServerHost   *url.URL
-	IgonoreTUNs  []string
-	TUNName      string
-	PreSharedKey string
+	WgPrivateKey   string
+	ServerHost     *url.URL
+	IgonoreTUNs    []string
+	TUNName        string
+	PreSharedKey   string
 	IfaceBlackList []string
 }
 
-func newClientConfig(path string, host string, port int, privateKey string, ifaceBlackList []string) *Config {
+func newClientConfig(path string, host string, port int, privateKey string, ifaceBlackList []string, tunName string) *Config {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
@@ -37,10 +37,10 @@ func newClientConfig(path string, host string, port int, privateKey string, ifac
 	}
 
 	cfg := Config{
-		WgPrivateKey: privateKey,
-		ServerHost:         h,
-		TUNName:      tun.TunName(),
-		IgonoreTUNs:  []string{},
+		WgPrivateKey:   privateKey,
+		ServerHost:     h,
+		TUNName:        tunName,
+		IgonoreTUNs:    []string{},
 		IfaceBlackList: ifaceBlackList,
 	}
 
@@ -64,7 +64,7 @@ func GetClientConfig(path string, host string, port int) *Config {
 		if err != nil {
 			panic(err)
 		}
-		return newClientConfig(path, host, port, privKey, []string{"ws0", "tun0"})
+		return newClientConfig(path, host, port, privKey, []string{"ws0", "tun0"}, tun.TunName())
 	case err != nil:
 		log.Fatal(err)
 		panic(err)
@@ -73,6 +73,6 @@ func GetClientConfig(path string, host string, port int) *Config {
 		if err := json.Unmarshal(b, &cfg); err != nil {
 			log.Fatalf("can not read client config file. %v", err)
 		}
-		return newClientConfig(path, host, port, cfg.WgPrivateKey, cfg.IfaceBlackList)
+		return newClientConfig(path, host, port, cfg.WgPrivateKey, cfg.IfaceBlackList, cfg.TUNName)
 	}
 }
