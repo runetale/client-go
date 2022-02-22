@@ -117,7 +117,7 @@ func (conn *Conn) SetSignalCandidate(handler func(candidate ice.Candidate) error
 }
 
 func (conn *Conn) cleanup() error {
-	fmt.Printf("trying to cleanup %s", conn.config.Key)
+	fmt.Printf("trying to cleanup %s\n", conn.config.Key)
 	conn.mu.Lock()
 	defer conn.mu.Unlock()
 
@@ -189,11 +189,6 @@ func (conn *Conn) Open() error {
 		return NewConnectionClosedError(conn.config.Key)
 	}
 
-	fmt.Println(remoteCredentials)
-
-	fmt.Println("register ice credentials")
-	fmt.Println(conn.config.Key)
-
 	conn.mu.Lock()
 	conn.status = StatusConnected
 	conn.ctx, conn.notifyDisconnected = context.WithCancel(context.Background())
@@ -207,11 +202,17 @@ func (conn *Conn) Open() error {
 
 	var remoteConn *ice.Conn
 	isControlling := conn.config.LocalKey > conn.config.Key
+	fmt.Println("isControlling")
+	fmt.Println(conn.config.LocalKey)
+	fmt.Println(conn.config.Key)
+	fmt.Println(isControlling)
 	if isControlling {
 		// Peerが繋がるまでここはブロックされる
 		// Acceptされたら、startProxyが呼ばれる？？
+		fmt.Println("Starting Dial Connection")
 		remoteConn, err = conn.agent.Dial(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	} else {
+		fmt.Println("Starting Accept Connection")
 		remoteConn, err = conn.agent.Accept(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	}
 
@@ -220,6 +221,7 @@ func (conn *Conn) Open() error {
 	}
 
 	// the connection has been established successfully so we are ready to start the proxy
+	fmt.Println("Start Proxy(11)")
 	err = conn.startProxy(remoteConn)
 	if err != nil {
 		return err
@@ -236,8 +238,6 @@ func (conn *Conn) Open() error {
 		// disconnected from the remote peer
 		return NewConnectionDisconnectedError(conn.config.Key)
 	}
-
-	return nil
 }
 
 func (conn *Conn) startProxy(remoteConn net.Conn) error {
@@ -348,13 +348,11 @@ func (conn *Conn) sendOffer() error {
 	return nil
 }
 
-// onICECandidate is a callback attached to an ICE Agent to receive new local connection candidates
-// and then signals them to the remote peer
 func (conn *Conn) onICECandidate(candidate ice.Candidate) {
 	if candidate != nil {
 		//log.Debugf("discovered local candidate %s", candidate.String())
 		go func() {
-			fmt.Println("hello panic")
+			fmt.Println("******onICECandidate******")
 			err := conn.signalCandidate(candidate)
 			if err != nil {
 				fmt.Errorf("failed signaling candidate to the remote peer %s %s\n", conn.config.Key, err)
@@ -392,6 +390,7 @@ func (conn *Conn) RemoteAnswer(answer IceCredentials) {
 	}
 }
 
+// onICECandidate ga yobareru
 func (conn *Conn) OnRemoteCandidate(candidate ice.Candidate) {
 	fmt.Printf("OnRemoteCandidate from peer %s -> %s\n", conn.config.Key, candidate.String())
 	go func() {
@@ -408,5 +407,6 @@ func (conn *Conn) OnRemoteCandidate(candidate ice.Candidate) {
 			fmt.Println(err)
 			return
 		}
+		fmt.Println("******AddRemoteCandidate******")
 	}()
 }

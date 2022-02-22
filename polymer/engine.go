@@ -158,13 +158,50 @@ func (e *Engine) receiveClient(machineKey string) {
 	e.client.WaitStreamConnected()
 }
 
+func (e *Engine) updateTurns() error {
+	var newTurns []*ice.URL
+	url, err := ice.ParseURL("turn:www.notchturn.net:3478")
+	if err != nil {
+		return err
+	}
+	url.Username = "root"
+	url.Password = "password"
+	newTurns = append(newTurns, url)
+	e.TURNs = newTurns
+	return nil
+}
+
+func (e *Engine) updateStuns() error {
+	var newStuns []*ice.URL
+	url, err := ice.ParseURL("turn:www.notchturn.net:3478")
+	if err != nil {
+		return err
+	}
+	url.Username = "root"
+	url.Password = "password"
+	newStuns = append(newStuns, url)
+	e.STUNs = append(newStuns, url)
+	return nil
+}
+
 func (e *Engine) syncClient(machineKey string) {
 	go func() {
 		err := e.client.Sync(machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
+	
+			// TODO: will try to get it from server later.
+			err := e.updateTurns()
+			if err != nil {
+				return err
+			}
 
-			err := e.StartConn(update.GetRemotePeers())
+			err = e.updateStuns()
+			if err != nil {
+				return err
+			}
+
+			err = e.StartConn(update.GetRemotePeers())
 			if err != nil {
 				return err
 			}
@@ -244,6 +281,7 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 			fmt.Println("create peer conn complte")
 			e.peerConns[peerKey] = conn
 
+			// setuzoku sarerumadeha kokoga loop
 			go e.connWorker(conn, peerKey)
 		}
 	}
@@ -358,8 +396,6 @@ func (e *Engine) peerExists(peerKey string) bool {
 }
 
 func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient, isAnswer bool) error {
-
-	fmt.Println("started signal Auth")
 	var t negotiation.Body_Type
 	if isAnswer {
 		t = negotiation.Body_ANSWER
@@ -387,7 +423,7 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient) error {
 	err := s.Send(&negotiation.Body{
 		Key: myKey.PublicKey().String(),
-		PrivateKey: remoteKey.String(),
+		Remotekey: remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
 		Type: negotiation.Body_CANDIDATE,
 		Payload: candidate.Marshal(),
