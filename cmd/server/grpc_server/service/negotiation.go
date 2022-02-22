@@ -124,10 +124,10 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 			//forward the message to the target peer
 			err := dstPeer.Stream.Send(msg)
 			if err != nil {
-				fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v", p.ClientMachineKey, msg.GetPrivateKey(), err)
+				fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v\n", p.ClientMachineKey, msg.GetPrivateKey(), err)
 			}
 		} else {
-			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected", p.ClientMachineKey, msg.GetPrivateKey())
+			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", p.ClientMachineKey, msg.GetPrivateKey())
 		}
 	}
 	<-stream.Context().Done()
@@ -143,10 +143,10 @@ func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation
 			nss.registry.Register(p)
 			return p, nil
 		} else {
-			return nil, errors.New("missin connection header")
+			return nil, errors.New("missing connection header")
 		}
 	} else {
-		return nil, errors.New("missin stream data")
+		return nil, errors.New("missing stream data")
 	}
 }
 
@@ -155,12 +155,15 @@ func (nss *NegotiationServiceServer) Send(ctx context.Context, msg *negotiation.
 		return nil, fmt.Errorf("peer %s is not registered\n", msg.Key)
 	}
 
-	if dstPeer, found := nss.registry.Get(msg.ClientMachineKey); found {
+	fmt.Println(msg)
+	// setuzoku saki no peer no remote key
+	if dstPeer, found := nss.registry.Get(msg.GetRemotekey()); found {
 		err := dstPeer.Stream.Send(msg)
+		fmt.Println(msg)
 		if err != nil {
-			fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v", msg.Key, msg.GetRemotekey(), err)
+			fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v\n", msg.Key, msg.GetRemotekey(), err)
 		} else {
-			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected", msg.Key, msg.GetRemotekey())
+			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", msg.Key, msg.GetRemotekey())
 		}
 	}
 
