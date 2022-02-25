@@ -64,7 +64,7 @@ func GetClientConfig(path string, host string, port int) *Config {
 		if err != nil {
 			panic(err)
 		}
-		return newClientConfig(path, host, port, privKey, []string{"ws0", "tun0"}, tun.TunName())
+		return newClientConfig(path, host, port, privKey, []string{tun.TunName(), "tun0"}, tun.TunName())
 	case err != nil:
 		log.Fatal(err)
 		panic(err)

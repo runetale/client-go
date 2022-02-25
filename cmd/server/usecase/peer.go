@@ -32,7 +32,7 @@ func NewPeerUsecase(
 	}
 }
 
-const AllowedIPsFormat = "%s/32"
+const AllowedIPsFormat = "%s/24"
 
 // client pub key is client machine public key
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
@@ -62,7 +62,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	for _, rPeer := range peers {
 		remotePeers = append(remotePeers, &peer.RemotePeer{
 			WgPubKey:   rPeer.ClientPubKey,
-			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, "10.0.0.1"), fmt.Sprintf(AllowedIPsFormat, "10.0.0.2")}, //todo /32
+			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, "10.0.0.1"), fmt.Sprintf(AllowedIPsFormat, "10.0.0.2")},
 		})
 	}
 	err = p.peerServer.Send(&peer.SyncResponse{
