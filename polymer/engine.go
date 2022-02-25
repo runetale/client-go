@@ -126,8 +126,6 @@ func (e *Engine) receiveClient(machineKey string) {
 			switch msg.GetType() {
 			case negotiation.Body_OFFER:
 				fmt.Println("** Offer is Coming **")
-				fmt.Println(msg.UFlag)
-				fmt.Println(msg.Pwd)
 				conn.RemoteOffer(IceCredentials{
 					UFrag: msg.UFlag,
 					Pwd: msg.Pwd,
@@ -174,12 +172,12 @@ func (e *Engine) updateTurns() error {
 
 func (e *Engine) updateStuns() error {
 	var newStuns []*ice.URL
-	url, err := ice.ParseURL("turn:www.notchturn.net:3478")
+	url, err := ice.ParseURL("stun:www.notchturn.net:3478")
 	if err != nil {
 		return err
 	}
-	url.Username = "root"
-	url.Password = "password"
+	//url.Username = "root"
+	//url.Password = "password"
 	newStuns = append(newStuns, url)
 	e.STUNs = append(newStuns, url)
 	return nil
@@ -304,12 +302,15 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*Conn, er
 		PreSharedKey: e.config.PreSharedKey,
 	}
 
+	const PeerConnectionTimeoutMax = 45000 //ms
+	const PeerConnectionTimeoutMin = 30000 //ms
+	timeout := time.Duration(rand.Intn(PeerConnectionTimeoutMax-PeerConnectionTimeoutMin)+PeerConnectionTimeoutMin) * time.Millisecond
 	config := ConnConfig{
 		Key:                peerPubKey,
 		LocalKey:           e.config.WgPrivateKey.PublicKey().String(),
 		StunTurn:           stunTurn,
 		InterfaceBlackList: interfaceBlacklist,
-		Timeout:            45000,
+		Timeout:            timeout,
 		ProxyConfig:        pc,
 	}
 

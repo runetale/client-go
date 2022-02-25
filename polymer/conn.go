@@ -203,12 +203,24 @@ func (conn *Conn) Open() error {
 	var remoteConn *ice.Conn
 	isControlling := conn.config.LocalKey > conn.config.Key
 	if isControlling {
+		fmt.Println("** Starting Dial Connection **")
+		// *** 原因 ここがエラーだから、
+		// ctxがcancelされ、notifyDisconnectedが走り、
+		// RemoteOfferがうまく走らない. because is not readyになる
+		fmt.Println("** Dial Remote Credentials is Here **")
+		fmt.Println(remoteCredentials.UFrag)
+		fmt.Println(remoteCredentials.Pwd)
 		remoteConn, err = conn.agent.Dial(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	} else {
+		fmt.Println("** Starting Accept Connection **")
+		fmt.Println("** Accept Remote Credentials is Here **")
+		fmt.Println(remoteCredentials.UFrag)
+		fmt.Println(remoteCredentials.Pwd)
 		remoteConn, err = conn.agent.Accept(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	}
 
 	if err != nil {
+		fmt.Println("[ERR] Dial or Accept Error")
 		return err
 	}
 
@@ -339,7 +351,6 @@ func (conn *Conn) onICECandidate(candidate ice.Candidate) {
 	if candidate != nil {
 		//log.Debugf("discovered local candidate %s", candidate.String())
 		go func() {
-			fmt.Println("** onICECandidate **")
 			err := conn.signalCandidate(candidate)
 			if err != nil {
 				fmt.Errorf("failed signaling candidate to the remote peer %s %s\n", conn.config.Key, err)
@@ -364,18 +375,16 @@ func (conn *Conn) onICEConnectionStateChange(state ice.ConnectionState) {
 func (conn *Conn) RemoteOffer(offer IceCredentials) {
 	select {
 	case conn.remoteOffersCh<-offer:
-		fmt.Println("send remote offer")
 	default:
-		fmt.Println("skip on remote offer")
+		fmt.Printf("OnRemoteOffer skipping message from peer %s on status %s because is not ready\n", conn.config.Key, conn.status.String())
 	}
 }
 
 func (conn *Conn) RemoteAnswer(answer IceCredentials) {
 	select {
 	case conn.remoteAnswerCh<-answer:
-		fmt.Println("send remote answer")
 	default:
-		fmt.Println("skip on remote answer")
+		fmt.Printf("OnRemoteAnswer skipping message from peer %s on status %s because is not ready\n", conn.config.Key, conn.status.String())
 	}
 }
 
@@ -396,6 +405,5 @@ func (conn *Conn) OnRemoteCandidate(candidate ice.Candidate) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("** AddRemoteCandidate **")
 	}()
 }
