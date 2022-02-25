@@ -43,7 +43,7 @@ var loginCmd = &ffcli.Command{
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "host", "http://172.16.165.129", "grpc server host url")
+		fs.StringVar(&loginArgs.serverHost, "host", "http://localhost", "grpc server host url")
 		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
@@ -101,17 +101,16 @@ func execLogin(args []string) error {
 
 	// TODO: (shintard) separate another package //
 
-	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.2/24")
+	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1/32")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err
 	}
 
-	fmt.Println("conf")
-	fmt.Println(conf)
-
 	// connect to stream server (like a signal server)
-	stream, err := client.ConnectStream(cs.GetPrivateKey())
+	fmt.Println("GetPublicKey")
+	fmt.Println(cs.GetPublicKey())
+	stream, err := client.ConnectStream(cs.GetPublicKey())
 	if err != nil {
 		return err
 	}
@@ -119,7 +118,7 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.2")
+	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.1")
 
 	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())

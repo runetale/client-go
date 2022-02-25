@@ -198,7 +198,7 @@ func (client *GrpcClient) Receive(
 		err = msgHandler(msg)
 
 		if err != nil {
-			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]", msg.ClientMachineKey, err.Error())
+			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]\n", msg.ClientMachineKey, err.Error())
 			return err
 		}
 	}
@@ -213,10 +213,8 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("(1) sync start")
 
 	for {
-		fmt.Println("(2) starting stream recieve")
 		update, err := stream.Recv()
 		if err == io.EOF {
 			fmt.Println("recv error io")
@@ -228,8 +226,6 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 			return err
 		}
 
-		fmt.Println("coming update")
-		fmt.Println(update)
 		err = msgHandler(update)
 		if err != nil {
 			return err

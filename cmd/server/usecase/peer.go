@@ -42,35 +42,33 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
-	peers, err := p.peerRepository.FindPeersByClientPubKey(pe.ClientPubKey)
+	peers, err := p.peerRepository.FindByOrganizationID(pe.OrganizationID)
 	if err != nil {
 		fmt.Println("can not find peers")
 		return err
 	}
 
-	network, err := p.networkRepository.FindByNetworkID(pe.NetworkID)
+	fmt.Println("Initial Sync")
+	fmt.Println(pe.OrganizationID)
+	fmt.Println(peers)
+
+	_, err = p.networkRepository.FindByNetworkID(pe.NetworkID)
 	if err != nil {
 		fmt.Println("can not find networks")
 		return err
 	}
 
-	fmt.Println("your ip")
-	fmt.Println(network.IP)
-
-	fmt.Println("Initial Sync Peers")
-	fmt.Println(peers)
-
 	remotePeers := []*peer.RemotePeer{}
 	for _, rPeer := range peers {
 		remotePeers = append(remotePeers, &peer.RemotePeer{
 			WgPubKey:   rPeer.ClientPubKey,
-			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, "10.0.0.1")}, //todo /32
+			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, "10.0.0.1"), fmt.Sprintf(AllowedIPsFormat, "10.0.0.2")}, //todo /32
 		})
 	}
 	err = p.peerServer.Send(&peer.SyncResponse{
 		PeerConfig:        &peer.PeerConfig{Address: "", Dns: ""},
 		RemotePeers:       remotePeers,
-		RemotePeerIsEmpty: true,
+		RemotePeerIsEmpty: len(remotePeers) == 0,
 	})
 	if err != nil {
 		return err

@@ -10,8 +10,6 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-const wgPort = 51820
-
 func execCmd(command string) (string, error) {
 	args := strings.Fields(command)
 	out, err := exec.Command(args[0], args[1:]...).Output()
@@ -63,7 +61,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 		return err
 	}
 
-	add, err := execCmd(ipCmd + " address add dev " + ifaceName + " " + address + "/24")
+	add, err := execCmd(ipCmd + " address add dev " + ifaceName + " " + address)
 	if err != nil {
 		fmt.Printf("%s, %v", add, err)
 		return err
@@ -103,7 +101,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 }
 
 func createWithUserSpace(ifaceName, privateKey, address string) error {
-	err := CreateWithUserSpace(ifaceName, address
+	err := CreateWithUserSpace(ifaceName, address)
 	if err != nil {
 		return err
 	}

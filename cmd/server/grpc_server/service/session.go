@@ -6,6 +6,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
+	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
 	"github.com/Notch-Technologies/wizy/store"
@@ -17,6 +18,7 @@ type SessionServiceServer struct {
 	config      *config.Config
 	serverStore *store.ServerStore
 	db          *database.Sqlite
+	peerUpdateManager *channel.PeersUpdateManager
 
 	session.UnimplementedSessionServiceServer
 }
@@ -24,11 +26,13 @@ type SessionServiceServer struct {
 func NewSessionServiceServer(
 	db *database.Sqlite, config *config.Config,
 	server *store.ServerStore,
+	peerUpdateManager *channel.PeersUpdateManager,
 ) *SessionServiceServer {
 	return &SessionServiceServer{
 		config:      config,
 		serverStore: server,
 		db:          db,
+		peerUpdateManager: peerUpdateManager,
 	}
 }
 
@@ -55,7 +59,7 @@ func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMe
 	serverPubKey := msg.GetServerPublicKey()
 	setupKey := msg.GetSetupKey()
 
-	sessionUsecase := usecase.NewSessionUsecase(uss.db, uss.serverStore)
+	sessionUsecase := usecase.NewSessionUsecase(uss.db, uss.serverStore, uss.peerUpdateManager)
 
 	_, err := sessionUsecase.CreatePeer(setupKey, clientPubKey, serverPubKey)
 	if err != nil {
