@@ -43,11 +43,11 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 	fmt.Println(iFaceBlackList)
 
 	return &EngineConfig{
-		WgIface: config.TUNName,
-		WgAddr: wgAddr,
+		WgIface:        config.TUNName,
+		WgAddr:         wgAddr,
 		IFaceBlackList: iFaceBlackList,
-		WgPrivateKey: key,
-		WgPort: WgPort,
+		WgPrivateKey:   key,
+		WgPort:         WgPort,
 	}
 }
 
@@ -87,7 +87,7 @@ func NewEngine(
 		client: client,
 		stream: stream,
 
-		peerConns:  map[string]*Conn{},
+		peerConns: map[string]*Conn{},
 
 		STUNs: []*ice.URL{},
 		TURNs: []*ice.URL{},
@@ -97,8 +97,8 @@ func NewEngine(
 		syncMsgMux: &sync.Mutex{},
 
 		wislog: log,
-		cancel:     cancel,
-		ctx: ctx,
+		cancel: cancel,
+		ctx:    ctx,
 
 		machineKey: machineKey,
 	}
@@ -118,6 +118,8 @@ func (e *Engine) receiveClient(machineKey string) {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
+			fmt.Println("** Recieve Client, peerConns list **")
+			fmt.Println(e.peerConns)
 			conn := e.peerConns[msg.ClientMachineKey]
 			if conn == nil {
 				return fmt.Errorf("wrongly addressed message %s", msg.Key)
@@ -125,21 +127,19 @@ func (e *Engine) receiveClient(machineKey string) {
 
 			switch msg.GetType() {
 			case negotiation.Body_OFFER:
-				fmt.Println("Offer is Coming")
-				fmt.Println(msg.UFlag)
-				fmt.Println(msg.Pwd)
+				fmt.Println("** Offer is Coming **")
 				conn.RemoteOffer(IceCredentials{
 					UFrag: msg.UFlag,
-					Pwd: msg.Pwd,
+					Pwd:   msg.Pwd,
 				})
 			case negotiation.Body_ANSWER:
-				fmt.Println("Answer is Coming")
+				fmt.Println("** Answer is Coming **")
 				conn.RemoteAnswer(IceCredentials{
 					UFrag: msg.UFlag,
-					Pwd: msg.Pwd,
+					Pwd:   msg.Pwd,
 				})
 			case negotiation.Body_CANDIDATE:
-				fmt.Println("Candidate is Coming")
+				fmt.Println("** Candidate is Coming **")
 				candidate, err := ice.UnmarshalCandidate(msg.Payload)
 				if err != nil {
 					fmt.Println("failed parse ice candidate")
@@ -173,12 +173,12 @@ func (e *Engine) updateTurns() error {
 
 func (e *Engine) updateStuns() error {
 	var newStuns []*ice.URL
-	url, err := ice.ParseURL("turn:www.notchturn.net:3478")
+	url, err := ice.ParseURL("stun:www.notchturn.net:3478")
 	if err != nil {
 		return err
 	}
-	url.Username = "root"
-	url.Password = "password"
+	// url.Username = "root"
+	// url.Password = "password"
 	newStuns = append(newStuns, url)
 	e.STUNs = append(newStuns, url)
 	return nil
@@ -189,8 +189,7 @@ func (e *Engine) syncClient(machineKey string) {
 		err := e.client.Sync(machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
-	
-			// TODO: will try to get it from server later.
+
 			err := e.updateTurns()
 			if err != nil {
 				return err
@@ -241,7 +240,6 @@ func (e *Engine) removePeer(peerKey string) error {
 
 // starting connection
 func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
-	fmt.Println("(3) start conn")
 	// remove old out peers
 	remotePeerMap := make(map[string]struct{})
 	for _, p := range remotePeers {
@@ -260,16 +258,10 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 		return err
 	}
 
-	fmt.Println("(4) remove peers")
-	fmt.Println(remotePeers)
-
 	// create connection remotePeers
 	for _, p := range remotePeers {
 		peerKey := p.GetWgPubKey()
 		peerIPs := p.GetAllowedIps()
-		fmt.Println("(5) get remote peers")
-		fmt.Println(peerKey)
-		fmt.Println(peerIPs)
 
 		if _, ok := e.peerConns[peerKey]; !ok {
 			conn, err := e.createPeerConn(peerKey, strings.Join(peerIPs, ","))
@@ -278,7 +270,6 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 				return err
 			}
 
-			fmt.Println("create peer conn complte")
 			e.peerConns[peerKey] = conn
 
 			// setuzoku sarerumadeha kokoga loop
@@ -296,16 +287,11 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*Conn, er
 	stunTurn = append(stunTurn, e.STUNs...)
 	stunTurn = append(stunTurn, e.TURNs...)
 
-	fmt.Println("setup stun")
-
 	// create blacklist
 	interfaceBlacklist := make([]string, 0, len(e.config.IFaceBlackList))
-	fmt.Println(interfaceBlacklist)
 	for k := range e.config.IFaceBlackList {
 		interfaceBlacklist = append(interfaceBlacklist, k)
 	}
-
-	fmt.Println("setup interface BlackList")
 
 	pc := ProxyConfig{
 		RemoteKey:    peerPubKey,
@@ -315,34 +301,27 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*Conn, er
 		PreSharedKey: e.config.PreSharedKey,
 	}
 
-	fmt.Println("setup proxy config")
-
+	const PeerConnectionTimeoutMax = 45000 //ms
+	const PeerConnectionTimeoutMin = 30000 //ms
+	timeout := time.Duration(rand.Intn(PeerConnectionTimeoutMax-PeerConnectionTimeoutMin)+PeerConnectionTimeoutMin) * time.Millisecond
 	config := ConnConfig{
 		Key:                peerPubKey,
 		LocalKey:           e.config.WgPrivateKey.PublicKey().String(),
 		StunTurn:           stunTurn,
 		InterfaceBlackList: interfaceBlacklist,
-		Timeout:            45000,
+		Timeout:            timeout,
 		ProxyConfig:        pc,
 	}
-
-	fmt.Println("setup conn config")
 
 	peerConn, err := NewConn(config)
 	if err != nil {
 		return nil, err
 	}
 
-	fmt.Println("setup new conn")
-
 	wgPubKey, err := wgtypes.ParseKey(peerPubKey)
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("%s wg pubkey\n", wgPubKey)
-	fmt.Printf("%s peer pubkey\n", peerPubKey)
-	fmt.Printf("%s private key\n", e.config.WgPrivateKey)
 
 	signalOffer := func(uFrag string, pwd string) error {
 		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.client, false)
@@ -381,6 +360,7 @@ func (e *Engine) connWorker(conn *Conn, peerKey string) {
 
 		fmt.Println("start conn worker")
 
+		// MEMO: リモートピアのconnに対してDialができていない
 		err := conn.Open()
 		if err != nil {
 			fmt.Printf("connection to failed: %v\n", err)
@@ -404,12 +384,12 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 	}
 
 	err := s.Send(&negotiation.Body{
-		UFlag: uFrag,
-		Pwd: pwd,
-		Key: myKey.PublicKey().String(),
-		PrivateKey: remoteKey.String(),
+		UFlag:            uFrag,
+		Pwd:              pwd,
+		Key:              myKey.PublicKey().String(),
+		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
-		Type: t,
+		Type:             t,
 	})
 	if err != nil {
 		fmt.Println("can not send negotiation send")
@@ -422,11 +402,11 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 
 func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient) error {
 	err := s.Send(&negotiation.Body{
-		Key: myKey.PublicKey().String(),
-		Remotekey: remoteKey.String(),
+		Key:              myKey.PublicKey().String(),
+		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
-		Type: negotiation.Body_CANDIDATE,
-		Payload: candidate.Marshal(),
+		Type:             negotiation.Body_CANDIDATE,
+		Payload:          candidate.Marshal(),
 	})
 	if err != nil {
 		fmt.Errorf("failed signaling candidate to the remote peer %s %s", remoteKey.String(), err)

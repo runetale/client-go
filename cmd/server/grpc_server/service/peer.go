@@ -35,7 +35,7 @@ func (p *PeersUpdateManager) SendUpdate(peer string, update *UpdateMessage) erro
 		channel <- update
 		return nil
 	}
-	fmt.Printf("peer %s has no channel", peer)
+	fmt.Printf("peer %s has no channel\n", peer)
 	return nil
 }
 

@@ -116,7 +116,7 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 	return res.Key, nil
 }
 
-func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*session.LoginMessage, error) {
+func (client *GrpcClient) Login(setupKey, serverPubKey string, wgPubKey wgtypes.Key) (*session.LoginMessage, error) {
 	if !client.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
@@ -126,7 +126,7 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*s
 
 	msg, err := client.sessionServiceClient.Login(usCtx, &session.LoginMessage{
 		SetupKey:        setupKey,
-		ClientPublicKey: clientPubKey,
+		ClientPublicKey: wgPubKey.PublicKey().String(),
 		ServerPublicKey: serverPubKey,
 	})
 	if err != nil {
@@ -195,6 +195,7 @@ func (client *GrpcClient) Receive(
 
 		fmt.Printf("received a new message from Peer [fingerprint: %s]\n", msg.ClientMachineKey)
 
+		// CreatePeerの時に他のPeerのClientMachineKeyは送信されているのは確認できた
 		err = msgHandler(msg)
 
 		if err != nil {
@@ -213,10 +214,8 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 		fmt.Println(err)
 		return err
 	}
-	fmt.Println("(1) sync start")
 
 	for {
-		fmt.Println("(2) starting stream recieve")
 		update, err := stream.Recv()
 		if err == io.EOF {
 			fmt.Println("recv error io")
@@ -228,8 +227,6 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 			return err
 		}
 
-		fmt.Println("coming update")
-		fmt.Println(update)
 		err = msgHandler(update)
 		if err != nil {
 			return err

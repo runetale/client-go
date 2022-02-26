@@ -45,7 +45,7 @@ func NewProxy(config ProxyConfig) *Proxy {
 
 func (p *Proxy) updateEndpoint() error {
 	err := iface.UpdatePeer(p.config.WgInterface, p.config.RemoteKey,
-		p.config.AllowedIps, DefaultWgKeepAlive, 
+		p.config.AllowedIps, DefaultWgKeepAlive,
 		p.localConn.LocalAddr().String(), p.config.PreSharedKey)
 	if err != nil {
 		return err
@@ -59,13 +59,13 @@ func (p *Proxy) Start(remoteConn net.Conn) error {
 	var err error
 	p.localConn, err = net.Dial("udp", p.config.WgListenAddr)
 	if err != nil {
-		fmt.Errorf("failed dialing to local Wireguard port %s", err)
+		fmt.Printf("failed dialing to local Wireguard port %s", err)
 		return err
 	}
 
 	err = p.updateEndpoint()
 	if err != nil {
-		fmt.Errorf("error while updating Wireguard peer endpoint [%s] %v", p.config.RemoteKey, err)
+		fmt.Printf("error while updating Wireguard peer endpoint [%s] %v\n", p.config.RemoteKey, err)
 		return err
 	}
 

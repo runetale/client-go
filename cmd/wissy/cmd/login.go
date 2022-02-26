@@ -72,6 +72,8 @@ func execLogin(args []string) error {
 	if err != nil {
 		log.Fatalf("failed to write client state private key. %v", err)
 	}
+	fmt.Println("PubliceKey")
+	fmt.Println(cs.GetPublicKey())
 
 	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
 
@@ -107,11 +109,8 @@ func execLogin(args []string) error {
 		return err
 	}
 
-	fmt.Println("conf")
-	fmt.Println(conf)
-
 	// connect to stream server (like a signal server)
-	stream, err := client.ConnectStream(cs.GetPrivateKey())
+	stream, err := client.ConnectStream(cs.GetPublicKey())
 	if err != nil {
 		return err
 	}
@@ -119,7 +118,7 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.2")
+	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.2/24")
 
 	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())

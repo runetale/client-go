@@ -13,10 +13,10 @@ type PeerUsecaseManger interface {
 }
 
 type PeerUsecase struct {
-	peerRepository *repository.PeerRepository
+	peerRepository    *repository.PeerRepository
 	networkRepository *repository.NetworkRepository
-	serverStore    *store.ServerStore
-	peerServer     peer.PeerService_SyncServer
+	serverStore       *store.ServerStore
+	peerServer        peer.PeerService_SyncServer
 }
 
 func NewPeerUsecase(
@@ -25,10 +25,10 @@ func NewPeerUsecase(
 	peerServer peer.PeerService_SyncServer,
 ) *PeerUsecase {
 	return &PeerUsecase{
-		peerRepository: repository.NewPeerRepository(db),
+		peerRepository:    repository.NewPeerRepository(db),
 		networkRepository: repository.NewNetworkRepository(db),
-		serverStore:    server,
-		peerServer:     peerServer,
+		serverStore:       server,
+		peerServer:        peerServer,
 	}
 }
 
@@ -62,9 +62,12 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 
 	remotePeers := []*peer.RemotePeer{}
 	for _, rPeer := range peers {
+		fmt.Println("rPeer")
+		fmt.Println(rPeer.IP)
 		remotePeers = append(remotePeers, &peer.RemotePeer{
-			WgPubKey:   rPeer.ClientPubKey,
-			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, "10.0.0.1")}, //todo /32
+			WgPubKey: rPeer.ClientPubKey,
+			// TODO: 自分以外のPeerを返すようにする
+			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, rPeer.IP)},
 		})
 	}
 	err = p.peerServer.Send(&peer.SyncResponse{

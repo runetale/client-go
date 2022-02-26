@@ -144,7 +144,7 @@ func (conn *Conn) cleanup() error {
 
 	conn.status = StatusDisconnected
 
-	fmt.Printf("cleaned up connection to peer %s", conn.config.Key)
+	fmt.Printf("cleaned up connection to peer %s\n", conn.config.Key)
 
 	return nil
 }
@@ -158,7 +158,6 @@ func (conn *Conn) Open() error {
 		}
 	}()
 
-
 	err := conn.reCreateAgent()
 	if err != nil {
 		return err
@@ -166,7 +165,6 @@ func (conn *Conn) Open() error {
 
 	err = conn.sendOffer()
 	if err != nil {
-		fmt.Println("send offer error")
 		return err
 	}
 
@@ -176,16 +174,17 @@ func (conn *Conn) Open() error {
 
 	select {
 	case remoteCredentials = <-conn.remoteOffersCh:
-		fmt.Println("send answer")
+		fmt.Println("** send answer **")
 		err = conn.sendAnswer()
 		if err != nil {
 			return err
 		}
 	case remoteCredentials = <-conn.remoteAnswerCh:
 	case <-time.After(conn.config.Timeout):
+		fmt.Println("** timeout from Open() **")
 		return NewConnectionTimeoutError(conn.config.Key, conn.config.Timeout)
 	case <-conn.closeCh:
-		// closed externally
+		fmt.Println("** closeCh from Open() **")
 		return NewConnectionClosedError(conn.config.Key)
 	}
 
@@ -197,36 +196,32 @@ func (conn *Conn) Open() error {
 
 	err = conn.agent.GatherCandidates()
 	if err != nil {
+		fmt.Println("[ERR] gather candidates error")
 		return err
 	}
 
 	var remoteConn *ice.Conn
 	isControlling := conn.config.LocalKey > conn.config.Key
-	fmt.Println("isControlling")
-	fmt.Println(conn.config.LocalKey)
-	fmt.Println(conn.config.Key)
-	fmt.Println(isControlling)
 	if isControlling {
-		// Peerが繋がるまでここはブロックされる
-		// Acceptされたら、startProxyが呼ばれる？？
-		fmt.Println("Starting Dial Connection")
 		remoteConn, err = conn.agent.Dial(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	} else {
-		fmt.Println("Starting Accept Connection")
 		remoteConn, err = conn.agent.Accept(conn.ctx, remoteCredentials.UFrag, remoteCredentials.Pwd)
 	}
 
 	if err != nil {
+		fmt.Println("[ERR] Dial or Accept Error")
 		return err
 	}
 
 	// the connection has been established successfully so we are ready to start the proxy
-	fmt.Println("Start Proxy(11)")
+
+	fmt.Println("** Start Proxy **")
 	err = conn.startProxy(remoteConn)
 	if err != nil {
 		return err
 	}
 
+	fmt.Println("** Connected **")
 	fmt.Printf("connected to peer %s [laddr <-> raddr] [%s <-> %s]\n", conn.config.Key, remoteConn.LocalAddr().String(), remoteConn.RemoteAddr().String())
 
 	// wait until connection disconnected or has been closed externally (upper layer, e.g. engine)
@@ -297,7 +292,6 @@ func (conn *Conn) reCreateAgent() error {
 
 	failedTimeout := 6 * time.Second
 	var err error
-	fmt.Println("StunTurns URL")
 	fmt.Println(conn.config.StunTurn)
 	conn.agent, err = ice.NewAgent(&ice.AgentConfig{
 		MulticastDNSMode: ice.MulticastDNSModeDisabled,
@@ -334,8 +328,6 @@ func (conn *Conn) sendOffer() error {
 	defer conn.mu.Unlock()
 
 	localUFrag, localPwd, err := conn.agent.GetLocalUserCredentials()
-	fmt.Println(localUFrag)
-	fmt.Println(localPwd)
 	if err != nil {
 		fmt.Println("error get local user credentials")
 		return err
@@ -352,7 +344,6 @@ func (conn *Conn) onICECandidate(candidate ice.Candidate) {
 	if candidate != nil {
 		//log.Debugf("discovered local candidate %s", candidate.String())
 		go func() {
-			fmt.Println("******onICECandidate******")
 			err := conn.signalCandidate(candidate)
 			if err != nil {
 				fmt.Errorf("failed signaling candidate to the remote peer %s %s\n", conn.config.Key, err)
@@ -368,25 +359,27 @@ func (conn *Conn) onICESelectedCandidatePair(c1 ice.Candidate, c2 ice.Candidate)
 
 // onICEConnectionStateChange registers callback of an ICE Agent to track connection state
 func (conn *Conn) onICEConnectionStateChange(state ice.ConnectionState) {
-	fmt.Printf("peer %s ICE ConnectionState has changed to %s\n", conn.config.Key, state.String())
+	fmt.Printf("** peer %s ICE ConnectionState has changed to %s **\n", conn.config.Key, state.String())
 	if state == ice.ConnectionStateFailed || state == ice.ConnectionStateDisconnected {
+		fmt.Println("** Failed or ConnectionStateDisconnected onICEConnectionStateChange **")
 		conn.notifyDisconnected()
 	}
 }
 
 func (conn *Conn) RemoteOffer(offer IceCredentials) {
+	fmt.Printf("OnRemoteOffer from peer %s on status %s\n", conn.config.Key, conn.status.String())
 	select {
-	case conn.remoteOffersCh<-offer:
+	case conn.remoteOffersCh <- offer:
 	default:
-		fmt.Println("skip on remote offer")
+		fmt.Printf("OnRemoteOffer skipping message from peer %s on status %s because is not ready\n", conn.config.Key, conn.status.String())
 	}
 }
 
 func (conn *Conn) RemoteAnswer(answer IceCredentials) {
 	select {
-	case conn.remoteAnswerCh<-answer:
+	case conn.remoteAnswerCh <- answer:
 	default:
-		fmt.Println("skip on remote answer")
+		fmt.Printf("OnRemoteAnswer skipping message from peer %s on status %s because is not ready\n", conn.config.Key, conn.status.String())
 	}
 }
 
@@ -407,6 +400,5 @@ func (conn *Conn) OnRemoteCandidate(candidate ice.Candidate) {
 			fmt.Println(err)
 			return
 		}
-		fmt.Println("******AddRemoteCandidate******")
 	}()
 }
