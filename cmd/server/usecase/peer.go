@@ -13,10 +13,10 @@ type PeerUsecaseManger interface {
 }
 
 type PeerUsecase struct {
-	peerRepository *repository.PeerRepository
+	peerRepository    *repository.PeerRepository
 	networkRepository *repository.NetworkRepository
-	serverStore    *store.ServerStore
-	peerServer     peer.PeerService_SyncServer
+	serverStore       *store.ServerStore
+	peerServer        peer.PeerService_SyncServer
 }
 
 func NewPeerUsecase(
@@ -25,10 +25,10 @@ func NewPeerUsecase(
 	peerServer peer.PeerService_SyncServer,
 ) *PeerUsecase {
 	return &PeerUsecase{
-		peerRepository: repository.NewPeerRepository(db),
+		peerRepository:    repository.NewPeerRepository(db),
 		networkRepository: repository.NewNetworkRepository(db),
-		serverStore:    server,
-		peerServer:     peerServer,
+		serverStore:       server,
+		peerServer:        peerServer,
 	}
 }
 

@@ -15,4 +15,3 @@ func getUAPI(iface string) (net.Listener, error) {
 	}
 	return ipc.UAPIListen(iface, tunSock)
 }
-

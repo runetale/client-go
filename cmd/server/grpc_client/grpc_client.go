@@ -298,9 +298,27 @@ func (client *GrpcClient) Send(msg *negotiation.Body) error {
 
 	body, err := client.negotiationClient.Send(ctx, msg)
 	if err != nil {
+		panic(err)
 		return err
 	}
 	fmt.Println(body)
+
+	return nil
+}
+
+func (c *GrpcClient) SendToStream(msg *negotiation.Body) error {
+	fmt.Println("aaaaaaaaaaaa")
+	if !c.Ready() {
+		return fmt.Errorf("no connection to signal")
+	}
+	if c.stream == nil {
+		return fmt.Errorf("connection to the Signal Exchnage has not been established yet. Please call Client.Receive before sending messages")
+	}
+
+	err := c.stream.Send(msg)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

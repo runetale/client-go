@@ -75,14 +75,16 @@ func execLogin(args []string) error {
 
 	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
 
-	ctx := context.Background()
+	co := context.Background()
+	ctx, can := context.WithCancel(context.Background())
+	defer can()
 
 	privateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), privateKey)
+	client, err := grpc_client.NewGrpcClient(co, conf.ServerHost, int(loginArgs.serverPort), privateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
 	}
@@ -107,20 +109,12 @@ func execLogin(args []string) error {
 		return err
 	}
 
-	// connect to stream server (like a signal server)
-	fmt.Println("GetPublicKey")
-	fmt.Println(cs.GetPublicKey())
-	stream, err := client.ConnectStream(cs.GetPublicKey())
-	if err != nil {
-		return err
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.1/24")
 
-	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
+	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())
 
 	select {

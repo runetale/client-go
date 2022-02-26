@@ -1,4 +1,5 @@
 package channel
+
 import (
 	"fmt"
 	"sync"

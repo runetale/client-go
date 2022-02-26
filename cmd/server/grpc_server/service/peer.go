@@ -3,13 +3,12 @@ package service
 import (
 	"fmt"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
-	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/store"
 )
-
 
 type PeerServiceServer struct {
 	db                *database.Sqlite

@@ -45,7 +45,7 @@ func NewProxy(config ProxyConfig) *Proxy {
 
 func (p *Proxy) updateEndpoint() error {
 	err := iface.UpdatePeer(p.config.WgInterface, p.config.RemoteKey,
-		p.config.AllowedIps, DefaultWgKeepAlive, 
+		p.config.AllowedIps, DefaultWgKeepAlive,
 		p.localConn.LocalAddr().String(), p.config.PreSharedKey)
 	if err != nil {
 		return err

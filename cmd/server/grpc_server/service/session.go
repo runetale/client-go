@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
-	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
 	"github.com/Notch-Technologies/wizy/store"
@@ -15,9 +15,9 @@ import (
 )
 
 type SessionServiceServer struct {
-	config      *config.Config
-	serverStore *store.ServerStore
-	db          *database.Sqlite
+	config            *config.Config
+	serverStore       *store.ServerStore
+	db                *database.Sqlite
 	peerUpdateManager *channel.PeersUpdateManager
 
 	session.UnimplementedSessionServiceServer
@@ -29,9 +29,9 @@ func NewSessionServiceServer(
 	peerUpdateManager *channel.PeersUpdateManager,
 ) *SessionServiceServer {
 	return &SessionServiceServer{
-		config:      config,
-		serverStore: server,
-		db:          db,
+		config:            config,
+		serverStore:       server,
+		db:                db,
 		peerUpdateManager: peerUpdateManager,
 	}
 }

@@ -21,7 +21,7 @@ type SessionUsecase struct {
 	userRepository     *repository.UserRepository
 	peerRepository     *repository.PeerRepository
 	serverStore        *store.ServerStore
-	peerUpdateManager *channel.PeersUpdateManager
+	peerUpdateManager  *channel.PeersUpdateManager
 }
 
 func NewSessionUsecase(
@@ -34,7 +34,7 @@ func NewSessionUsecase(
 		userRepository:     repository.NewUserRepository(db),
 		peerRepository:     repository.NewPeerRepository(db),
 		serverStore:        server,
-		peerUpdateManager: peerUpdateManager,
+		peerUpdateManager:  peerUpdateManager,
 	}
 }
 
@@ -61,7 +61,7 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientPubKey, serverPubKey string)
 			if err != nil {
 				return nil, err
 			}
-	
+
 			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
 			if err != nil {
 				return nil, err
@@ -77,7 +77,7 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientPubKey, serverPubKey string)
 						})
 					}
 				}
-    		
+
 				err := s.peerUpdateManager.SendUpdate(remotePeer.ClientPubKey, &channel.UpdateMessage{Update: &peer.SyncResponse{
 					PeerConfig:        &peer.PeerConfig{Address: "", Dns: ""},
 					RemotePeers:       peersToSend,
@@ -88,10 +88,10 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientPubKey, serverPubKey string)
 				}
 				fmt.Println("Sending Update From Create Peer")
 			}
-			
+
 		}
 		return nil, err
 	}
 
 	return pe, nil
-} 
+}

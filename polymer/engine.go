@@ -43,17 +43,16 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 	fmt.Println(iFaceBlackList)
 
 	return &EngineConfig{
-		WgIface: config.TUNName,
-		WgAddr: wgAddr,
+		WgIface:        config.TUNName,
+		WgAddr:         wgAddr,
 		IFaceBlackList: iFaceBlackList,
-		WgPrivateKey: key,
-		WgPort: WgPort,
+		WgPrivateKey:   key,
+		WgPort:         WgPort,
 	}
 }
 
 type Engine struct {
 	client *grpc_client.GrpcClient
-	stream negotiation.Negotiation_ConnectStreamClient
 
 	peerConns map[string]*Conn
 
@@ -77,7 +76,6 @@ type Engine struct {
 func NewEngine(
 	log *wislog.WisLog,
 	client *grpc_client.GrpcClient,
-	stream negotiation.Negotiation_ConnectStreamClient,
 	cancel context.CancelFunc,
 	ctx context.Context,
 	engineConfig *EngineConfig,
@@ -85,9 +83,8 @@ func NewEngine(
 ) *Engine {
 	return &Engine{
 		client: client,
-		stream: stream,
 
-		peerConns:  map[string]*Conn{},
+		peerConns: map[string]*Conn{},
 
 		STUNs: []*ice.URL{},
 		TURNs: []*ice.URL{},
@@ -97,8 +94,8 @@ func NewEngine(
 		syncMsgMux: &sync.Mutex{},
 
 		wislog: log,
-		cancel:     cancel,
-		ctx: ctx,
+		cancel: cancel,
+		ctx:    ctx,
 
 		machineKey: machineKey,
 	}
@@ -128,13 +125,13 @@ func (e *Engine) receiveClient(machineKey string) {
 				fmt.Println("** Offer is Coming **")
 				conn.RemoteOffer(IceCredentials{
 					UFrag: msg.UFlag,
-					Pwd: msg.Pwd,
+					Pwd:   msg.Pwd,
 				})
 			case negotiation.Body_ANSWER:
 				fmt.Println("** Answer is Coming **")
 				conn.RemoteAnswer(IceCredentials{
 					UFrag: msg.UFlag,
-					Pwd: msg.Pwd,
+					Pwd:   msg.Pwd,
 				})
 			case negotiation.Body_CANDIDATE:
 				fmt.Println("** Candidate is Coming **")
@@ -188,7 +185,7 @@ func (e *Engine) syncClient(machineKey string) {
 		err := e.client.Sync(machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
-	
+
 			// TODO: will try to get it from server later.
 			err := e.updateTurns()
 			if err != nil {
@@ -384,12 +381,12 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 	}
 
 	err := s.Send(&negotiation.Body{
-		UFlag: uFrag,
-		Pwd: pwd,
-		Key: myKey.PublicKey().String(),
-		Remotekey: remoteKey.String(),
+		UFlag:            uFrag,
+		Pwd:              pwd,
+		Key:              myKey.PublicKey().String(),
+		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
-		Type: t,
+		Type:             t,
 	})
 	if err != nil {
 		fmt.Println("can not send negotiation send")
@@ -401,11 +398,11 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 
 func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient) error {
 	err := s.Send(&negotiation.Body{
-		Key: myKey.PublicKey().String(),
-		Remotekey: remoteKey.String(),
+		Key:              myKey.PublicKey().String(),
+		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
-		Type: negotiation.Body_CANDIDATE,
-		Payload: candidate.Marshal(),
+		Type:             negotiation.Body_CANDIDATE,
+		Payload:          candidate.Marshal(),
 	})
 	if err != nil {
 		fmt.Errorf("failed signaling candidate to the remote peer %s %s", remoteKey.String(), err)
