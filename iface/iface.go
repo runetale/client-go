@@ -25,23 +25,7 @@ func UpdatePeer(
 	preSharedKey *wgtypes.Key) error {
 
 	fmt.Printf("updating interface %s peer %s: endpoint %s\n", iface, peerKey, endpoint)
-	// _, ipNet, err := net.ParseCIDR(allowedIps)
-	_, ipNet, err := net.ParseCIDR("10.0.0.2/24")
-	if err != nil {
-		return err
-	}
-
-	_, ipNet1, err := net.ParseCIDR("10.0.0.1/24")
-	if err != nil {
-		return err
-	}
-	var a []net.IPNet
-
-	a = append(a, *ipNet)
-	a = append(a, *ipNet1)
-
-	fmt.Println("UpdatePeer")
-	fmt.Println(a)
+	_, ipNet, err := net.ParseCIDR(allowedIps)
 
 	peerKeyParsed, err := wgtypes.ParseKey(peerKey)
 	if err != nil {
@@ -50,7 +34,7 @@ func UpdatePeer(
 	peer := wgtypes.PeerConfig{
 		PublicKey:                   peerKeyParsed,
 		ReplaceAllowedIPs:           true,
-		AllowedIPs:                  a,
+		AllowedIPs:                  []net.IPNet{*ipNet},
 		PersistentKeepaliveInterval: &keepAlive,
 		PresharedKey:                preSharedKey,
 	}
