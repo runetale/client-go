@@ -43,7 +43,7 @@ var loginCmd = &ffcli.Command{
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "host", "http://localhost", "grpc server host url")
+		fs.StringVar(&loginArgs.serverHost, "host", "http://172.16.165.129", "grpc server host url")
 		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
@@ -75,16 +75,14 @@ func execLogin(args []string) error {
 
 	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
 
-	co := context.Background()
-	ctx, can := context.WithCancel(context.Background())
-	defer can()
+	ctx := context.Background()
 
-	privateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
+	wgPrivateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	client, err := grpc_client.NewGrpcClient(co, conf.ServerHost, int(loginArgs.serverPort), privateKey)
+	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
 	}
@@ -96,9 +94,9 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.1", wgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to get wics server public key. %v", err)
+		log.Fatalf("failed to login. %v", err)
 	}
 
 	// TODO: (shintard) separate another package //
@@ -112,7 +110,7 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.1/24")
+	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.1/24")
 
 	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey())
 	e.Start(cs.GetPublicKey())
@@ -124,3 +122,4 @@ func execLogin(args []string) error {
 
 	return nil
 }
+
