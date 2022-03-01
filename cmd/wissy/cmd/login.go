@@ -79,11 +79,10 @@ func execLogin(args []string) error {
 
 	// initialize client Core
 	//
-	clientCore, err := core.NewClientCore(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
+	clientCore, err := core.NewClientCore(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort), wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to initialize client core: %v", err)
 	}
-
 	clientCore = clientCore.GetClientCore()
 
 	ctx := context.Background()
