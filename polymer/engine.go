@@ -12,7 +12,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/wizy/wizlog"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -60,7 +60,7 @@ type Engine struct {
 
 	syncMsgMux *sync.Mutex
 
-	wislog *wislog.WisLog
+	wizlog *wizlog.WizLog
 
 	cancel context.CancelFunc
 
@@ -73,7 +73,7 @@ type Engine struct {
 }
 
 func NewEngine(
-	log *wislog.WisLog,
+	log *wizlog.WizLog,
 	client *grpc_client.GrpcClient,
 	cancel context.CancelFunc,
 	ctx context.Context,
@@ -93,7 +93,7 @@ func NewEngine(
 
 		syncMsgMux: &sync.Mutex{},
 
-		wislog: log,
+		wizlog: log,
 		cancel: cancel,
 		ctx:    ctx,
 

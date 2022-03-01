@@ -6,44 +6,49 @@ import (
 	"sync"
 
 	"github.com/Notch-Technologies/wizy/types/key"
+	"github.com/Notch-Technologies/wizy/wizlog"
 )
 
 type ClientManager interface {
-	WritePrivateKey() error
-	GetState64Key() string
+	GetPrivateKey() string
 	GetPublicKey() string
 }
 
 type ClientStore struct {
 	storeManager FileStoreManager
 	privateKey   key.WicsClientPrivateState
+	wizlog       *wizlog.WizLog
 
 	mu sync.Mutex
 }
 
-func NewClientStore(f FileStoreManager) *ClientStore {
+// client Store initialization method.
+//
+func NewClientStore(f FileStoreManager, wl *wizlog.WizLog) *ClientStore {
 	return &ClientStore{
 		storeManager: f,
-		mu:           sync.Mutex{},
+		wizlog:       wl,
+
+		mu: sync.Mutex{},
 	}
 }
 
+// read the PrivateKey from the Client State, and if it does not exist, write a new one.
+//
 func (c *ClientStore) WritePrivateKey() error {
-	// already exists
 	stateKey, err := c.storeManager.ReadState(ClientPrivateKeyStateKey)
 	if err == nil {
 		if err := c.privateKey.UnmarshalText(stateKey); err != nil {
 			return fmt.Errorf("unable to unmarshal %s. %v", ClientPrivateKeyStateKey, err)
 		}
 
-		log.Println("client private key already exists.")
+		c.wizlog.Logger.Debugf("client private key already exists")
 		return nil
 	}
 
-	// create new server private key
+	// create new client private key
 	k, err := key.NewClientPrivateKey()
 	if err != nil {
-		log.Fatal(err)
 		return err
 	}
 
@@ -53,23 +58,16 @@ func (c *ClientStore) WritePrivateKey() error {
 		return err
 	}
 
+	// write new client private key
 	if err := c.storeManager.WriteState(ClientPrivateKeyStateKey, ke); err != nil {
-		log.Fatalf("error writing client private key to store: %v.", err)
+		c.wizlog.Logger.Errorf("error writing client private key to store: %v.", err)
 		return err
 	}
 
 	c.privateKey = k
+	c.wizlog.Logger.Debugf("write new client private key")
 
 	return nil
-}
-
-func (c *ClientStore) GetStateKey() string {
-	key, err := c.storeManager.ReadState(ClientPrivateKeyStateKey)
-	if err != nil {
-		log.Fatal(err)
-		return ""
-	}
-	return string(key)
 }
 
 func (c *ClientStore) GetPublicKey() string {

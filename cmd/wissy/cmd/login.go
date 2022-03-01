@@ -13,7 +13,7 @@ import (
 	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/wizy/wizlog"
 	"github.com/peterbourgon/ff/ffcli"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -47,7 +47,7 @@ var loginCmd = &ffcli.Command{
 		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
-		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
+		fs.StringVar(&loginArgs.logLevel, "loglevel", wizlog.DebugLevelStr, "set log level")
 		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
 		return fs
 	})(),
@@ -55,19 +55,20 @@ var loginCmd = &ffcli.Command{
 }
 
 func execLogin(args []string) error {
-	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
+	// initialize wi
+	err := wizlog.InitWizLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
-	wisLog := wislog.NewWisLog("login")
 
-	// create client state key
-	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile())
+	wizlog := wizlog.NewWizLog("login")
+
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wizlog)
 	if err != nil {
 		log.Fatalf("failed to create clietnt state. %v", err)
 	}
 
-	cs := store.NewClientStore(cfs)
+	cs := store.NewClientStore(cfs, wizlog)
 	err = cs.WritePrivateKey()
 	if err != nil {
 		log.Fatalf("failed to write client state private key. %v", err)
@@ -99,8 +100,6 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to login. %v", err)
 	}
 
-	// TOOD: upCmd Exec
-
 	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
@@ -112,7 +111,7 @@ func execLogin(args []string) error {
 
 	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.1/24")
 
-	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := polymer.NewEngine(wizlog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()
 
 	select {

@@ -12,11 +12,11 @@ func Run(args []string) error {
 		args = []string{"version"}
 	}
 
-	fs := flag.NewFlagSet("wizy", flag.ExitOnError)
+	fs := flag.NewFlagSet("wissy", flag.ExitOnError)
 
 	cmd := &ffcli.Command{
-		Name:      "wizy",
-		Usage:     "wizy <subcommands> [command flags]",
+		Name:      "wissy",
+		Usage:     "wissy <subcommands> [command flags]",
 		ShortHelp: "Use WireGuard for easy and secure private connections.",
 		LongHelp: strings.TrimSpace(`
 All flags can use a single or double hyphen.

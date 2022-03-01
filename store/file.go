@@ -14,6 +14,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/utils"
+	"github.com/Notch-Technologies/wizy/wizlog"
 )
 
 type FileStoreManager interface {
@@ -22,13 +23,14 @@ type FileStoreManager interface {
 }
 
 type FileStore struct {
-	path string
+	path   string
+	cache  map[StateKey][]byte
+	wizlog *wizlog.WizLog
 
-	mu    sync.RWMutex
-	cache map[StateKey][]byte
+	mu sync.RWMutex
 }
 
-func NewFileStore(path string) (*FileStore, error) {
+func NewFileStore(path string, wl *wizlog.WizLog) (*FileStore, error) {
 	if err := paths.MkStateDir(filepath.Dir(path)); err != nil {
 		return nil, fmt.Errorf("does not creating state directory: %w", err)
 	}
@@ -48,8 +50,9 @@ func NewFileStore(path string) (*FileStore, error) {
 	}
 
 	fs := &FileStore{
-		path:  path,
-		cache: make(map[StateKey][]byte),
+		path:   path,
+		cache:  make(map[StateKey][]byte),
+		wizlog: wl,
 	}
 
 	if err := json.Unmarshal(b, &fs.cache); err != nil {

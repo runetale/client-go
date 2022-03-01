@@ -1,4 +1,4 @@
-package wislog
+package wizlog
 
 import (
 	"fmt"
@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	// DPanic, Panic and Fatal level can not be set by user
 	DebugLevelStr   string = "debug"
 	InfoLevelStr    string = "info"
 	WarningLevelStr string = "warning"
@@ -22,15 +21,17 @@ var (
 	devMode      bool = false
 )
 
-type lumberjackSink struct {
-	*lumberjack.Logger
+type WizLog struct {
+	Logger *zap.SugaredLogger
 }
 
-func (lumberjackSink) Sync() error {
-	return nil
+func NewWizLog(name string) *WizLog {
+	return &WizLog{
+		Logger: globalLogger.Named(name).Sugar(),
+	}
 }
 
-func InitWisLog(logLevel string, logFile string, dev bool) error {
+func InitWizLog(logLevel string, logFile string, dev bool) error {
 	devMode = dev
 	var level zapcore.Level
 	switch logLevel {
@@ -91,12 +92,10 @@ func InitWisLog(logLevel string, logFile string, dev bool) error {
 	return nil
 }
 
-type WisLog struct {
-	wlog *zap.SugaredLogger
+type lumberjackSink struct {
+	*lumberjack.Logger
 }
 
-func NewWisLog(name string) *WisLog {
-	return &WisLog{
-		wlog: globalLogger.Named(name).Sugar(),
-	}
+func (lumberjackSink) Sync() error {
+	return nil
 }

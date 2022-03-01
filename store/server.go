@@ -13,7 +13,6 @@ import (
 
 type ServerManager interface {
 	WritePrivateKey() error
-	GetStateKey() string
 	GetPublicKey() string
 }
 
@@ -66,15 +65,10 @@ func (s *ServerStore) WritePrivateKey() error {
 	return nil
 }
 
-func (s *ServerStore) GetStateKey() string {
-	key, err := s.storeManager.ReadState(ServerPrivateKeyStateKey)
-	if err != nil {
-		log.Fatal(err)
-		return ""
-	}
-	return string(key)
-}
-
 func (s *ServerStore) GetPublicKey() string {
 	return s.privateKey.PublicKey()
+}
+
+func (c *ServerStore) GetPrivateKey() string {
+	return c.privateKey.PrivateKey()
 }
