@@ -99,6 +99,8 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to login. %v", err)
 	}
 
+	// TOOD: upCmd Exec
+
 	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
