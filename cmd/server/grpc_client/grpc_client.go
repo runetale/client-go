@@ -138,10 +138,10 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey, ip string,
 	return msg, nil
 }
 
-func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
+func (client *GrpcClient) ConnectStream(wgPubKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
 	client.stream = nil
 
-	md := metadata.New(map[string]string{server.ClientMachineKey: clientMachineKey})
+	md := metadata.New(map[string]string{server.WgPubKey: wgPubKey})
 	ctx := metadata.NewOutgoingContext(client.ctx, md)
 
 	stream, err := client.negotiationClient.ConnectStream(ctx, grpc.WaitForReady(true))
@@ -164,7 +164,7 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 }
 
 func (client *GrpcClient) Receive(
-	clientMachineKey string,
+	wgPubKey string,
 	msgHandler func(msg *negotiation.Body) error,
 ) error {
 	client.notifyStreamDisconnected()
@@ -173,7 +173,7 @@ func (client *GrpcClient) Receive(
 		return fmt.Errorf("no conection grpc client")
 	}
 
-	stream, err := client.ConnectStream(clientMachineKey)
+	stream, err := client.ConnectStream(wgPubKey)
 	if err != nil {
 		return err
 	}

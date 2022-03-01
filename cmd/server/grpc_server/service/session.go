@@ -73,6 +73,7 @@ func (sss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMe
 		tx.Rollback()
 		return nil, err
 	}
+
 	tx.Commit()
 
 	return &session.LoginMessage{

@@ -119,11 +119,11 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 		fmt.Printf("recv connect stream from %s\n", msg.GetClientMachineKey())
 		fmt.Println(msg)
 		if err == io.EOF {
-		fmt.Println("EOF")
+			fmt.Println("EOF")
 			break
 		} else if err != nil {
-		fmt.Println("err")
-		fmt.Println(err)
+			fmt.Println("connect stream err")
+			fmt.Println(err)
 			return err
 		}
 		if dstPeer, found := nss.registry.Get(msg.GetRemotekey()); found {
@@ -143,12 +143,12 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 	return stream.Context().Err()
 }
 
-const ClientMachineKey = "client-machine-key"
+const WgPubKey = "client-machine-key"
 
 func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation_ConnectStreamServer) (*Peer, error) {
 	if meta, hasMeta := metadata.FromIncomingContext(stream.Context()); hasMeta {
-		if machineKey, found := meta[ClientMachineKey]; found {
-			p := NewPeer(machineKey[0], stream)
+		if wgPubKey, found := meta[WgPubKey]; found {
+			p := NewPeer(wgPubKey[0], stream)
 			nss.registry.Register(p)
 			return p, nil
 		} else {
@@ -160,7 +160,7 @@ func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation
 }
 
 func (nss *NegotiationServiceServer) Send(ctx context.Context, msg *negotiation.Body) (*negotiation.Body, error) {
-	if !nss.registry.IsPeerRegistered(msg.ClientMachineKey) {
+	if !nss.registry.IsPeerRegistered(msg.Key) {
 		return nil, fmt.Errorf("peer %s is not registered\n", msg.Key)
 	}
 

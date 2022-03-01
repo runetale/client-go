@@ -35,7 +35,6 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 
 	err := pu.InitialSync(req.GetClientMachineKey())
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 

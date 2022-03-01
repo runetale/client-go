@@ -25,14 +25,14 @@ func NewPeersUpdateManager() *PeersUpdateManager {
 }
 
 // SendUpdate sends update message to the peer's channel
-func (p *PeersUpdateManager) SendUpdate(peer string, update *UpdateMessage) error {
+func (p *PeersUpdateManager) SendUpdate(peerKey string, update *UpdateMessage) error {
 	p.channelsMux.Lock()
 	defer p.channelsMux.Unlock()
-	if channel, ok := p.peerChannels[peer]; ok {
+	if channel, ok := p.peerChannels[peerKey]; ok {
 		channel <- update
 		return nil
 	}
-	fmt.Printf("peer %s has no channel\n", peer)
+	fmt.Printf("peer %s has no channel\n", peerKey)
 	return nil
 }
 
