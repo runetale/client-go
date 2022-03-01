@@ -292,7 +292,6 @@ func (conn *Conn) reCreateAgent() error {
 
 	failedTimeout := 6 * time.Second
 	var err error
-	fmt.Println(conn.config.StunTurn)
 	conn.agent, err = ice.NewAgent(&ice.AgentConfig{
 		MulticastDNSMode: ice.MulticastDNSModeDisabled,
 		NetworkTypes:     []ice.NetworkType{ice.NetworkTypeUDP4},

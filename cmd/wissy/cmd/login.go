@@ -72,19 +72,17 @@ func execLogin(args []string) error {
 	if err != nil {
 		log.Fatalf("failed to write client state private key. %v", err)
 	}
-	fmt.Println("PubliceKey")
-	fmt.Println(cs.GetPublicKey())
 
 	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
 
 	ctx := context.Background()
 
-	privateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
+	wgPrivateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), privateKey)
+	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
 	}
@@ -96,9 +94,9 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey)
+	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to get wics server public key. %v", err)
+		log.Fatalf("failed to login. %v", err)
 	}
 
 	// TODO: (shintard) separate another package //
@@ -109,19 +107,13 @@ func execLogin(args []string) error {
 		return err
 	}
 
-	// connect to stream server (like a signal server)
-	stream, err := client.ConnectStream(cs.GetPublicKey())
-	if err != nil {
-		return err
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(privateKey, conf, "10.0.0.2/24")
+	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.2/24")
 
-	e := polymer.NewEngine(wisLog, client, stream, cancel, ctx, engineConfig, cs.GetPublicKey())
-	e.Start(cs.GetPublicKey())
+	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e.Start()
 
 	select {
 	case <-stopCh:

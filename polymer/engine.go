@@ -38,10 +38,6 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 		iFaceBlackList[config.IfaceBlackList[i]] = struct{}{}
 	}
 
-	fmt.Println("Engine Config")
-	fmt.Println(config.IfaceBlackList)
-	fmt.Println(iFaceBlackList)
-
 	return &EngineConfig{
 		WgIface:        config.TUNName,
 		WgAddr:         wgAddr,
@@ -53,7 +49,7 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 
 type Engine struct {
 	client *grpc_client.GrpcClient
-	stream negotiation.Negotiation_ConnectStreamClient
+	// stream negotiation.Negotiation_ConnectStreamClient
 
 	peerConns map[string]*Conn
 
@@ -72,20 +68,21 @@ type Engine struct {
 	ctx context.Context
 
 	machineKey string
+
+	wgPrivateKey wgtypes.Key
 }
 
 func NewEngine(
 	log *wislog.WisLog,
 	client *grpc_client.GrpcClient,
-	stream negotiation.Negotiation_ConnectStreamClient,
 	cancel context.CancelFunc,
 	ctx context.Context,
 	engineConfig *EngineConfig,
 	machineKey string,
+	wgPrivateKey wgtypes.Key,
 ) *Engine {
 	return &Engine{
 		client: client,
-		stream: stream,
 
 		peerConns: map[string]*Conn{},
 
@@ -101,26 +98,31 @@ func NewEngine(
 		ctx:    ctx,
 
 		machineKey: machineKey,
+
+		wgPrivateKey: wgPrivateKey,
 	}
 }
 
-func (e *Engine) Start(publicMachineKey string) {
+func (e *Engine) Start() {
 	e.syncMsgMux.Lock()
 	defer e.syncMsgMux.Unlock()
 
-	e.receiveClient(publicMachineKey)
-	e.syncClient(publicMachineKey)
+	// signal
+	e.receiveClient()
+
+	// management
+	e.syncClient()
 }
 
-func (e *Engine) receiveClient(machineKey string) {
+func (e *Engine) receiveClient() {
 	go func() {
-		err := e.client.Receive(machineKey, func(msg *negotiation.Body) error {
+		err := e.client.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
 			fmt.Println("** Recieve Client, peerConns list **")
 			fmt.Println(e.peerConns)
-			conn := e.peerConns[msg.ClientMachineKey]
+			conn := e.peerConns[msg.Key]
 			if conn == nil {
 				return fmt.Errorf("wrongly addressed message %s", msg.Key)
 			}
@@ -184,9 +186,9 @@ func (e *Engine) updateStuns() error {
 	return nil
 }
 
-func (e *Engine) syncClient(machineKey string) {
+func (e *Engine) syncClient() {
 	go func() {
-		err := e.client.Sync(machineKey, func(update *peer.SyncResponse) error {
+		err := e.client.Sync(e.machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 

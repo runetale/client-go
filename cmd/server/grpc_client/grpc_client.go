@@ -116,7 +116,7 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 	return res.Key, nil
 }
 
-func (client *GrpcClient) Login(setupKey, serverPubKey string, wgPubKey wgtypes.Key) (*session.LoginMessage, error) {
+func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error) {
 	if !client.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
@@ -126,8 +126,10 @@ func (client *GrpcClient) Login(setupKey, serverPubKey string, wgPubKey wgtypes.
 
 	msg, err := client.sessionServiceClient.Login(usCtx, &session.LoginMessage{
 		SetupKey:        setupKey,
-		ClientPublicKey: wgPubKey.PublicKey().String(),
+		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,
+		WgPublicKey:     wgPrivateKey.PublicKey().String(),
+		Ip:              ip,
 	})
 	if err != nil {
 		return nil, err
@@ -136,17 +138,17 @@ func (client *GrpcClient) Login(setupKey, serverPubKey string, wgPubKey wgtypes.
 	return msg, nil
 }
 
-func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
+func (client *GrpcClient) ConnectStream(wgPubKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
 	client.stream = nil
 
-	md := metadata.New(map[string]string{server.ClientMachineKey: clientMachineKey})
+	md := metadata.New(map[string]string{server.WgPubKey: wgPubKey})
 	ctx := metadata.NewOutgoingContext(client.ctx, md)
 
 	stream, err := client.negotiationClient.ConnectStream(ctx, grpc.WaitForReady(true))
+	client.stream = stream
 	if err != nil {
 		return nil, err
 	}
-	client.stream = stream
 
 	header, err := client.stream.Header()
 	if err != nil {
@@ -162,7 +164,7 @@ func (client *GrpcClient) ConnectStream(clientMachineKey string) (negotiation.Ne
 }
 
 func (client *GrpcClient) Receive(
-	clientMachineKey string,
+	wgPubKey string,
 	msgHandler func(msg *negotiation.Body) error,
 ) error {
 	client.notifyStreamDisconnected()
@@ -171,7 +173,7 @@ func (client *GrpcClient) Receive(
 		return fmt.Errorf("no conection grpc client")
 	}
 
-	stream, err := client.ConnectStream(clientMachineKey)
+	stream, err := client.ConnectStream(wgPubKey)
 	if err != nil {
 		return err
 	}
@@ -208,7 +210,7 @@ func (client *GrpcClient) Receive(
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
 	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
 		PrivateKey:       client.privateKey.String(),
-		ClientMachineKey: clientMachineKey,
+		ClientMachineKey: clientMachineKey, // using management server channel
 	})
 	if err != nil {
 		fmt.Println(err)
@@ -297,11 +299,27 @@ func (client *GrpcClient) Send(msg *negotiation.Body) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	body, err := client.negotiationClient.Send(ctx, msg)
+	_, err := client.negotiationClient.Send(ctx, msg)
 	if err != nil {
 		return err
 	}
-	fmt.Println(body)
+
+	return nil
+}
+
+func (c *GrpcClient) SendToStream(msg *negotiation.Body) error {
+	fmt.Println("aaaaaaaaaaaa")
+	if !c.Ready() {
+		return fmt.Errorf("no connection to signal")
+	}
+	if c.stream == nil {
+		return fmt.Errorf("connection to the Signal Exchnage has not been established yet. Please call Client.Receive before sending messages")
+	}
+
+	err := c.stream.Send(msg)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

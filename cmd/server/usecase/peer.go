@@ -32,7 +32,7 @@ func NewPeerUsecase(
 	}
 }
 
-const AllowedIPsFormat = "%s/32"
+const AllowedIPsFormat = "%s/24"
 
 // client pub key is client machine public key
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
@@ -48,25 +48,16 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
-	network, err := p.networkRepository.FindByNetworkID(pe.NetworkID)
+	_, err = p.networkRepository.FindByNetworkID(pe.NetworkID)
 	if err != nil {
 		fmt.Println("can not find networks")
 		return err
 	}
 
-	fmt.Println("your ip")
-	fmt.Println(network.IP)
-
-	fmt.Println("Initial Sync Peers")
-	fmt.Println(peers)
-
 	remotePeers := []*peer.RemotePeer{}
 	for _, rPeer := range peers {
-		fmt.Println("rPeer")
-		fmt.Println(rPeer.IP)
 		remotePeers = append(remotePeers, &peer.RemotePeer{
-			WgPubKey: rPeer.ClientPubKey,
-			// TODO: 自分以外のPeerを返すようにする
+			WgPubKey:   rPeer.ClientPubKey,
 			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, rPeer.IP)},
 		})
 	}
