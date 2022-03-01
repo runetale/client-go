@@ -92,6 +92,7 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
+	// 明日はここからRefactor
 	client, err := grpc_client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
@@ -109,6 +110,7 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to login. %v", err)
 	}
 
+	// ここからはupCmdに任せる??
 	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.1/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())

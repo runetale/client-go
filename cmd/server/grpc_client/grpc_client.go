@@ -33,8 +33,16 @@ const StreamConnected Status = "Connected"
 const StreamDisconnected Status = "Disconnected"
 
 type GrpcClientManager interface {
-	GetServerPublicKey() (*wgtypes.Key, error)
-	Login(setupKey, clientPubKey, serverPubKey string) (string, error)
+	GetServerPublicKey() (string, error)
+	IsReady() bool
+	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error)
+	ConnectStream(wgPubKey string) (negotiation.Negotiation_ConnectStreamClient, error)
+	Receive(wgPubKey string, msgHandler func(msg *negotiation.Body) error) error
+	Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error
+	WaitStreamConnected()
+	Send(msg *negotiation.Body) error
+	GetStatus() Status
+	StreamConnected() bool
 }
 
 type GrpcClient struct {
@@ -96,12 +104,12 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 	}, nil
 }
 
-func (client *GrpcClient) isReady() bool {
+func (client *GrpcClient) IsReady() bool {
 	return client.conn.GetState() == connectivity.Ready || client.conn.GetState() == connectivity.Idle
 }
 
 func (client *GrpcClient) GetServerPublicKey() (string, error) {
-	if !client.isReady() {
+	if !client.IsReady() {
 		return "", fmt.Errorf("no connection wics server")
 	}
 
@@ -117,7 +125,7 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 }
 
 func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error) {
-	if !client.isReady() {
+	if !client.IsReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
 
@@ -169,7 +177,7 @@ func (client *GrpcClient) Receive(
 ) error {
 	client.notifyStreamDisconnected()
 
-	if !client.Ready() {
+	if !client.IsReady() {
 		return fmt.Errorf("no conection grpc client")
 	}
 
@@ -236,10 +244,6 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 	}
 }
 
-func (client *GrpcClient) Ready() bool {
-	return client.conn.GetState() == connectivity.Ready || client.conn.GetState() == connectivity.Idle
-}
-
 func (client *GrpcClient) WaitStreamConnected() {
 	if client.status == StreamConnected {
 		fmt.Println("Stream Connected")
@@ -291,7 +295,7 @@ func (client *GrpcClient) notifyStreamConnected() {
 }
 
 func (client *GrpcClient) Send(msg *negotiation.Body) error {
-	if !client.Ready() {
+	if !client.IsReady() {
 		return fmt.Errorf("no connection server stream")
 	}
 

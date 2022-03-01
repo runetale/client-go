@@ -33,7 +33,7 @@ func (p portValue) Set(v string) error {
 	if strings.Contains(v, ":") {
 		return errors.New("expecting just a port number, without a colon")
 	}
-	n, err := strconv.ParseUint(v, 10, 64) // use 64 instead of 16 to return nicer error message
+	n, err := strconv.ParseUint(v, 10, 64)
 	if err != nil {
 		return fmt.Errorf("not a valid number")
 	}

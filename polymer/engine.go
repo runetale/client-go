@@ -355,7 +355,7 @@ func (e *Engine) connWorker(conn *Conn, peerKey string) {
 			return
 		}
 
-		if !e.client.Ready() {
+		if !e.client.IsReady() {
 			fmt.Printf("signal client isn't ready, skipping connection attempt %s", peerKey)
 			continue
 		}
