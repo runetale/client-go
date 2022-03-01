@@ -12,4 +12,5 @@ var (
 	ErrCanNotGetAccessToken = errors.New("ERR_CAN_NOT_GET_ACCESS_TOKEN")
 	ErrInvalidHeader        = errors.New("ERR_INVALID_HEADER")
 	ErrNotEnoughPermission  = errors.New("ERR_NOT_ENOUGH_PERMISSION")
+	ErrInvalidPublicKey     = errors.New("ERR_INVALID_PUBLIC_KEY")
 )

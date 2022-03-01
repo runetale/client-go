@@ -16,20 +16,16 @@ import (
 )
 
 type Config struct {
-	WgPrivateKey string
-	Host         *url.URL
-	IgonoreTUNs  []string
-	TUNName      string
-	PreSharedKey string
+	WgPrivateKey   string
+	ServerHost     *url.URL
+	IgonoreTUNs    []string
+	TUNName        string
+	PreSharedKey   string
+	IfaceBlackList []string
 }
 
-func newClientConfig(path string, host string, port int) *Config {
+func newClientConfig(path string, host string, port int, privateKey string, ifaceBlackList []string, tunName string) *Config {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
-		log.Fatal(err)
-	}
-
-	privKey, err := key.NewGenerateKey()
-	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -37,23 +33,24 @@ func newClientConfig(path string, host string, port int) *Config {
 
 	h, err := url.Parse(scheme)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	cfg := Config{
-		WgPrivateKey: privKey,
-		Host:         h,
-		TUNName:      tun.TunName(),
-		IgonoreTUNs:  []string{},
+		WgPrivateKey:   privateKey,
+		ServerHost:     h,
+		TUNName:        tunName,
+		IgonoreTUNs:    []string{},
+		IfaceBlackList: ifaceBlackList,
 	}
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return &cfg
@@ -63,7 +60,11 @@ func GetClientConfig(path string, host string, port int) *Config {
 	b, err := ioutil.ReadFile(path)
 	switch {
 	case errors.Is(err, os.ErrNotExist):
-		return newClientConfig(path, host, port)
+		privKey, err := key.NewGenerateKey()
+		if err != nil {
+			panic(err)
+		}
+		return newClientConfig(path, host, port, privKey, []string{tun.TunName(), "tun0"}, tun.TunName())
 	case err != nil:
 		log.Fatal(err)
 		panic(err)
@@ -72,6 +73,6 @@ func GetClientConfig(path string, host string, port int) *Config {
 		if err := json.Unmarshal(b, &cfg); err != nil {
 			log.Fatalf("can not read client config file. %v", err)
 		}
-		return &cfg
+		return newClientConfig(path, host, port, cfg.WgPrivateKey, cfg.IfaceBlackList, cfg.TUNName)
 	}
 }

@@ -4,15 +4,53 @@ package protos;
 
 option go_package = "./peer";
 
-import "google/protobuf/empty.proto";
-
 service PeerService {
-	rpc Login(PeerLoginMessage) returns (PeerLoginMessage) {}
-	rpc WSync(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc Sync(SyncMessage) returns (stream SyncResponse) {}
 }
 
-message PeerLoginMessage {
-	string setupKey = 1;
-	string clientPublicKey = 2;
-	string serverPublicKey = 3;
+message SyncMessage {
+	string privateKey = 1;
+	string clientMachineKey = 2;
+}
+
+message RemotePeer {
+	string clientMachineKey = 1;
+	string wgPubKey = 2;
+	repeated string allowedIps = 3;
+}
+
+message PeerConfig {
+  string address = 1;
+  string dns = 2;
+}
+
+message StunTurnConfig {
+  repeated HostConfig stuns = 1;
+  repeated ProtectedHostConfig turns = 2;
+  HostConfig signal = 3;
+}
+
+message HostConfig {
+  string uri = 1;
+  Protocol protocol = 2;
+
+  enum Protocol {
+    UDP = 0;
+    TCP = 1;
+    HTTP = 2;
+    HTTPS = 3;
+    DTLS = 4;
+  }
+}
+
+message ProtectedHostConfig {
+  HostConfig hostConfig = 1;
+  string user = 2;
+  string password = 3;
+}
+
+message SyncResponse {
+  	PeerConfig peerConfig = 1;
+	repeated RemotePeer remotePeers = 2;
+	bool remotePeerIsEmpty = 3;
 }

@@ -1,12 +1,15 @@
 package repository
 
 import (
+	"database/sql"
+
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
 type UserRepositoryManager interface {
 	CreateUser(user *domain.User) error
+	FindByUserID(userID uint) (*domain.User, error)
 }
 
 type UserRepository struct {
@@ -24,7 +27,7 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	INSERT INTO users (
 		provider_id,
 		provider,
-		org_group_id,
+		organization_id,
 		network_id,
 		user_group_id,
 		permission,
@@ -34,7 +37,7 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	`,
 		user.ProviderID,
 		user.Provider,
-		user.OrgGroupID,
+		user.OrganizationID,
 		user.NetworkID,
 		user.UserGroupID,
 		user.Permission,
@@ -49,4 +52,40 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	user.ID = uint(lastID)
 
 	return nil
+}
+
+func (u *UserRepository) FindByUserID(userID uint) (*domain.User, error) {
+	var (
+		user domain.User
+	)
+
+	row := u.db.QueryRow(
+		`
+			SELECT *
+			FROM users
+			WHERE
+				id = ?
+			LIMIT 1
+		`, userID)
+
+	err := row.Scan(
+		&user.ID,
+		&user.ProviderID,
+		&user.Provider,
+		&user.OrganizationID,
+		&user.NetworkID,
+		&user.UserGroupID,
+		&user.Permission,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

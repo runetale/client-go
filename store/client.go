@@ -10,8 +10,8 @@ import (
 
 type ClientManager interface {
 	WritePrivateKey() error
+	GetState64Key() string
 	GetPublicKey() string
-	GetBase64Key() string
 }
 
 type ClientStore struct {
@@ -63,7 +63,7 @@ func (c *ClientStore) WritePrivateKey() error {
 	return nil
 }
 
-func (c *ClientStore) GetPublicKey() string {
+func (c *ClientStore) GetStateKey() string {
 	key, err := c.storeManager.ReadState(ClientPrivateKeyStateKey)
 	if err != nil {
 		log.Fatal(err)
@@ -72,6 +72,10 @@ func (c *ClientStore) GetPublicKey() string {
 	return string(key)
 }
 
-func (c *ClientStore) GetBase64Key() string {
+func (c *ClientStore) GetPublicKey() string {
 	return c.privateKey.PublicKey()
+}
+
+func (c *ClientStore) GetPrivateKey() string {
+	return c.privateKey.PrivateKey()
 }

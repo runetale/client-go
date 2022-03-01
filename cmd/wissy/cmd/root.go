@@ -7,8 +7,6 @@ import (
 	"github.com/peterbourgon/ff/ffcli"
 )
 
-// TODO: (shinta) Support Unix Domain Socket.
-// In the future, we will use Unix Domain Sockets to interact with the daemon. Allow setting the socket path flag.
 func Run(args []string) error {
 	if len(args) == 1 && (args[0] == "-V" || args[0] == "--version" || args[0] == "-v") {
 		args = []string{"version"}

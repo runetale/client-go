@@ -16,7 +16,7 @@ const SQLITE_DB_NAME = "wissy.db"
 
 type SQLExecuter interface {
 	Exec(query string, args ...interface{}) (int64, error)
-	Query(query string, dest interface{}, args ...interface{}) error
+	Query(query string, args ...interface{}) (*sql.Rows, error)
 	QueryRow(query string, args ...interface{}) *sql.Row
 }
 
@@ -41,7 +41,7 @@ func (s *Sqlite) MigrationUp() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=on", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=on?parseTime=true", driver)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *Sqlite) MigrationUp() error {
 		return err
 	}
 
-	fmt.Println("migrrate up done with success")
+	fmt.Println("migrate up done with success")
 
 	return nil
 }
@@ -62,7 +62,7 @@ func (s *Sqlite) MigrationDown() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=off", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=off?parseTime=true", driver)
 	if err != nil {
 		return err
 	}
@@ -82,41 +82,30 @@ func (s *Sqlite) Exec(query string, args ...interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if err != nil {
-		return 0, fmt.Errorf("%s", err.Error())
-	}
 
 	return r.LastInsertId()
 }
 
 // Multi Select
-func (s *Sqlite) Query(query string, dest interface{}, args ...interface{}) error {
+func (s *Sqlite) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	rows, err := s.db.Query(query, args...)
 	if err != nil {
-		return fmt.Errorf("%s", err.Error())
+		return nil, fmt.Errorf("%s", err.Error())
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&dest)
-		if err != nil {
-			return err
-		}
-	}
+	return rows, nil
 
-	return nil
+	//for rows.next() {
+	//	err := rows.scan(&dest)
+	//	if err != nil {
+	//		return err
+	//	}
+	//}
 }
 
 // Single Select
 func (s *Sqlite) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := s.db.QueryRow(query, args...)
-	//err := row.Scan(&dest)
-	//if err != nil {
-	//	if err == sql.ErrNoRows {
-	//		return domain.ErrNoRows
-	//	} else {
-	//		return err
-	//	}
-	//}
 	return row
 }
 
@@ -138,41 +127,22 @@ func (t *Tx) Exec(query string, args ...interface{}) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	if err != nil {
-		return 0, fmt.Errorf("%s", err.Error())
-	}
-
 	return r.LastInsertId()
 }
 
 // Multi Select
-func (t *Tx) Query(query string, dest interface{}, args ...interface{}) error {
+func (t *Tx) Query(query string, args ...interface{}) (*sql.Rows, error) {
 	rows, err := t.tx.Query(query, args...)
 	if err != nil {
-		return fmt.Errorf("%s", err.Error())
+		return nil, fmt.Errorf("%s", err.Error())
 	}
 
-	for rows.Next() {
-		err := rows.Scan(&dest)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return rows, nil
 }
 
 // Single Select
 func (t *Tx) QueryRow(query string, args ...interface{}) *sql.Row {
 	row := t.tx.QueryRow(query, args...)
-	//err := row.Scan(&dest)
-	//if err != nil {
-	//	if err == sql.ErrNoRows {
-	//		return domain.ErrNoRows
-	//	} else {
-	//		return err
-	//	}
-	//}
 	return row
 }
 

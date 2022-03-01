@@ -9,9 +9,18 @@ import "google/protobuf/timestamp.proto";
 
 service SessionService {
 	rpc GetServerPublicKey(google.protobuf.Empty) returns (GetServerPublicKeyResponse) {}
+	rpc Login(LoginMessage) returns (LoginMessage) {}
 }
 
 message GetServerPublicKeyResponse {
 	string key = 1;
 	google.protobuf.Timestamp expiresAt = 2;
+}
+
+message LoginMessage {
+	string setupKey = 1;
+	string clientPublicKey = 2;
+	string serverPublicKey = 3;
+	string wgPublicKey = 4;
+	string ip = 5;
 }

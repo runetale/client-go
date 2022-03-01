@@ -39,7 +39,6 @@ func NewSetupKeyUsecase(
 func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -83,10 +82,27 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 		return nil, err
 	}
 
-	setupKey, err := key.NewSetupKey(user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, permission)
+	sk, err := key.NewSetupKey(user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, permission)
 	if err != nil {
 		return nil, err
 	}
 
-	return setupKey, nil
+	keyType, err := sk.KeyType()
+	if err != nil {
+		return nil, err
+	}
+
+	revoked, err := sk.IsRevoked()
+	if err != nil {
+		return nil, err
+	}
+
+	setupKey := domain.NewSetupKey(user.ID, sk.Key, keyType, revoked)
+
+	err = s.setupKeyRepository.CreateSetupKey(setupKey)
+	if err != nil {
+		return nil, err
+	}
+
+	return sk, nil
 }
