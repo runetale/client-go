@@ -85,6 +85,7 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		return nil, err
 	}
 
+	// TODO: 明日はここからusecase別にする
 	usc := user.NewUserServiceClient(conn)
 	psc := peer.NewPeerServiceClient(conn)
 	sec := session.NewSessionServiceClient(conn)
@@ -265,6 +266,22 @@ func (client *GrpcClient) GetStatus() Status {
 	return client.status
 }
 
+func (client *GrpcClient) Send(msg *negotiation.Body) error {
+	if !client.IsReady() {
+		return fmt.Errorf("no connection server stream")
+	}
+
+	ctx, cancel := context.WithTimeout(client.ctx, 5*time.Second)
+	defer cancel()
+
+	_, err := client.negotiationClient.Send(ctx, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
 	client.mux.Lock()
 	defer client.mux.Unlock()
@@ -292,21 +309,4 @@ func (client *GrpcClient) notifyStreamConnected() {
 		close(client.connectedCh)
 		client.connectedCh = nil
 	}
-}
-
-func (client *GrpcClient) Send(msg *negotiation.Body) error {
-	if !client.IsReady() {
-		return fmt.Errorf("no connection server stream")
-	}
-
-	//ctx, cancel := context.WithTimeout(client.ctx., 5*time.Second)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	_, err := client.negotiationClient.Send(ctx, msg)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
