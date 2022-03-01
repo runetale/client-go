@@ -26,14 +26,13 @@ func NewPeersUpdateManager() *PeersUpdateManager {
 
 // SendUpdate sends update message to the peer's channel
 func (p *PeersUpdateManager) SendUpdate(peer string, update *UpdateMessage) error {
-	fmt.Println("Send Update")
 	p.channelsMux.Lock()
 	defer p.channelsMux.Unlock()
 	if channel, ok := p.peerChannels[peer]; ok {
 		channel <- update
 		return nil
 	}
-	fmt.Printf("peer %s has no channel", peer)
+	fmt.Printf("peer %s has no channel\n", peer)
 	return nil
 }
 
@@ -61,5 +60,5 @@ func (p *PeersUpdateManager) CloseChannel(peerKey string) {
 		close(channel)
 	}
 
-	fmt.Printf("closed updates channel of a peer %s", peerKey)
+	fmt.Printf("closed updates channel of a peer %s\n", peerKey)
 }

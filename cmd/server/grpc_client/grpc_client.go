@@ -116,7 +116,7 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 	return res.Key, nil
 }
 
-func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*session.LoginMessage, error) {
+func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error) {
 	if !client.isReady() {
 		return nil, fmt.Errorf("no connection wics server")
 	}
@@ -128,6 +128,8 @@ func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey string) (*s
 		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,
+		WgPublicKey:     wgPrivateKey.PublicKey().String(),
+		Ip:              ip,
 	})
 	if err != nil {
 		return nil, err
@@ -298,7 +300,6 @@ func (client *GrpcClient) Send(msg *negotiation.Body) error {
 
 	body, err := client.negotiationClient.Send(ctx, msg)
 	if err != nil {
-		panic(err)
 		return err
 	}
 	fmt.Println(body)
@@ -307,7 +308,6 @@ func (client *GrpcClient) Send(msg *negotiation.Body) error {
 }
 
 func (c *GrpcClient) SendToStream(msg *negotiation.Body) error {
-	fmt.Println("aaaaaaaaaaaa")
 	if !c.Ready() {
 		return fmt.Errorf("no connection to signal")
 	}

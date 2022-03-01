@@ -113,6 +113,7 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 
 	fmt.Printf("peer connected [%s]\n", p.ClientMachineKey)
 
+	// TODO: 
 	for {
 		msg, err := stream.Recv()
 		fmt.Printf("recv connect stream from %s\n", msg.GetClientMachineKey())

@@ -37,10 +37,11 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
   			user_group_id,
 			client_pub_key,
   			network_id,
+  			wg_pub_key,
   			ip,
   			created_at,
   			updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`,
 		peer.UserID,
 		peer.SetupKeyID,
@@ -48,6 +49,7 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 		peer.UserGroupID,
 		peer.ClientPubKey,
 		peer.NetworkID,
+		peer.WgPubKey,
 		peer.IP,
 		peer.CreatedAt.In(time.UTC),
 		peer.UpdatedAt.In(time.UTC),
@@ -83,6 +85,7 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 		&peer.OrganizationID,
 		&peer.UserGroupID,
 		&peer.ClientPubKey,
+		&peer.WgPubKey,
 		&peer.NetworkID,
 		&peer.IP,
 		&peer.CreatedAt,
@@ -119,6 +122,7 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 		&peer.OrganizationID,
 		&peer.UserGroupID,
 		&peer.ClientPubKey,
+		&peer.WgPubKey,
 		&peer.NetworkID,
 		&peer.IP,
 		&peer.CreatedAt,
@@ -162,6 +166,7 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			&peer.OrganizationID,
 			&peer.UserGroupID,
 			&peer.ClientPubKey,
+			&peer.WgPubKey,
 			&peer.NetworkID,
 			&peer.IP,
 			&peer.CreatedAt,
@@ -185,8 +190,7 @@ func (p *PeerRepository) FindByOrganizationID(organizationID uint) ([]*domain.Pe
 		`
 			SELECT *
 			FROM peers
-			WHERE
-				organization_id = ?
+			WHERE organization_id = ?
 		`, organizationID)
 	defer rows.Close()
 	if err != nil {
@@ -205,6 +209,7 @@ func (p *PeerRepository) FindByOrganizationID(organizationID uint) ([]*domain.Pe
 			&peer.OrganizationID,
 			&peer.UserGroupID,
 			&peer.ClientPubKey,
+			&peer.WgPubKey,
 			&peer.NetworkID,
 			&peer.IP,
 			&peer.CreatedAt,

@@ -33,7 +33,6 @@ func NewPeerServiceServer(
 func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_SyncServer) error {
 	pu := usecase.NewPeerUsecase(pss.db, pss.serverStore, srv)
 
-	// rename client machine key -> clinet pub key
 	err := pu.InitialSync(req.GetClientMachineKey())
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +41,6 @@ func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_S
 
 	updateChannel := pss.peerUpdateManager.CreateChannel(req.GetClientMachineKey())
 
-	// TODO: separate other package
 	for {
 		select {
 		case update, open := <-updateChannel:
