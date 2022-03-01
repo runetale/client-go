@@ -11,7 +11,7 @@ import (
 	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
-	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
+	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -32,7 +32,7 @@ type EngineConfig struct {
 	PreSharedKey *wgtypes.Key
 }
 
-func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *EngineConfig {
+func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *EngineConfig {
 	iFaceBlackList := make(map[string]struct{})
 	for i := 0; i < len(config.IfaceBlackList); i += 2 {
 		iFaceBlackList[config.IfaceBlackList[i]] = struct{}{}
