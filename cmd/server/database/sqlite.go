@@ -41,7 +41,7 @@ func (s *Sqlite) MigrationUp() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=on", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=on?parseTime=true", driver)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *Sqlite) MigrationUp() error {
 		return err
 	}
 
-	fmt.Println("migrrate up done with success")
+	fmt.Println("migrate up done with success")
 
 	return nil
 }
@@ -62,7 +62,7 @@ func (s *Sqlite) MigrationDown() error {
 		return err
 	}
 
-	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=off", driver)
+	m, err := migrate.NewWithDatabaseInstance("file://migrations", SQLITE_DB_NAME+"_foreign_keys=off?parseTime=true", driver)
 	if err != nil {
 		return err
 	}

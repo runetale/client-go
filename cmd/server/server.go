@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Notch-Technologies/wizy/client"
+	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server"
@@ -90,7 +91,9 @@ func main() {
 
 	auth0Client := client.NewAuth0Client()
 
-	s, err := server.NewServer(db, cfg, ss, auth0Client)
+	peerUpdateManager := channel.NewPeersUpdateManager()
+
+	s, err := server.NewServer(db, cfg, ss, auth0Client, peerUpdateManager)
 	if err != nil {
 		log.Fatal(err)
 	}

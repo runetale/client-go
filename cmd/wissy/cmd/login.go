@@ -94,14 +94,12 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
+	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.1", wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to login. %v", err)
 	}
 
-	// TODO: (shintard) separate another package //
-
-	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.2/24")
+	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
 		return err
@@ -110,7 +108,7 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.2/24")
+	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.1/24")
 
 	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()

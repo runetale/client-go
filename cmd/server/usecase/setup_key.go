@@ -39,7 +39,6 @@ func NewSetupKeyUsecase(
 func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
-
 	if err != nil {
 		return nil, err
 	}

@@ -213,9 +213,7 @@ func (conn *Conn) Open() error {
 		return err
 	}
 
-	// the connection has been established successfully so we are ready to start the proxy
-
-	fmt.Println("** Start Proxy **")
+	fmt.Println("** Start proxy **")
 	err = conn.startProxy(remoteConn)
 	if err != nil {
 		return err

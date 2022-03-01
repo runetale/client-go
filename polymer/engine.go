@@ -418,3 +418,4 @@ func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtyp
 
 	return nil
 }
+

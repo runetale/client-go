@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
@@ -14,9 +15,10 @@ import (
 )
 
 type SessionServiceServer struct {
-	config      *config.Config
-	serverStore *store.ServerStore
-	db          *database.Sqlite
+	config            *config.Config
+	serverStore       *store.ServerStore
+	db                *database.Sqlite
+	peerUpdateManager *channel.PeersUpdateManager
 
 	session.UnimplementedSessionServiceServer
 }
@@ -24,20 +26,22 @@ type SessionServiceServer struct {
 func NewSessionServiceServer(
 	db *database.Sqlite, config *config.Config,
 	server *store.ServerStore,
+	peerUpdateManager *channel.PeersUpdateManager,
 ) *SessionServiceServer {
 	return &SessionServiceServer{
-		config:      config,
-		serverStore: server,
-		db:          db,
+		config:            config,
+		serverStore:       server,
+		db:                db,
+		peerUpdateManager: peerUpdateManager,
 	}
 }
 
-func (uss *SessionServiceServer) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
+func (sss *SessionServiceServer) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
 	return ctx, nil
 }
 
-func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
-	pubicKey := uss.serverStore.GetPublicKey()
+func (sss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
+	pubicKey := sss.serverStore.GetPublicKey()
 
 	now := time.Now().Add(24 * time.Hour)
 	secs := int64(now.Second())
@@ -50,21 +54,31 @@ func (uss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 	}, nil
 }
 
-func (uss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
-	clientPubKey := msg.GetClientPublicKey()
-	serverPubKey := msg.GetServerPublicKey()
+func (sss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
+	clientMachinePubKey := msg.GetClientPublicKey()
+	serverMachinePubKey := msg.GetServerPublicKey()
+	wgPubKey := msg.GetWgPublicKey()
 	setupKey := msg.GetSetupKey()
+	ip := msg.GetIp()
 
-	sessionUsecase := usecase.NewSessionUsecase(uss.db, uss.serverStore)
-
-	_, err := sessionUsecase.CreatePeer(setupKey, clientPubKey, serverPubKey)
+	tx, err := sss.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 
+	sessionUsecase := usecase.NewSessionUsecase(tx, sss.serverStore, sss.peerUpdateManager)
+
+	_, err = sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey, ip)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+
 	return &session.LoginMessage{
 		SetupKey:        setupKey,
-		ServerPublicKey: serverPubKey,
-		ClientPublicKey: clientPubKey,
+		ServerPublicKey: clientMachinePubKey,
+		ClientPublicKey: serverMachinePubKey,
 	}, nil
 }

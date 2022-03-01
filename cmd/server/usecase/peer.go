@@ -34,7 +34,6 @@ func NewPeerUsecase(
 
 const AllowedIPsFormat = "%s/24"
 
-// client pub key is client machine public key
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	pe, err := p.peerRepository.FindByClientPubKey(clientPubKey)
 	if err != nil {
@@ -42,7 +41,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
-	peers, err := p.peerRepository.FindPeersByClientPubKey(pe.ClientPubKey)
+	peers, err := p.peerRepository.FindByOrganizationID(pe.OrganizationID)
 	if err != nil {
 		fmt.Println("can not find peers")
 		return err
@@ -56,15 +55,18 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 
 	remotePeers := []*peer.RemotePeer{}
 	for _, rPeer := range peers {
-		remotePeers = append(remotePeers, &peer.RemotePeer{
-			WgPubKey:   rPeer.ClientPubKey,
-			AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, rPeer.IP)},
-		})
+		if pe.WgPubKey != rPeer.WgPubKey {
+			remotePeers = append(remotePeers, &peer.RemotePeer{
+				WgPubKey:   rPeer.WgPubKey,
+				AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, rPeer.IP)},
+			})
+		}
 	}
+
 	err = p.peerServer.Send(&peer.SyncResponse{
-		PeerConfig:        &peer.PeerConfig{Address: "", Dns: ""},
+		PeerConfig:        &peer.PeerConfig{Address: pe.IP},
 		RemotePeers:       remotePeers,
-		RemotePeerIsEmpty: true,
+		RemotePeerIsEmpty: len(remotePeers) == 0,
 	})
 	if err != nil {
 		return err

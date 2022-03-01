@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS peers (
   organization_id INT NOT NULL,
   user_group_id INT NOT NULL,
   client_pub_key VARCHAR(800) NOT NULL,
+  wg_pub_key VARCHAR(800) NOT NULL UNIQUE,
   network_id INT NOT NULL,
   ip VARCHAR(18) NOT NULL,
   created_at DATETIME NOT NULL,

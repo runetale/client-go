@@ -9,17 +9,15 @@ import (
 
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
-	"golang.zx2c4.com/wireguard/ipc"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 const (
+	wgPort     = 51820
 	defaultMTU = 1280
 )
-
-const wgPort = 51820
 
 func UpdatePeer(
 	iface string, peerKey string, allowedIps string,
@@ -137,15 +135,6 @@ func configureDevice(iface string, config wgtypes.Config) error {
 	fmt.Printf("create Wireguard device %s\n", iface)
 
 	return wg.ConfigureDevice(iface, config)
-}
-
-// getUAPI returns a Listener
-func getUAPI(iface string) (net.Listener, error) {
-	tunSock, err := ipc.UAPIOpen(iface)
-	if err != nil {
-		return nil, err
-	}
-	return ipc.UAPIListen(iface, tunSock)
 }
 
 // assignAddr Adds IP address to the tunnel interface and network route based on the range provided

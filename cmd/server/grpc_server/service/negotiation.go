@@ -58,6 +58,7 @@ func (registry *Registry) Register(peer *Peer) {
 	// can be that peer already exists but it is fine (e.g. reconnect)
 	// todo investigate what happens to the old peer (especially Peer.Stream) when we override it
 	registry.Peers.Store(peer.ClientMachineKey, peer)
+	fmt.Println("** Founded dstPeer from ConnectStream")
 	fmt.Printf("peer registered [%s]\n", peer.ClientMachineKey)
 }
 
@@ -100,6 +101,7 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 	}
 
 	defer func() {
+		fmt.Printf("peer disconnected [%s]\n", p.ClientMachineKey)
 		nss.registry.Deregister(p)
 	}()
 
@@ -109,22 +111,32 @@ func (nss *NegotiationServiceServer) ConnectStream(stream negotiation.Negotiatio
 		return err
 	}
 
+	fmt.Printf("peer connected [%s]\n", p.ClientMachineKey)
+
 	for {
 		msg, err := stream.Recv()
+		fmt.Printf("recv connect stream from %s\n", msg.GetClientMachineKey())
+		fmt.Println(msg)
 		if err == io.EOF {
+			fmt.Println("EOF")
 			break
 		} else if err != nil {
+			fmt.Println("connect stream err")
+			fmt.Println(err)
 			return err
 		}
-		if dstPeer, found := nss.registry.Get(msg.GetKey()); found {
+		if dstPeer, found := nss.registry.Get(msg.GetRemotekey()); found {
+			fmt.Println("** Founded dstPeer from ConnectStream")
 			//forward the message to the target peer
 			err := dstPeer.Stream.Send(msg)
 			if err != nil {
-				fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v\n", p.ClientMachineKey, msg.GetPrivateKey(), err)
+				fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v\n", p.ClientMachineKey, msg.GetRemotekey(), err)
 			}
 		} else {
-			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", p.ClientMachineKey, msg.GetPrivateKey())
+			fmt.Println("Connect Stream Error")
+			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", p.ClientMachineKey, msg.GetClientMachineKey())
 		}
+		fmt.Println("nothing")
 	}
 	<-stream.Context().Done()
 	return stream.Context().Err()
@@ -148,20 +160,20 @@ func (nss *NegotiationServiceServer) registerPeer(stream negotiation.Negotiation
 
 // Remote Peerに送る
 func (nss *NegotiationServiceServer) Send(ctx context.Context, msg *negotiation.Body) (*negotiation.Body, error) {
-	if !nss.registry.IsPeerRegistered(msg.ClientMachineKey) {
+	if !nss.registry.IsPeerRegistered(msg.Key) {
 		return nil, fmt.Errorf("peer %s is not registered\n", msg.Key)
 	}
 
-	fmt.Println(msg)
-	// setuzoku saki no peer no remote key
+	fmt.Printf("remote client machineKey: %s from %s\n", msg.GetRemotekey(), msg.GetClientMachineKey())
 	if dstPeer, found := nss.registry.Get(msg.GetRemotekey()); found {
 		err := dstPeer.Stream.Send(msg)
-		fmt.Println(msg)
 		if err != nil {
 			fmt.Printf("error while forwarding message from peer [%s] to peer [%s] %v\n", msg.Key, msg.GetRemotekey(), err)
-		} else {
-			fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", msg.Key, msg.GetRemotekey())
 		}
+		fmt.Println()
+	} else {
+		fmt.Println("Negotiation Send Error")
+		fmt.Printf("message from peer [%s] can't be forwarded to peer [%s] because destination peer is not connected\n", msg.Key, msg.GetRemotekey())
 	}
 
 	return &negotiation.Body{}, nil

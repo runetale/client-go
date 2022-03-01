@@ -201,7 +201,7 @@ func (client *GrpcClient) Receive(
 		err = msgHandler(msg)
 
 		if err != nil {
-			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]", msg.ClientMachineKey, err.Error())
+			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]\n", msg.ClientMachineKey, err.Error())
 			return err
 		}
 	}
@@ -300,23 +300,6 @@ func (client *GrpcClient) Send(msg *negotiation.Body) error {
 	defer cancel()
 
 	_, err := client.negotiationClient.Send(ctx, msg)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (c *GrpcClient) SendToStream(msg *negotiation.Body) error {
-	fmt.Println("aaaaaaaaaaaa")
-	if !c.Ready() {
-		return fmt.Errorf("no connection to signal")
-	}
-	if c.stream == nil {
-		return fmt.Errorf("connection to the Signal Exchnage has not been established yet. Please call Client.Receive before sending messages")
-	}
-
-	err := c.stream.Send(msg)
 	if err != nil {
 		return err
 	}
