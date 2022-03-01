@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/Notch-Technologies/wizy/types/key"
-	"github.com/Notch-Technologies/wizy/wizlog"
+	"github.com/Notch-Technologies/wizy/wislog"
 )
 
 type ClientManager interface {
@@ -17,17 +17,17 @@ type ClientManager interface {
 type ClientStore struct {
 	storeManager FileStoreManager
 	privateKey   key.WicsClientPrivateState
-	wizlog       *wizlog.WizLog
+	wislog       *wislog.WisLog
 
 	mu sync.Mutex
 }
 
 // client Store initialization method.
 //
-func NewClientStore(f FileStoreManager, wl *wizlog.WizLog) *ClientStore {
+func NewClientStore(f FileStoreManager, wl *wislog.WisLog) *ClientStore {
 	return &ClientStore{
 		storeManager: f,
-		wizlog:       wl,
+		wislog:       wl,
 
 		mu: sync.Mutex{},
 	}
@@ -42,7 +42,7 @@ func (c *ClientStore) WritePrivateKey() error {
 			return fmt.Errorf("unable to unmarshal %s. %v", ClientPrivateKeyStateKey, err)
 		}
 
-		c.wizlog.Logger.Debugf("client private key already exists")
+		c.wislog.Logger.Debugf("client private key already exists")
 		return nil
 	}
 
@@ -60,12 +60,12 @@ func (c *ClientStore) WritePrivateKey() error {
 
 	// write new client private key
 	if err := c.storeManager.WriteState(ClientPrivateKeyStateKey, ke); err != nil {
-		c.wizlog.Logger.Errorf("error writing client private key to store: %v.", err)
+		c.wislog.Logger.Errorf("error writing client private key to store: %v.", err)
 		return err
 	}
 
 	c.privateKey = k
-	c.wizlog.Logger.Debugf("write new client private key")
+	c.wislog.Logger.Debugf("write new client private key")
 
 	return nil
 }

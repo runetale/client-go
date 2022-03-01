@@ -1,4 +1,4 @@
-package wizlog
+package wislog
 
 import (
 	"fmt"
@@ -21,17 +21,17 @@ var (
 	devMode      bool = false
 )
 
-type WizLog struct {
+type WisLog struct {
 	Logger *zap.SugaredLogger
 }
 
-func NewWizLog(name string) *WizLog {
-	return &WizLog{
+func NewWisLog(name string) *WisLog {
+	return &WisLog{
 		Logger: globalLogger.Named(name).Sugar(),
 	}
 }
 
-func InitWizLog(logLevel string, logFile string, dev bool) error {
+func InitWisLog(logLevel string, logFile string, dev bool) error {
 	devMode = dev
 	var level zapcore.Level
 	switch logLevel {

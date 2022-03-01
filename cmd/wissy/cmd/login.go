@@ -13,7 +13,7 @@ import (
 	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
-	"github.com/Notch-Technologies/wizy/wizlog"
+	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/peterbourgon/ff/ffcli"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -47,7 +47,7 @@ var loginCmd = &ffcli.Command{
 		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
-		fs.StringVar(&loginArgs.logLevel, "loglevel", wizlog.DebugLevelStr, "set log level")
+		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
 		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
 		return fs
 	})(),
@@ -56,19 +56,19 @@ var loginCmd = &ffcli.Command{
 
 func execLogin(args []string) error {
 	// initialize wi
-	err := wizlog.InitWizLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
+	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger. %v", err)
 	}
 
-	wizlog := wizlog.NewWizLog("login")
+	wislog := wislog.NewWisLog("login")
 
-	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wizlog)
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wislog)
 	if err != nil {
 		log.Fatalf("failed to create clietnt state. %v", err)
 	}
 
-	cs := store.NewClientStore(cfs, wizlog)
+	cs := store.NewClientStore(cfs, wislog)
 	err = cs.WritePrivateKey()
 	if err != nil {
 		log.Fatalf("failed to write client state private key. %v", err)
@@ -111,7 +111,7 @@ func execLogin(args []string) error {
 
 	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.1/24")
 
-	e := polymer.NewEngine(wizlog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := polymer.NewEngine(wislog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()
 
 	select {
