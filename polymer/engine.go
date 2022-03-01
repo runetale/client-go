@@ -38,10 +38,6 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 		iFaceBlackList[config.IfaceBlackList[i]] = struct{}{}
 	}
 
-	fmt.Println("Engine Config")
-	fmt.Println(config.IfaceBlackList)
-	fmt.Println(iFaceBlackList)
-
 	return &EngineConfig{
 		WgIface:        config.TUNName,
 		WgAddr:         wgAddr,
@@ -53,6 +49,7 @@ func NewEngineConfig(key wgtypes.Key, config *client.Config, wgAddr string) *Eng
 
 type Engine struct {
 	client *grpc_client.GrpcClient
+	// stream negotiation.Negotiation_ConnectStreamClient
 
 	peerConns map[string]*Conn
 
@@ -71,6 +68,8 @@ type Engine struct {
 	ctx context.Context
 
 	machineKey string
+
+	wgPrivateKey wgtypes.Key
 }
 
 func NewEngine(
@@ -80,6 +79,7 @@ func NewEngine(
 	ctx context.Context,
 	engineConfig *EngineConfig,
 	machineKey string,
+	wgPrivateKey wgtypes.Key,
 ) *Engine {
 	return &Engine{
 		client: client,
@@ -98,26 +98,33 @@ func NewEngine(
 		ctx:    ctx,
 
 		machineKey: machineKey,
+
+		wgPrivateKey: wgPrivateKey,
 	}
 }
 
-func (e *Engine) Start(publicMachineKey string) {
+func (e *Engine) Start() {
 	e.syncMsgMux.Lock()
 	defer e.syncMsgMux.Unlock()
 
-	e.receiveClient(publicMachineKey)
-	e.syncClient(publicMachineKey)
+	// signal
+	e.receiveClient()
+
+	// management
+	e.syncClient()
 }
 
-func (e *Engine) receiveClient(machineKey string) {
+func (e *Engine) receiveClient() {
 	go func() {
-		err := e.client.Receive(machineKey, func(msg *negotiation.Body) error {
+		err := e.client.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
-			conn := e.peerConns[msg.ClientMachineKey]
+			fmt.Println("** Recieve Client, peerConns list **")
+			fmt.Println(e.peerConns)
+			conn := e.peerConns[msg.Key]
 			if conn == nil {
-				return fmt.Errorf("wrongly addressed message %s\n", msg.Key)
+				return fmt.Errorf("wrongly addressed message %s", msg.Key)
 			}
 
 			switch msg.GetType() {
@@ -145,7 +152,6 @@ func (e *Engine) receiveClient(machineKey string) {
 			return nil
 		})
 		if err != nil {
-			fmt.Println("cancel receive client")
 			e.cancel()
 			return
 		}
@@ -173,20 +179,19 @@ func (e *Engine) updateStuns() error {
 	if err != nil {
 		return err
 	}
-	//url.Username = "root"
-	//url.Password = "password"
+	// url.Username = "root"
+	// url.Password = "password"
 	newStuns = append(newStuns, url)
 	e.STUNs = append(newStuns, url)
 	return nil
 }
 
-func (e *Engine) syncClient(machineKey string) {
+func (e *Engine) syncClient() {
 	go func() {
-		err := e.client.Sync(machineKey, func(update *peer.SyncResponse) error {
+		err := e.client.Sync(e.machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
-			// TODO: will try to get it from server later.
 			err := e.updateTurns()
 			if err != nil {
 				return err
@@ -260,7 +265,6 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 		peerKey := p.GetWgPubKey()
 		peerIPs := p.GetAllowedIps()
 
-		// remote Peer no connection wo tunageru
 		if _, ok := e.peerConns[peerKey]; !ok {
 			conn, err := e.createPeerConn(peerKey, strings.Join(peerIPs, ","))
 			if err != nil {
@@ -358,6 +362,7 @@ func (e *Engine) connWorker(conn *Conn, peerKey string) {
 
 		fmt.Println("start conn worker")
 
+		// MEMO: リモートピアのconnに対してDialができていない
 		err := conn.Open()
 		if err != nil {
 			fmt.Printf("connection to failed: %v\n", err)
@@ -393,6 +398,7 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 		fmt.Println(err)
 		return err
 	}
+
 	return nil
 }
 
@@ -412,3 +418,4 @@ func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtyp
 
 	return nil
 }
+
