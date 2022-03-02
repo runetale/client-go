@@ -48,7 +48,7 @@ func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *E
 }
 
 type Engine struct {
-	client *grpc_client.GrpcClient
+	client grpc_client.ClientCaller
 	// stream negotiation.Negotiation_ConnectStreamClient
 
 	peerConns map[string]*Conn
@@ -74,7 +74,7 @@ type Engine struct {
 
 func NewEngine(
 	log *wislog.WisLog,
-	client *grpc_client.GrpcClient,
+	client grpc_client.ClientCaller,
 	cancel context.CancelFunc,
 	ctx context.Context,
 	engineConfig *EngineConfig,
@@ -377,7 +377,7 @@ func (e *Engine) peerExists(peerKey string) bool {
 	return ok
 }
 
-func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient, isAnswer bool) error {
+func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, c grpc_client.ClientCaller, isAnswer bool) error {
 	var t negotiation.Body_Type
 	if isAnswer {
 		t = negotiation.Body_ANSWER
@@ -385,7 +385,7 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 		t = negotiation.Body_OFFER
 	}
 
-	err := s.Send(&negotiation.Body{
+	err := c.Send(&negotiation.Body{
 		UFlag:            uFrag,
 		Pwd:              pwd,
 		Key:              myKey.PublicKey().String(),
@@ -402,8 +402,8 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 	return nil
 }
 
-func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, s *grpc_client.GrpcClient) error {
-	err := s.Send(&negotiation.Body{
+func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, c grpc_client.ClientCaller) error {
+	err := c.Send(&negotiation.Body{
 		Key:              myKey.PublicKey().String(),
 		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
