@@ -18,6 +18,7 @@ import (
 type ClientCore struct {
 	WgPrivateKey   string
 	ServerHost     *url.URL
+	SignalHost     *url.URL
 	IgonoreTUNs    []string
 	TUNName        string
 	PreSharedKey   string
@@ -29,18 +30,27 @@ type ClientCore struct {
 }
 
 func NewClientCore(
-	path string, host string, port int,
+	path string, serverHost string, serverPort int,
+	signalHost string, signalPort int,
 	wl *wislog.WisLog,
 ) (*ClientCore, error) {
-	scheme := host + ":" + strconv.Itoa(port)
+	serverURL := serverHost + ":" + strconv.Itoa(serverPort)
 
-	h, err := url.Parse(scheme)
+	serverHostURL, err := url.Parse(serverURL)
+	if err != nil {
+		return nil, err
+	}
+
+	signalURL := signalHost + ":" + strconv.Itoa(signalPort)
+
+	signalHostURL, err := url.Parse(signalURL)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ClientCore{
-		ServerHost:  h,
+		ServerHost:  serverHostURL,
+		SignalHost:  signalHostURL,
 		IgonoreTUNs: []string{},
 
 		path: path,

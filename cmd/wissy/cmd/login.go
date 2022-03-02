@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
+	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
 	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
@@ -30,6 +31,8 @@ var loginArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
+	signalHost string
+	signalPort int64
 	setupKey   string
 	logFile    string
 	logLevel   string
@@ -43,8 +46,10 @@ var loginCmd = &ffcli.Command{
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "host", "http://172.16.165.129", "grpc server host url")
-		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&loginArgs.serverHost, "server-host", "http://172.16.165.129", "grpc server host url")
+		fs.Int64Var(&loginArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&loginArgs.signalHost, "signal-host", "http://172.16.165.129", "signaling server host url")
+		fs.Int64Var(&loginArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
 		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
@@ -79,7 +84,9 @@ func execLogin(args []string) error {
 
 	// initialize client Core
 	//
-	clientCore, err := core.NewClientCore(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort), wislog)
+	clientCore, err := core.NewClientCore(
+		loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort),
+		loginArgs.signalHost, int(loginArgs.signalPort), wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to initialize client core: %v", err)
 	}
@@ -98,6 +105,13 @@ func execLogin(args []string) error {
 	}
 
 	log.Printf("connected to server %s", clientCore.ServerHost.String())
+
+	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey)
+	if err != nil {
+		log.Fatalf("failed to connect client. %v", err)
+	}
+
+	log.Printf("connected to signaling server %s", clientCore.SignalHost.String())
 
 	serverPubKey, err := gClient.GetServerPublicKey()
 	if err != nil {
@@ -121,7 +135,7 @@ func execLogin(args []string) error {
 
 	engineConfig := polymer.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
 
-	e := polymer.NewEngine(wislog, gClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := polymer.NewEngine(wislog, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()
 
 	select {

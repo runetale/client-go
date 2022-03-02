@@ -9,8 +9,9 @@ import (
 	"time"
 
 	client "github.com/Notch-Technologies/wizy/cmd/server/client"
-	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
+	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
+	"github.com/Notch-Technologies/wizy/cmd/signaling/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/pion/ice/v2"
@@ -49,6 +50,7 @@ func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *E
 
 type Engine struct {
 	gClient client.ClientCaller
+	sClient signaling.ClientCaller
 
 	peerConns map[string]*Conn
 
@@ -74,6 +76,7 @@ type Engine struct {
 func NewEngine(
 	log *wislog.WisLog,
 	client client.ClientCaller,
+	sClient signaling.ClientCaller,
 	cancel context.CancelFunc,
 	ctx context.Context,
 	engineConfig *EngineConfig,
@@ -82,6 +85,7 @@ func NewEngine(
 ) *Engine {
 	return &Engine{
 		gClient: client,
+		sClient: sClient,
 
 		peerConns: map[string]*Conn{},
 
@@ -115,7 +119,7 @@ func (e *Engine) Start() {
 
 func (e *Engine) receiveClient() {
 	go func() {
-		err := e.gClient.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
+		err := e.sClient.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
@@ -325,15 +329,15 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*Conn, er
 	}
 
 	signalOffer := func(uFrag string, pwd string) error {
-		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient, false)
+		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.sClient, false)
 	}
 
 	signalAnswer := func(uFrag string, pwd string) error {
-		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient, true)
+		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.sClient, true)
 	}
 
 	signalCandidate := func(candidate ice.Candidate) error {
-		return signalCandidate(candidate, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient)
+		return signalCandidate(candidate, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.sClient)
 	}
 
 	peerConn.SetSignalOffer(signalOffer)
@@ -379,7 +383,7 @@ func (e *Engine) peerExists(peerKey string) bool {
 func signalAuth(
 	uFrag string, pwd string, myKey wgtypes.Key,
 	remoteKey wgtypes.Key, clientMachineKey string,
-	c client.ClientCaller, isAnswer bool,
+	s signaling.ClientCaller, isAnswer bool,
 ) error {
 	var t negotiation.Body_Type
 	if isAnswer {
@@ -388,7 +392,7 @@ func signalAuth(
 		t = negotiation.Body_OFFER
 	}
 
-	err := c.Send(&negotiation.Body{
+	err := s.Send(&negotiation.Body{
 		UFlag:            uFrag,
 		Pwd:              pwd,
 		Key:              myKey.PublicKey().String(),
@@ -408,9 +412,9 @@ func signalAuth(
 func signalCandidate(
 	candidate ice.Candidate, myKey wgtypes.Key,
 	remoteKey wgtypes.Key, clientMachineKey string,
-	c client.ClientCaller,
+	s signaling.ClientCaller,
 ) error {
-	err := c.Send(&negotiation.Body{
+	err := s.Send(&negotiation.Body{
 		Key:              myKey.PublicKey().String(),
 		Remotekey:        remoteKey.String(),
 		ClientMachineKey: clientMachineKey,
