@@ -13,12 +13,11 @@ import (
 	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
 	"github.com/Notch-Technologies/wizy/cmd/signaling/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/core"
+	"github.com/Notch-Technologies/wizy/wireguard"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
-
-const WgPort = 51820
 
 type EngineConfig struct {
 	WgPort  int
@@ -44,7 +43,7 @@ func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *E
 		WgAddr:         wgAddr,
 		IFaceBlackList: iFaceBlackList,
 		WgPrivateKey:   key,
-		WgPort:         WgPort,
+		WgPort:         wireguard.WgPort,
 	}
 }
 
