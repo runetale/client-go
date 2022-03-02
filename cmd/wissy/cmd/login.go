@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
@@ -96,37 +95,41 @@ func execLogin(args []string) error {
 
 	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to parse wg private key. %v", err)
+		wislog.Logger.Fatalf("failed to parse wg private key. %v", err)
 	}
 
+	// initialize grpc client
+	//
 	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to connect client. %v", err)
+		wislog.Logger.Fatalf("failed to connect server client. %v", err)
 	}
 
-	log.Printf("connected to server %s", clientCore.ServerHost.String())
+	wislog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
 
+	// initialize signaling client
+	//
 	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to connect client. %v", err)
+		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
 	}
 
-	log.Printf("connected to signaling server %s", clientCore.SignalHost.String())
+	wislog.Logger.Infof("connected to signaling server %s", clientCore.SignalHost.String())
 
 	serverPubKey, err := gClient.GetServerPublicKey()
 	if err != nil {
-		log.Fatalf("failed to get server public key. %v", err)
+		wislog.Logger.Fatalf("failed to get server public key. %v", err)
 	}
 
 	_, err = gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to login. %v", err)
+		wislog.Logger.Fatalf("failed to login. %v", err)
 	}
 
 	// TODO: (shintard) ここからはupCmd
 	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.2/24")
 	if err != nil {
-		fmt.Printf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())
+		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())
 		return err
 	}
 
