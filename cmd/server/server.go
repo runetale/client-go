@@ -50,8 +50,8 @@ var args struct {
 }
 
 func main() {
-	flag.StringVar(&args.configpath, "config", paths.DefaultWicsConfigFile(), "path of wics config file")
-	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultGrpcServerPort), "wics-port", "specify the port of the server")
+	flag.StringVar(&args.configpath, "config", paths.DefaultServerConfigFile(), "path of server config file")
+	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultGrpcServerPort), "port", "specify the port of the server")
 	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
 	flag.StringVar(&args.domain, "domain", "", "your domain")
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
@@ -74,7 +74,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// create wics server state file
+	// create server state file
 	sfs, err := store.NewFileStore(paths.DefaultWissyServerStateFile())
 	if err != nil {
 		log.Fatal(err)
@@ -86,7 +86,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// create or open wics config file
+	// load server config file
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
 	auth0Client := client.NewAuth0Client()
@@ -123,7 +123,7 @@ func main() {
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServiceServer)
 	negotiation.RegisterNegotiationServer(grpcServer, s.NegotiationServer)
 
-	log.Printf("started wics server: localhost:%v", args.port)
+	log.Printf("started server: localhost:%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
@@ -152,6 +152,6 @@ func main() {
 		}
 	}()
 	<-stop
-	log.Println("terminate wics server.")
+	log.Println("terminate server.")
 	grpcServer.Stop()
 }
