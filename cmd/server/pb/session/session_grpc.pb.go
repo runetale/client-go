@@ -50,15 +50,14 @@ func (c *sessionServiceClient) Login(ctx context.Context, in *LoginMessage, opts
 }
 
 // SessionServiceServer is the server API for SessionService service.
-// All implementations must embed UnimplementedSessionServiceServer
+// All implementations should embed UnimplementedSessionServiceServer
 // for forward compatibility
 type SessionServiceServer interface {
 	GetServerPublicKey(context.Context, *emptypb.Empty) (*GetServerPublicKeyResponse, error)
 	Login(context.Context, *LoginMessage) (*LoginMessage, error)
-	mustEmbedUnimplementedSessionServiceServer()
 }
 
-// UnimplementedSessionServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedSessionServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedSessionServiceServer struct {
 }
 
@@ -68,7 +67,6 @@ func (UnimplementedSessionServiceServer) GetServerPublicKey(context.Context, *em
 func (UnimplementedSessionServiceServer) Login(context.Context, *LoginMessage) (*LoginMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedSessionServiceServer) mustEmbedUnimplementedSessionServiceServer() {}
 
 // UnsafeSessionServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to SessionServiceServer will

@@ -14,12 +14,12 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
-	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/organization"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
+	server "github.com/Notch-Technologies/wizy/cmd/server/server"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
@@ -119,7 +119,7 @@ func main() {
 
 	// initialize server
 	//
-	s, err := server.NewServer(db, cfg, ss, auth0Client, peerUpdateManager)
+	s := server.NewServer(db, cfg, ss, auth0Client, peerUpdateManager)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -146,10 +146,10 @@ func main() {
 
 	// initialize grpc server services
 	//
-	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
-	user.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
-	session.RegisterSessionServiceServer(grpcServer, s.SessionServiceServer)
-	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServiceServer)
+	peer.RegisterPeerServiceServer(grpcServer, s.PeerServerService)
+	user.RegisterUserServiceServer(grpcServer, s.UserServerService)
+	session.RegisterSessionServiceServer(grpcServer, s.SessionServerService)
+	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
 	negotiation.RegisterNegotiationServer(grpcServer, s.NegotiationServer)
 
 	log.Printf("started server: localhost:%v", args.port)

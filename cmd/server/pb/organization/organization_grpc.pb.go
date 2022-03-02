@@ -49,15 +49,14 @@ func (c *organizationServiceClient) CreateAdminUser(ctx context.Context, in *Org
 }
 
 // OrganizationServiceServer is the server API for OrganizationService service.
-// All implementations must embed UnimplementedOrganizationServiceServer
+// All implementations should embed UnimplementedOrganizationServiceServer
 // for forward compatibility
 type OrganizationServiceServer interface {
 	Create(context.Context, *OrganizationCreateRequest) (*OrganizationCreateResponse, error)
 	CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error)
-	mustEmbedUnimplementedOrganizationServiceServer()
 }
 
-// UnimplementedOrganizationServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedOrganizationServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedOrganizationServiceServer struct {
 }
 
@@ -67,7 +66,6 @@ func (UnimplementedOrganizationServiceServer) Create(context.Context, *Organizat
 func (UnimplementedOrganizationServiceServer) CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
 }
-func (UnimplementedOrganizationServiceServer) mustEmbedUnimplementedOrganizationServiceServer() {}
 
 // UnsafeOrganizationServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to OrganizationServiceServer will

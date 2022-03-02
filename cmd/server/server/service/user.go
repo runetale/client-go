@@ -9,21 +9,23 @@ import (
 	"github.com/Notch-Technologies/wizy/types/key"
 )
 
-type UserServiceServer struct {
-	db *database.Sqlite
-
-	user.UnimplementedUserServiceServer
+type UserServerServiceCaller interface {
+	SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error)
 }
 
-func NewUserServiceServer(
+type UserServerService struct {
+	db *database.Sqlite
+}
+
+func NewUserServerService(
 	db *database.Sqlite,
-) *UserServiceServer {
-	return &UserServiceServer{
+) *UserServerService {
+	return &UserServerService{
 		db: db,
 	}
 }
 
-func (uss *UserServiceServer) SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error) {
+func (uss *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error) {
 	sub := getSub(ctx)
 	networkID := msg.GetNetworkID()
 	userGroupID := msg.GetUserGroupID()

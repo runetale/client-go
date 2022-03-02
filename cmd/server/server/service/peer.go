@@ -10,7 +10,11 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 )
 
-type PeerServiceServer struct {
+type PeerServerServiceCaller interface {
+	Sync(*peer.SyncMessage, peer.PeerService_SyncServer) error
+}
+
+type PeerServerService struct {
 	db                *database.Sqlite
 	serverStore       *store.ServerStore
 	peerUpdateManager *channel.PeersUpdateManager
@@ -18,19 +22,19 @@ type PeerServiceServer struct {
 	peer.UnimplementedPeerServiceServer
 }
 
-func NewPeerServiceServer(
+func NewPeerServerService(
 	db *database.Sqlite,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
-) *PeerServiceServer {
-	return &PeerServiceServer{
+) *PeerServerService {
+	return &PeerServerService{
 		db:                db,
 		serverStore:       server,
 		peerUpdateManager: peerUpdateManager,
 	}
 }
 
-func (pss *PeerServiceServer) Sync(req *peer.SyncMessage, srv peer.PeerService_SyncServer) error {
+func (pss *PeerServerService) Sync(req *peer.SyncMessage, srv peer.PeerService_SyncServer) error {
 	pu := usecase.NewPeerUsecase(pss.db, pss.serverStore, srv)
 
 	err := pu.InitialSync(req.GetClientMachineKey())

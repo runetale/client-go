@@ -71,15 +71,14 @@ func (x *negotiationConnectStreamClient) Recv() (*Body, error) {
 }
 
 // NegotiationServer is the server API for Negotiation service.
-// All implementations must embed UnimplementedNegotiationServer
+// All implementations should embed UnimplementedNegotiationServer
 // for forward compatibility
 type NegotiationServer interface {
 	Send(context.Context, *Body) (*Body, error)
 	ConnectStream(Negotiation_ConnectStreamServer) error
-	mustEmbedUnimplementedNegotiationServer()
 }
 
-// UnimplementedNegotiationServer must be embedded to have forward compatible implementations.
+// UnimplementedNegotiationServer should be embedded to have forward compatible implementations.
 type UnimplementedNegotiationServer struct {
 }
 
@@ -89,7 +88,6 @@ func (UnimplementedNegotiationServer) Send(context.Context, *Body) (*Body, error
 func (UnimplementedNegotiationServer) ConnectStream(Negotiation_ConnectStreamServer) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectStream not implemented")
 }
-func (UnimplementedNegotiationServer) mustEmbedUnimplementedNegotiationServer() {}
 
 // UnsafeNegotiationServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to NegotiationServer will

@@ -10,32 +10,32 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type SessionServiceClientCaller interface {
+type SessionClientServiceCaller interface {
 	GetServerPublicKey() (string, error)
 	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPublicKey string) (*session.LoginMessage, error)
 }
 
-type SessionServiceClient struct {
-	sessionServiceClient session.SessionServiceClient
+type SessionClientService struct {
+	sessionClientService session.SessionClientService
 	privateKey           wgtypes.Key
 
 	ctx context.Context
 }
 
-func NewSessionServiceClient(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *SessionServiceClient {
-	return &SessionServiceClient{
-		sessionServiceClient: session.NewSessionServiceClient(conn),
+func NewSessionClientService(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *SessionClientService {
+	return &SessionClientService{
+		sessionClientService: session.NewSessionClientService(conn),
 		privateKey:           privateKey,
 
 		ctx: ctx,
 	}
 }
 
-func (s *SessionServiceClient) GetServerPublicKey() (string, error) {
+func (s *SessionClientService) GetServerPublicKey() (string, error) {
 	usCtx, cancel := context.WithTimeout(s.ctx, 5*time.Second)
 	defer cancel()
 
-	res, err := s.sessionServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
+	res, err := s.sessionClientService.GetServerPublicKey(usCtx, &emptypb.Empty{})
 	if err != nil {
 		return "", err
 	}
@@ -43,11 +43,11 @@ func (s *SessionServiceClient) GetServerPublicKey() (string, error) {
 	return res.Key, nil
 }
 
-func (s *SessionServiceClient) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPublicKey string) (*session.LoginMessage, error) {
+func (s *SessionClientService) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPublicKey string) (*session.LoginMessage, error) {
 	usCtx, cancel := context.WithTimeout(s.ctx, 5*time.Second)
 	defer cancel()
 
-	msg, err := s.sessionServiceClient.Login(usCtx, &session.LoginMessage{
+	msg, err := s.sessionClientService.Login(usCtx, &session.LoginMessage{
 		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,

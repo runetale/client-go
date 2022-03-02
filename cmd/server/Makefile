@@ -1,2 +1,2 @@
 proto_gen:
-	protoc --go_out=pb --go-grpc_out=pb ./protos/*.proto
+	protoc --go_out=pb --go-grpc_out=pb ./protos/*.proto --go-grpc_opt require_unimplemented_servers=false

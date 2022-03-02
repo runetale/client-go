@@ -45,9 +45,8 @@ type ClientCaller interface {
 }
 
 type GrpcClient struct {
-	privateKey           wgtypes.Key
-	peerServiceClient    service.PeerServiceClientCaller
-	sessionServiceClient service.SessionServiceClientCaller
+	peerClientService    service.PeerClientServiceCaller
+	sessionClientService service.SessionClientServiceCaller
 	negotiationClient    negotiation.NegotiationClient
 	stream               negotiation.Negotiation_ConnectStreamClient
 
@@ -60,7 +59,10 @@ type GrpcClient struct {
 	status Status
 }
 
-func NewGrpcClient(ctx context.Context, url *url.URL, port int, privateKey wgtypes.Key) (*GrpcClient, error) {
+func NewGrpcClient(
+	ctx context.Context, url *url.URL, port int,
+	privateKey wgtypes.Key,
+) (*GrpcClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
@@ -86,9 +88,8 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privateKey wgtyp
 	nc := negotiation.NewNegotiationClient(conn)
 
 	return &GrpcClient{
-		privateKey:           privateKey,
-		peerServiceClient:    service.NewPeerServiceClient(ctx, conn, privateKey),
-		sessionServiceClient: service.NewSessionServiceClient(ctx, conn, privateKey),
+		peerClientService:    service.NewPeerClientService(ctx, conn, privateKey),
+		sessionClientService: service.NewSessionClientService(ctx, conn, privateKey),
 		negotiationClient:    nc,
 
 		ctx:    ctx,
@@ -107,7 +108,7 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 		return "", fmt.Errorf("no connection grpc server")
 	}
 
-	key, err := client.sessionServiceClient.GetServerPublicKey()
+	key, err := client.sessionClientService.GetServerPublicKey()
 	if err != nil {
 		return "", err
 	}
@@ -123,7 +124,7 @@ func (client *GrpcClient) Login(
 		return nil, fmt.Errorf("no connection grpc server")
 	}
 
-	msg, err := client.sessionServiceClient.Login(
+	msg, err := client.sessionClientService.Login(
 		setupKey, clientPubKey, serverPubKey, ip,
 		wgPrivateKey.PublicKey().String(),
 	)
@@ -204,7 +205,7 @@ func (client *GrpcClient) Receive(
 }
 
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
-	err := client.peerServiceClient.Sync(clientMachineKey, msgHandler)
+	err := client.peerClientService.Sync(clientMachineKey, msgHandler)
 	if err != nil {
 		return err
 	}

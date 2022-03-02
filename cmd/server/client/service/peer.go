@@ -9,31 +9,31 @@ import (
 	"google.golang.org/grpc"
 )
 
-type PeerServiceClientCaller interface {
+type PeerClientServiceCaller interface {
 	Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error
 }
 
-type PeerServiceClient struct {
-	peerServiceClient peer.PeerServiceClient
+type PeerClientService struct {
+	peerClientService peer.PeerClientService
 	privateKey        wgtypes.Key
 
 	ctx context.Context
 }
 
-func NewPeerServiceClient(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *PeerServiceClient {
-	return &PeerServiceClient{
-		peerServiceClient: peer.NewPeerServiceClient(conn),
+func NewPeerClientService(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *PeerClientService {
+	return &PeerClientService{
+		peerClientService: peer.NewPeerClientService(conn),
 		privateKey:        privateKey,
 
 		ctx: ctx,
 	}
 }
 
-func (p *PeerServiceClient) Sync(
+func (p *PeerClientService) Sync(
 	clientMachineKey string,
 	msgHandler func(msg *peer.SyncResponse) error,
 ) error {
-	stream, err := p.peerServiceClient.Sync(p.ctx, &peer.SyncMessage{
+	stream, err := p.peerClientService.Sync(p.ctx, &peer.SyncMessage{
 		PrivateKey:       p.privateKey.String(),
 		ClientMachineKey: clientMachineKey,
 	})

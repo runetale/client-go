@@ -10,23 +10,25 @@ import (
 )
 
 type Server struct {
-	UserServiceServer         *service.UserServiceServer
-	PeerServiceServer         *service.PeerServiceServer
-	SessionServiceServer      *service.SessionServiceServer
-	OrganizationServiceServer *service.OrganizationServiceServer
-	NegotiationServer         *service.NegotiationServiceServer
+	UserServerService         service.UserServerServiceCaller
+	PeerServerService         service.PeerServerServiceCaller
+	SessionServerService      service.SessionServiceServerCaller
+	OrganizationServerService service.OrganizationServerServiceCaller
+
+	// TODO: (shintard) 消す
+	NegotiationServer *service.NegotiationServiceServer
 }
 
 func NewServer(
 	db *database.Sqlite, config *config.Config,
 	server *store.ServerStore, client *client.Auth0Client,
 	peerUpdateManager *channel.PeersUpdateManager,
-) (*Server, error) {
+) *Server {
 	return &Server{
-		UserServiceServer:         service.NewUserServiceServer(db),
-		PeerServiceServer:         service.NewPeerServiceServer(db, server, peerUpdateManager),
-		SessionServiceServer:      service.NewSessionServiceServer(db, config, server, peerUpdateManager),
-		OrganizationServiceServer: service.NewOrganizationServiceServer(db, client),
+		UserServerService:         service.NewUserServerService(db),
+		PeerServerService:         service.NewPeerServerService(db, server, peerUpdateManager),
+		SessionServerService:      service.NewSessionServerService(db, config, server, peerUpdateManager),
+		OrganizationServerService: service.NewOrganizationServerService(db, client),
 		NegotiationServer:         service.NewNegotiationServiceServer(db),
-	}, nil
+	}
 }

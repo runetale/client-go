@@ -14,21 +14,24 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type SessionServiceServer struct {
+type SessionServiceServerCaller interface {
+	GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error)
+	Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error)
+}
+
+type SessionServerService struct {
 	config            *config.Config
 	serverStore       *store.ServerStore
 	db                *database.Sqlite
 	peerUpdateManager *channel.PeersUpdateManager
-
-	session.UnimplementedSessionServiceServer
 }
 
-func NewSessionServiceServer(
+func NewSessionServerService(
 	db *database.Sqlite, config *config.Config,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
-) *SessionServiceServer {
-	return &SessionServiceServer{
+) *SessionServerService {
+	return &SessionServerService{
 		config:            config,
 		serverStore:       server,
 		db:                db,
@@ -36,11 +39,11 @@ func NewSessionServiceServer(
 	}
 }
 
-func (sss *SessionServiceServer) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
+func (sss *SessionServerService) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
 	return ctx, nil
 }
 
-func (sss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
+func (sss *SessionServerService) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
 	pubicKey := sss.serverStore.GetPublicKey()
 
 	now := time.Now().Add(24 * time.Hour)
@@ -54,7 +57,7 @@ func (sss *SessionServiceServer) GetServerPublicKey(ctx context.Context, msg *em
 	}, nil
 }
 
-func (sss *SessionServiceServer) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
+func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
 	clientMachinePubKey := msg.GetClientPublicKey()
 	serverMachinePubKey := msg.GetServerPublicKey()
 	wgPubKey := msg.GetWgPublicKey()

@@ -62,21 +62,19 @@ func (x *peerServiceSyncClient) Recv() (*SyncResponse, error) {
 }
 
 // PeerServiceServer is the server API for PeerService service.
-// All implementations must embed UnimplementedPeerServiceServer
+// All implementations should embed UnimplementedPeerServiceServer
 // for forward compatibility
 type PeerServiceServer interface {
 	Sync(*SyncMessage, PeerService_SyncServer) error
-	mustEmbedUnimplementedPeerServiceServer()
 }
 
-// UnimplementedPeerServiceServer must be embedded to have forward compatible implementations.
+// UnimplementedPeerServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedPeerServiceServer struct {
 }
 
 func (UnimplementedPeerServiceServer) Sync(*SyncMessage, PeerService_SyncServer) error {
 	return status.Errorf(codes.Unimplemented, "method Sync not implemented")
 }
-func (UnimplementedPeerServiceServer) mustEmbedUnimplementedPeerServiceServer() {}
 
 // UnsafePeerServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to PeerServiceServer will
