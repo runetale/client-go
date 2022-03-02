@@ -52,7 +52,8 @@ func NewNegotiationClientService(
 }
 
 func (n *NegotiationClientService) Send(msg *negotiation.Body) error {
-	ctx, cancel := context.WithTimeout(n.ctx, 5*time.Second)
+	// ctx, cancel := context.WithTimeout(n.ctx, 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	_, err := n.negotiationClient.Send(ctx, msg)
