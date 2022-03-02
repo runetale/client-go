@@ -74,7 +74,6 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 
 			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
 			if err != nil {
-				panic(err)
 				return nil, err
 			}
 

@@ -411,8 +411,7 @@ func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtyp
 		Payload:          candidate.Marshal(),
 	})
 	if err != nil {
-		fmt.Errorf("failed signaling candidate to the remote peer %s %s", remoteKey.String(), err)
-		//todo ??
+		fmt.Printf("failed signaling candidate to the remote peer %s %s", remoteKey.String(), err)
 		return err
 	}
 

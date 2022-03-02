@@ -339,11 +339,10 @@ func (conn *Conn) sendOffer() error {
 
 func (conn *Conn) onICECandidate(candidate ice.Candidate) {
 	if candidate != nil {
-		//log.Debugf("discovered local candidate %s", candidate.String())
 		go func() {
 			err := conn.signalCandidate(candidate)
 			if err != nil {
-				fmt.Errorf("failed signaling candidate to the remote peer %s %s\n", conn.config.Key, err)
+				fmt.Printf("failed signaling candidate to the remote peer %s %s\n", conn.config.Key, err)
 			}
 		}()
 	}
@@ -394,7 +393,6 @@ func (conn *Conn) OnRemoteCandidate(candidate ice.Candidate) {
 		err := conn.agent.AddRemoteCandidate(candidate)
 		if err != nil {
 			fmt.Printf("error while handling remote candidate from peer %s\n", conn.config.Key)
-			fmt.Println(err)
 			return
 		}
 	}()
