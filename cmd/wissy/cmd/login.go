@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
+	"github.com/Notch-Technologies/wizy/cmd/server/client"
 	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
@@ -92,25 +92,25 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	client, err := grpc_client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
+	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
 	}
 
 	log.Printf("connected to server %s", clientCore.ServerHost.String())
 
-	serverPubKey, err := client.GetServerPublicKey()
+	serverPubKey, err := gClient.GetServerPublicKey()
 	if err != nil {
 		log.Fatalf("failed to get server public key. %v", err)
 	}
 
-	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.1", wgPrivateKey)
+	_, err = gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to login. %v", err)
 	}
 
 	// ここからはupCmdに任せる??
-	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.1/24")
+	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.2/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())
 		return err
@@ -119,9 +119,9 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.1/24")
+	engineConfig := polymer.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
 
-	e := polymer.NewEngine(wislog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := polymer.NewEngine(wislog, gClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()
 
 	select {
