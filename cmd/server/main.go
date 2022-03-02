@@ -14,7 +14,6 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
-	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/organization"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
@@ -147,7 +146,6 @@ func main() {
 	user.RegisterUserServiceServer(grpcServer, s.UserServerService)
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServerService)
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
-	negotiation.RegisterNegotiationServer(grpcServer, s.NegotiationServer)
 
 	log.Printf("starting server: localhost:%v", args.port)
 

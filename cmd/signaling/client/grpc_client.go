@@ -18,9 +18,9 @@ import (
 )
 
 type ClientCaller interface {
-	Send(msg *negotiation.Body) error
-	ConnectStream(wgPubKey string) (negotiation.Negotiation_ConnectStreamClient, error)
 	IsReady() bool
+	Send(msg *negotiation.Body) error
+	Receive(wgPubKey string, msgHandler func(msg *negotiation.Body) error) error
 }
 
 type SignalingClient struct {
@@ -83,6 +83,13 @@ func (client *SignalingClient) Send(msg *negotiation.Body) error {
 	return nil
 }
 
-func (client *SignalingClient) ConnectStream(wgPubKey string) (negotiation.Negotiation_ConnectStreamClient, error) {
-	return client.negotiationClientService.ConnectStream(wgPubKey)
+func (client *SignalingClient) Receive(
+	wgPubKey string,
+	msgHandler func(msg *negotiation.Body) error,
+) error {
+	if !client.IsReady() {
+		return fmt.Errorf("no connection server stream")
+	}
+
+	return client.negotiationClientService.Receive(wgPubKey, msgHandler)
 }

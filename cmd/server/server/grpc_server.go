@@ -14,9 +14,6 @@ type Server struct {
 	PeerServerService         service.PeerServerServiceCaller
 	SessionServerService      service.SessionServiceServerCaller
 	OrganizationServerService service.OrganizationServerServiceCaller
-
-	// TODO: (shintard) 消す
-	NegotiationServer *service.NegotiationServiceServer
 }
 
 func NewServer(
@@ -29,6 +26,5 @@ func NewServer(
 		PeerServerService:         service.NewPeerServerService(db, server, peerUpdateManager),
 		SessionServerService:      service.NewSessionServerService(db, config, server, peerUpdateManager),
 		OrganizationServerService: service.NewOrganizationServerService(db, client),
-		NegotiationServer:         service.NewNegotiationServiceServer(db),
 	}
 }
