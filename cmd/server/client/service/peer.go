@@ -14,7 +14,7 @@ type PeerClientServiceCaller interface {
 }
 
 type PeerClientService struct {
-	peerClientService peer.PeerClientService
+	peerClientService peer.PeerServiceClient
 	privateKey        wgtypes.Key
 
 	ctx context.Context
@@ -22,7 +22,7 @@ type PeerClientService struct {
 
 func NewPeerClientService(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *PeerClientService {
 	return &PeerClientService{
-		peerClientService: peer.NewPeerClientService(conn),
+		peerClientService: peer.NewPeerServiceClient(conn),
 		privateKey:        privateKey,
 
 		ctx: ctx,

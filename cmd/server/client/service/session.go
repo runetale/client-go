@@ -16,7 +16,7 @@ type SessionClientServiceCaller interface {
 }
 
 type SessionClientService struct {
-	sessionClientService session.SessionClientService
+	sessionClientService session.SessionServiceClient
 	privateKey           wgtypes.Key
 
 	ctx context.Context
@@ -24,7 +24,7 @@ type SessionClientService struct {
 
 func NewSessionClientService(ctx context.Context, conn *grpc.ClientConn, privateKey wgtypes.Key) *SessionClientService {
 	return &SessionClientService{
-		sessionClientService: session.NewSessionClientService(conn),
+		sessionClientService: session.NewSessionServiceClient(conn),
 		privateKey:           privateKey,
 
 		ctx: ctx,
