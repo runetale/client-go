@@ -32,7 +32,7 @@ type SignalingClient struct {
 }
 
 func NewSignalingClient(
-	ctx context.Context, url *url.URL, port int,
+	ctx context.Context, url *url.URL,
 	privateKey wgtypes.Key,
 ) (*SignalingClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
