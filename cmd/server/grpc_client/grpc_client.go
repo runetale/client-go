@@ -31,7 +31,7 @@ type Status string
 const StreamConnected Status = "Connected"
 const StreamDisconnected Status = "Disconnected"
 
-type GrpcClientInterface interface {
+type ClientCaller interface {
 	GetServerPublicKey() (string, error)
 	IsReady() bool
 	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error)
