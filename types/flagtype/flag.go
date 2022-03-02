@@ -12,6 +12,7 @@ import (
 type portValue struct{ n *uint16 }
 
 const DefaultGrpcServerPort = 443
+const DefaultSignalingServerPort = 10000
 const DefaultApiPort = 8080
 
 func PortValue(dst *uint16, defaultPort uint16) flag.Value {
