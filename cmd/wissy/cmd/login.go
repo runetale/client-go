@@ -109,7 +109,7 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to login. %v", err)
 	}
 
-	// ここからはupCmdに任せる??
+	// TODO: (shintard) ここからはupCmd
 	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.2/24")
 	if err != nil {
 		fmt.Printf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())

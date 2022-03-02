@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package protos;
 
-option go_package = "./signaling";
+option go_package = "./negotiation";
 
-service Signaling {
+service Negotiation {
 	rpc Send(Body) returns (Body) {}
 	rpc ConnectStream(stream Body) returns (stream Body) {}
 }
