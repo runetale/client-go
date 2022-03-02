@@ -92,7 +92,6 @@ func execLogin(args []string) error {
 		log.Fatalf("failed to parse wg private key. %v", err)
 	}
 
-	// 明日はここからRefactor
 	client, err := grpc_client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
 	if err != nil {
 		log.Fatalf("failed to connect client. %v", err)
