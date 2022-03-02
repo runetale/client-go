@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
+	client "github.com/Notch-Technologies/wizy/cmd/server/client"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/core"
@@ -48,8 +48,7 @@ func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *E
 }
 
 type Engine struct {
-	client grpc_client.ClientCaller
-	// stream negotiation.Negotiation_ConnectStreamClient
+	gClient client.ClientCaller
 
 	peerConns map[string]*Conn
 
@@ -74,7 +73,7 @@ type Engine struct {
 
 func NewEngine(
 	log *wislog.WisLog,
-	client grpc_client.ClientCaller,
+	client client.ClientCaller,
 	cancel context.CancelFunc,
 	ctx context.Context,
 	engineConfig *EngineConfig,
@@ -82,7 +81,7 @@ func NewEngine(
 	wgPrivateKey wgtypes.Key,
 ) *Engine {
 	return &Engine{
-		client: client,
+		gClient: client,
 
 		peerConns: map[string]*Conn{},
 
@@ -116,7 +115,7 @@ func (e *Engine) Start() {
 
 func (e *Engine) receiveClient() {
 	go func() {
-		err := e.client.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
+		err := e.gClient.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
@@ -157,7 +156,7 @@ func (e *Engine) receiveClient() {
 		}
 	}()
 
-	e.client.WaitStreamConnected()
+	e.gClient.WaitStreamConnected()
 }
 
 func (e *Engine) updateTurns() error {
@@ -188,7 +187,7 @@ func (e *Engine) updateStuns() error {
 
 func (e *Engine) syncClient() {
 	go func() {
-		err := e.client.Sync(e.machineKey, func(update *peer.SyncResponse) error {
+		err := e.gClient.Sync(e.machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
@@ -326,15 +325,15 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*Conn, er
 	}
 
 	signalOffer := func(uFrag string, pwd string) error {
-		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.client, false)
+		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient, false)
 	}
 
 	signalAnswer := func(uFrag string, pwd string) error {
-		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.client, true)
+		return signalAuth(uFrag, pwd, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient, true)
 	}
 
 	signalCandidate := func(candidate ice.Candidate) error {
-		return signalCandidate(candidate, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.client)
+		return signalCandidate(candidate, e.config.WgPrivateKey, wgPubKey, e.machineKey, e.gClient)
 	}
 
 	peerConn.SetSignalOffer(signalOffer)
@@ -355,7 +354,7 @@ func (e *Engine) connWorker(conn *Conn, peerKey string) {
 			return
 		}
 
-		if !e.client.IsReady() {
+		if !e.gClient.IsReady() {
 			fmt.Printf("signal client isn't ready, skipping connection attempt %s", peerKey)
 			continue
 		}
@@ -377,7 +376,11 @@ func (e *Engine) peerExists(peerKey string) bool {
 	return ok
 }
 
-func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, c grpc_client.ClientCaller, isAnswer bool) error {
+func signalAuth(
+	uFrag string, pwd string, myKey wgtypes.Key,
+	remoteKey wgtypes.Key, clientMachineKey string,
+	c client.ClientCaller, isAnswer bool,
+) error {
 	var t negotiation.Body_Type
 	if isAnswer {
 		t = negotiation.Body_ANSWER
@@ -402,7 +405,11 @@ func signalAuth(uFrag string, pwd string, myKey wgtypes.Key, remoteKey wgtypes.K
 	return nil
 }
 
-func signalCandidate(candidate ice.Candidate, myKey wgtypes.Key, remoteKey wgtypes.Key, clientMachineKey string, c grpc_client.ClientCaller) error {
+func signalCandidate(
+	candidate ice.Candidate, myKey wgtypes.Key,
+	remoteKey wgtypes.Key, clientMachineKey string,
+	c client.ClientCaller,
+) error {
 	err := c.Send(&negotiation.Body{
 		Key:              myKey.PublicKey().String(),
 		Remotekey:        remoteKey.String(),
