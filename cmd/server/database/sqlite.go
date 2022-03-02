@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/sqlite3"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
@@ -22,9 +23,11 @@ type SQLExecuter interface {
 
 type Sqlite struct {
 	db *sql.DB
+
+	wislog *wislog.WisLog
 }
 
-func NewSqlite() *Sqlite {
+func NewSqlite(wl *wislog.WisLog) *Sqlite {
 	db, err := sql.Open("sqlite3", SQLITE_DB_NAME)
 	if err != nil {
 		panic(err)
@@ -32,6 +35,8 @@ func NewSqlite() *Sqlite {
 
 	return &Sqlite{
 		db: db,
+
+		wislog: wl,
 	}
 }
 

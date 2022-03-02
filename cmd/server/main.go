@@ -61,7 +61,7 @@ func main() {
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
 	flag.BoolVar(&args.version, "version", false, "print version")
-	flag.StringVar(&args.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
+	flag.StringVar(&args.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
 	flag.StringVar(&args.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
 	flag.BoolVar(&args.dev, "dev", true, "is dev")
 
@@ -86,7 +86,7 @@ func main() {
 
 	// initialize sqlite database
 	//
-	db := database.NewSqlite()
+	db := database.NewSqlite(wislog)
 	err = db.MigrationUp()
 	if err != nil {
 		log.Fatal(err)
@@ -120,9 +120,6 @@ func main() {
 	// initialize server
 	//
 	s := server.NewServer(db, cfg, ss, auth0Client, peerUpdateManager)
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	// configuration grpc server option
 	//
@@ -152,7 +149,7 @@ func main() {
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
 	negotiation.RegisterNegotiationServer(grpcServer, s.NegotiationServer)
 
-	log.Printf("started server: localhost:%v", args.port)
+	log.Printf("starting server: localhost:%v", args.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
 	if err != nil {
