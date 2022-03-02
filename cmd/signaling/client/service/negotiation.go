@@ -24,6 +24,7 @@ const StreamDisconnected Status = "Disconnected"
 type NegotiationClientServiceCaller interface {
 	Send(msg *negotiation.Body) error
 	Receive(wgPubKey string, msgHandler func(msg *negotiation.Body) error) error
+	WaitStreamConnected()
 }
 
 type NegotiationClientService struct {
@@ -145,5 +146,27 @@ func (n *NegotiationClientService) Receive(
 			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]\n", msg.ClientMachineKey, err.Error())
 			return err
 		}
+	}
+}
+
+func (n *NegotiationClientService) getStreamStatusChan() <-chan struct{} {
+	n.mux.Lock()
+	defer n.mux.Unlock()
+
+	if n.connectedCh == nil {
+		n.connectedCh = make(chan struct{})
+	}
+	return n.connectedCh
+}
+
+func (n *NegotiationClientService) WaitStreamConnected() {
+	if n.status == StreamConnected {
+		return
+	}
+
+	ch := n.getStreamStatusChan()
+	select {
+	case <-n.ctx.Done():
+	case <-ch:
 	}
 }

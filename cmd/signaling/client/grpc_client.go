@@ -21,6 +21,7 @@ type ClientCaller interface {
 	IsReady() bool
 	Send(msg *negotiation.Body) error
 	Receive(wgPubKey string, msgHandler func(msg *negotiation.Body) error) error
+	WaitStreamConnected()
 }
 
 type SignalingClient struct {
@@ -97,4 +98,8 @@ func (client *SignalingClient) Receive(
 	}
 
 	return nil
+}
+
+func (client *SignalingClient) WaitStreamConnected() {
+	client.negotiationClientService.WaitStreamConnected()
 }

@@ -30,7 +30,6 @@ type ClientCaller interface {
 	GetServerPublicKey() (string, error)
 	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error)
 	Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error
-	WaitStreamConnected()
 }
 
 type GrpcClient struct {
@@ -40,8 +39,6 @@ type GrpcClient struct {
 	ctx  context.Context
 	conn *grpc.ClientConn
 	mux  sync.Mutex
-
-	connectedCh chan struct{}
 
 	status Status
 }
@@ -125,27 +122,4 @@ func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *pee
 		return err
 	}
 	return nil
-}
-
-func (client *GrpcClient) getStreamStatusChan() <-chan struct{} {
-	client.mux.Lock()
-	defer client.mux.Unlock()
-
-	if client.connectedCh == nil {
-		client.connectedCh = make(chan struct{})
-	}
-	return client.connectedCh
-}
-
-func (client *GrpcClient) WaitStreamConnected() {
-	if client.status == StreamConnected {
-		fmt.Println("Stream Connected")
-		return
-	}
-
-	ch := client.getStreamStatusChan()
-	select {
-	case <-client.ctx.Done():
-	case <-ch:
-	}
 }

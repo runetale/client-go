@@ -160,7 +160,7 @@ func (e *Engine) receiveClient() {
 		}
 	}()
 
-	e.gClient.WaitStreamConnected()
+	e.sClient.WaitStreamConnected()
 }
 
 func (e *Engine) updateTurns() error {
