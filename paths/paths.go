@@ -50,6 +50,14 @@ func DefaultClientLogFile() string {
 	return "/var/log/wissy/client.log"
 }
 
+func DefaultServerLogFile() string {
+	return "/var/log/wissy/server.log"
+}
+
+func DefaultSignalingLogFile() string {
+	return "/var/log/wissy/signaling.log"
+}
+
 func MkStateDir(dirPath string) error {
 	if err := os.MkdirAll(dirPath, 0700); err != nil {
 		return err
