@@ -16,18 +16,10 @@ import (
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
 	"github.com/Notch-Technologies/wizy/wislog"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 )
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("error loading .env file")
-	}
-}
 
 var args struct {
 	port     uint16
