@@ -7,14 +7,14 @@ import (
 	"runtime"
 )
 
-// json file to manage the wics server startup config.
-func DefaultWicsConfigFile() string {
-	return "/etc/wissy/wics.json"
+// json file to manage the server startup config.
+func DefaultServerConfigFile() string {
+	return "/etc/wissy/config.json"
 }
 
-// state file to manage the secret information of the wics server.
+// state file to manage the secret information of the server.
 // do not disclose to the outside world.
-func DefaultWicsServerStateFile() string {
+func DefaultWissyServerStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
 		return "/var/db/wissy/server.state"
@@ -27,7 +27,7 @@ func DefaultWicsServerStateFile() string {
 	}
 }
 
-// state file to manage the secret information of the wics server.
+// state file to manage the secret information of the server.
 // do not disclose to the outside world.
 func DefaultWicsClientStateFile() string {
 	switch runtime.GOOS {
