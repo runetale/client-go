@@ -91,5 +91,10 @@ func (client *SignalingClient) Receive(
 		return fmt.Errorf("no connection server stream")
 	}
 
-	return client.negotiationClientService.Receive(wgPubKey, msgHandler)
+	err := client.negotiationClientService.Receive(wgPubKey, msgHandler)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
