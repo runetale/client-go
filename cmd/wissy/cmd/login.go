@@ -10,7 +10,7 @@ import (
 	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
-	"github.com/Notch-Technologies/wizy/polymer"
+	"github.com/Notch-Technologies/wizy/polymer/engine"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
@@ -136,9 +136,9 @@ func execLogin(args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := polymer.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
+	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
 
-	e := polymer.NewEngine(wislog, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := engine.NewEngine(wislog, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 	e.Start()
 
 	select {
