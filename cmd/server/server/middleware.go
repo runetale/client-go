@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/Notch-Technologies/wizy/client"
+	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 	auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 )

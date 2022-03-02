@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Notch-Technologies/wizy/client"
+	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -39,7 +39,7 @@ func init() {
 	}
 }
 
-var args struct {
+var serverArgs struct {
 	configpath string
 	port       uint16
 	verbose    int
@@ -53,30 +53,30 @@ var args struct {
 }
 
 func main() {
-	flag.StringVar(&args.configpath, "config", paths.DefaultServerConfigFile(), "path of server config file")
-	flag.Var(flagtype.PortValue(&args.port, flagtype.DefaultGrpcServerPort), "port", "specify the port of the server")
-	flag.IntVar(&args.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
-	flag.StringVar(&args.domain, "domain", "", "your domain")
-	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
-	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
-	flag.BoolVar(&args.version, "version", false, "print version")
-	flag.StringVar(&args.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
-	flag.StringVar(&args.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
-	flag.BoolVar(&args.dev, "dev", true, "is dev")
+	flag.StringVar(&serverArgs.configpath, "config", paths.DefaultServerConfigFile(), "path of server config file")
+	flag.Var(flagtype.PortValue(&serverArgs.port, flagtype.DefaultGrpcServerPort), "port", "specify the port of the server")
+	flag.IntVar(&serverArgs.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
+	flag.StringVar(&serverArgs.domain, "domain", "", "your domain")
+	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert")
+	flag.StringVar(&serverArgs.certkey, "cert-key", "", "your cert key")
+	flag.BoolVar(&serverArgs.version, "version", false, "print version")
+	flag.StringVar(&serverArgs.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
+	flag.StringVar(&serverArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
+	flag.BoolVar(&serverArgs.dev, "dev", true, "is dev")
 
 	flag.Parse()
 	if flag.NArg() > 0 {
 		log.Fatalf("does not take non-flag arguments: %q.", flag.Args())
 	}
 
-	if args.version {
+	if serverArgs.version {
 		fmt.Println(version.String())
 		os.Exit(0)
 	}
 
 	// initialize wissy logger
 	//
-	err := wislog.InitWisLog(args.logLevel, args.logFile, args.dev)
+	err := wislog.InitWisLog(serverArgs.logLevel, serverArgs.logFile, serverArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
@@ -106,7 +106,7 @@ func main() {
 
 	// load sever config
 	//
-	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
+	cfg := config.LoadConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
 
 	// initialize auth0 client
 	//
@@ -147,9 +147,9 @@ func main() {
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServerService)
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
 
-	log.Printf("starting server: localhost:%v", args.port)
+	log.Printf("starting server: localhost:%v", serverArgs.port)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", args.port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", serverArgs.port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

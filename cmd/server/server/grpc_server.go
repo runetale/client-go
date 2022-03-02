@@ -1,7 +1,7 @@
 package grpcserver
 
 import (
-	"github.com/Notch-Technologies/wizy/client"
+	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
