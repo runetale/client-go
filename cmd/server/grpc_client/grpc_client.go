@@ -9,11 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/grpc_client/service"
 	server "github.com/Notch-Technologies/wizy/cmd/server/grpc_server/service"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/negotiation"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
-	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
@@ -24,7 +24,6 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Status string
@@ -32,7 +31,7 @@ type Status string
 const StreamConnected Status = "Connected"
 const StreamDisconnected Status = "Disconnected"
 
-type GrpcClientManager interface {
+type GrpcClientInterface interface {
 	GetServerPublicKey() (string, error)
 	IsReady() bool
 	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error)
@@ -47,9 +46,8 @@ type GrpcClientManager interface {
 
 type GrpcClient struct {
 	privateKey           wgtypes.Key
-	userServiceClient    user.UserServiceClient
-	peerServiceClient    peer.PeerServiceClient
-	sessionServiceClient session.SessionServiceClient
+	peerServiceClient    service.PeerServiceClientCaller
+	sessionServiceClient service.SessionServiceClientCaller
 	negotiationClient    negotiation.NegotiationClient
 	stream               negotiation.Negotiation_ConnectStreamClient
 
@@ -62,8 +60,8 @@ type GrpcClient struct {
 	status Status
 }
 
-func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.Key) (*GrpcClient, error) {
-	clientCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+func NewGrpcClient(ctx context.Context, url *url.URL, port int, privateKey wgtypes.Key) (*GrpcClient, error) {
+	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
@@ -85,17 +83,12 @@ func NewGrpcClient(ctx context.Context, url *url.URL, port int, privKey wgtypes.
 		return nil, err
 	}
 
-	// TODO: 明日はここからusecase別にする
-	usc := user.NewUserServiceClient(conn)
-	psc := peer.NewPeerServiceClient(conn)
-	sec := session.NewSessionServiceClient(conn)
 	nc := negotiation.NewNegotiationClient(conn)
 
 	return &GrpcClient{
-		privateKey:           privKey,
-		userServiceClient:    usc,
-		peerServiceClient:    psc,
-		sessionServiceClient: sec,
+		privateKey:           privateKey,
+		peerServiceClient:    service.NewPeerServiceClient(ctx, conn, privateKey),
+		sessionServiceClient: service.NewSessionServiceClient(ctx, conn, privateKey),
 		negotiationClient:    nc,
 
 		ctx:    ctx,
@@ -111,35 +104,29 @@ func (client *GrpcClient) IsReady() bool {
 
 func (client *GrpcClient) GetServerPublicKey() (string, error) {
 	if !client.IsReady() {
-		return "", fmt.Errorf("no connection wics server")
+		return "", fmt.Errorf("no connection grpc server")
 	}
 
-	usCtx, cancel := context.WithTimeout(client.ctx, 10*time.Second)
-	defer cancel()
-
-	res, err := client.sessionServiceClient.GetServerPublicKey(usCtx, &emptypb.Empty{})
+	key, err := client.sessionServiceClient.GetServerPublicKey()
 	if err != nil {
 		return "", err
 	}
 
-	return res.Key, nil
+	return key, nil
 }
 
-func (client *GrpcClient) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error) {
+func (client *GrpcClient) Login(
+	setupKey, clientPubKey, serverPubKey, ip string,
+	wgPrivateKey wgtypes.Key,
+) (*session.LoginMessage, error) {
 	if !client.IsReady() {
-		return nil, fmt.Errorf("no connection wics server")
+		return nil, fmt.Errorf("no connection grpc server")
 	}
 
-	usCtx, cancel := context.WithTimeout(client.ctx, 10*time.Second)
-	defer cancel()
-
-	msg, err := client.sessionServiceClient.Login(usCtx, &session.LoginMessage{
-		SetupKey:        setupKey,
-		ClientPublicKey: clientPubKey,
-		ServerPublicKey: serverPubKey,
-		WgPublicKey:     wgPrivateKey.PublicKey().String(),
-		Ip:              ip,
-	})
+	msg, err := client.sessionServiceClient.Login(
+		setupKey, clientPubKey, serverPubKey, ip,
+		wgPrivateKey.PublicKey().String(),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -217,32 +204,11 @@ func (client *GrpcClient) Receive(
 }
 
 func (client *GrpcClient) Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error {
-	stream, err := client.peerServiceClient.Sync(client.ctx, &peer.SyncMessage{
-		PrivateKey:       client.privateKey.String(),
-		ClientMachineKey: clientMachineKey, // using management server channel
-	})
+	err := client.peerServiceClient.Sync(clientMachineKey, msgHandler)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-
-	for {
-		update, err := stream.Recv()
-		if err == io.EOF {
-			fmt.Println("recv error io")
-			return err
-		}
-
-		if err != nil {
-			fmt.Println("recv error")
-			return err
-		}
-
-		err = msgHandler(update)
-		if err != nil {
-			return err
-		}
-	}
+	return nil
 }
 
 func (client *GrpcClient) WaitStreamConnected() {

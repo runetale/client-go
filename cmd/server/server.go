@@ -75,7 +75,7 @@ func main() {
 	}
 
 	// create wics server state file
-	sfs, err := store.NewFileStore(paths.DefaultWicsServerStateFile())
+	sfs, err := store.NewFileStore(paths.DefaultWissyServerStateFile())
 	if err != nil {
 		log.Fatal(err)
 	}
