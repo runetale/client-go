@@ -1,4 +1,4 @@
-package polymer
+package peer
 
 import (
 	"net/url"
