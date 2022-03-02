@@ -7,16 +7,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Notch-Technologies/wizy/wireguard"
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-)
-
-const (
-	wgPort     = 51820
-	defaultMTU = 1280
 )
 
 func UpdatePeer(
@@ -148,7 +144,7 @@ func addRoute(iface string, ipNet *net.IPNet) error {
 }
 
 func CreateWithUserSpace(iface, address string) error {
-	tunIface, err := tun.CreateTUN(iface, defaultMTU)
+	tunIface, err := tun.CreateTUN(iface, wireguard.DefaultMTU)
 	if err != nil {
 		return err
 	}

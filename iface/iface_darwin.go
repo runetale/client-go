@@ -1,6 +1,7 @@
 package iface
 
 import (
+	"github.com/Notch-Technologies/wizy/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -16,7 +17,7 @@ func CreateIface(ifaceName, privateKey, address string) error {
 	}
 
 	fwmark := 0
-	port := wgPort
+	port := wireguard.WgPort
 	config := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
