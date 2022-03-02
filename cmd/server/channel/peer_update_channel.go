@@ -1,5 +1,7 @@
 package channel
 
+// TODO: (shintard) perform messaging using mqtt maybe.
+
 import (
 	"fmt"
 	"sync"

@@ -24,6 +24,7 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/version"
+	"github.com/Notch-Technologies/wizy/wislog"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -47,6 +48,9 @@ var args struct {
 	certfile   string
 	certkey    string
 	version    bool
+	logFile    string
+	logLevel   string
+	dev        bool
 }
 
 func main() {
@@ -57,6 +61,9 @@ func main() {
 	flag.StringVar(&args.certfile, "cert-file", "", "your cert")
 	flag.StringVar(&args.certkey, "cert-key", "", "your cert key")
 	flag.BoolVar(&args.version, "version", false, "print version")
+	flag.StringVar(&args.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
+	flag.StringVar(&args.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
+	flag.BoolVar(&args.dev, "dev", true, "is dev")
 
 	flag.Parse()
 	if flag.NArg() > 0 {
@@ -68,14 +75,26 @@ func main() {
 		os.Exit(0)
 	}
 
+	// initialize wissy logger
+	//
+	err := wislog.InitWisLog(args.logLevel, args.logFile, args.dev)
+	if err != nil {
+		log.Fatalf("failed to initialize logger: %v", err)
+	}
+
+	wislog := wislog.NewWisLog("server")
+
+	// initialize sqlite database
+	//
 	db := database.NewSqlite()
-	err := db.MigrationUp()
+	err = db.MigrationUp()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// create server state file
-	sfs, err := store.NewFileStore(paths.DefaultWissyServerStateFile())
+	// initialize file store
+	//
+	sfs, err := store.NewFileStore(paths.DefaultWissyServerStateFile(), wislog)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,19 +105,27 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// load server config file
+	// load sever config
+	//
 	cfg := config.LoadConfig(args.configpath, args.domain, args.certfile, args.certkey)
 
+	// initialize auth0 client
+	//
 	auth0Client := client.NewAuth0Client()
 
+	// initialize peer update manager
+	//
 	peerUpdateManager := channel.NewPeersUpdateManager()
 
+	// initialize server
+	//
 	s, err := server.NewServer(db, cfg, ss, auth0Client, peerUpdateManager)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// launch grpc server
+	// configuration grpc server option
+	//
 	var opts []grpc.ServerOption
 	kaep := keepalive.EnforcementPolicy{
 		MinTime:             15 * time.Second,
@@ -117,6 +144,8 @@ func main() {
 	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
 	grpcServer := grpc.NewServer(opts...)
 
+	// initialize grpc server services
+	//
 	peer.RegisterPeerServiceServer(grpcServer, s.PeerServiceServer)
 	user.RegisterUserServiceServer(grpcServer, s.UserServiceServer)
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServiceServer)
