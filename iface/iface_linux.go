@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -68,7 +69,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	}
 
 	fMark := 0
-	port := wgPort
+	port := wireguard.WgPort
 	wgConf := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
@@ -112,7 +113,7 @@ func createWithUserSpace(ifaceName, privateKey, address string) error {
 	}
 
 	fwmark := 0
-	port := wgPort
+	port := wireguard.WgPort
 	config := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
