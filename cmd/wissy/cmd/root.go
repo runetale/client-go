@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"flag"
 	"strings"
 
-	"github.com/peterbourgon/ff/ffcli"
+	"github.com/peterbourgon/ff/v2/ffcli"
 )
 
 func Run(args []string) error {
@@ -15,9 +16,9 @@ func Run(args []string) error {
 	fs := flag.NewFlagSet("wissy", flag.ExitOnError)
 
 	cmd := &ffcli.Command{
-		Name:      "wissy",
-		Usage:     "wissy <subcommands> [command flags]",
-		ShortHelp: "Use WireGuard for easy and secure private connections.",
+		Name:       "wissy",
+		ShortUsage: "wissy <subcommands> [command flags]",
+		ShortHelp:  "Use WireGuard for easy and secure private connections.",
 		LongHelp: strings.TrimSpace(`
 All flags can use a single or double hyphen.
 
@@ -33,10 +34,14 @@ Flags and options are subject to change.
 			versionCmd,
 		},
 		FlagSet: fs,
-		Exec:    func([]string) error { return flag.ErrHelp },
+		Exec:    func(context.Context, []string) error { return flag.ErrHelp },
 	}
 
-	if err := cmd.Run(args); err != nil {
+	if err := cmd.Parse(args); err != nil {
+		return err
+	}
+
+	if err := cmd.Run(context.Background()); err != nil {
 		if err == flag.ErrHelp {
 			return nil
 		}
