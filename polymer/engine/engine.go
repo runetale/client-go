@@ -94,7 +94,6 @@ func (e *Engine) receiveClient() {
 			defer e.syncMsgMux.Unlock()
 
 			fmt.Println("** Recieve Client, peerConns list **")
-			fmt.Println(e.peerConns)
 			c := e.peerConns[msg.Key]
 			if c == nil {
 				return fmt.Errorf("wrongly addressed message %s", msg.Key)
