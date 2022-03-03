@@ -3,7 +3,6 @@ package cmd
 import (
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
@@ -52,7 +51,6 @@ var upCmd = &ffcli.Command{
 }
 
 func execUp(ctx context.Context, args []string) error {
-	fmt.Println("exec up")
 	// initialize wissy logger
 	//
 	err := wislog.InitWisLog(upArgs.logLevel, upArgs.logFile, upArgs.dev)
