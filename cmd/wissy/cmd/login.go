@@ -3,18 +3,16 @@ package cmd
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
-	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
 	"github.com/Notch-Technologies/wizy/core"
-	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
-	"github.com/Notch-Technologies/wizy/polymer/engine"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
-	"github.com/peterbourgon/ff/ffcli"
+	"github.com/peterbourgon/ff/v2/ffcli"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -39,9 +37,9 @@ var loginArgs struct {
 }
 
 var loginCmd = &ffcli.Command{
-	Name:      "login",
-	Usage:     "login",
-	ShortHelp: "login to wissy, start the management server and then run it",
+	Name:       "login",
+	ShortUsage: "login",
+	ShortHelp:  "login to wissy, start the management server and then run it",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
@@ -58,7 +56,7 @@ var loginCmd = &ffcli.Command{
 	Exec: execLogin,
 }
 
-func execLogin(args []string) error {
+func execLogin(ctx context.Context, args []string) error {
 	// initialize wissy logger
 	//
 	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
@@ -91,8 +89,6 @@ func execLogin(args []string) error {
 	}
 	clientCore = clientCore.GetClientCore()
 
-	ctx := context.Background()
-
 	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to parse wg private key. %v", err)
@@ -107,44 +103,21 @@ func execLogin(args []string) error {
 
 	wislog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
 
-	// initialize signaling client
-	//
-	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey)
-	if err != nil {
-		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
-	}
-
-	wislog.Logger.Infof("connected to signaling server %s", clientCore.SignalHost.String())
-
 	serverPubKey, err := gClient.GetServerPublicKey()
 	if err != nil {
 		wislog.Logger.Fatalf("failed to get server public key. %v", err)
 	}
 
-	_, err = gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
+	login, err := gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to login. %v", err)
 	}
 
-	// TODO: (shintard) ここからはupCmd
-	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.2/24")
-	if err != nil {
-		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())
-		return err
-	}
+	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
-
-	e := engine.NewEngine(wislog, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
-	e.Start()
-
-	select {
-	case <-stopCh:
-	case <-ctx.Done():
-	}
+	fmt.Println("login succeded.")
+	fmt.Println("type the following command to activate.")
+	fmt.Printf("$ sudo wissy up -key %s", login.SetupKey)
 
 	return nil
 }
