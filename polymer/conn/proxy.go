@@ -14,11 +14,28 @@ import (
 const DefaultWgKeepAlive = 25 * time.Second
 
 type ProxyConfig struct {
-	WgListenAddr string
-	RemoteKey    string
-	WgInterface  string
-	AllowedIps   string
-	PreSharedKey *wgtypes.Key
+	WgListenAddr     string
+	RemotePeerPubKey string
+	WgInterface      string
+	AllowedIPs       string
+	PreSharedKey     *wgtypes.Key
+}
+
+func NewProxyConfig(
+	wgPort int,
+	remotePeerPubKey string,
+	wgIface string,
+	allowedIPs string,
+	preSharedKey *wgtypes.Key,
+
+) *ProxyConfig {
+	return &ProxyConfig{
+		WgListenAddr:     fmt.Sprintf("127.0.0.1:%d", wgPort),
+		RemotePeerPubKey: remotePeerPubKey,
+		WgInterface:      wgIface,
+		AllowedIPs:       allowedIPs,
+		PreSharedKey:     preSharedKey,
+	}
 }
 
 type Proxyer interface {
@@ -31,21 +48,29 @@ type Proxy struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 
-	config ProxyConfig
+	config *ProxyConfig
+
+	iface *iface.Iface
 
 	remoteConn net.Conn
 	localConn  net.Conn
 }
 
-func NewProxy(config ProxyConfig) *Proxy {
-	p := &Proxy{config: config}
+func NewProxy(
+	config *ProxyConfig,
+	iface *iface.Iface,
+) *Proxy {
+	p := &Proxy{
+		config: config,
+		iface:  iface,
+	}
 	p.ctx, p.cancel = context.WithCancel(context.Background())
 	return p
 }
 
 func (p *Proxy) updateEndpoint() error {
-	err := iface.UpdatePeer(p.config.WgInterface, p.config.RemoteKey,
-		p.config.AllowedIps, DefaultWgKeepAlive,
+	err := p.iface.UpdatePeer(p.config.RemotePeerPubKey,
+		p.config.AllowedIPs, DefaultWgKeepAlive,
 		p.localConn.LocalAddr().String(), p.config.PreSharedKey)
 	if err != nil {
 		return err
@@ -65,7 +90,7 @@ func (p *Proxy) Start(remoteConn net.Conn) error {
 
 	err = p.updateEndpoint()
 	if err != nil {
-		fmt.Printf("error while updating Wireguard peer endpoint [%s] %v\n", p.config.RemoteKey, err)
+		fmt.Printf("error while updating Wireguard peer endpoint [%s] %v\n", p.config.RemotePeerPubKey, err)
 		return err
 	}
 
@@ -83,7 +108,7 @@ func (p *Proxy) Close() error {
 			return err
 		}
 	}
-	err := iface.RemovePeer(p.config.WgInterface, p.config.RemoteKey)
+	err := p.iface.RemovePeer(p.config.WgInterface, p.config.RemotePeerPubKey)
 	if err != nil {
 		return err
 	}
@@ -96,7 +121,7 @@ func (p *Proxy) proxyToRemote() {
 	for {
 		select {
 		case <-p.ctx.Done():
-			fmt.Printf("stopped proxying to remote peer %s due to closed connection\n", p.config.RemoteKey)
+			fmt.Printf("stopped proxying to remote peer %s due to closed connection\n", p.config.RemotePeerPubKey)
 			return
 		default:
 			n, err := p.localConn.Read(buf)
@@ -118,7 +143,7 @@ func (p *Proxy) proxyToLocal() {
 	for {
 		select {
 		case <-p.ctx.Done():
-			fmt.Printf("stopped proxying from remote peer %s due to closed connection\n", p.config.RemoteKey)
+			fmt.Printf("stopped proxying from remote peer %s due to closed connection\n", p.config.RemotePeerPubKey)
 			return
 		default:
 			n, err := p.remoteConn.Read(buf)

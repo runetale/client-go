@@ -12,6 +12,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
 	"github.com/Notch-Technologies/wizy/cmd/signaling/pb/negotiation"
+	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/polymer/conn"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"github.com/pion/ice/v2"
@@ -22,29 +23,28 @@ type Engine struct {
 	gClient client.ClientCaller
 	sClient signaling.ClientCaller
 
-	peerConns map[string]*conn.Conn
-
 	STUNs []*ice.URL
 	TURNs []*ice.URL
 
-	config *EngineConfig
+	peerConns map[string]*conn.Conn
+	config    *EngineConfig
+	iface     *iface.Iface
+
+	// not used
+	ctx    context.Context
+	cancel context.CancelFunc
+
+	wgPrivateKey wgtypes.Key
+	machineKey   string
 
 	syncMsgMux *sync.Mutex
 
 	wislog *wislog.WisLog
-
-	cancel context.CancelFunc
-
-	// not used
-	ctx context.Context
-
-	machineKey string
-
-	wgPrivateKey wgtypes.Key
 }
 
 func NewEngine(
 	log *wislog.WisLog,
+	iface *iface.Iface,
 	client client.ClientCaller,
 	sClient signaling.ClientCaller,
 	cancel context.CancelFunc,
@@ -58,6 +58,7 @@ func NewEngine(
 		sClient: sClient,
 
 		peerConns: map[string]*conn.Conn{},
+		iface:     iface,
 
 		STUNs: []*ice.URL{},
 		TURNs: []*ice.URL{},
@@ -234,27 +235,27 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 
 	// create connection remotePeers
 	for _, p := range remotePeers {
-		peerKey := p.GetWgPubKey()
+		wgPubKey := p.GetWgPubKey()
 		peerIPs := p.GetAllowedIps()
 
-		if _, ok := e.peerConns[peerKey]; !ok {
-			conn, err := e.createPeerConn(peerKey, strings.Join(peerIPs, ","))
+		if _, ok := e.peerConns[wgPubKey]; !ok {
+			conn, err := e.createPeerConn(wgPubKey, strings.Join(peerIPs, ","))
 			if err != nil {
 				fmt.Println("create peer conn error")
 				return err
 			}
 
-			e.peerConns[peerKey] = conn
+			e.peerConns[wgPubKey] = conn
 
 			// setuzoku sarerumadeha kokoga loop
-			go e.connWorker(conn, peerKey)
+			go e.connWorker(conn, wgPubKey)
 		}
 	}
 
 	return nil
 }
 
-func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*conn.Conn, error) {
+func (e *Engine) createPeerConn(remotePeerPubKey string, allowedIPs string) (*conn.Conn, error) {
 	var stunTurn []*ice.URL
 
 	// store existing STUN, TURN
@@ -267,32 +268,32 @@ func (e *Engine) createPeerConn(peerPubKey string, allowedIPs string) (*conn.Con
 		interfaceBlacklist = append(interfaceBlacklist, k)
 	}
 
-	pc := conn.ProxyConfig{
-		RemoteKey:    peerPubKey,
-		WgListenAddr: fmt.Sprintf("127.0.0.1:%d", e.config.WgPort),
-		WgInterface:  e.config.WgIface,
-		AllowedIps:   allowedIPs,
-		PreSharedKey: e.config.PreSharedKey,
-	}
+	pc := conn.NewProxyConfig(
+		e.config.WgPort,
+		remotePeerPubKey,
+		e.config.WgIface,
+		allowedIPs,
+		e.config.PreSharedKey,
+	)
 
 	const PeerConnectionTimeoutMax = 45000 //ms
 	const PeerConnectionTimeoutMin = 30000 //ms
 	timeout := time.Duration(rand.Intn(PeerConnectionTimeoutMax-PeerConnectionTimeoutMin)+PeerConnectionTimeoutMin) * time.Millisecond
-	config := conn.ConnConfig{
-		Key:                peerPubKey,
-		LocalKey:           e.config.WgPrivateKey.PublicKey().String(),
-		StunTurn:           stunTurn,
-		InterfaceBlackList: interfaceBlacklist,
-		Timeout:            timeout,
-		ProxyConfig:        pc,
-	}
+	config := conn.NewConnConfig(
+		remotePeerPubKey,
+		e.config.WgPrivateKey.PublicKey().String(),
+		stunTurn,
+		interfaceBlacklist,
+		timeout,
+		pc,
+	)
 
-	peerConn, err := conn.NewConn(config)
+	peerConn, err := conn.NewConn(config, e.iface)
 	if err != nil {
 		return nil, err
 	}
 
-	wgPubKey, err := wgtypes.ParseKey(peerPubKey)
+	wgPubKey, err := wgtypes.ParseKey(remotePeerPubKey)
 	if err != nil {
 		return nil, err
 	}
