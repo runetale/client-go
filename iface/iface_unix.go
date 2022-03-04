@@ -1,10 +1,12 @@
+//go:build linux || darwin
 // +build linux darwin
 
 package iface
 
 import (
-	"golang.zx2c4.com/wireguard/ipc"
 	"net"
+
+	"golang.zx2c4.com/wireguard/ipc"
 )
 
 // getUAPI returns a Listener
