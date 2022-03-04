@@ -46,7 +46,6 @@ func (p *PeersUpdateManager) CreateChannel(peerKey string) chan *UpdateMessage {
 		delete(p.peerChannels, peerKey)
 		close(channel)
 	}
-	//mbragin: todo shouldn't it be more? or configurable?
 	channel := make(chan *UpdateMessage, 100)
 	p.peerChannels[peerKey] = channel
 

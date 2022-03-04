@@ -11,6 +11,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/client/service"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
+	"github.com/Notch-Technologies/wizy/wislog"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
@@ -41,11 +42,13 @@ type GrpcClient struct {
 	mux  sync.Mutex
 
 	status Status
+
+	wislog *wislog.WisLog
 }
 
 func NewGrpcClient(
 	ctx context.Context, url *url.URL, port int,
-	privateKey wgtypes.Key,
+	privateKey wgtypes.Key, wislog *wislog.WisLog,
 ) (*GrpcClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -77,6 +80,8 @@ func NewGrpcClient(
 		conn:   conn,
 		mux:    sync.Mutex{},
 		status: StreamDisconnected,
+
+		wislog: wislog,
 	}, nil
 }
 
