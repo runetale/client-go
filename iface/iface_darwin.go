@@ -5,19 +5,20 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-func CreateIface(ifaceName, privateKey, address string) error {
-	err := CreateWithUserSpace(ifaceName, address)
+func CreateIface(i *Iface, address string) error {
+	err := i.CreateWithUserSpace(address)
 	if err != nil {
 		return err
 	}
 
-	key, err := wgtypes.ParseKey(privateKey)
+	key, err := wgtypes.ParseKey(i.WgPrivateKey)
 	if err != nil {
 		return err
 	}
 
 	fwmark := 0
 	port := wireguard.WgPort
+
 	config := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
@@ -25,5 +26,5 @@ func CreateIface(ifaceName, privateKey, address string) error {
 		ListenPort:   &port,
 	}
 
-	return configureDevice(ifaceName, config)
+	return i.configureDevice(config)
 }

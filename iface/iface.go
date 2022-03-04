@@ -24,14 +24,14 @@ type Iface struct {
 	// your ip
 	IP string
 	// your cidr range
-	CIDR string
+	CIDR uint64
 
 	wislog *wislog.WisLog
 }
 
 func NewIface(
-	tunName, wgPrivateKey, ip, cidr string,
-	wislog *wislog.WisLog,
+	tunName, wgPrivateKey, ip string,
+	cidr uint64, wislog *wislog.WisLog,
 ) *Iface {
 	return &Iface{
 		Name:         tunName,
