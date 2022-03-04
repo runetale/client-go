@@ -62,7 +62,6 @@ func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginMe
 	serverMachinePubKey := msg.GetServerPublicKey()
 	wgPubKey := msg.GetWgPublicKey()
 	setupKey := msg.GetSetupKey()
-	ip := msg.GetIp()
 
 	tx, err := sss.db.Begin()
 	if err != nil {
@@ -71,7 +70,7 @@ func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginMe
 
 	sessionUsecase := usecase.NewSessionUsecase(tx, sss.serverStore, sss.peerUpdateManager)
 
-	_, err = sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey, ip)
+	_, err = sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
