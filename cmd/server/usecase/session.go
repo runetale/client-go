@@ -136,7 +136,7 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 				}
 				fmt.Println("send updates that will be sent upon initial Peer registration")
 			}
-
+			return newPeer, nil
 		}
 		return nil, err
 	}
