@@ -20,7 +20,7 @@ type ClientCore struct {
 	ServerHost     *url.URL
 	SignalHost     *url.URL
 	IgonoreTUNs    []string
-	TUNName        string
+	TunName        string
 	PreSharedKey   string
 	IfaceBlackList []string
 
@@ -68,7 +68,7 @@ func (c *ClientCore) writeClientCore(
 	}
 
 	c.WgPrivateKey = wgPrivateKey
-	c.TUNName = tunName
+	c.TunName = tunName
 	c.IfaceBlackList = ifaceBlackList
 
 	b, err := json.MarshalIndent(*c, "", "\t")
@@ -101,6 +101,6 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 		if err := json.Unmarshal(b, &core); err != nil {
 			c.wislog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
-		return c.writeClientCore(c.path, core.WgPrivateKey, core.TUNName, core.IfaceBlackList)
+		return c.writeClientCore(c.path, core.WgPrivateKey, core.TunName, core.IfaceBlackList)
 	}
 }
