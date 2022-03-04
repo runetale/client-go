@@ -39,9 +39,10 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
   			network_id,
   			wg_pub_key,
   			ip,
+			cidr,
   			created_at,
   			updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 		`,
 		peer.UserID,
 		peer.SetupKeyID,
@@ -51,6 +52,7 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 		peer.NetworkID,
 		peer.WgPubKey,
 		peer.IP,
+		peer.CIDR,
 		peer.CreatedAt.In(time.UTC),
 		peer.UpdatedAt.In(time.UTC),
 	)
@@ -88,6 +90,7 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 		&peer.WgPubKey,
 		&peer.NetworkID,
 		&peer.IP,
+		&peer.CIDR,
 		&peer.CreatedAt,
 		&peer.UpdatedAt,
 	)
@@ -125,6 +128,7 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 		&peer.WgPubKey,
 		&peer.NetworkID,
 		&peer.IP,
+		&peer.CIDR,
 		&peer.CreatedAt,
 		&peer.UpdatedAt,
 	)
@@ -169,6 +173,7 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			&peer.WgPubKey,
 			&peer.NetworkID,
 			&peer.IP,
+			&peer.CIDR,
 			&peer.CreatedAt,
 			&peer.UpdatedAt,
 		); err != nil {
@@ -212,6 +217,7 @@ func (p *PeerRepository) FindByOrganizationID(organizationID uint) ([]*domain.Pe
 			&peer.WgPubKey,
 			&peer.NetworkID,
 			&peer.IP,
+			&peer.CIDR,
 			&peer.CreatedAt,
 			&peer.UpdatedAt,
 		); err != nil {
