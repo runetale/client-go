@@ -50,7 +50,7 @@ message ProtectedHostConfig {
 }
 
 message SyncResponse {
-  	PeerConfig peerConfig = 1;
+  PeerConfig peerConfig = 1;
 	repeated RemotePeer remotePeers = 2;
 	bool remotePeerIsEmpty = 3;
 }

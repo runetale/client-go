@@ -70,7 +70,7 @@ func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginRe
 
 	sessionUsecase := usecase.NewSessionUsecase(tx, sss.serverStore, sss.peerUpdateManager)
 
-	_, err = sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
+	peer, err := sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -82,5 +82,7 @@ func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginRe
 		SetupKey:        setupKey,
 		ServerPublicKey: clientMachinePubKey,
 		ClientPublicKey: serverMachinePubKey,
+		Ip:              peer.IP,
+		Cidr:            uint64(peer.CIDR),
 	}, nil
 }

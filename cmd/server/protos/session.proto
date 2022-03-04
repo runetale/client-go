@@ -29,4 +29,6 @@ message LoginResponse {
 	string clientPublicKey = 2;
 	string serverPublicKey = 3;
 	string wgPublicKey = 4;
+	string ip = 5;
+	uint64 cidr = 6;
 }
