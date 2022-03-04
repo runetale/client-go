@@ -65,4 +65,3 @@ func getNextIP(ip net.IP) net.IP {
 		return ip
 	}
 }
-
