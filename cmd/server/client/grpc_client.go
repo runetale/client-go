@@ -28,7 +28,7 @@ const StreamDisconnected Status = "Disconnected"
 type ClientCaller interface {
 	IsReady() bool
 	GetServerPublicKey() (string, error)
-	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPrivateKey wgtypes.Key) (*session.LoginMessage, error)
+	Login(setupKey, clientPubKey, serverPubKey string, wgPrivateKey wgtypes.Key) (*session.LoginResponse, error)
 	Sync(clientMachineKey string, msgHandler func(msg *peer.SyncResponse) error) error
 }
 
@@ -98,15 +98,15 @@ func (client *GrpcClient) GetServerPublicKey() (string, error) {
 }
 
 func (client *GrpcClient) Login(
-	setupKey, clientPubKey, serverPubKey, ip string,
+	setupKey, clientPubKey, serverPubKey string,
 	wgPrivateKey wgtypes.Key,
-) (*session.LoginMessage, error) {
+) (*session.LoginResponse, error) {
 	if !client.IsReady() {
 		return nil, fmt.Errorf("no connection grpc server")
 	}
 
 	msg, err := client.sessionClientService.Login(
-		setupKey, clientPubKey, serverPubKey, ip,
+		setupKey, clientPubKey, serverPubKey,
 		wgPrivateKey.PublicKey().String(),
 	)
 	if err != nil {

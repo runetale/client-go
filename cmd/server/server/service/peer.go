@@ -11,7 +11,7 @@ import (
 )
 
 type PeerServerServiceCaller interface {
-	Sync(*peer.SyncMessage, peer.PeerService_SyncServer) error
+	Sync(*peer.SyncRequest, peer.PeerService_SyncServer) error
 }
 
 type PeerServerService struct {
@@ -34,7 +34,7 @@ func NewPeerServerService(
 	}
 }
 
-func (pss *PeerServerService) Sync(req *peer.SyncMessage, srv peer.PeerService_SyncServer) error {
+func (pss *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_SyncServer) error {
 	pu := usecase.NewPeerUsecase(pss.db, pss.serverStore, srv)
 
 	err := pu.InitialSync(req.GetClientMachineKey())

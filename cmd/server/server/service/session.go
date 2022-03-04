@@ -16,7 +16,7 @@ import (
 
 type SessionServiceServerCaller interface {
 	GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error)
-	Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error)
+	Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error)
 }
 
 type SessionServerService struct {
@@ -57,7 +57,7 @@ func (sss *SessionServerService) GetServerPublicKey(ctx context.Context, msg *em
 	}, nil
 }
 
-func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginMessage) (*session.LoginMessage, error) {
+func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error) {
 	clientMachinePubKey := msg.GetClientPublicKey()
 	serverMachinePubKey := msg.GetServerPublicKey()
 	wgPubKey := msg.GetWgPublicKey()
@@ -78,7 +78,7 @@ func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginMe
 
 	tx.Commit()
 
-	return &session.LoginMessage{
+	return &session.LoginResponse{
 		SetupKey:        setupKey,
 		ServerPublicKey: clientMachinePubKey,
 		ClientPublicKey: serverMachinePubKey,

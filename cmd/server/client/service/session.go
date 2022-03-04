@@ -12,7 +12,7 @@ import (
 
 type SessionClientServiceCaller interface {
 	GetServerPublicKey() (string, error)
-	Login(setupKey, clientPubKey, serverPubKey, ip string, wgPublicKey string) (*session.LoginMessage, error)
+	Login(setupKey, clientPubKey, serverPubKey, wgPublicKey string) (*session.LoginResponse, error)
 }
 
 type SessionClientService struct {
@@ -43,16 +43,18 @@ func (s *SessionClientService) GetServerPublicKey() (string, error) {
 	return res.Key, nil
 }
 
-func (s *SessionClientService) Login(setupKey, clientPubKey, serverPubKey, ip string, wgPublicKey string) (*session.LoginMessage, error) {
+func (s *SessionClientService) Login(
+	setupKey, clientPubKey string,
+	serverPubKey, wgPublicKey string,
+) (*session.LoginResponse, error) {
 	usCtx, cancel := context.WithTimeout(s.ctx, 5*time.Second)
 	defer cancel()
 
-	msg, err := s.sessionClientService.Login(usCtx, &session.LoginMessage{
+	msg, err := s.sessionClientService.Login(usCtx, &session.LoginRequest{
 		SetupKey:        setupKey,
 		ClientPublicKey: clientPubKey,
 		ServerPublicKey: serverPubKey,
 		WgPublicKey:     wgPublicKey,
-		Ip:              ip,
 	})
 	if err != nil {
 		return nil, err

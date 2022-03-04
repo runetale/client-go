@@ -5,10 +5,10 @@ package protos;
 option go_package = "./peer";
 
 service PeerService {
-	rpc Sync(SyncMessage) returns (stream SyncResponse) {}
+	rpc Sync(SyncRequest) returns (stream SyncResponse) {}
 }
 
-message SyncMessage {
+message SyncRequest {
 	string privateKey = 1;
 	string clientMachineKey = 2;
 }

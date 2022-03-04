@@ -108,7 +108,7 @@ func execLogin(ctx context.Context, args []string) error {
 		wislog.Logger.Fatalf("failed to get server public key. %v", err)
 	}
 
-	login, err := gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.2", wgPrivateKey)
+	login, err := gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to login. %v", err)
 	}
