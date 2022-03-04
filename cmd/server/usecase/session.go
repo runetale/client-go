@@ -58,6 +58,9 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 	}
 
 	network, err := s.networkRepository.FindByNetworkID(user.NetworkID)
+	if err != nil {
+		return nil, err
+	}
 
 	ipNet := ip.ParseCIDRMaskToIPNet(network.IP, int(network.CIDR), 32)
 
