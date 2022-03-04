@@ -128,7 +128,7 @@ func execUp(ctx context.Context, args []string) error {
 	// create wireguard interface
 	//
 	i := iface.NewIface(clientCore.TunName, clientCore.WgPrivateKey, login.Ip, login.Cidr, wislog)
-	addr := login.Ip + strconv.Itoa(int(login.Cidr))
+	addr := login.Ip + "/" + strconv.Itoa(int(login.Cidr))
 
 	err = iface.CreateIface(i, addr)
 	if err != nil {
