@@ -36,6 +36,9 @@ func NewSetupKeyUsecase(
 	}
 }
 
+// TOOD: (shintard) allows network use cases to dynamically specify CIDR and IP address
+// ranges and create networks
+//
 func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
@@ -45,7 +48,9 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 
 	network, err := s.networkRepository.FindByNetworkID(networkID)
 	if errors.Is(err, domain.ErrNoRows) {
-		network = domain.NewNetwork("default", "", "", "")
+		// create a network in the range of default network 100.64.0.0/10 if the network does not exist
+		//
+		network = domain.NewNetwork("default", "100.64.0.0", 10, "")
 		err = s.networkRepository.CreateNetwork(network)
 		if err != nil {
 			return nil, err

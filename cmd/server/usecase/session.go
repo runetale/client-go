@@ -36,7 +36,7 @@ func NewSessionUsecase(
 		setupKeyRepository: repository.NewSetupKeyRepository(db),
 		userRepository:     repository.NewUserRepository(db),
 		peerRepository:     repository.NewPeerRepository(db),
-		networkRepository: repository.NewNetworkRepository(db),
+		networkRepository:  repository.NewNetworkRepository(db),
 		serverStore:        server,
 		peerUpdateManager:  peerUpdateManager,
 	}
@@ -58,11 +58,13 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 	}
 
 	network, err := s.networkRepository.FindByNetworkID(user.NetworkID)
-	
+
 	ipNet := ip.ParseCIDRMaskToIPNet(network.IP, int(network.CIDR), 32)
 
 	pe, err := s.peerRepository.FindBySetupKeyID(sk.ID, clientMachinePubKey)
 	if err != nil {
+		// if the peer is registering for the first time
+		//
 		if errors.Is(err, domain.ErrNoRows) {
 			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
 			if err != nil {
