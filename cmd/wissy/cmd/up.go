@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"log"
+	"strconv"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
 	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
@@ -60,67 +61,92 @@ func execUp(ctx context.Context, args []string) error {
 
 	wislog := wislog.NewWisLog("up")
 
+	// initialize file store
+	//
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wislog)
+	if err != nil {
+		wislog.Logger.Fatalf("failed to create clietnt state. because %v", err)
+	}
+
+	cs := store.NewClientStore(cfs, wislog)
+	err = cs.WritePrivateKey()
+	if err != nil {
+		wislog.Logger.Fatalf("failed to write client state private key. because %v", err)
+	}
+
 	// initialize client Core
 	//
 	clientCore, err := core.NewClientCore(
 		upArgs.clientPath, upArgs.serverHost, int(upArgs.serverPort),
 		upArgs.signalHost, int(upArgs.signalPort), wislog)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to initialize client core: %v", err)
+		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
 	clientCore = clientCore.GetClientCore()
 
-	// initialize file store
-	//
-	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wislog)
-	if err != nil {
-		wislog.Logger.Fatalf("failed to create clietnt state: %v", err)
-	}
-
-	cs := store.NewClientStore(cfs, wislog)
-	err = cs.WritePrivateKey()
-	if err != nil {
-		wislog.Logger.Fatalf("failed to write client state private key: %v", err)
-	}
-
-	// parse wireguard privatekey
-	//
+	// parse wireguard private key
 	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to parse wg private key. %v", err)
+		wislog.Logger.Fatalf("failed to parse wg private key. because %v", err)
 	}
 
 	// initialize grpc client
 	//
-	// ctx := context.Background()
-	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(upArgs.serverPort), wgPrivateKey)
+	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(upArgs.serverPort), wgPrivateKey, wislog)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to connect server client. %v", err)
+		wislog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
 
 	wislog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
 
+	// get server public key
+	//
+	serverPubKey, err := gClient.GetServerPublicKey()
+	if err != nil {
+		wislog.Logger.Fatalf("failed to get server public key. %v", err)
+	}
+
+	// start logging in
+	//
+	// TODO: (shintard) if setupkey is nil, use public key and wireguard public key of client machine key to obtain login information and start Engine.
+	login, err := gClient.Login(upArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
+	if err != nil {
+		wislog.Logger.Fatalf("failed to login. because %v", err)
+	}
+
+	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
+
 	// initialize signaling client
 	//
-	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey)
+	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
 	}
 
 	wislog.Logger.Infof("connected to signaling server %s", clientCore.SignalHost.String())
 
-	err = iface.CreateIface(clientCore.TUNName, clientCore.WgPrivateKey, "10.0.0.2/24")
+	// create wireguard interface
+	//
+	i := iface.NewIface(clientCore.TunName, clientCore.WgPrivateKey, login.Ip, login.Cidr, wislog)
+	addr := login.Ip + strconv.Itoa(int(login.Cidr))
+
+	err = iface.CreateIface(i, addr)
 	if err != nil {
-		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TUNName, err.Error())
+		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TunName, err.Error())
 		return err
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, "10.0.0.2/24")
+	// initialize engine
+	//
+	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, addr)
 
-	e := engine.NewEngine(wislog, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+	e := engine.NewEngine(wislog, i, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+
+	// start engine
+	//
 	e.Start()
 
 	select {
