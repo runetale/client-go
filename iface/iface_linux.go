@@ -26,12 +26,12 @@ func isWireGuardModule() bool {
 	return true
 }
 
-func CreateIface(ifaceName, privateKey, address string) error {
+func CreateIface(i *Iface,  address string) error {
 	if isWireGuardModule() {
-		return createWithKernelSpace(ifaceName, privateKey, address)
+		return createWithKernelSpace(i.Name, i.WgPrivateKey, address)
 	}
 
-	return createWithUserSpace(ifaceName, privateKey, address)
+	return createWithUserSpace(i, address)
 }
 
 func createWithKernelSpace(ifaceName, privateKey, address string) error {
@@ -101,13 +101,13 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	return nil
 }
 
-func createWithUserSpace(ifaceName, privateKey, address string) error {
-	err := CreateWithUserSpace(ifaceName, address)
+func createWithUserSpace(i *Iface, address string) error {
+	err := i.CreateWithUserSpace(address)
 	if err != nil {
 		return err
 	}
 
-	key, err := wgtypes.ParseKey(privateKey)
+	key, err := wgtypes.ParseKey(i.WgPrivateKey)
 	if err != nil {
 		return err
 	}
@@ -121,5 +121,5 @@ func createWithUserSpace(ifaceName, privateKey, address string) error {
 		ListenPort:   &port,
 	}
 
-	return configureDevice(ifaceName, config)
+	return i.configureDevice(config)
 }
