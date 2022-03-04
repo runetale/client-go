@@ -9,6 +9,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/signaling/client/service"
 	"github.com/Notch-Technologies/wizy/cmd/signaling/pb/negotiation"
+	"github.com/Notch-Technologies/wizy/wislog"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
@@ -30,11 +31,13 @@ type SignalingClient struct {
 
 	ctx  context.Context
 	conn *grpc.ClientConn
+
+	wislog *wislog.WisLog
 }
 
 func NewSignalingClient(
 	ctx context.Context, url *url.URL,
-	privateKey wgtypes.Key,
+	privateKey wgtypes.Key, wislog *wislog.WisLog,
 ) (*SignalingClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -64,6 +67,8 @@ func NewSignalingClient(
 
 		ctx:  ctx,
 		conn: conn,
+
+		wislog: wislog,
 	}, nil
 }
 
