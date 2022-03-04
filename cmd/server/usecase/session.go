@@ -3,23 +3,26 @@ package usecase
 import (
 	"errors"
 	"fmt"
+	"net"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
+	"github.com/Notch-Technologies/wizy/cmd/server/ip"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 	"github.com/Notch-Technologies/wizy/store"
 )
 
 type SessionUsecaseManager interface {
-	CreatePeer(setupKey, clientPubKey, serverPubKey string) (*domain.Peer, error)
+	CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error)
 }
 
 type SessionUsecase struct {
 	setupKeyRepository *repository.SetupKeyRepository
 	userRepository     *repository.UserRepository
 	peerRepository     *repository.PeerRepository
+	networkRepository  *repository.NetworkRepository
 	serverStore        *store.ServerStore
 	peerUpdateManager  *channel.PeersUpdateManager
 }
@@ -33,12 +36,13 @@ func NewSessionUsecase(
 		setupKeyRepository: repository.NewSetupKeyRepository(db),
 		userRepository:     repository.NewUserRepository(db),
 		peerRepository:     repository.NewPeerRepository(db),
+		networkRepository:  repository.NewNetworkRepository(db),
 		serverStore:        server,
 		peerUpdateManager:  peerUpdateManager,
 	}
 }
 
-func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey, ip string) (*domain.Peer, error) {
+func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error) {
 	if s.serverStore.GetPublicKey() != serverMachinePubKey {
 		return nil, errors.New(domain.ErrInvalidPublicKey.Error())
 	}
@@ -53,16 +57,44 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 		return nil, err
 	}
 
+	network, err := s.networkRepository.FindByNetworkID(user.NetworkID)
+
+	ipNet := ip.ParseCIDRMaskToIPNet(network.IP, int(network.CIDR), 32)
+
 	pe, err := s.peerRepository.FindBySetupKeyID(sk.ID, clientMachinePubKey)
 	if err != nil {
+		// if the peer is registering for the first time
+		//
 		if errors.Is(err, domain.ErrNoRows) {
+			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
+			if err != nil {
+				return nil, err
+			}
+
+			// new allocate ip
+			//
+			var issIps []net.IP
+
+			for _, p := range peers {
+				ip := net.ParseIP(p.IP)
+				issIps = append(issIps, ip)
+			}
+
+			allocIP, err := ip.NewAllocateIP(ipNet, issIps)
+			if err != nil {
+				return nil, err
+			}
+
+			// create new peer
+			//
 			newPeer := domain.NewPeer(
 				sk.ID,
 				user.NetworkID,
 				user.UserGroupID,
 				user.ID,
 				user.OrganizationID,
-				ip,
+				allocIP.String(),
+				network.CIDR,
 				clientMachinePubKey,
 				wgPubKey,
 			)
@@ -72,7 +104,9 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 				return nil, err
 			}
 
-			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
+			// return already registered Peers
+			//
+			peers, err = s.peerRepository.FindByOrganizationID(user.OrganizationID)
 			if err != nil {
 				return nil, err
 			}
@@ -89,7 +123,6 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 				}
 
 				fmt.Printf("send peer information to the %s update channel\n", remotePeer.ClientPubKey)
-				fmt.Println(peersToSend)
 				err := s.peerUpdateManager.SendUpdate(remotePeer.ClientPubKey, &channel.UpdateMessage{Update: &peer.SyncResponse{
 					PeerConfig:        &peer.PeerConfig{Address: newPeer.IP},
 					RemotePeers:       peersToSend,

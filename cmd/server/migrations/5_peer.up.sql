@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS peers (
   wg_pub_key VARCHAR(800) NOT NULL UNIQUE,
   network_id INT NOT NULL,
   ip VARCHAR(18) NOT NULL,
+  cidr INT NOT NULL,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
 
