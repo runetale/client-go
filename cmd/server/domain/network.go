@@ -17,7 +17,7 @@ type Network struct {
 
 func NewNetwork(
 	name string, ip string,
-	cidr uint, dns string, mask string,
+	cidr uint, dns string,
 ) *Network {
 	return &Network{
 		Name:      name,

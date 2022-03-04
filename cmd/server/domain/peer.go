@@ -14,7 +14,7 @@ type Peer struct {
 	WgPubKey       string    `db:"wg_pub_key"`
 	NetworkID      uint      `db:"network_id"`
 	IP             string    `db:"ip"`
-	CIDR           uint    	 `db:"cidr"`
+	CIDR           uint      `db:"cidr"`
 	CreatedAt      time.Time `db:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at"`
 }
@@ -30,7 +30,7 @@ func NewPeer(setupKeyID, networkID, userGroupID,
 		WgPubKey:       wgPubKey,
 		NetworkID:      networkID,
 		IP:             ip,
-		CIDR: 			cidr,
+		CIDR:           cidr,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}
