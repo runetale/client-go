@@ -43,6 +43,10 @@ func NewSessionUsecase(
 }
 
 func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error) {
+	var (
+    	allowedIPsFormat = "%s/%d"
+	)
+
 	if s.serverStore.GetPublicKey() != serverMachinePubKey {
 		return nil, errors.New(domain.ErrInvalidPublicKey.Error())
 	}
@@ -120,7 +124,7 @@ func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachine
 					if remotePeer.WgPubKey != p.WgPubKey {
 						peersToSend = append(peersToSend, &peer.RemotePeer{
 							WgPubKey:   p.ClientPubKey,
-							AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, p.IP)},
+							AllowedIps: []string{fmt.Sprintf(allowedIPsFormat, p.IP, p.CIDR)},
 						})
 					}
 				}
