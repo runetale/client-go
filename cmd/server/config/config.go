@@ -11,16 +11,6 @@ import (
 	"github.com/Notch-Technologies/wizy/utils"
 )
 
-type Protocol string
-
-const (
-	UDP   Protocol = "udp"
-	DTLS  Protocol = "dtls"
-	TCP   Protocol = "tcp"
-	HTTP  Protocol = "http"
-	HTTPS Protocol = "https"
-)
-
 type TURNConfig struct {
 	TimeBasedCredentials bool
 	CredentialsTTL       Duration
@@ -30,13 +20,13 @@ type TURNConfig struct {
 
 type Host struct {
 	URL      string
-	Username string
-	Password string
+	Username *string
+	Password *string
 }
 
-type Auth0Config struct {
-	Audience     string
-	Issuer       string
+type JwtConfig struct {
+	Aud     string
+	Iss       string
 	KeysLocation string
 }
 
@@ -50,15 +40,16 @@ type ServerConfig struct {
 	Stuns      []*Host
 	TURNConfig *TURNConfig
 	Signal     *Host
-	AuthConfig Auth0Config
+	JwtConfig  JwtConfig
 	TLSConfig  TLSConfig
 }
 
 func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	b, err := ioutil.ReadFile(path)
+
 	switch {
 	case errors.Is(err, os.ErrNotExist):
-		return createServerConfig(path, domain, certfile, certkey)
+		return writeServerConfig(path, domain, certfile, certkey)
 	case err != nil:
 		log.Fatal(err)
 		panic("failed to load cofig")
@@ -71,7 +62,7 @@ func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	}
 }
 
-func createServerConfig(path, domain, certfile, certkey string) *ServerConfig {
+func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
