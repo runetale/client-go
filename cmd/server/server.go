@@ -95,16 +95,18 @@ func main() {
 	//
 	sfs, err := store.NewFileStore(paths.DefaultWissyServerStateFile(), wislog)
 	if err != nil {
+		wislog.Logger.Error(err)
 		log.Fatal(err)
 	}
 
 	ss := store.NewServerStore(sfs)
 	err = ss.WritePrivateKey()
 	if err != nil {
+		wislog.Logger.Error(err)
 		log.Fatal(err)
 	}
 
-	// load sever config
+	// new sever config
 	//
 	cfg := config.NewServerConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
 
@@ -147,16 +149,18 @@ func main() {
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServerService)
 	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
 
-	log.Printf("starting server: localhost:%v", serverArgs.port)
+	wislog.Logger.Infof("starting server: localhost:%v", serverArgs.port)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", serverArgs.port))
 	if err != nil {
+		wislog.Logger.Errorf("failed to listen: %v", err)
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	reflection.Register(grpcServer)
 	go func() {
 		if err = grpcServer.Serve(lis); err != nil {
+			wislog.Logger.Errorf("failed to serve grpc server: %v.", err)
 			log.Fatalf("failed to serve grpc server: %v.", err)
 		}
 	}()
@@ -176,6 +180,6 @@ func main() {
 		}
 	}()
 	<-stop
-	log.Println("terminate server.")
+	wislog.Logger.Info("terminated server")
 	grpcServer.Stop()
 }
