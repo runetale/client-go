@@ -42,7 +42,10 @@ func NewSessionUsecase(
 	}
 }
 
-func (s *SessionUsecase) CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error) {
+func (s *SessionUsecase) CreatePeer(
+	setupKey, clientMachinePubKey,
+	serverMachinePubKey, wgPubKey string,
+) (*domain.Peer, error) {
 	var (
     	allowedIPsFormat = "%s/%d"
 	)
