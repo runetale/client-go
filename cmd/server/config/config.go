@@ -7,41 +7,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/Notch-Technologies/wizy/utils"
 )
 
-type Duration struct {
-	time.Duration
-}
-
-func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.String())
-}
-
-func (d *Duration) UnmarshalJSON(b []byte) error {
-	var v interface{}
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	switch value := v.(type) {
-	case float64:
-		d.Duration = time.Duration(value)
-		return nil
-	case string:
-		var err error
-		d.Duration, err = time.ParseDuration(value)
-		if err != nil {
-			return err
-		}
-		return nil
-	default:
-		return errors.New("invalid duration")
-	}
-}
-
-// TOOD: (shintard) Refactor Config Scheme
 type Protocol string
 
 const (
@@ -60,16 +29,15 @@ type TURNConfig struct {
 }
 
 type Host struct {
-	Protocol Protocol
 	URL      string
 	Username string
 	Password string
 }
 
-type AuthConfig struct {
-	AuthAudience     string
-	AuthIssuer       string
-	AuthKeysLocation string
+type Auth0Config struct {
+	Audience     string
+	Issuer       string
+	KeysLocation string
 }
 
 type TLSConfig struct {
@@ -78,24 +46,24 @@ type TLSConfig struct {
 	CertKey  string
 }
 
-type Config struct {
+type ServerConfig struct {
 	Stuns      []*Host
 	TURNConfig *TURNConfig
 	Signal     *Host
-	AuthConfig AuthConfig
+	AuthConfig Auth0Config
 	TLSConfig  TLSConfig
 }
 
-func LoadConfig(path, domain, certfile, certkey string) *Config {
+func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	b, err := ioutil.ReadFile(path)
 	switch {
 	case errors.Is(err, os.ErrNotExist):
-		return newConfig(path, domain, certfile, certkey)
+		return createServerConfig(path, domain, certfile, certkey)
 	case err != nil:
 		log.Fatal(err)
 		panic("failed to load cofig")
 	default:
-		var cfg Config
+		var cfg ServerConfig
 		if err := json.Unmarshal(b, &cfg); err != nil {
 			log.Fatalf("config: %v", err)
 		}
@@ -103,12 +71,12 @@ func LoadConfig(path, domain, certfile, certkey string) *Config {
 	}
 }
 
-func newConfig(path, domain, certfile, certkey string) *Config {
+func createServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
 
-	cfg := Config{
+	cfg := ServerConfig{
 		TLSConfig: TLSConfig{
 			Domain:   domain,
 			Certfile: certfile,
