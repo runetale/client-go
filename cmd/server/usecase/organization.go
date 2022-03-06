@@ -7,13 +7,13 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 )
 
-type OrganizationUscaseManager interface {
+type OrganizationUsecaseCaller interface {
 	CreateOrganizationWithAuth0(name, displayName string) (*client.OrganizationResponse, error)
-	CreateOrganization(name, displayName, organizationID, logoURL string) (*domain.Organization, error)
+	CreateOrganization(name, displayName, organizationID string) (*domain.Organization, error)
 	CreateUser(email, password, connection string) (*client.CreateAuth0User, error)
 	AddMemberOnOrganization(userID, organizationID string) error
 	EnableOrganizationConnection(organizationID string, isAssignMembershipOnLogin bool) error
-	AssignUserAdminRole(userID string) error
+	AssignAdminRole(userID string) error
 }
 
 type OrganizationUsecase struct {
@@ -24,7 +24,7 @@ type OrganizationUsecase struct {
 func NewOrganizationUsecase(
 	db database.SQLExecuter,
 	client *client.Auth0Client,
-) *OrganizationUsecase {
+) OrganizationUsecaseCaller {
 	return &OrganizationUsecase{
 		orgRepository: repository.NewOrgRepository(db),
 		auth0Client:   client,

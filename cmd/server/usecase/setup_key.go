@@ -10,8 +10,9 @@ import (
 	"github.com/Notch-Technologies/wizy/types/key"
 )
 
-type SetupKeyUsecaseManager interface {
-	CreateSetupKey(networkName, name string, permission key.PermissionType, providerID string) error
+type SetupKeyUsecaseCaller interface {
+	CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
+		permission key.PermissionType, sub string) (*key.SetupKey, error)
 }
 
 type SetupKeyUsecase struct {
@@ -25,7 +26,7 @@ type SetupKeyUsecase struct {
 
 func NewSetupKeyUsecase(
 	db database.SQLExecuter,
-) *SetupKeyUsecase {
+) SetupKeyUsecaseCaller {
 	return &SetupKeyUsecase{
 		setupKeyRepository:  repository.NewSetupKeyRepository(db),
 		userRepository:      repository.NewUserRepository(db),

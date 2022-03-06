@@ -2,6 +2,7 @@ package config
 
 import (
 	"time"
+	"errors"
 	"encoding/json"
 )
 

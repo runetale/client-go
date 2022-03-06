@@ -9,7 +9,8 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 )
 
-type PeerUsecaseManger interface {
+type PeerUsecaseCaller interface {
+	InitialSync(clientPubKey string) error
 }
 
 type PeerUsecase struct {
@@ -23,7 +24,7 @@ func NewPeerUsecase(
 	db database.SQLExecuter,
 	server *store.ServerStore,
 	peerServer peer.PeerService_SyncServer,
-) *PeerUsecase {
+) PeerUsecaseCaller {
 	return &PeerUsecase{
 		peerRepository:    repository.NewPeerRepository(db),
 		networkRepository: repository.NewNetworkRepository(db),
@@ -32,9 +33,12 @@ func NewPeerUsecase(
 	}
 }
 
-const AllowedIPsFormat = "%s/24"
 
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
+	var (
+    	allowedIPsFormat = "%s/%d"
+	)
+
 	pe, err := p.peerRepository.FindByClientPubKey(clientPubKey)
 	if err != nil {
 		fmt.Println("can not find pub key")
@@ -58,7 +62,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		if pe.WgPubKey != rPeer.WgPubKey {
 			remotePeers = append(remotePeers, &peer.RemotePeer{
 				WgPubKey:   rPeer.WgPubKey,
-				AllowedIps: []string{fmt.Sprintf(AllowedIPsFormat, rPeer.IP)},
+				AllowedIps: []string{fmt.Sprintf(allowedIPsFormat, rPeer.IP, rPeer.CIDR)},
 			})
 		}
 	}

@@ -14,7 +14,7 @@ import (
 	"github.com/Notch-Technologies/wizy/store"
 )
 
-type SessionUsecaseManager interface {
+type SessionUsecaseCaller interface {
 	CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error)
 }
 
@@ -31,7 +31,7 @@ func NewSessionUsecase(
 	db database.SQLExecuter,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
-) *SessionUsecase {
+) SessionUsecaseCaller {
 	return &SessionUsecase{
 		setupKeyRepository: repository.NewSetupKeyRepository(db),
 		userRepository:     repository.NewUserRepository(db),
