@@ -7,11 +7,6 @@ import (
 	"runtime"
 )
 
-// json file to manage the server startup config.
-func DefaultServerConfigFile() string {
-	return "/etc/wissy/config.json"
-}
-
 // state file to manage the secret information of the server.
 // do not disclose to the outside world.
 func DefaultWissyServerStateFile() string {
@@ -44,6 +39,11 @@ func DefaultWicsClientStateFile() string {
 
 func DefaultClientConfigFile() string {
 	return "/etc/wissy/client.json"
+}
+
+// json file to manage the server startup config.
+func DefaultServerConfigFile() string {
+	return "/etc/wissy/server.json"
 }
 
 func DefaultClientLogFile() string {
