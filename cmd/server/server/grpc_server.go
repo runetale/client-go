@@ -17,7 +17,7 @@ type Server struct {
 }
 
 func NewServer(
-	db *database.Sqlite, config *config.Config,
+	db *database.Sqlite, config *config.ServerConfig,
 	server *store.ServerStore, client *client.Auth0Client,
 	peerUpdateManager *channel.PeersUpdateManager,
 ) *Server {

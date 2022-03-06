@@ -106,7 +106,7 @@ func main() {
 
 	// load sever config
 	//
-	cfg := config.LoadConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
+	cfg := config.NewServerConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
 
 	// initialize auth0 client
 	//

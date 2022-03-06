@@ -20,14 +20,14 @@ type SessionServiceServerCaller interface {
 }
 
 type SessionServerService struct {
-	config            *config.Config
+	config            *config.ServerConfig
 	serverStore       *store.ServerStore
 	db                *database.Sqlite
 	peerUpdateManager *channel.PeersUpdateManager
 }
 
 func NewSessionServerService(
-	db *database.Sqlite, config *config.Config,
+	db *database.Sqlite, config *config.ServerConfig,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
 ) *SessionServerService {
