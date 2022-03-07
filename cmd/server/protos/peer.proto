@@ -33,17 +33,20 @@ message PeerConfig {
 
 message StunTurnConfig {
   repeated Host stuns = 1;
-  repeated TurnCredential turnCredentials = 2;
+  TurnCredential turnCredentials = 2;
   Host signal = 3;
 }
 
 message Host {
   string url = 1;
+  string username = 2;
+  string password = 3;
 }
 
 message TurnCredential {
-  string url = 1;
-  string user = 2;
-  string password = 3;
+  repeated Host turns = 1;
+  string credentialsTTL = 2;
+  string secret = 3;
+  bool timeBasedCredentials = 4;
 }
 
