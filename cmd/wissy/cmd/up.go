@@ -23,8 +23,6 @@ var upArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
-	signalHost string
-	signalPort int64
 	setupKey   string
 	logFile    string
 	logLevel   string
@@ -40,8 +38,6 @@ var upCmd = &ffcli.Command{
 		fs.StringVar(&upArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
 		fs.StringVar(&upArgs.serverHost, "server-host", "http://172.16.165.129", "grpc server host url")
 		fs.Int64Var(&upArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
-		fs.StringVar(&upArgs.signalHost, "signal-host", "http://172.16.165.129", "signaling server host url")
-		fs.Int64Var(&upArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&upArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&upArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
 		fs.StringVar(&upArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
@@ -77,8 +73,9 @@ func execUp(ctx context.Context, args []string) error {
 	// initialize client Core
 	//
 	clientCore, err := core.NewClientCore(
-		upArgs.clientPath, upArgs.serverHost, int(upArgs.serverPort),
-		upArgs.signalHost, int(upArgs.signalPort), wislog)
+		upArgs.clientPath,
+		upArgs.serverHost, int(upArgs.serverPort),
+		wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
@@ -118,12 +115,12 @@ func execUp(ctx context.Context, args []string) error {
 
 	// initialize signaling client
 	//
-	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey, wislog)
+	sClient, err := signaling.NewSignalingClient(ctx, login.SignalingHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
 	}
 
-	wislog.Logger.Infof("connected to signaling server %s", clientCore.SignalHost.String())
+	wislog.Logger.Infof("connected to signaling server %s", login.SignalingHost)
 
 	// create wireguard interface
 	//

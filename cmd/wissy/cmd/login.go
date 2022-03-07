@@ -82,8 +82,10 @@ func execLogin(ctx context.Context, args []string) error {
 	// initialize client Core
 	//
 	clientCore, err := core.NewClientCore(
-		loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort),
-		loginArgs.signalHost, int(loginArgs.signalPort), wislog)
+		loginArgs.clientPath,
+		loginArgs.serverHost, int(loginArgs.serverPort),
+		wislog,
+	)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
