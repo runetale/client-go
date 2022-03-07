@@ -188,11 +188,6 @@ func (e *Engine) syncClient() {
 				}
 			}
 
-			err := e.StartConn(update.GetRemotePeers())
-			if err != nil {
-				return err
-			}
-
 			return nil
 		})
 		if err != nil {
