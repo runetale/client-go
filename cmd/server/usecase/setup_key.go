@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
@@ -22,10 +23,11 @@ type SetupKeyUsecase struct {
 	networkRepository   *repository.NetworkRepository
 	userGroupRepository *repository.UserGroupRepository
 	jobRepository       *repository.JobRepository
+	config 				*config.ServerConfig
 }
 
 func NewSetupKeyUsecase(
-	db database.SQLExecuter,
+	db database.SQLExecuter, config *config.ServerConfig,
 ) SetupKeyUsecaseCaller {
 	return &SetupKeyUsecase{
 		setupKeyRepository:  repository.NewSetupKeyRepository(db),
@@ -34,6 +36,7 @@ func NewSetupKeyUsecase(
 		networkRepository:   repository.NewNetworkRepository(db),
 		userGroupRepository: repository.NewUserGroupRepository(db),
 		jobRepository:       repository.NewJobRepository(db),
+		config: 			 config,
 	}
 }
 
@@ -88,7 +91,10 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 		return nil, err
 	}
 
-	sk, err := key.NewSetupKey(user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, permission)
+	sk, err := key.NewSetupKey(
+		user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, 
+		permission, s.config.JwtConfig.Iss, s.config.JwtConfig.Aud,
+	)
 	if err != nil {
 		return nil, err
 	}

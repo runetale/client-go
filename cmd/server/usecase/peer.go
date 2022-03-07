@@ -5,6 +5,7 @@ import (
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 	"github.com/Notch-Technologies/wizy/store"
 )
@@ -18,25 +19,25 @@ type PeerUsecase struct {
 	networkRepository *repository.NetworkRepository
 	serverStore       *store.ServerStore
 	peerServer        peer.PeerService_SyncServer
+	config            *config.ServerConfig
 }
 
 func NewPeerUsecase(
-	db database.SQLExecuter,
-	server *store.ServerStore,
-	peerServer peer.PeerService_SyncServer,
+	db database.SQLExecuter, config *config.ServerConfig,
+	server *store.ServerStore, peerServer peer.PeerService_SyncServer,
 ) PeerUsecaseCaller {
 	return &PeerUsecase{
 		peerRepository:    repository.NewPeerRepository(db),
 		networkRepository: repository.NewNetworkRepository(db),
 		serverStore:       server,
 		peerServer:        peerServer,
+		config: 		   config,
 	}
 }
 
-
 func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 	var (
-    	allowedIPsFormat = "%s/%d"
+		allowedIPsFormat = "%s/%d"
 	)
 
 	pe, err := p.peerRepository.FindByClientPubKey(clientPubKey)
@@ -71,10 +72,50 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		PeerConfig:        &peer.PeerConfig{Address: pe.IP},
 		RemotePeers:       remotePeers,
 		RemotePeerIsEmpty: len(remotePeers) == 0,
+		StunTurnConfig: p.createStunTurnConfig(),
 	})
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (p *PeerUsecase) createStunTurnConfig() *peer.StunTurnConfig {
+	var (
+		stuns []*peer.Host
+		turns []*peer.Host
+	)
+
+	for _, stun := range p.config.Stuns {
+		peer := &peer.Host{
+			Url:      stun.URL,
+			Username: *stun.Username,
+			Password: *stun.Password,
+		}
+		stuns = append(stuns, peer)
+
+	}
+
+	for _, turn := range p.config.TURNConfig.Turns {
+		peer := &peer.Host{
+			Url:      turn.URL,
+			Username: *turn.Username,
+			Password: *turn.Password,
+		}
+		turns = append(turns, peer)
+	}
+
+	return &peer.StunTurnConfig{
+		Stuns: stuns,
+		TurnCredentials: &peer.TurnCredential{
+			Turns:                turns,
+			CredentialsTTL:       p.config.TURNConfig.CredentialsTTL.String(),
+			Secret:               p.config.TURNConfig.Secret,
+			TimeBasedCredentials: p.config.TURNConfig.TimeBasedCredentials,
+		},
+		Signal: &peer.Host{
+			Url: p.config.Signal.URL,
+		},
+	}
 }
