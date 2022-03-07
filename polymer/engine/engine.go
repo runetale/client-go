@@ -30,7 +30,7 @@ type Engine struct {
 	config    *EngineConfig
 	iface     *iface.Iface
 
-	// not used
+	// not used, but receive. because from ffcli ctx
 	ctx    context.Context
 	cancel context.CancelFunc
 
@@ -81,14 +81,11 @@ func (e *Engine) Start() {
 	e.syncMsgMux.Lock()
 	defer e.syncMsgMux.Unlock()
 
-	// signal
-	e.receiveClient()
-
-	// management
+	e.receiveSignalingClient()
 	e.syncClient()
 }
 
-func (e *Engine) receiveClient() {
+func (e *Engine) receiveSignalingClient() {
 	go func() {
 		err := e.sClient.Receive(e.wgPrivateKey.PublicKey().String(), func(msg *negotiation.Body) error {
 			e.syncMsgMux.Lock()
@@ -133,49 +130,54 @@ func (e *Engine) receiveClient() {
 	e.sClient.WaitStreamConnected()
 }
 
-func (e *Engine) updateTurns() error {
+func (e *Engine) updateTurns(hosts []*peer.Host) error {
 	var newTurns []*ice.URL
-	url, err := ice.ParseURL("turn:www.notchturn.net:3478")
-	if err != nil {
-		return err
+	for _, h := range hosts {
+		url, err := ice.ParseURL(h.Url)
+		if err != nil {
+			return err
+		}
+		url.Username = h.Username
+		url.Password = h.Password
+
+		e.TURNs = append(newTurns, url)
 	}
-	url.Username = "root"
-	url.Password = "password"
-	newTurns = append(newTurns, url)
-	e.TURNs = newTurns
 	return nil
 }
 
-func (e *Engine) updateStuns() error {
+func (e *Engine) updateStuns(hosts []*peer.Host) error {
 	var newStuns []*ice.URL
-	url, err := ice.ParseURL("stun:www.notchturn.net:3478")
-	if err != nil {
-		return err
+	for _, h := range hosts {
+		url, err := ice.ParseURL(h.Url)
+		if err != nil {
+			return err
+		}
+		e.STUNs = append(newStuns, url)
 	}
-	// url.Username = "root"
-	// url.Password = "password"
-	newStuns = append(newStuns, url)
-	e.STUNs = append(newStuns, url)
 	return nil
 }
 
 func (e *Engine) syncClient() {
 	go func() {
+		// called when another peer connects or initialSync
+		//
 		err := e.gClient.Sync(e.machineKey, func(update *peer.SyncResponse) error {
 			e.syncMsgMux.Lock()
 			defer e.syncMsgMux.Unlock()
 
-			err := e.updateTurns()
-			if err != nil {
-				return err
+			if update.GetStunTurnConfig() != nil {
+				err := e.updateTurns(update.StunTurnConfig.TurnCredentials.Turns)
+				if err != nil {
+					return err
+				}
+            	
+				err = e.updateStuns(update.StunTurnConfig.Stuns)
+				if err != nil {
+					return err
+				}
 			}
 
-			err = e.updateStuns()
-			if err != nil {
-				return err
-			}
-
-			err = e.StartConn(update.GetRemotePeers())
+			err := e.StartConn(update.GetRemotePeers())
 			if err != nil {
 				return err
 			}
@@ -187,8 +189,10 @@ func (e *Engine) syncClient() {
 			e.cancel()
 			return
 		}
+
 		fmt.Println("stopped receiving updates from Management Service")
 	}()
+
 	fmt.Println("connecting management server")
 }
 
@@ -200,6 +204,7 @@ func (e *Engine) removePeers(peers []string) error {
 		}
 		fmt.Printf("removed peer %s\n", p)
 	}
+
 	return nil
 }
 
@@ -247,7 +252,6 @@ func (e *Engine) StartConn(remotePeers []*peer.RemotePeer) error {
 
 			e.peerConns[wgPubKey] = conn
 
-			// setuzoku sarerumadeha kokoga loop
 			go e.connWorker(conn, wgPubKey)
 		}
 	}
