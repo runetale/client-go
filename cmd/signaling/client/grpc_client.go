@@ -36,13 +36,18 @@ type SignalingClient struct {
 }
 
 func NewSignalingClient(
-	ctx context.Context, url *url.URL,
+	ctx context.Context, hostString string,
 	privateKey wgtypes.Key, wislog *wislog.WisLog,
 ) (*SignalingClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
+
+	url, err := url.Parse(hostString)
+	if err != nil {
+		return nil, err
+	}
 
 	if url.Scheme != "http" {
 		option = grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{}))
