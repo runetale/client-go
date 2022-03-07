@@ -92,6 +92,10 @@ func (e *Engine) receiveSignalingClient() {
 			defer e.syncMsgMux.Unlock()
 
 			fmt.Println("** Recieve Client, peerConns list **")
+			fmt.Printf("remote peer wireguard pub key: %s\n", msg.Key)
+			fmt.Printf("my wireguard pub key: %s\n", e.wgPrivateKey.PublicKey().String())
+			fmt.Println("peer conns")
+			fmt.Println(e.peerConns)
 			c := e.peerConns[msg.Key]
 			if c == nil {
 				return fmt.Errorf("wrongly addressed message %s", msg.Key)
@@ -172,6 +176,13 @@ func (e *Engine) syncClient() {
 				}
             	
 				err = e.updateStuns(update.StunTurnConfig.Stuns)
+				if err != nil {
+					return err
+				}
+			}
+
+			if update.GetRemotePeers() != nil || update.GetRemotePeerIsEmpty() {
+				err := e.StartConn(update.GetRemotePeers())
 				if err != nil {
 					return err
 				}
