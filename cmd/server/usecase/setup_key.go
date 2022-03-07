@@ -94,6 +94,7 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 	sk, err := key.NewSetupKey(
 		user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, 
 		permission, s.config.JwtConfig.Iss, s.config.JwtConfig.Aud,
+		s.config.JwtConfig.Secret,
 	)
 	if err != nil {
 		return nil, err

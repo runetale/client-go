@@ -69,6 +69,15 @@ func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequ
 
 	sessionUsecase := usecase.NewSessionUsecase(tx, s.config, s.serverStore, s.peerUpdateManager)
 
+	// validate setupkey
+	//
+	err = sessionUsecase.ValidateSetupKey(setupKey)
+	if err != nil {
+		return nil, err
+	}
+
+	// create peer
+	//
 	peer, err := sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
 	if err != nil {
 		tx.Rollback()

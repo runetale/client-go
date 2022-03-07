@@ -13,4 +13,5 @@ var (
 	ErrInvalidHeader        = errors.New("ERR_INVALID_HEADER")
 	ErrNotEnoughPermission  = errors.New("ERR_NOT_ENOUGH_PERMISSION")
 	ErrInvalidPublicKey     = errors.New("ERR_INVALID_PUBLIC_KEY")
+	ErrUnauthorizedIssOrAud = errors.New("ERR_UNAUTHORIZED_ISS_OR_AUD")
 )

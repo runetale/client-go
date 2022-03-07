@@ -13,10 +13,12 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 	"github.com/Notch-Technologies/wizy/store"
+	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type SessionUsecaseCaller interface {
 	CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey string) (*domain.Peer, error)
+	ValidateSetupKey(setupKey string) error
 }
 
 type SessionUsecase struct {
@@ -42,6 +44,45 @@ func NewSessionUsecase(
 		serverStore:        server,
 		peerUpdateManager:  peerUpdateManager,
 		config:             config,
+	}
+}
+
+func (s *SessionUsecase) createStunTurnConfig() *peer.StunTurnConfig {
+	var (
+		stuns []*peer.Host
+		turns []*peer.Host
+	)
+
+	for _, stun := range s.config.Stuns {
+		p := &peer.Host{
+			Url:      stun.URL,
+			Username: *stun.Username,
+			Password: *stun.Password,
+		}
+		stuns = append(stuns, p)
+
+	}
+
+	for _, turn := range s.config.TURNConfig.Turns {
+		p := &peer.Host{
+			Url:      turn.URL,
+			Username: *turn.Username,
+			Password: *turn.Password,
+		}
+		turns = append(turns, p)
+	}
+
+	return &peer.StunTurnConfig{
+		Stuns: stuns,
+		TurnCredentials: &peer.TurnCredential{
+			Turns:                turns,
+			CredentialsTTL:       s.config.TURNConfig.CredentialsTTL.String(),
+			Secret:               s.config.TURNConfig.Secret,
+			TimeBasedCredentials: s.config.TURNConfig.TimeBasedCredentials,
+		},
+		Signal: &peer.Host{
+			Url: s.config.Signal.URL,
+		},
 	}
 }
 
@@ -157,49 +198,22 @@ func (s *SessionUsecase) CreatePeer(
 
 				fmt.Println("send updates that will be sent upon initial Peer registration")
 			}
-		} else {
-			return nil, err
+			return newPeer, nil
 		}
+		return nil, err
 	}
-
 	return pe, nil
 }
 
-func (s *SessionUsecase) createStunTurnConfig() *peer.StunTurnConfig {
-	var (
-		stuns []*peer.Host
-		turns []*peer.Host
-	)
-
-	for _, stun := range s.config.Stuns {
-		p := &peer.Host{
-			Url:      stun.URL,
-			Username: *stun.Username,
-			Password: *stun.Password,
-		}
-		stuns = append(stuns, p)
-
+func (s *SessionUsecase) ValidateSetupKey(setupKey string) error {
+	customClaims, err := key.GetCustomClaims(setupKey, s.config.JwtConfig.Secret)
+	if err != nil {
+		return err
 	}
 
-	for _, turn := range s.config.TURNConfig.Turns {
-		p := &peer.Host{
-			Url:      turn.URL,
-			Username: *turn.Username,
-			Password: *turn.Password,
-		}
-		turns = append(turns, p)
+	if customClaims.Audience != s.config.JwtConfig.Aud || customClaims.Issuer != s.config.JwtConfig.Iss {
+		return errors.New(domain.ErrUnauthorizedIssOrAud.Error())
 	}
 
-	return &peer.StunTurnConfig{
-		Stuns: stuns,
-		TurnCredentials: &peer.TurnCredential{
-			Turns:                turns,
-			CredentialsTTL:       s.config.TURNConfig.CredentialsTTL.String(),
-			Secret:               s.config.TURNConfig.Secret,
-			TimeBasedCredentials: s.config.TURNConfig.TimeBasedCredentials,
-		},
-		Signal: &peer.Host{
-			Url: s.config.Signal.URL,
-		},
-	}
+	return nil
 }

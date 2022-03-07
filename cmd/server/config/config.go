@@ -28,6 +28,7 @@ type JwtConfig struct {
 	Aud          string
 	Iss          string
 	KeysLocation string
+	Secret       string
 }
 
 type TLSConfig struct {

@@ -1,7 +1,6 @@
 package key
 
 import (
-	"os"
 	"strings"
 	"time"
 
@@ -60,6 +59,7 @@ func NewSetupKey(
 	job string, userGroupID, 
 	orgGroupID uint, permissionType PermissionType,
 	issuer, audience string,
+	signedString string,
 ) (*SetupKey, error) {
 	var (
 		now = time.Now().Unix()
@@ -91,7 +91,6 @@ func NewSetupKey(
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedString := os.Getenv("JWT_SECRET")
 	ss, err := token.SignedString([]byte(signedString))
 	if err != nil {
 		return nil, err
@@ -112,26 +111,26 @@ func (s *SetupKey) SetupKey() string {
 }
 
 func (s *SetupKey) KeyType() (SetupKeyType, error) {
-	c, err := getCustomClaims(s.Key, s.signedString)
+	c, err := GetCustomClaims(s.Key, s.signedString)
 	return c.KeyType, err
 }
 
 func (s *SetupKey) IsRevoked() (bool, error) {
-	c, err := getCustomClaims(s.Key, s.signedString)
+	c, err := GetCustomClaims(s.Key, s.signedString)
 	return c.Revoked, err
 }
 
 func (s *SetupKey) IsExpired() (bool, error) {
-	c, err := getCustomClaims(s.Key, s.signedString)
+	c, err := GetCustomClaims(s.Key, s.signedString)
 	return time.Now().After(time.Unix(c.ExpiresAt, 0)), err
 }
 
 func (s *SetupKey) ID() (string, error) {
-	c, err := getCustomClaims(s.Key, s.signedString)
+	c, err := GetCustomClaims(s.Key, s.signedString)
 	return c.Id, err
 }
 
-func getCustomClaims(setupkey, signedString string) (*customClaims, error) {
+func GetCustomClaims(setupkey, signedString string) (*customClaims, error) {
 	sk := strings.Trim(setupkey, SetupKeyPrefix)
 
 	token, err := jwt.ParseWithClaims(sk, &customClaims{}, func(token *jwt.Token) (interface{}, error) {
