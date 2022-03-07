@@ -26,7 +26,7 @@ func isWireGuardModule() bool {
 	return true
 }
 
-func CreateIface(i *Iface,  address string) error {
+func CreateIface(i *Iface, address string) error {
 	if isWireGuardModule() {
 		return createWithKernelSpace(i.Name, i.WgPrivateKey, address)
 	}
