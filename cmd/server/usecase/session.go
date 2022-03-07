@@ -42,6 +42,7 @@ func NewSessionUsecase(
 	}
 }
 
+// TODO: check to setup key validation
 func (s *SessionUsecase) CreatePeer(
 	setupKey, clientMachinePubKey,
 	serverMachinePubKey, wgPubKey string,

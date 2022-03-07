@@ -57,6 +57,8 @@ func (sss *SessionServerService) GetServerPublicKey(ctx context.Context, msg *em
 	}, nil
 }
 
+
+// TODO: when login, you must return to stun/turn credential informations
 func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error) {
 	clientMachinePubKey := msg.GetClientPublicKey()
 	serverMachinePubKey := msg.GetServerPublicKey()
