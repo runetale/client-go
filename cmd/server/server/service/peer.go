@@ -26,7 +26,7 @@ func NewPeerServerService(
 	db *database.Sqlite,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
-) *PeerServerService {
+) PeerServerServiceCaller {
 	return &PeerServerService{
 		db:                db,
 		serverStore:       server,

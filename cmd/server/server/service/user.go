@@ -19,7 +19,7 @@ type UserServerService struct {
 
 func NewUserServerService(
 	db *database.Sqlite,
-) *UserServerService {
+) UserServerServiceCaller {
 	return &UserServerService{
 		db: db,
 	}

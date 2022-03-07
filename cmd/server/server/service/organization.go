@@ -20,7 +20,9 @@ type OrganizationServerService struct {
 	auth0Client *client.Auth0Client
 }
 
-func NewOrganizationServerService(db *database.Sqlite, client *client.Auth0Client) *OrganizationServerService {
+func NewOrganizationServerService(
+	db *database.Sqlite, client *client.Auth0Client,
+) OrganizationServerServiceCaller {
 	return &OrganizationServerService{
 		auth0Client: client,
 		db:          db,

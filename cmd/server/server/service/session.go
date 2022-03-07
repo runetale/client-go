@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type SessionServiceServerCaller interface {
+type SessionServerServiceCaller interface {
 	GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error)
 	Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error)
 }
@@ -30,7 +30,7 @@ func NewSessionServerService(
 	db *database.Sqlite, config *config.ServerConfig,
 	server *store.ServerStore,
 	peerUpdateManager *channel.PeersUpdateManager,
-) *SessionServerService {
+) SessionServerServiceCaller {
 	return &SessionServerService{
 		config:            config,
 		serverStore:       server,
@@ -39,12 +39,12 @@ func NewSessionServerService(
 	}
 }
 
-func (sss *SessionServerService) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
+func (s *SessionServerService) AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error) {
 	return ctx, nil
 }
 
-func (sss *SessionServerService) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
-	pubicKey := sss.serverStore.GetPublicKey()
+func (s *SessionServerService) GetServerPublicKey(ctx context.Context, msg *emptypb.Empty) (*session.GetServerPublicKeyResponse, error) {
+	pubicKey := s.serverStore.GetPublicKey()
 
 	now := time.Now().Add(24 * time.Hour)
 	secs := int64(now.Second())
@@ -59,18 +59,18 @@ func (sss *SessionServerService) GetServerPublicKey(ctx context.Context, msg *em
 
 
 // TODO: when login, you must return to stun/turn credential informations
-func (sss *SessionServerService) Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error) {
+func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error) {
 	clientMachinePubKey := msg.GetClientPublicKey()
 	serverMachinePubKey := msg.GetServerPublicKey()
 	wgPubKey := msg.GetWgPublicKey()
 	setupKey := msg.GetSetupKey()
 
-	tx, err := sss.db.Begin()
+	tx, err := s.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	sessionUsecase := usecase.NewSessionUsecase(tx, sss.serverStore, sss.peerUpdateManager)
+	sessionUsecase := usecase.NewSessionUsecase(tx, s.serverStore, s.peerUpdateManager)
 
 	peer, err := sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
 	if err != nil {
