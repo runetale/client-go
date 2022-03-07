@@ -25,8 +25,8 @@ type Host struct {
 }
 
 type JwtConfig struct {
-	Aud     string
-	Iss       string
+	Aud          string
+	Iss          string
 	KeysLocation string
 }
 
@@ -51,7 +51,7 @@ func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	case errors.Is(err, os.ErrNotExist):
 		return writeServerConfig(path, domain, certfile, certkey)
 	case err != nil:
-		log.Fatalf("failed to load config for server. because %s",err.Error())
+		log.Fatalf("failed to load config for server. because %s", err.Error())
 		panic(err)
 	default:
 		var cfg ServerConfig

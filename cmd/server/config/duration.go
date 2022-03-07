@@ -1,9 +1,9 @@
 package config
 
 import (
-	"time"
-	"errors"
 	"encoding/json"
+	"errors"
+	"time"
 )
 
 type Duration struct {
@@ -34,4 +34,3 @@ func (d *Duration) UnmarshalJSON(b []byte) error {
 		return errors.New("invalid duration")
 	}
 }
-
