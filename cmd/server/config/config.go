@@ -12,10 +12,10 @@ import (
 )
 
 type TURNConfig struct {
-	TimeBasedCredentials bool
+	Turns                []*Host
 	CredentialsTTL       Duration
 	Secret               string
-	Turns                []*Host
+	TimeBasedCredentials bool
 }
 
 type Host struct {
@@ -51,12 +51,12 @@ func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	case errors.Is(err, os.ErrNotExist):
 		return writeServerConfig(path, domain, certfile, certkey)
 	case err != nil:
-		log.Fatal(err)
-		panic("failed to load cofig")
+		log.Fatalf("failed to load config for server. because %s",err.Error())
+		panic(err)
 	default:
 		var cfg ServerConfig
 		if err := json.Unmarshal(b, &cfg); err != nil {
-			log.Fatalf("config: %v", err)
+			log.Fatalf("failed to unmarshall server config file. becasue %s", err.Error())
 		}
 		return &cfg
 	}
@@ -77,11 +77,11 @@ func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to marshall indent server config file. because %s", err.Error())
 	}
 
 	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to write server config file. because %s", err.Error())
 	}
 
 	return &cfg
