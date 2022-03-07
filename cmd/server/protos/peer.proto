@@ -13,6 +13,13 @@ message SyncRequest {
 	string clientMachineKey = 2;
 }
 
+message SyncResponse {
+  PeerConfig peerConfig = 1;
+  repeated RemotePeer remotePeers = 2;
+  bool remotePeerIsEmpty = 3;
+  StunTurnConfig stunTurnConfig = 4;
+}
+
 message RemotePeer {
 	string clientMachineKey = 1;
 	string wgPubKey = 2;
@@ -25,32 +32,18 @@ message PeerConfig {
 }
 
 message StunTurnConfig {
-  repeated HostConfig stuns = 1;
-  repeated ProtectedHostConfig turns = 2;
-  HostConfig signal = 3;
+  repeated Host stuns = 1;
+  repeated TurnCredential turnCredentials = 2;
+  Host signal = 3;
 }
 
-message HostConfig {
-  string uri = 1;
-  Protocol protocol = 2;
-
-  enum Protocol {
-    UDP = 0;
-    TCP = 1;
-    HTTP = 2;
-    HTTPS = 3;
-    DTLS = 4;
-  }
+message Host {
+  string url = 1;
 }
 
-message ProtectedHostConfig {
-  HostConfig hostConfig = 1;
+message TurnCredential {
+  string url = 1;
   string user = 2;
   string password = 3;
 }
 
-message SyncResponse {
-  PeerConfig peerConfig = 1;
-	repeated RemotePeer remotePeers = 2;
-	bool remotePeerIsEmpty = 3;
-}
