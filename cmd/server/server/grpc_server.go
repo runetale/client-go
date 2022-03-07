@@ -12,7 +12,7 @@ import (
 type Server struct {
 	UserServerService         service.UserServerServiceCaller
 	PeerServerService         service.PeerServerServiceCaller
-	SessionServerService      service.SessionServiceServerCaller
+	SessionServerService      service.SessionServerServiceCaller
 	OrganizationServerService service.OrganizationServerServiceCaller
 }
 
@@ -22,8 +22,8 @@ func NewServer(
 	peerUpdateManager *channel.PeersUpdateManager,
 ) *Server {
 	return &Server{
-		UserServerService:         service.NewUserServerService(db),
-		PeerServerService:         service.NewPeerServerService(db, server, peerUpdateManager),
+		UserServerService:         service.NewUserServerService(db, config),
+		PeerServerService:         service.NewPeerServerService(db, config, server, peerUpdateManager),
 		SessionServerService:      service.NewSessionServerService(db, config, server, peerUpdateManager),
 		OrganizationServerService: service.NewOrganizationServerService(db, client),
 	}
