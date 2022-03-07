@@ -28,8 +28,7 @@ type SessionServerService struct {
 
 func NewSessionServerService(
 	db *database.Sqlite, config *config.ServerConfig,
-	server *store.ServerStore,
-	peerUpdateManager *channel.PeersUpdateManager,
+	server *store.ServerStore, peerUpdateManager *channel.PeersUpdateManager,
 ) SessionServerServiceCaller {
 	return &SessionServerService{
 		config:            config,
@@ -57,8 +56,6 @@ func (s *SessionServerService) GetServerPublicKey(ctx context.Context, msg *empt
 	}, nil
 }
 
-
-// TODO: when login, you must return to stun/turn credential informations
 func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequest) (*session.LoginResponse, error) {
 	clientMachinePubKey := msg.GetClientPublicKey()
 	serverMachinePubKey := msg.GetServerPublicKey()
@@ -70,7 +67,7 @@ func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequ
 		return nil, err
 	}
 
-	sessionUsecase := usecase.NewSessionUsecase(tx, s.serverStore, s.peerUpdateManager)
+	sessionUsecase := usecase.NewSessionUsecase(tx, s.config, s.serverStore, s.peerUpdateManager)
 
 	peer, err := sessionUsecase.CreatePeer(setupKey, clientMachinePubKey, serverMachinePubKey, wgPubKey)
 	if err != nil {
@@ -86,5 +83,6 @@ func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequ
 		ClientPublicKey: serverMachinePubKey,
 		Ip:              peer.IP,
 		Cidr:            uint64(peer.CIDR),
+		SignalingHost: 	 s.config.Signal.URL,
 	}, nil
 }

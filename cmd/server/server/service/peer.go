@@ -8,6 +8,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
 	"github.com/Notch-Technologies/wizy/store"
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 )
 
 type PeerServerServiceCaller interface {
@@ -18,31 +19,32 @@ type PeerServerService struct {
 	db                *database.Sqlite
 	serverStore       *store.ServerStore
 	peerUpdateManager *channel.PeersUpdateManager
+	config            *config.ServerConfig
 
 	peer.UnimplementedPeerServiceServer
 }
 
 func NewPeerServerService(
-	db *database.Sqlite,
-	server *store.ServerStore,
-	peerUpdateManager *channel.PeersUpdateManager,
+	db *database.Sqlite, config *config.ServerConfig,
+	server *store.ServerStore, peerUpdateManager *channel.PeersUpdateManager,
 ) PeerServerServiceCaller {
 	return &PeerServerService{
 		db:                db,
 		serverStore:       server,
 		peerUpdateManager: peerUpdateManager,
+		config: config,
 	}
 }
 
-func (pss *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_SyncServer) error {
-	pu := usecase.NewPeerUsecase(pss.db, pss.serverStore, srv)
+func (p *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_SyncServer) error {
+	pu := usecase.NewPeerUsecase(p.db, p.config, p.serverStore, srv)
 
 	err := pu.InitialSync(req.GetClientMachineKey())
 	if err != nil {
 		return err
 	}
 
-	updateChannel := pss.peerUpdateManager.CreateChannel(req.GetClientMachineKey())
+	updateChannel := p.peerUpdateManager.CreateChannel(req.GetClientMachineKey())
 
 	for {
 		select {
@@ -65,7 +67,7 @@ func (pss *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_S
 
 			fmt.Printf("send an update to peer %s", req.GetClientMachineKey())
 		case <-srv.Context().Done():
-			pss.peerUpdateManager.CloseChannel(req.GetClientMachineKey())
+			p.peerUpdateManager.CloseChannel(req.GetClientMachineKey())
 			fmt.Println("channel offline")
 			return srv.Context().Err()
 		}

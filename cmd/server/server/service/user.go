@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
@@ -15,17 +16,19 @@ type UserServerServiceCaller interface {
 
 type UserServerService struct {
 	db *database.Sqlite
+	config *config.ServerConfig
 }
 
 func NewUserServerService(
-	db *database.Sqlite,
+	db *database.Sqlite, config *config.ServerConfig,
 ) UserServerServiceCaller {
 	return &UserServerService{
 		db: db,
+		config: config,
 	}
 }
 
-func (uss *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error) {
+func (u *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error) {
 	sub := getSub(ctx)
 	networkID := msg.GetNetworkID()
 	userGroupID := msg.GetUserGroupID()
@@ -33,12 +36,12 @@ func (uss *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRe
 	orgGroupID := msg.GetOrgGroupID()
 	permission := msg.GetPermission()
 
-	tx, err := uss.db.Begin()
+	tx, err := u.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 
-	setupKeyUsecase := usecase.NewSetupKeyUsecase(tx)
+	setupKeyUsecase := usecase.NewSetupKeyUsecase(tx, u.config)
 	setupKey, err := setupKeyUsecase.CreateSetupKey(uint(networkID), uint(userGroupID), job, orgGroupID, key.PermissionType(permission), sub)
 	if err != nil {
 		tx.Rollback()
