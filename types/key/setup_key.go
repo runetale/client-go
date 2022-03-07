@@ -56,8 +56,11 @@ type SetupKey struct {
 }
 
 func NewSetupKey(
-	userID uint, providerID, job string,
-	userGroupID, orgGroupID uint, permissionType PermissionType) (*SetupKey, error) {
+	userID uint, providerID, 
+	job string, userGroupID, 
+	orgGroupID uint, permissionType PermissionType,
+	issuer, audience string,
+) (*SetupKey, error) {
 	var (
 		now = time.Now().Unix()
 		// expires 1 weak of setupkey
@@ -80,7 +83,8 @@ func NewSetupKey(
 		time.Now(),
 		&jwt.StandardClaims{
 			Id:        id,
-			Issuer:    "wissy",
+			Issuer:    issuer,
+			Audience:  audience,
 			IssuedAt:  now,
 			ExpiresAt: exp,
 		},
