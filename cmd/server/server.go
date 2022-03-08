@@ -142,9 +142,6 @@ func main() {
 	opts = append(opts, grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
 	grpcServer := grpc.NewServer(opts...)
 
-	// TODO: configuration http server option
-	//
-
 	// initialize grpc server services
 	//
 	peer.RegisterPeerServiceServer(grpcServer, s.PeerServerService)
