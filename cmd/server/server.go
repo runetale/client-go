@@ -8,9 +8,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	client "github.com/Notch-Technologies/wizy/auth0"
+	"github.com/Notch-Technologies/wizy/cert"
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -26,7 +26,6 @@ import (
 	"github.com/Notch-Technologies/wizy/wislog"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
 	"github.com/joho/godotenv"
@@ -41,6 +40,7 @@ func init() {
 
 var serverArgs struct {
 	configpath string
+	letsencryptDir string
 	port       uint16
 	verbose    int
 	domain     string
@@ -54,10 +54,11 @@ var serverArgs struct {
 
 func main() {
 	flag.StringVar(&serverArgs.configpath, "config", paths.DefaultServerConfigFile(), "path of server config file")
+	flag.StringVar(&serverArgs.letsencryptDir, "letsencypt-dir", paths.DefaultLetsEncryptDir(), "directory of letsencrypt")
 	flag.Var(flagtype.PortValue(&serverArgs.port, flagtype.DefaultGrpcServerPort), "port", "specify the port of the server")
 	flag.IntVar(&serverArgs.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
 	flag.StringVar(&serverArgs.domain, "domain", "", "your domain")
-	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert")
+	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert file")
 	flag.StringVar(&serverArgs.certkey, "cert-key", "", "your cert key")
 	flag.BoolVar(&serverArgs.version, "version", false, "print version")
 	flag.StringVar(&serverArgs.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
@@ -110,6 +111,10 @@ func main() {
 	//
 	cfg := config.NewServerConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
 
+	// new cert store
+	//
+	certConfig := cert.NewCertConfig(serverArgs.letsencryptDir, cfg.TLSConfig.Domain, cfg.TURNConfig.Secret, cfg.TLSConfig.Certfile)
+
 	// initialize auth0 client
 	//
 	auth0Client := client.NewAuth0Client()
@@ -124,23 +129,21 @@ func main() {
 
 	// configuration grpc server option
 	//
-	var opts []grpc.ServerOption
-	kaep := keepalive.EnforcementPolicy{
-		MinTime:             15 * time.Second,
-		PermitWithoutStream: true,
+	opts, err := server.NewGrpcServerOption(certConfig)
+	if err != nil {
+		wislog.Logger.Error(err)
+		log.Fatal(err)
 	}
 
-	kasp := keepalive.ServerParameters{
-		MaxConnectionIdle:     15 * time.Second,
-		MaxConnectionAgeGrace: 5 * time.Second,
-		Time:                  5 * time.Second,
-		Timeout:               2 * time.Second,
-	}
-
+	// grpc middleware config
+	//
 	middleware := server.NewMiddlware(auth0Client)
 
-	opts = append(opts, grpc.KeepaliveEnforcementPolicy(kaep), grpc.KeepaliveParams(kasp), grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
+	opts = append(opts, grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.Authenticate)))
 	grpcServer := grpc.NewServer(opts...)
+
+	// TODO: configuration http server option
+	//
 
 	// initialize grpc server services
 	//
