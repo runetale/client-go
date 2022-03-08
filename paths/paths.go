@@ -58,6 +58,19 @@ func DefaultSignalingLogFile() string {
 	return "/var/log/wissy/signaling.log"
 }
 
+func DefaultLetsEncryptDir() string {
+	switch runtime.GOOS {
+	case "freebsd", "openbsd":
+		return "/var/db/wissy/letsencrypt"
+	case "linux":
+		return "/var/lib/wissy/letsencrypt"
+	case "darwin":
+		return "/Library/wissy/letsencrypt"
+	default:
+		return ""
+	}
+}
+
 func MkStateDir(dirPath string) error {
 	if err := os.MkdirAll(dirPath, 0700); err != nil {
 		return err
