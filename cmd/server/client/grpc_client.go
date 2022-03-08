@@ -65,7 +65,7 @@ func NewGrpcClient(
 		option,
 		grpc.WithBlock(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:    15 * time.Second,
+			Time:    10 * time.Second,
 			Timeout: 10 * time.Second,
 		}))
 	if err != nil {
