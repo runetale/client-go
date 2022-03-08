@@ -115,6 +115,7 @@ func execUp(ctx context.Context, args []string) error {
 
 	// initialize signaling client
 	//
+	// sClient, err := signaling.NewSignalingClient(ctx, "http://172.16.165.129:10000", wgPrivateKey, wislog)
 	sClient, err := signaling.NewSignalingClient(ctx, login.SignalingHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
