@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -25,12 +26,12 @@ func isWireGuardModule() bool {
 	return true
 }
 
-func CreateIface(ifaceName, privateKey, address string) error {
+func CreateIface(i *Iface, address string) error {
 	if isWireGuardModule() {
-		return createWithKernelSpace(ifaceName, privateKey, address)
+		return createWithKernelSpace(i.Name, i.WgPrivateKey, address)
 	}
 
-	return createWithUserSpace(ifaceName, privateKey, address)
+	return createWithUserSpace(i, address)
 }
 
 func createWithKernelSpace(ifaceName, privateKey, address string) error {
@@ -68,7 +69,7 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	}
 
 	fMark := 0
-	port := wgPort
+	port := wireguard.WgPort
 	wgConf := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
@@ -100,19 +101,19 @@ func createWithKernelSpace(ifaceName, privateKey, address string) error {
 	return nil
 }
 
-func createWithUserSpace(ifaceName, privateKey, address string) error {
-	err := CreateWithUserSpace(ifaceName, address)
+func createWithUserSpace(i *Iface, address string) error {
+	err := i.CreateWithUserSpace(address)
 	if err != nil {
 		return err
 	}
 
-	key, err := wgtypes.ParseKey(privateKey)
+	key, err := wgtypes.ParseKey(i.WgPrivateKey)
 	if err != nil {
 		return err
 	}
 
 	fwmark := 0
-	port := wgPort
+	port := wireguard.WgPort
 	config := wgtypes.Config{
 		PrivateKey:   &key,
 		ReplacePeers: false,
@@ -120,5 +121,5 @@ func createWithUserSpace(ifaceName, privateKey, address string) error {
 		ListenPort:   &port,
 	}
 
-	return configureDevice(ifaceName, config)
+	return i.configureDevice(config)
 }

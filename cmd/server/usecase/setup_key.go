@@ -4,14 +4,16 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 	"github.com/Notch-Technologies/wizy/types/key"
 )
 
-type SetupKeyUsecaseManager interface {
-	CreateSetupKey(networkName, name string, permission key.PermissionType, providerID string) error
+type SetupKeyUsecaseCaller interface {
+	CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
+		permission key.PermissionType, sub string) (*key.SetupKey, error)
 }
 
 type SetupKeyUsecase struct {
@@ -21,11 +23,12 @@ type SetupKeyUsecase struct {
 	networkRepository   *repository.NetworkRepository
 	userGroupRepository *repository.UserGroupRepository
 	jobRepository       *repository.JobRepository
+	config 				*config.ServerConfig
 }
 
 func NewSetupKeyUsecase(
-	db database.SQLExecuter,
-) *SetupKeyUsecase {
+	db database.SQLExecuter, config *config.ServerConfig,
+) SetupKeyUsecaseCaller {
 	return &SetupKeyUsecase{
 		setupKeyRepository:  repository.NewSetupKeyRepository(db),
 		userRepository:      repository.NewUserRepository(db),
@@ -33,9 +36,13 @@ func NewSetupKeyUsecase(
 		networkRepository:   repository.NewNetworkRepository(db),
 		userGroupRepository: repository.NewUserGroupRepository(db),
 		jobRepository:       repository.NewJobRepository(db),
+		config: 			 config,
 	}
 }
 
+// TOOD: (shintard) allows network use cases to dynamically specify CIDR and IP address
+// ranges and create networks
+//
 func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
 	permission key.PermissionType, sub string) (*key.SetupKey, error) {
 	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
@@ -45,7 +52,9 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 
 	network, err := s.networkRepository.FindByNetworkID(networkID)
 	if errors.Is(err, domain.ErrNoRows) {
-		network = domain.NewNetwork("default", "", "", "")
+		// create a network in the range of default network 100.64.0.0/10 if the network does not exist
+		//
+		network = domain.NewNetwork("default", "100.64.0.0", 10, "")
 		err = s.networkRepository.CreateNetwork(network)
 		if err != nil {
 			return nil, err
@@ -82,7 +91,11 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 		return nil, err
 	}
 
-	sk, err := key.NewSetupKey(user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, permission)
+	sk, err := key.NewSetupKey(
+		user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, 
+		permission, s.config.JwtConfig.Iss, s.config.JwtConfig.Aud,
+		s.config.JwtConfig.Secret,
+	)
 	if err != nil {
 		return nil, err
 	}

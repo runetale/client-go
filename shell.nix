@@ -2,7 +2,7 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    go_1_17 goimports gopls protobuf protoc-gen-go docker-compose grpcurl redis sqlite
+    go_1_17 goimports gopls protobuf protoc-gen-go docker-compose grpcurl sqlite
   ];
 
   shellHook = ''

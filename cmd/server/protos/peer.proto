@@ -5,12 +5,19 @@ package protos;
 option go_package = "./peer";
 
 service PeerService {
-	rpc Sync(SyncMessage) returns (stream SyncResponse) {}
+	rpc Sync(SyncRequest) returns (stream SyncResponse) {}
 }
 
-message SyncMessage {
+message SyncRequest {
 	string privateKey = 1;
 	string clientMachineKey = 2;
+}
+
+message SyncResponse {
+  PeerConfig peerConfig = 1;
+  repeated RemotePeer remotePeers = 2;
+  bool remotePeerIsEmpty = 3;
+  StunTurnConfig stunTurnConfig = 4;
 }
 
 message RemotePeer {
@@ -25,32 +32,21 @@ message PeerConfig {
 }
 
 message StunTurnConfig {
-  repeated HostConfig stuns = 1;
-  repeated ProtectedHostConfig turns = 2;
-  HostConfig signal = 3;
+  repeated Host stuns = 1;
+  TurnCredential turnCredentials = 2;
+  Host signal = 3;
 }
 
-message HostConfig {
-  string uri = 1;
-  Protocol protocol = 2;
-
-  enum Protocol {
-    UDP = 0;
-    TCP = 1;
-    HTTP = 2;
-    HTTPS = 3;
-    DTLS = 4;
-  }
-}
-
-message ProtectedHostConfig {
-  HostConfig hostConfig = 1;
-  string user = 2;
+message Host {
+  string url = 1;
+  string username = 2;
   string password = 3;
 }
 
-message SyncResponse {
-  	PeerConfig peerConfig = 1;
-	repeated RemotePeer remotePeers = 2;
-	bool remotePeerIsEmpty = 3;
+message TurnCredential {
+  repeated Host turns = 1;
+  string credentialsTTL = 2;
+  string secret = 3;
+  bool timeBasedCredentials = 4;
 }
+

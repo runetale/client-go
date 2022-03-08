@@ -1,2 +1,2 @@
-## wics
-Wizy Control Plane Server(wics)
+## server
+management server

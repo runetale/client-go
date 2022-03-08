@@ -1,6 +1,8 @@
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type Peer struct {
 	ID             uint      `db:"id"`
@@ -12,22 +14,24 @@ type Peer struct {
 	WgPubKey       string    `db:"wg_pub_key"`
 	NetworkID      uint      `db:"network_id"`
 	IP             string    `db:"ip"`
+	CIDR           uint      `db:"cidr"`
 	CreatedAt      time.Time `db:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at"`
 }
 
 func NewPeer(setupKeyID, networkID, userGroupID,
-	userID, orgID uint, ip, clientPubKey, wgPubKey string) *Peer {
+	userID, orgID uint, ip string, cidr uint, clientPubKey, wgPubKey string) *Peer {
 	return &Peer{
 		UserID:         userID,
 		SetupKeyID:     setupKeyID,
 		OrganizationID: orgID,
 		UserGroupID:    userGroupID,
 		ClientPubKey:   clientPubKey,
-		WgPubKey: 		wgPubKey,
+		WgPubKey:       wgPubKey,
 		NetworkID:      networkID,
-		CreatedAt:      time.Now(),
 		IP:             ip,
+		CIDR:           cidr,
+		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}
 }

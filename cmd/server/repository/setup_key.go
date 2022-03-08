@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -56,7 +55,6 @@ func (r *SetupKeyRepository) CreateSetupKey(setupKey *domain.SetupKey) error {
 }
 
 func (r *SetupKeyRepository) FindBySetupKey(setupKey string) (*domain.SetupKey, error) {
-	fmt.Println(setupKey)
 	var (
 		sk domain.SetupKey
 	)

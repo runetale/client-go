@@ -5,17 +5,18 @@ import (
 	"log"
 
 	"github.com/Notch-Technologies/wizy/version"
-	"github.com/peterbourgon/ff/ffcli"
+	"github.com/peterbourgon/ff/v2/ffcli"
+	"golang.org/x/net/context"
 )
 
 var versionCmd = &ffcli.Command{
-	Name:      "version",
-	Usage:     "version",
-	ShortHelp: "Show Wizy Version",
-	Exec:      execVersion,
+	Name:       "version",
+	ShortUsage: "version",
+	ShortHelp:  "Show Wizy Version",
+	Exec:       execVersion,
 }
 
-func execVersion(args []string) error {
+func execVersion(ctx context.Context, args []string) error {
 	if len(args) > 0 {
 		log.Fatalf("too many arugments: %q", args)
 	}

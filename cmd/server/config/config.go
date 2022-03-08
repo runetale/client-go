@@ -7,69 +7,28 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/Notch-Technologies/wizy/utils"
 )
 
-type Duration struct {
-	time.Duration
-}
-
-func (d Duration) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.String())
-}
-
-func (d *Duration) UnmarshalJSON(b []byte) error {
-	var v interface{}
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	switch value := v.(type) {
-	case float64:
-		d.Duration = time.Duration(value)
-		return nil
-	case string:
-		var err error
-		d.Duration, err = time.ParseDuration(value)
-		if err != nil {
-			return err
-		}
-		return nil
-	default:
-		return errors.New("invalid duration")
-	}
-}
-
-// TOOD: (shintard) Refactor Config Scheme
-type Protocol string
-
-const (
-	UDP   Protocol = "udp"
-	DTLS  Protocol = "dtls"
-	TCP   Protocol = "tcp"
-	HTTP  Protocol = "http"
-	HTTPS Protocol = "https"
-)
-
 type TURNConfig struct {
-	TimeBasedCredentials bool
+	Turns                []*Host
 	CredentialsTTL       Duration
 	Secret               string
-	Turns                []*Host
+	TimeBasedCredentials bool
 }
 
 type Host struct {
-	Protocol Protocol
 	URL      string
-	Username string
-	Password string
+	Username *string
+	Password *string
 }
 
-type AuthConfig struct {
-	AuthAudience     string
-	AuthIssuer       string
-	AuthKeysLocation string
+type JwtConfig struct {
+	Aud          string
+	Iss          string
+	KeysLocation string
+	Secret       string
 }
 
 type TLSConfig struct {
@@ -78,37 +37,38 @@ type TLSConfig struct {
 	CertKey  string
 }
 
-type Config struct {
+type ServerConfig struct {
 	Stuns      []*Host
 	TURNConfig *TURNConfig
 	Signal     *Host
-	AuthConfig AuthConfig
+	JwtConfig  JwtConfig
 	TLSConfig  TLSConfig
 }
 
-func LoadConfig(path, domain, certfile, certkey string) *Config {
+func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	b, err := ioutil.ReadFile(path)
+
 	switch {
 	case errors.Is(err, os.ErrNotExist):
-		return newConfig(path, domain, certfile, certkey)
+		return writeServerConfig(path, domain, certfile, certkey)
 	case err != nil:
-		log.Fatal(err)
-		panic("failed to load cofig")
+		log.Fatalf("failed to load config for server. because %s", err.Error())
+		panic(err)
 	default:
-		var cfg Config
+		var cfg ServerConfig
 		if err := json.Unmarshal(b, &cfg); err != nil {
-			log.Fatalf("config: %v", err)
+			log.Fatalf("failed to unmarshall server config file. becasue %s", err.Error())
 		}
 		return &cfg
 	}
 }
 
-func newConfig(path, domain, certfile, certkey string) *Config {
+func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
 
-	cfg := Config{
+	cfg := ServerConfig{
 		TLSConfig: TLSConfig{
 			Domain:   domain,
 			Certfile: certfile,
@@ -118,11 +78,11 @@ func newConfig(path, domain, certfile, certkey string) *Config {
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to marshall indent server config file. because %s", err.Error())
 	}
 
 	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
-		log.Fatal(err)
+		log.Fatalf("failed to write server config file. because %s", err.Error())
 	}
 
 	return &cfg

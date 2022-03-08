@@ -7,14 +7,9 @@ import (
 	"runtime"
 )
 
-// json file to manage the wics server startup config.
-func DefaultWicsConfigFile() string {
-	return "/etc/wissy/wics.json"
-}
-
-// state file to manage the secret information of the wics server.
+// state file to manage the secret information of the server.
 // do not disclose to the outside world.
-func DefaultWicsServerStateFile() string {
+func DefaultWissyServerStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
 		return "/var/db/wissy/server.state"
@@ -27,7 +22,7 @@ func DefaultWicsServerStateFile() string {
 	}
 }
 
-// state file to manage the secret information of the wics server.
+// state file to manage the secret information of the server.
 // do not disclose to the outside world.
 func DefaultWicsClientStateFile() string {
 	switch runtime.GOOS {
@@ -46,8 +41,34 @@ func DefaultClientConfigFile() string {
 	return "/etc/wissy/client.json"
 }
 
+// json file to manage the server startup config.
+func DefaultServerConfigFile() string {
+	return "/etc/wissy/server.json"
+}
+
 func DefaultClientLogFile() string {
 	return "/var/log/wissy/client.log"
+}
+
+func DefaultServerLogFile() string {
+	return "/var/log/wissy/server.log"
+}
+
+func DefaultSignalingLogFile() string {
+	return "/var/log/wissy/signaling.log"
+}
+
+func DefaultLetsEncryptDir() string {
+	switch runtime.GOOS {
+	case "freebsd", "openbsd":
+		return "/var/db/wissy/letsencrypt"
+	case "linux":
+		return "/var/lib/wissy/letsencrypt"
+	case "darwin":
+		return "/Library/wissy/letsencrypt"
+	default:
+		return ""
+	}
 }
 
 func MkStateDir(dirPath string) error {

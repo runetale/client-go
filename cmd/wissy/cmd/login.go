@@ -6,15 +6,13 @@ import (
 	"fmt"
 	"log"
 
-	grpc_client "github.com/Notch-Technologies/wizy/cmd/server/grpc_client"
-	"github.com/Notch-Technologies/wizy/cmd/wissy/client"
-	"github.com/Notch-Technologies/wizy/iface"
+	"github.com/Notch-Technologies/wizy/cmd/server/client"
+	"github.com/Notch-Technologies/wizy/core"
 	"github.com/Notch-Technologies/wizy/paths"
-	"github.com/Notch-Technologies/wizy/polymer"
 	"github.com/Notch-Technologies/wizy/store"
 	"github.com/Notch-Technologies/wizy/types/flagtype"
 	"github.com/Notch-Technologies/wizy/wislog"
-	"github.com/peterbourgon/ff/ffcli"
+	"github.com/peterbourgon/ff/v2/ffcli"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
@@ -30,6 +28,8 @@ var loginArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
+	signalHost string
+	signalPort int64
 	setupKey   string
 	logFile    string
 	logLevel   string
@@ -37,14 +37,16 @@ var loginArgs struct {
 }
 
 var loginCmd = &ffcli.Command{
-	Name:      "login",
-	Usage:     "login",
-	ShortHelp: "login to wissy, start the management server and then run it",
+	Name:       "login",
+	ShortUsage: "login",
+	ShortHelp:  "login to wissy, start the management server and then run it",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "host", "http://172.16.165.129", "grpc server host url")
-		fs.Int64Var(&loginArgs.serverPort, "port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&loginArgs.serverHost, "server-host", "http://172.16.165.129", "grpc server host url")
+		fs.Int64Var(&loginArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&loginArgs.signalHost, "signal-host", "http://172.16.165.129", "signaling server host url")
+		fs.Int64Var(&loginArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
 		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
@@ -54,69 +56,75 @@ var loginCmd = &ffcli.Command{
 	Exec: execLogin,
 }
 
-func execLogin(args []string) error {
+func execLogin(ctx context.Context, args []string) error {
+	// initialize wissy logger
+	//
 	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
 	if err != nil {
-		log.Fatalf("failed to initialize logger. %v", err)
+		log.Fatalf("failed to initialize logger. because %v", err)
 	}
-	wisLog := wislog.NewWisLog("login")
 
-	// create client state key
-	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile())
+	wislog := wislog.NewWisLog("login")
+
+	// initialize file store
+	//
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wislog)
 	if err != nil {
-		log.Fatalf("failed to create clietnt state. %v", err)
+		wislog.Logger.Fatalf("failed to create clietnt state. because %v", err)
 	}
 
-	cs := store.NewClientStore(cfs)
+	cs := store.NewClientStore(cfs, wislog)
 	err = cs.WritePrivateKey()
 	if err != nil {
-		log.Fatalf("failed to write client state private key. %v", err)
+		wislog.Logger.Fatalf("failed to write client state private key. because %v", err)
 	}
 
-	conf := client.GetClientConfig(loginArgs.clientPath, loginArgs.serverHost, int(loginArgs.serverPort))
-
-	ctx := context.Background()
-
-	wgPrivateKey, err := wgtypes.ParseKey(conf.WgPrivateKey)
+	// initialize client Core
+	//
+	clientCore, err := core.NewClientCore(
+		loginArgs.clientPath,
+		loginArgs.serverHost, int(loginArgs.serverPort),
+		wislog,
+	)
 	if err != nil {
-		log.Fatalf("failed to parse wg private key. %v", err)
+		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
+	clientCore = clientCore.GetClientCore()
 
-	client, err := grpc_client.NewGrpcClient(ctx, conf.ServerHost, int(loginArgs.serverPort), wgPrivateKey)
+	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
 	if err != nil {
-		log.Fatalf("failed to connect client. %v", err)
+		wislog.Logger.Fatalf("failed to parse wg private key. because %v", err)
 	}
 
-	log.Printf("connected to server %s", conf.ServerHost.String())
-
-	serverPubKey, err := client.GetServerPublicKey()
+	// initialize grpc client
+	//
+	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey, wislog)
 	if err != nil {
-		log.Fatalf("failed to get server public key. %v", err)
+		wislog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
 
-	_, err = client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, "10.0.0.1", wgPrivateKey)
+	wislog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
+
+	// get server public key
+	//
+	serverPubKey, err := gClient.GetServerPublicKey()
 	if err != nil {
-		log.Fatalf("failed to login. %v", err)
+		wislog.Logger.Fatalf("failed to get server public key. %v", err)
 	}
 
-	err = iface.CreateIface(conf.TUNName, conf.WgPrivateKey, "10.0.0.1/24")
+	// start logging in
+	//
+	login, err := gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
 	if err != nil {
-		fmt.Printf("failed creating Wireguard interface [%s]: %s", conf.TUNName, err.Error())
-		return err
+		wislog.Logger.Fatalf("failed to login. because %v", err)
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
 
-	engineConfig := polymer.NewEngineConfig(wgPrivateKey, conf, "10.0.0.1/24")
-
-	e := polymer.NewEngine(wisLog, client, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
-	e.Start()
-
-	select {
-	case <-stopCh:
-	case <-ctx.Done():
-	}
+	fmt.Println("login succeded.")
+	fmt.Printf("your ip [%s/%d]", login.Ip, login.Cidr)
+	fmt.Println("type the following command to activate.")
+	fmt.Printf("$ sudo wissy up -key %s", login.SetupKey)
 
 	return nil
 }
