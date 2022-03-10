@@ -23,25 +23,31 @@ var upArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
+	signalHost string
+	signalPort int64
 	setupKey   string
 	logFile    string
 	logLevel   string
 	dev        bool
+	daemon     bool
 }
 
 var upCmd = &ffcli.Command{
 	Name:       "up",
 	ShortUsage: "up",
-	ShortHelp:  "launch a logged-in peer",
+	ShortHelp:  "startup a peer",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("up", flag.ExitOnError)
 		fs.StringVar(&upArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&upArgs.serverHost, "server-host", "http://172.16.165.129", "grpc server host url")
-		fs.Int64Var(&upArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
+		fs.StringVar(&upArgs.serverHost, "server-host", "", "grpc server host url")
+		fs.Int64Var(&upArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server port")
+		fs.StringVar(&upArgs.signalHost, "signal-host", "", "signaling server host url")
+		fs.Int64Var(&upArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server port")
 		fs.StringVar(&upArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&upArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
 		fs.StringVar(&upArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
 		fs.BoolVar(&upArgs.dev, "dev", true, "is dev")
+		fs.BoolVar(&upArgs.daemon, "daemon", false, "whether to run the daemon process")
 		return fs
 	})(),
 	Exec: execUp,
@@ -54,7 +60,6 @@ func execUp(ctx context.Context, args []string) error {
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
-
 	wislog := wislog.NewWisLog("up")
 
 	// initialize file store
@@ -63,7 +68,6 @@ func execUp(ctx context.Context, args []string) error {
 	if err != nil {
 		wislog.Logger.Fatalf("failed to create clietnt state. because %v", err)
 	}
-
 	cs := store.NewClientStore(cfs, wislog)
 	err = cs.WritePrivateKey()
 	if err != nil {
@@ -75,6 +79,7 @@ func execUp(ctx context.Context, args []string) error {
 	clientCore, err := core.NewClientCore(
 		upArgs.clientPath,
 		upArgs.serverHost, int(upArgs.serverPort),
+		upArgs.signalHost, int(upArgs.signalPort),
 		wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
@@ -89,7 +94,7 @@ func execUp(ctx context.Context, args []string) error {
 
 	// initialize grpc client
 	//
-	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(upArgs.serverPort), wgPrivateKey, wislog)
+	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
@@ -115,10 +120,11 @@ func execUp(ctx context.Context, args []string) error {
 
 	// initialize signaling client
 	//
-	// sClient, err := signaling.NewSignalingClient(ctx, "http://172.16.165.129:10000", wgPrivateKey, wislog)
-	sClient, err := signaling.NewSignalingClient(ctx, login.SignalingHost, wgPrivateKey, wislog)
+	sClient, err := signaling.NewSignalingClient(ctx, clientCore.SignalHost, wgPrivateKey, wislog)
+	// sClient, err := signaling.NewSignalingClient(ctx, login.SignalingHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect signaling client. %v", err)
+		return err
 	}
 
 	wislog.Logger.Infof("connected to signaling server %s", login.SignalingHost)
@@ -134,14 +140,25 @@ func execUp(ctx context.Context, args []string) error {
 		return err
 	}
 
+	// initialize engine
+	//
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// initialize engine
-	//
 	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, addr)
-
 	e := engine.NewEngine(wislog, i, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
+
+	// setup daemon
+	//
+	// if upArgs.daemon {
+	// 	d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistFile, daemon.PlistFile, wislog)
+	// 	err = d.Install()
+	// 	if err != nil {
+	// 		wislog.Logger.Errorf("failed to install daemon: %s", err.Error())
+	// 		return err
+	// 	}
+	// 	return nil
+	// }
 
 	// start engine
 	//

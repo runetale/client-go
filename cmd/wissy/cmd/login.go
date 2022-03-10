@@ -43,9 +43,9 @@ var loginCmd = &ffcli.Command{
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
-		fs.StringVar(&loginArgs.serverHost, "server-host", "http://172.16.165.129", "grpc server host url")
+		fs.StringVar(&loginArgs.serverHost, "server-host", "", "grpc server host url")
 		fs.Int64Var(&loginArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
-		fs.StringVar(&loginArgs.signalHost, "signal-host", "http://172.16.165.129", "signaling server host url")
+		fs.StringVar(&loginArgs.signalHost, "signal-host", "", "signaling server host url")
 		fs.Int64Var(&loginArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
@@ -84,6 +84,7 @@ func execLogin(ctx context.Context, args []string) error {
 	clientCore, err := core.NewClientCore(
 		loginArgs.clientPath,
 		loginArgs.serverHost, int(loginArgs.serverPort),
+		loginArgs.signalHost, int(loginArgs.signalPort),
 		wislog,
 	)
 	if err != nil {
@@ -98,7 +99,7 @@ func execLogin(ctx context.Context, args []string) error {
 
 	// initialize grpc client
 	//
-	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, int(loginArgs.serverPort), wgPrivateKey, wislog)
+	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, wgPrivateKey, wislog)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
