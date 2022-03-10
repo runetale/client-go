@@ -16,7 +16,7 @@ type EngineConfig struct {
 	PreSharedKey *wgtypes.Key
 }
 
-func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *EngineConfig {
+func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, ip, cidr string) *EngineConfig {
 	iFaceBlackList := make(map[string]struct{})
 	for i := 0; i < len(config.IfaceBlackList); i += 2 {
 		iFaceBlackList[config.IfaceBlackList[i]] = struct{}{}
@@ -24,7 +24,7 @@ func NewEngineConfig(key wgtypes.Key, config *core.ClientCore, wgAddr string) *E
 
 	return &EngineConfig{
 		WgIface:        config.TunName,
-		WgAddr:         wgAddr,
+		WgAddr:         ip + "/" + cidr,
 		IFaceBlackList: iFaceBlackList,
 		WgPrivateKey:   key,
 		WgPort:         wireguard.WgPort,

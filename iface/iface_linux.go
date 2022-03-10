@@ -26,9 +26,11 @@ func isWireGuardModule() bool {
 	return true
 }
 
-func CreateIface(i *Iface, address string) error {
+func CreateIface(i *Iface, ip, cidr string) error {
+	addr := ip + "/" + cidr
+
 	if isWireGuardModule() {
-		return createWithKernelSpace(i.Name, i.WgPrivateKey, address)
+		return createWithKernelSpace(i.Name, i.WgPrivateKey, addr)
 	}
 
 	return createWithUserSpace(i, address)

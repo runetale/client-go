@@ -111,12 +111,12 @@ func execUp(ctx context.Context, args []string) error {
 	// start logging in
 	//
 	// TODO: (shintard) if setupkey is nil, use public key and wireguard public key of client machine key to obtain login information and start Engine.
-	login, err := gClient.Login(upArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
+	loginRes, err := gClient.Login(upArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
 	if err != nil {
 		wislog.Logger.Fatalf("failed to login. because %v", err)
 	}
 
-	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
+	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", loginRes.SetupKey, loginRes.ClientPublicKey)
 
 	// initialize signaling client
 	//
@@ -127,14 +127,12 @@ func execUp(ctx context.Context, args []string) error {
 		return err
 	}
 
-	wislog.Logger.Infof("connected to signaling server %s", login.SignalingHost)
+	wislog.Logger.Infof("connected to signaling server %s", loginRes.SignalingHost)
 
 	// create wireguard interface
 	//
-	i := iface.NewIface(clientCore.TunName, clientCore.WgPrivateKey, login.Ip, login.Cidr, wislog)
-	addr := login.Ip + "/" + strconv.Itoa(int(login.Cidr))
-
-	err = iface.CreateIface(i, addr)
+	i := iface.NewIface(clientCore.TunName, clientCore.WgPrivateKey, loginRes.Ip, loginRes.Cidr, wislog)
+	err = iface.CreateIface(i, loginRes.Ip, strconv.Itoa(int(loginRes.Cidr)))
 	if err != nil {
 		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TunName, err.Error())
 		return err
@@ -145,7 +143,7 @@ func execUp(ctx context.Context, args []string) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, addr)
+	engineConfig := engine.NewEngineConfig(wgPrivateKey, clientCore, loginRes.Ip, strconv.Itoa(int(loginRes.Cidr)))
 	e := engine.NewEngine(wislog, i, gClient, sClient, cancel, ctx, engineConfig, cs.GetPublicKey(), wgPrivateKey)
 
 	// setup daemon
