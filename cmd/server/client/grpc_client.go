@@ -47,7 +47,7 @@ type GrpcClient struct {
 }
 
 func NewGrpcClient(
-	ctx context.Context, url *url.URL, port int,
+	ctx context.Context, url *url.URL,
 	privateKey wgtypes.Key, wislog *wislog.WisLog,
 ) (*GrpcClient, error) {
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
