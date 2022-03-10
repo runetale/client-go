@@ -32,7 +32,11 @@ func NewGrpcServerOption(
 
 	// grpc tls config with custom
 	//
-	certManager := certConfig.CreateCertManager()
+	certManager, err := certConfig.CreateCertManager()
+	if err != nil {
+		return nil, err
+	}
+
 	if certConfig.Domain != "" {
 		t := credentials.NewTLS(certManager.TLSConfig())
 		opts = append(opts, grpc.Creds(t))
@@ -61,4 +65,3 @@ func createTLSConfig(file, key string) (*tls.Config, error) {
 
 	return config, nil
 }
-
