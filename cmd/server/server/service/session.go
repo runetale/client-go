@@ -71,9 +71,11 @@ func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequ
 
 	// validate setupkey
 	//
-	err = sessionUsecase.ValidateSetupKey(setupKey)
-	if err != nil {
-		return nil, err
+	if setupKey != "" {
+		err = sessionUsecase.ValidateSetupKey(setupKey)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// create peer
