@@ -7,25 +7,26 @@ import (
 )
 
 type CertConfig struct {
-	Dir string
-	File string
-	Key string
+	Dir    string
+	File   string
+	Key    string
 	Domain string
 }
 
 func NewCertConfig(certDir, domain, secret, file string) *CertConfig {
 	return &CertConfig{
-		Dir: certDir,
-		File: file,
-		Key: secret,
+		Dir:    certDir,
+		File:   file,
+		Key:    secret,
 		Domain: domain,
 	}
 }
 
-func (c *CertConfig) CreateCertManager() *autocert.Manager {
+func (c *CertConfig) CreateCertManager() (*autocert.Manager, error) {
 	if _, err := os.Stat(c.Dir); os.IsNotExist(err) {
 		err = os.MkdirAll(c.Dir, os.ModeDir)
 		if err != nil {
+			return nil, err
 		}
 	}
 
@@ -35,5 +36,5 @@ func (c *CertConfig) CreateCertManager() *autocert.Manager {
 		HostPolicy: autocert.HostWhitelist(c.Domain),
 	}
 
-	return certManager
+	return certManager, nil
 }
