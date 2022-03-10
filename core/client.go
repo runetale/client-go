@@ -18,6 +18,7 @@ import (
 type ClientCore struct {
 	WgPrivateKey   string
 	ServerHost     *url.URL
+	SignalHost     *url.URL
 	IgonoreTUNs    []string
 	TunName        string
 	PreSharedKey   string
@@ -31,18 +32,32 @@ type ClientCore struct {
 func NewClientCore(
 	path string,
 	serverHost string, serverPort int,
+	signalHost string, signalPort int,
 	wl *wislog.WisLog,
 ) (*ClientCore, error) {
-	serverURL := serverHost + ":" + strconv.Itoa(serverPort)
+	var serverHostURL *url.URL
+	var signalHostURL *url.URL
+	var err error
 
-	serverHostURL, err := url.Parse(serverURL)
-	if err != nil {
-		return nil, err
+	if serverHost != "" {
+		serverURL := serverHost + ":" + strconv.Itoa(serverPort)
+		serverHostURL, err = url.Parse(serverURL)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if signalHost != "" {
+		signalURL := signalHost + ":" + strconv.Itoa(signalPort)
+		signalHostURL, err = url.Parse(signalURL)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &ClientCore{
-		ServerHost:  serverHostURL,
-		IgonoreTUNs: []string{},
+		ServerHost: serverHostURL,
+		SignalHost: signalHostURL,
 
 		path: path,
 
@@ -51,15 +66,19 @@ func NewClientCore(
 }
 
 func (c *ClientCore) writeClientCore(
-	path, wgPrivateKey, tunName string,
-	ifaceBlackList []string,
+	wgPrivateKey, tunName string,
+	serverHost, signalHost *url.URL,
+	igonoreTUNs, ifaceBlackList []string,
 ) *ClientCore {
-	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
-		c.wislog.Logger.Fatalf("failed to create directory with %s. because %s", path, err.Error())
+	if err := os.MkdirAll(filepath.Dir(c.path), 0777); err != nil {
+		c.wislog.Logger.Fatalf("failed to create directory with %s. because %s", c.path, err.Error())
 	}
 
 	c.WgPrivateKey = wgPrivateKey
 	c.TunName = tunName
+	c.ServerHost = serverHost
+	c.SignalHost = signalHost
+	c.IgonoreTUNs = igonoreTUNs
 	c.IfaceBlackList = ifaceBlackList
 
 	b, err := json.MarshalIndent(*c, "", "\t")
@@ -67,7 +86,7 @@ func (c *ClientCore) writeClientCore(
 		panic(err)
 	}
 
-	if err = utils.AtomicWriteFile(path, b, 0600); err != nil {
+	if err = utils.AtomicWriteFile(c.path, b, 0600); err != nil {
 		panic(err)
 	}
 
@@ -83,7 +102,7 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 			c.wislog.Logger.Error("failed to generate key for wireguard")
 			panic(err)
 		}
-		return c.writeClientCore(c.path, privKey, tun.TunName(), []string{tun.TunName(), "tun0"})
+		return c.writeClientCore(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{}, []string{tun.TunName(), "tun0"})
 	case err != nil:
 		c.wislog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
 		panic(err)
@@ -92,6 +111,6 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 		if err := json.Unmarshal(b, &core); err != nil {
 			c.wislog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
-		return c.writeClientCore(c.path, core.WgPrivateKey, core.TunName, core.IfaceBlackList)
+		return c.writeClientCore(core.WgPrivateKey, core.TunName, core.ServerHost, core.SignalHost, core.IgonoreTUNs, core.IfaceBlackList)
 	}
 }
