@@ -1,5 +1,7 @@
 package daemon
 
+import "github.com/Notch-Technologies/wizy/wislog"
+
 type Daemon interface {
 	Install() error
 	Uninstall() error
@@ -16,6 +18,9 @@ type Daemon interface {
 	IsRunnning() (string, bool)
 }
 
-func NewDaemon(path, serviceName, plistName, plistFile string) Daemon {
-	return newDaemon(path, serviceName, plistName, plistFile)
+func NewDaemon(
+	path, serviceName, plistName, plistFile string,
+	wl *wislog.WisLog,
+) Daemon {
+	return newDaemon(path, serviceName, plistName, plistFile, wl)
 }
