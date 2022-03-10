@@ -27,7 +27,7 @@ type daemon struct {
 func newDaemon(
 	targetPath, serviceName, plistPath, plistFile string,
 	wl *wislog.WisLog,
-) *daemon {
+) Daemon {
 	return &daemon{
 		targetPath:  targetPath,
 		serviceName: serviceName,
