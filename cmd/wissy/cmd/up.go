@@ -9,6 +9,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/client"
 	signaling "github.com/Notch-Technologies/wizy/cmd/signaling/client"
 	"github.com/Notch-Technologies/wizy/core"
+	"github.com/Notch-Technologies/wizy/daemon"
 	"github.com/Notch-Technologies/wizy/iface"
 	"github.com/Notch-Technologies/wizy/paths"
 	"github.com/Notch-Technologies/wizy/polymer/engine"
@@ -148,15 +149,15 @@ func execUp(ctx context.Context, args []string) error {
 
 	// setup daemon
 	//
-	// if upArgs.daemon {
-	// 	d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistFile, daemon.PlistFile, wislog)
-	// 	err = d.Install()
-	// 	if err != nil {
-	// 		wislog.Logger.Errorf("failed to install daemon: %s", err.Error())
-	// 		return err
-	// 	}
-	// 	return nil
-	// }
+	if upArgs.daemon {
+		d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistName, daemon.PlistFile, wislog)
+		err = d.Install()
+		if err != nil {
+			wislog.Logger.Errorf("failed to install daemon: %s", err.Error())
+			return err
+		}
+		return nil
+	}
 
 	// start engine
 	//
