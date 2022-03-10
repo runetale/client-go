@@ -43,6 +43,7 @@ func newDaemon(
 func (d *daemon) Install() (err error) {
 	defer func() {
 		if os.Getuid() != 0 && err != nil {
+			d.wislog.Logger.Errorf("run it again with sudo privileges: %s", err.Error())
 			err = fmt.Errorf("run it again with sudo privileges: %s", err.Error())
 		}
 	}()
@@ -57,23 +58,27 @@ func (d *daemon) Install() (err error) {
 	// good luck
 	//
 	if err := os.MkdirAll(filepath.Dir(d.targetPath), 0755); err != nil {
+		d.wislog.Logger.Errorf("failed to create %s. because %s\n", d.targetPath, err.Error())
 		return err
 	}
 
 	exePath, err := os.Executable()
 	if err != nil {
+		d.wislog.Logger.Errorf("failed to get executablePath. because %s\n", err.Error())
 		return err
 	}
 
 	tmpBin := d.targetPath + ".tmp"
 	f, err := os.Create(tmpBin)
 	if err != nil {
+		d.wislog.Logger.Errorf("failed to create %s. because %s\n", tmpBin, err.Error())
 		return err
 	}
 
 	exeFile, err := os.Open(exePath)
 	if err != nil {
 		f.Close()
+		d.wislog.Logger.Errorf("failed to open %s. because %s\n", exePath, err.Error())
 		return err
 	}
 
@@ -81,37 +86,45 @@ func (d *daemon) Install() (err error) {
 	exeFile.Close()
 	if err != nil {
 		f.Close()
+		d.wislog.Logger.Errorf("failed to copy %s to %s. because %s\n", f, exePath, err.Error())
 		return err
 	}
 
 	if err := f.Close(); err != nil {
+		d.wislog.Logger.Errorf("failed to close the %s. because %s\n", f.Name(), err.Error())
 		return err
 	}
 
 	if err := os.Chmod(tmpBin, 0755); err != nil {
+		d.wislog.Logger.Errorf("failed to grant permission for %s. because %s\n", tmpBin, err.Error())
 		return err
 	}
 
 	if err := os.Rename(tmpBin, d.targetPath); err != nil {
+		d.wislog.Logger.Errorf("failed to rename %s to %s. because %s\n", tmpBin, d.targetPath, err.Error())
 		return err
 	}
 
 	err = d.Uninstall()
 	if err != nil {
+		d.wislog.Logger.Errorf("uninstallation of %s failed. plist file is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
 		return err
 	}
 
 	if err := ioutil.WriteFile(d.plistPath, []byte(d.plistFile), 0700); err != nil {
+		d.wislog.Logger.Errorf("failed to write %s to %s. because %s\n", d.plistPath, d.plistFile, err.Error())
 		return err
 	}
 
 	err = d.Load()
 	if err != nil {
+		d.wislog.Logger.Errorf("failed to load %s. plist paht is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
 		return err
 	}
 
 	err = d.Start()
 	if err != nil {
+		d.wislog.Logger.Errorf("failed to start %s. plist path is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
 		return err
 	}
 
@@ -125,10 +138,12 @@ func (d *daemon) Uninstall() (err error) {
 	if isRunnning {
 		err := d.Stop()
 		if err != nil {
+			d.wislog.Logger.Errorf("failed to stop %s. plist path is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
 			return err
 		}
 		err = d.Unload()
 		if err != nil {
+			d.wislog.Logger.Errorf("failed to unload %s. plist paht is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
 			return err
 		}
 	}
@@ -191,7 +206,7 @@ func (d *daemon) Status() error {
 		return err
 	}
 
-	fmt.Print(mes)
+	fmt.Println(mes)
 	return nil
 }
 

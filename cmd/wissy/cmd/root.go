@@ -29,8 +29,7 @@ Flags and options are subject to change.
 		Subcommands: []*ffcli.Command{
 			upCmd,
 			loginCmd,
-			// uninstall,
-			// installSystemDaemon,
+			daemonCmd,
 			versionCmd,
 		},
 		FlagSet: fs,

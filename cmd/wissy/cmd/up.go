@@ -35,8 +35,8 @@ var upArgs struct {
 
 var upCmd = &ffcli.Command{
 	Name:       "up",
-	ShortUsage: "up",
-	ShortHelp:  "startup a peer",
+	ShortUsage: "up [flags]",
+	ShortHelp:  "startup a peer. you can use it after logging in",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("up", flag.ExitOnError)
 		fs.StringVar(&upArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")

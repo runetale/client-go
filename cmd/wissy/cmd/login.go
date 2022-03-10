@@ -38,7 +38,7 @@ var loginArgs struct {
 
 var loginCmd = &ffcli.Command{
 	Name:       "login",
-	ShortUsage: "login",
+	ShortUsage: "login [flags]",
 	ShortHelp:  "login to wissy, start the management server and then run it",
 	FlagSet: (func() *flag.FlagSet {
 		fs := flag.NewFlagSet("login", flag.ExitOnError)
