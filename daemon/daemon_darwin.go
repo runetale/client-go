@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/Notch-Technologies/wizy/wislog"
 )
 
 type daemon struct {
@@ -18,14 +20,21 @@ type daemon struct {
 	serviceName string
 	plistPath   string
 	plistFile   string
+
+	wislog *wislog.WisLog
 }
 
-func newDaemon(path, serviceName, plistPath, plistFile string) *daemon {
+func newDaemon(
+	targetPath, serviceName, plistPath, plistFile string,
+	wl *wislog.WisLog,
+) *daemon {
 	return &daemon{
-		targetPath:  path,
+		targetPath:  targetPath,
 		serviceName: serviceName,
 		plistPath:   plistPath,
 		plistFile:   plistFile,
+
+		wislog: wl,
 	}
 }
 
@@ -202,7 +211,7 @@ func (d *daemon) IsRunnning() (string, bool) {
 			if len(data) > 1 {
 				return fmt.Sprintf("%s is running on pid: %s", d.serviceName, data[1]), true
 			}
-			return fmt.Sprintf("%s is running. but cannot get pid. please report it", d.serviceName, data[1]), false
+			return fmt.Sprintf("%s is running. but cannot get pid. please report it", d.serviceName), false
 		}
 	}
 
