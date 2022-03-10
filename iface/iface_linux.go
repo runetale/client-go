@@ -33,7 +33,7 @@ func CreateIface(i *Iface, ip, cidr string) error {
 		return createWithKernelSpace(i.Name, i.WgPrivateKey, addr)
 	}
 
-	return createWithUserSpace(i, address)
+	return createWithUserSpace(i, addr)
 }
 
 func createWithKernelSpace(ifaceName, privateKey, address string) error {
