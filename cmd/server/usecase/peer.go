@@ -46,7 +46,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
-	peers, err := p.peerRepository.FindByOrganizationID(pe.OrganizationID)
+	peers, err := p.peerRepository.FindPeersByOrganizationID(pe.OrganizationID)
 	if err != nil {
 		fmt.Println("can not find peers")
 		return err
