@@ -16,10 +16,14 @@ import (
 )
 
 type daemon struct {
-	targetPath  string
+	// binary path
+	binPath  string
+	// daemon file path
+	daemonFilePath  string
+	// daemon name
 	serviceName string
-	plistPath   string
-	plistFile   string
+	// daemon system confi
+	systemConfig string
 
 	wislog *wislog.WisLog
 }

@@ -17,10 +17,12 @@ import (
 
 type systemDRecord struct {
 	// binary path
-	targetPath  string
+	binPath  string
 	// daemon name
 	serviceName string
-	// daemon system confi
+	// daemon file path
+	daemonFilePath  string
+	// daemon system config
 	systemConfig string
 
 	wislog *wislog.WisLog
@@ -45,8 +47,8 @@ func (s *systemDRecord) Install() (err error) {
 		return nil
 	}
 
-	if err := os.MkdirAll(filepath.Dir(s.targetPath), 0755); err != nil {
-		s.wislog.Logger.Errorf("failed to create %s. because %s\n", s.targetPath, err.Error())
+	if err := os.MkdirAll(filepath.Dir(s.binPath), 0755); err != nil {
+		s.wislog.Logger.Errorf("failed to create %s. because %s\n", s.binPath, err.Error())
 		return err
 	}
 
@@ -56,7 +58,7 @@ func (s *systemDRecord) Install() (err error) {
 		return err
 	}
 
-	tmpBin := s.targetPath + ".tmp"
+	tmpBin := s.binPath + ".tmp"
 	f, err := os.Create(tmpBin)
 	if err != nil {
 		s.wislog.Logger.Errorf("failed to create %s. because %s\n", tmpBin, err.Error())
@@ -88,8 +90,8 @@ func (s *systemDRecord) Install() (err error) {
 		return err
 	}
 
-	if err := os.Rename(tmpBin, s.targetPath); err != nil {
-		s.wislog.Logger.Errorf("failed to rename %s to %s. because %s\n", tmpBin, s.targetPath, err.Error())
+	if err := os.Rename(tmpBin, s.binPath); err != nil {
+		s.wislog.Logger.Errorf("failed to rename %s to %s. because %s\n", tmpBin, s.binPath, err.Error())
 		return err
 	}
 
@@ -98,8 +100,8 @@ func (s *systemDRecord) Install() (err error) {
 		return err
 	}
 
-	if err := ioutil.WriteFile(s.targetPath, []byte(s.systemConfig), 0700); err != nil {
-		s.wislog.Logger.Errorf("failed to write %s to %s. because %s\n", s.targetPath, s.systemConfig, err.Error())
+	if err := ioutil.WriteFile(s.daemonFilePath, []byte(s.systemConfig), 0700); err != nil {
+		s.wislog.Logger.Errorf("failed to write %s to %s. because %s\n", s.daemonFilePath, s.systemConfig, err.Error())
 		return err
 	}
 
@@ -128,17 +130,17 @@ func (s *systemDRecord) Uninstall() error {
 	if isRunnning {
 		err := s.Stop()
 		if err != nil {
-			s.wislog.Logger.Errorf("failed to stop %s. path is here %s. because %s\n", s.serviceName, s.targetPath, err.Error())
+			s.wislog.Logger.Errorf("failed to stop %s. path is here %s. because %s\n", s.serviceName, s.daemonFilePath, err.Error())
 			return err
 		}
 		err = s.Unload()
 		if err != nil {
-			s.wislog.Logger.Errorf("failed to disable %s. path is here %s. because %s\n", s.serviceName, s.targetPath, err.Error())
+			s.wislog.Logger.Errorf("failed to disable %s. path is here %s. because %s\n", s.serviceName, s.daemonFilePath, err.Error())
 			return err
 		}
 	}
 
-	err = os.Remove(s.targetPath)
+	err = os.Remove(s.daemonFilePath)
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -153,12 +155,12 @@ func (s *systemDRecord) Load() error {
 	}
 
 	if out, err := exec.Command("systemctl", "daemon-reload").CombinedOutput(); err != nil {
-		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.targetPath, err.Error(), out)
+		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
 
 	if out, err := exec.Command("systemctl", "enable", s.serviceName + ".service").CombinedOutput(); err != nil {
-		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.targetPath, err.Error(), out)
+		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
 
@@ -180,7 +182,7 @@ func (s *systemDRecord) Unload() error {
 	}
 
 	if out, err := exec.Command("systemctl", "disable", s.serviceName + ".service").CombinedOutput(); err != nil {
-		fmt.Printf("failed to disable systemctl %s, because %s\n %s\n", s.targetPath, err.Error(), out)
+		fmt.Printf("failed to disable systemctl %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
 
@@ -198,7 +200,7 @@ func (s *systemDRecord) Start() error {
 	}
 
 	if out, err := exec.Command("systemctl", "start", s.serviceName + ".service").CombinedOutput(); err != nil {
-		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.targetPath, err.Error(), out)
+		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
 
@@ -220,7 +222,7 @@ func (s *systemDRecord) Stop() error {
 	}
 
 	if out, err := exec.Command("systemctl", "stop", s.serviceName + ".service").CombinedOutput(); err != nil {
-		fmt.Printf("failed to stop systemctl %s, because %s\n %s\n", s.targetPath, err.Error(), out)
+		fmt.Printf("failed to stop systemctl %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
 
@@ -250,7 +252,7 @@ func (s *systemDRecord) Status() error {
 }
 
 func (s *systemDRecord) IsInstalled() bool {
-	if _, err := os.Stat(s.targetPath); err == nil {
+	if _, err := os.Stat(s.daemonFilePath); err == nil {
 		return true
 	}
 

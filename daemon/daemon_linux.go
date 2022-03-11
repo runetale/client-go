@@ -7,36 +7,36 @@ import (
 )
 
 func newDaemon(
-	targetPath, serviceName, plistPath, plistFile string,
+	binPath, serviceName, daemonFilePath, systemConfig string,
 	wl *wislog.WisLog,
 ) Daemon {
 	if _, err := os.Stat("/run/systemd/system"); err == nil {
 		return &systemDRecord{
-			targetPath:  targetPath,
+			binPath:  binPath,
 			serviceName: serviceName,
-			plistPath:   plistPath,
-			plistFile:   plistFile,
+			daemonFilePath:   daemonFilePath,
+			systemConfig:  systemConfig,
     	
 			wislog: wl,
 		}
 	}
 	if _, err := os.Stat("/sbin/initctl"); err == nil {
 		return &upstartRecord{
-			targetPath:  targetPath,
+			binPath:  binPath,
 			serviceName: serviceName,
-			plistPath:   plistPath,
-			plistFile:   plistFile,
+			daemonFilePath:   daemonFilePath,
+			systemConfig:  systemConfig,
     	
 			wislog: wl,
 		}
 	}
 
 	return &systemVRecord{
-		targetPath:  targetPath,
+		binPath:  binPath,
 		serviceName: serviceName,
-		plistPath:   plistPath,
-		plistFile:   plistFile,
-
+		daemonFilePath:   daemonFilePath,
+		systemConfig:  systemConfig,
+    	
 		wislog: wl,
 	}
 }

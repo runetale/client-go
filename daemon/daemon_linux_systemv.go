@@ -8,10 +8,14 @@ import (
 )
 
 type systemVRecord struct {
-	targetPath  string
+	// binary path
+	binPath  string
+	// daemon name
 	serviceName string
-	plistPath   string
-	plistFile   string
+	// daemon file path
+	daemonFilePath  string
+	// daemon system config
+	systemConfig string
 
 	wislog *wislog.WisLog
 }
