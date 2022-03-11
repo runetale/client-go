@@ -150,7 +150,7 @@ func execUp(ctx context.Context, args []string) error {
 	// setup daemon
 	//
 	if upArgs.daemon {
-		d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+		d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 		err = d.Install()
 		if err != nil {
 			wislog.Logger.Errorf("failed to install daemon: %s", err.Error())

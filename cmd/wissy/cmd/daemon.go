@@ -52,7 +52,7 @@ func installDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 	err = d.Install()
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func uninstallDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 	err = d.Uninstall()
 	if err != nil {
 		return err
@@ -96,7 +96,7 @@ func startDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 	err = d.Start()
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func stopDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 	err = d.Stop()
 	if err != nil {
 		return err
@@ -140,7 +140,7 @@ func statusDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 	err = d.Status()
 	if err != nil {
 		return err
