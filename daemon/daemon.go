@@ -19,8 +19,8 @@ type Daemon interface {
 }
 
 func NewDaemon(
-	path, serviceName, plistName, plistFile string,
+	binPath, serviceName, daemonFilePath, systemConfig string,
 	wl *wislog.WisLog,
 ) Daemon {
-	return newDaemon(path, serviceName, plistName, plistFile, wl)
+	return newDaemon(binPath, serviceName, daemonFilePath, systemConfig, wl)
 }
