@@ -246,7 +246,6 @@ func (s *systemDRecord) Status() error {
 	}
 
 	fmt.Println(mes)
-	return nil
 
 	return nil
 }
@@ -284,5 +283,6 @@ func (s *systemDRecord) checkPrivileges() error {
 			return errors.New("run with root privileges")
 		}
 	}
+
 	return errors.New("unsupport system")
 }
