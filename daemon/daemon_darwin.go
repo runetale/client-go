@@ -48,6 +48,8 @@ func (d *daemon) Install() (err error) {
 		}
 	}()
 
+	// TODO: added check privileges and is installed
+
 	// seriously copy the binary
 	// - create binary path => "/usr/local/bin/wissy"
 	// - execution path at build time => exeFile
@@ -134,6 +136,11 @@ func (d *daemon) Install() (err error) {
 // in effect, all it does is call unload and stop.
 //
 func (d *daemon) Uninstall() (err error) {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
 	_, isRunnning := d.IsRunnning()
 	if isRunnning {
 		err := d.Stop()
@@ -157,23 +164,52 @@ func (d *daemon) Uninstall() (err error) {
 }
 
 func (d *daemon) Load() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
 	if out, err := exec.Command("launchctl", "load", d.plistPath).CombinedOutput(); err != nil {
 		fmt.Printf("failed to running launchctl load %s, because %s\n %s\n", d.plistPath, err.Error(), out)
 		return err
 	}
+
 	return nil
 }
 
 func (d *daemon) Unload() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if !d.IsInstalled() {
+		return errors.New("not installed")
+	}
+
+	if _, isRunning := d.IsRunnning(); !isRunning {
+		return errors.New("not running")
+	}
+
 	out, err := exec.Command("launchctl", "unload", d.serviceName).CombinedOutput()
 	if err != nil {
 		fmt.Printf("failed to launchctl unload %s, because %v.\n %s\n", d.serviceName, err.Error(), out)
 		return err
 	}
+
 	return nil
 }
 
 func (d *daemon) Start() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if _, isRunning := d.IsRunnning(); !isRunning {
+		return errors.New("already running")
+	}
+
 	if out, err := exec.Command("launchctl", "start", d.serviceName).CombinedOutput(); err != nil {
 		fmt.Printf("failed to running launchctl start %s, because %s.\n %s\n", d.serviceName, err.Error(), out)
 		return err
@@ -182,6 +218,19 @@ func (d *daemon) Start() error {
 }
 
 func (d *daemon) Stop() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if !d.IsInstalled() {
+		return errors.New("not installed")
+	}
+
+	if _, isRunning := d.IsRunnning(); !isRunning {
+		return errors.New("not running")
+	}
+
 	out, err := exec.Command("launchctl", "stop", d.serviceName).CombinedOutput()
 	if err != nil {
 		fmt.Printf("failed to launchctl stop %s, because %v.\n %s\n", d.serviceName, err.Error(), out)
