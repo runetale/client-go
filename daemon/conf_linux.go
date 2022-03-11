@@ -1,0 +1,18 @@
+package daemon
+
+const TargetPath = "/etc/systemd/system/wissy.service"
+
+var SystemConfig = `[Unit]
+Description={{.Description}}
+Requires={{.Dependencies}}
+After={{.Dependencies}}
+
+[Service]
+PIDFile=/var/run/{{.Name}}.pid
+ExecStartPre=/bin/rm -f /var/run/{{.Name}}.pid
+ExecStart={{.Path}} {{.Args}}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+`
