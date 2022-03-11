@@ -17,9 +17,9 @@ import (
 
 type daemon struct {
 	// binary path
-	binPath  string
+	binPath string
 	// daemon file path
-	daemonFilePath  string
+	daemonFilePath string
 	// daemon name
 	serviceName string
 	// daemon system confi
@@ -29,14 +29,14 @@ type daemon struct {
 }
 
 func newDaemon(
-	targetPath, serviceName, plistPath, plistFile string,
+	binPath, serviceName, daemonFilePath, systemConfig string,
 	wl *wislog.WisLog,
 ) Daemon {
 	return &daemon{
-		targetPath:  targetPath,
-		serviceName: serviceName,
-		plistPath:   plistPath,
-		plistFile:   plistFile,
+		binPath:        binPath,
+		serviceName:    serviceName,
+		daemonFilePath: daemonFilePath,
+		systemConfig:   systemConfig,
 
 		wislog: wl,
 	}
@@ -63,8 +63,8 @@ func (d *daemon) Install() (err error) {
 	// - tmpBin to a real executable file
 	// good luck
 	//
-	if err := os.MkdirAll(filepath.Dir(d.targetPath), 0755); err != nil {
-		d.wislog.Logger.Errorf("failed to create %s. because %s\n", d.targetPath, err.Error())
+	if err := os.MkdirAll(filepath.Dir(d.binPath), 0755); err != nil {
+		d.wislog.Logger.Errorf("failed to create %s. because %s\n", d.binPath, err.Error())
 		return err
 	}
 
@@ -74,7 +74,7 @@ func (d *daemon) Install() (err error) {
 		return err
 	}
 
-	tmpBin := d.targetPath + ".tmp"
+	tmpBin := d.binPath + ".tmp"
 	f, err := os.Create(tmpBin)
 	if err != nil {
 		d.wislog.Logger.Errorf("failed to create %s. because %s\n", tmpBin, err.Error())
@@ -106,31 +106,31 @@ func (d *daemon) Install() (err error) {
 		return err
 	}
 
-	if err := os.Rename(tmpBin, d.targetPath); err != nil {
-		d.wislog.Logger.Errorf("failed to rename %s to %s. because %s\n", tmpBin, d.targetPath, err.Error())
+	if err := os.Rename(tmpBin, d.binPath); err != nil {
+		d.wislog.Logger.Errorf("failed to rename %s to %s. because %s\n", tmpBin, d.binPath, err.Error())
 		return err
 	}
 
 	err = d.Uninstall()
 	if err != nil {
-		d.wislog.Logger.Errorf("uninstallation of %s failed. plist file is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
+		d.wislog.Logger.Errorf("uninstallation of %s failed. plist file is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 		return err
 	}
 
-	if err := ioutil.WriteFile(d.plistPath, []byte(d.plistFile), 0700); err != nil {
-		d.wislog.Logger.Errorf("failed to write %s to %s. because %s\n", d.plistPath, d.plistFile, err.Error())
+	if err := ioutil.WriteFile(d.daemonFilePath, []byte(d.systemConfig), 0700); err != nil {
+		d.wislog.Logger.Errorf("failed to write %s to %s. because %s\n", d.daemonFilePath, d.systemConfig, err.Error())
 		return err
 	}
 
 	err = d.Load()
 	if err != nil {
-		d.wislog.Logger.Errorf("failed to load %s. plist paht is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
+		d.wislog.Logger.Errorf("failed to load %s. plist paht is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 		return err
 	}
 
 	err = d.Start()
 	if err != nil {
-		d.wislog.Logger.Errorf("failed to start %s. plist path is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
+		d.wislog.Logger.Errorf("failed to start %s. plist path is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 		return err
 	}
 
@@ -140,7 +140,7 @@ func (d *daemon) Install() (err error) {
 // in effect, all it does is call unload and stop.
 //
 func (d *daemon) Uninstall() (err error) {
-	err := d.checkPrivileges()
+	err = d.checkPrivileges()
 	if err != nil {
 		return err
 	}
@@ -149,17 +149,17 @@ func (d *daemon) Uninstall() (err error) {
 	if isRunnning {
 		err := d.Stop()
 		if err != nil {
-			d.wislog.Logger.Errorf("failed to stop %s. plist path is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
+			d.wislog.Logger.Errorf("failed to stop %s. plist path is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 			return err
 		}
 		err = d.Unload()
 		if err != nil {
-			d.wislog.Logger.Errorf("failed to unload %s. plist paht is here %s. because %s\n", d.serviceName, d.plistPath, err.Error())
+			d.wislog.Logger.Errorf("failed to unload %s. plist paht is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 			return err
 		}
 	}
 
-	err = os.Remove(d.plistPath)
+	err = os.Remove(d.daemonFilePath)
 	if os.IsNotExist(err) {
 		return nil
 	}
@@ -173,8 +173,8 @@ func (d *daemon) Load() error {
 		return err
 	}
 
-	if out, err := exec.Command("launchctl", "load", d.plistPath).CombinedOutput(); err != nil {
-		fmt.Printf("failed to running launchctl load %s, because %s\n %s\n", d.plistPath, err.Error(), out)
+	if out, err := exec.Command("launchctl", "load", d.daemonFilePath).CombinedOutput(); err != nil {
+		fmt.Printf("failed to running launchctl load %s, because %s\n %s\n", d.daemonFilePath, err.Error(), out)
 		return err
 	}
 
@@ -210,7 +210,7 @@ func (d *daemon) Start() error {
 		return err
 	}
 
-	if _, isRunning := d.IsRunnning(); !isRunning {
+	if _, isRunning := d.IsRunnning(); isRunning {
 		return errors.New("already running")
 	}
 
@@ -231,8 +231,8 @@ func (d *daemon) Stop() error {
 		return errors.New("not installed")
 	}
 
-	if _, isRunning := d.IsRunnning(); !isRunning {
-		return errors.New("not running")
+	if mes, isRunning := d.IsRunnning(); !isRunning {
+		return errors.New(mes)
 	}
 
 	out, err := exec.Command("launchctl", "stop", d.serviceName).CombinedOutput()
@@ -264,7 +264,7 @@ func (d *daemon) Status() error {
 }
 
 func (d *daemon) IsInstalled() bool {
-	if _, err := os.Stat(d.plistPath); err == nil {
+	if _, err := os.Stat(d.daemonFilePath); err == nil {
 		return true
 	}
 	return false

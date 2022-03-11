@@ -33,6 +33,8 @@ var daemonCmd = &ffcli.Command{
 		installDaemonCmd,
 		uninstallDaemonCmd,
 		statusCmd,
+		startDaemonCmd,
+		stopDaemonCmd,
 	},
 }
 
@@ -50,7 +52,7 @@ func installDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistName, daemon.PlistFile, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
 	err = d.Install()
 	if err != nil {
 		return err
@@ -72,8 +74,52 @@ func uninstallDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistName, daemon.PlistFile, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
 	err = d.Uninstall()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+var startDaemonCmd = &ffcli.Command{
+	Name:       "start",
+	ShortUsage: "start",
+	ShortHelp:  "start the daemon",
+	Exec:       startDaemon,
+}
+
+func startDaemon(ctx context.Context, args []string) error {
+	err := wislog.InitWisLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
+	if err != nil {
+		log.Fatalf("failed to initialize logger: %v", err)
+	}
+	wislog := wislog.NewWisLog("daemon")
+
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	err = d.Start()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+var stopDaemonCmd = &ffcli.Command{
+	Name:       "stop",
+	ShortUsage: "stop",
+	ShortHelp:  "stop the daemon",
+	Exec:       stopDaemon,
+}
+
+func stopDaemon(ctx context.Context, args []string) error {
+	err := wislog.InitWisLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
+	if err != nil {
+		log.Fatalf("failed to initialize logger: %v", err)
+	}
+	wislog := wislog.NewWisLog("daemon")
+
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+	err = d.Stop()
 	if err != nil {
 		return err
 	}
@@ -94,7 +140,7 @@ func statusDaemon(ctx context.Context, args []string) error {
 	}
 	wislog := wislog.NewWisLog("daemon")
 
-	d := daemon.NewDaemon(daemon.TargetPath, daemon.ServiceName, daemon.PlistName, daemon.PlistFile, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
 	err = d.Status()
 	if err != nil {
 		return err

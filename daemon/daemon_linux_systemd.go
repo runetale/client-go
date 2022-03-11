@@ -17,11 +17,11 @@ import (
 
 type systemDRecord struct {
 	// binary path
-	binPath  string
+	binPath string
 	// daemon name
 	serviceName string
 	// daemon file path
-	daemonFilePath  string
+	daemonFilePath string
 	// daemon system config
 	systemConfig string
 
@@ -159,7 +159,7 @@ func (s *systemDRecord) Load() error {
 		return err
 	}
 
-	if out, err := exec.Command("systemctl", "enable", s.serviceName + ".service").CombinedOutput(); err != nil {
+	if out, err := exec.Command("systemctl", "enable", s.serviceName+".service").CombinedOutput(); err != nil {
 		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
@@ -181,7 +181,7 @@ func (s *systemDRecord) Unload() error {
 		return errors.New("not running")
 	}
 
-	if out, err := exec.Command("systemctl", "disable", s.serviceName + ".service").CombinedOutput(); err != nil {
+	if out, err := exec.Command("systemctl", "disable", s.serviceName+".service").CombinedOutput(); err != nil {
 		fmt.Printf("failed to disable systemctl %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
@@ -195,11 +195,11 @@ func (s *systemDRecord) Start() error {
 		return err
 	}
 
-	if _, isRunning := s.IsRunnning(); !isRunning {
+	if _, isRunning := s.IsRunnning(); isRunning {
 		return errors.New("already running")
 	}
 
-	if out, err := exec.Command("systemctl", "start", s.serviceName + ".service").CombinedOutput(); err != nil {
+	if out, err := exec.Command("systemctl", "start", s.serviceName+".service").CombinedOutput(); err != nil {
 		fmt.Printf("failed to running systemctl daemon-reload %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
@@ -217,11 +217,11 @@ func (s *systemDRecord) Stop() error {
 		return errors.New("not installed")
 	}
 
-	if _, isRunning := s.IsRunnning(); !isRunning {
-		return errors.New("not running")
+	if mes, isRunning := s.IsRunnning(); !isRunning {
+		return errors.New(mes)
 	}
 
-	if out, err := exec.Command("systemctl", "stop", s.serviceName + ".service").CombinedOutput(); err != nil {
+	if out, err := exec.Command("systemctl", "stop", s.serviceName+".service").CombinedOutput(); err != nil {
 		fmt.Printf("failed to stop systemctl %s, because %s\n %s\n", s.daemonFilePath, err.Error(), out)
 		return err
 	}
@@ -260,16 +260,16 @@ func (s *systemDRecord) IsInstalled() bool {
 }
 
 func (s *systemDRecord) IsRunnning() (string, bool) {
-	output, err := exec.Command("systemctl", "status", s.serviceName + ".service").Output()
+	output, err := exec.Command("systemctl", "status", s.serviceName+".service").Output()
 	if err == nil {
-	    if matched, err := regexp.MatchString("Active: active", string(output)); err == nil && matched {
-	        reg := regexp.MustCompile("Main PID: ([0-9]+)")
-	        data := reg.FindStringSubmatch(string(output))
-	        if len(data) > 1 {
+		if matched, err := regexp.MatchString("Active: active", string(output)); err == nil && matched {
+			reg := regexp.MustCompile("Main PID: ([0-9]+)")
+			data := reg.FindStringSubmatch(string(output))
+			if len(data) > 1 {
 				return fmt.Sprintf("%s is running on pid: %s", s.serviceName, data[1]), true
-	        }
+			}
 			return fmt.Sprintf("%s is running. but cannot get pid. please report it", s.serviceName), false
-	    }
+		}
 	}
 
 	return fmt.Sprintf("%s is stopped", s.serviceName), false
