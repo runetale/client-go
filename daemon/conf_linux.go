@@ -1,18 +1,22 @@
 package daemon
 
-const TargetPath = "/etc/systemd/system/wissy.service"
-
 var SystemConfig = `[Unit]
-Description={{.Description}}
-Requires={{.Dependencies}}
-After={{.Dependencies}}
+Description=Wissy Daemon
+Requires=NetworkManager.service
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
 
 [Service]
-PIDFile=/var/run/{{.Name}}.pid
-ExecStartPre=/bin/rm -f /var/run/{{.Name}}.pid
-ExecStart={{.Path}} {{.Args}}
+User=root
+Type=simple
+ExecStart=/bin/wissy up
 Restart=on-failure
+RestartSec=15s
 
 [Install]
 WantedBy=multi-user.target
 `
+
+const DaemonFilePath = "/etc/systemd/system/wissy.service"
+const BinPath = "/bin/wissy"
+const ServiceName = "wissy"
