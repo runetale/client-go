@@ -29,11 +29,13 @@
         in
         {
           wissy = pkgs.buildGoModule {
-            pname = "go-hello";
+            pname = "wissy";
             inherit version;
             # In 'nix develop', we don't need a copy of the source tree
             # in the Nix store.
             src = ./.;
+
+            vendorSha256 = pkgs.lib.fakeSha256;
           };
         });
 
