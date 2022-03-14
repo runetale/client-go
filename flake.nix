@@ -4,7 +4,16 @@
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.11";
 
-  outputs = { self, nixpkgs }:
+  inputs = {
+    systemd-nix = {
+      url = github:serokell/systemd-nix;
+      inputs.nixpkgs.follows =
+        "nixpkgs"; # Make sure the nixpkgs version matches
+    };
+    deploy.url = github:serokell/deploy;
+  };
+
+  outputs = { self, nixpkgs, systemd-nix, deploy }:
     let
 
       # Generate a user-friendly version number.
@@ -33,9 +42,14 @@
             inherit version;
             # In 'nix develop', we don't need a copy of the source tree
             # in the Nix store.
-            src = ./.;
+            src = ./cmd/wissy;
 
             vendorSha256 = pkgs.lib.fakeSha256;
+          };
+
+          daemon = pkgs.substituteAll {
+            name = "wissy.service";
+            src = ./systemd/wissy.service;
           };
         });
 
@@ -58,7 +72,6 @@
               PATH=$PATH:$GOPATH/bin
               export GO111MODULE=on
             '';
-        });
-
+          });
     };
 }
