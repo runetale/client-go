@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/Notch-Technologies/wizy/version"
 	"github.com/Notch-Technologies/wizy/wireguard"
 	"github.com/Notch-Technologies/wizy/wislog"
 	"golang.zx2c4.com/wireguard/wgctrl"
@@ -36,6 +37,10 @@ func CreateIface(
 	wislog *wislog.WisLog,
 ) error {
 	addr := ip + "/" + cidr
+
+	if version.Get() == version.NixOS {
+		return createWithKernelSpace(i.Name, i.WgPrivateKey, addr, wislog)
+	}
 
 	if isWireGuardModule(wislog) {
 		wislog.Logger.Infof("wireguard in the kernel space.")
