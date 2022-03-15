@@ -95,6 +95,7 @@ func (s *systemDRecord) Install() (err error) {
 		return err
 	}
 
+	// TODO: skip for nix
 	err = s.Uninstall()
 	if err != nil {
 		return err
