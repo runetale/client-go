@@ -15,7 +15,7 @@ type UserServerServiceCaller interface {
 }
 
 type UserServerService struct {
-	db *database.Sqlite
+	db     *database.Sqlite
 	config *config.ServerConfig
 }
 
@@ -23,7 +23,7 @@ func NewUserServerService(
 	db *database.Sqlite, config *config.ServerConfig,
 ) UserServerServiceCaller {
 	return &UserServerService{
-		db: db,
+		db:     db,
 		config: config,
 	}
 }
