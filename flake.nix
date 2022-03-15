@@ -1,19 +1,9 @@
 {
   description = "wissy";
 
-  # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.11";
 
-  inputs = {
-    systemd-nix = {
-      url = github:serokell/systemd-nix;
-      inputs.nixpkgs.follows =
-        "nixpkgs"; # Make sure the nixpkgs version matches
-    };
-    deploy.url = github:serokell/deploy;
-  };
-
-  outputs = { self, nixpkgs, systemd-nix, deploy }:
+  outputs = { self, nixpkgs }:
     let
 
       # Generate a user-friendly version number.
@@ -40,11 +30,18 @@
           wissy = pkgs.buildGoModule {
             pname = "wissy";
             inherit version;
-            src = ./.;
+            src = builtins.path {
+              path = ./.;
+              filter = (path: type: builtins.elem path (builtins.map toString [
+                ./go.mod
+                ./go.sum
+              ]));
+            };
 
             vendorSha256 = pkgs.lib.fakeSha256;
           };
 
+          # build systemd service path.
           daemon = pkgs.substituteAll {
             name = "wissy.service";
             src = ./systemd/wissy.service;

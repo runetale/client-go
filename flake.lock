@@ -1,44 +1,12 @@
 {
   "nodes": {
-    "deploy": {
-      "inputs": {
-        "nixpkgs": "nixpkgs"
-      },
-      "locked": {
-        "lastModified": 1615202163,
-        "narHash": "sha256-vTewEhC4ZCP4d5YThPWO6W6dEccp7SGggcWS6Y3KJ14=",
-        "owner": "serokell",
-        "repo": "deploy",
-        "rev": "e1d4702d64f0bad1f880998bf0f3b59de9e29e87",
-        "type": "github"
-      },
-      "original": {
-        "owner": "serokell",
-        "repo": "deploy",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1592491430,
-        "narHash": "sha256-7WNpr16iUyjG4caad137nCqxXNTdct202jy05lslZXA=",
+        "lastModified": 1647122627,
+        "narHash": "sha256-w4hGsXYyMgJAQRSBxh7O6AAsawJSbudCxfQXhDRhwPQ=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "07299ff81e58e16b282fe602ce5e629854dfd544",
-        "type": "github"
-      },
-      "original": {
-        "id": "nixpkgs",
-        "type": "indirect"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1646933238,
-        "narHash": "sha256-RZJnLN0o4B35eTnUc2tEAD12X5TNeeJhhvH3Fd6Pmdo=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "bacbfd713b4781a4a82c1f390f8fe21ae3b8b95b",
+        "rev": "0f85665118d850aae5164d385d24783d0b16cf1b",
         "type": "github"
       },
       "original": {
@@ -49,29 +17,7 @@
     },
     "root": {
       "inputs": {
-        "deploy": "deploy",
-        "nixpkgs": "nixpkgs_2",
-        "systemd-nix": "systemd-nix"
-      }
-    },
-    "systemd-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1608245516,
-        "narHash": "sha256-EoEit7oosSNXgIN2WZCb/e8ZbdBuC72eEj66CuLXYOI=",
-        "owner": "serokell",
-        "repo": "systemd-nix",
-        "rev": "61dd95a7a7a5f80ff9b1014f9e9e89bed6f84e2f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "serokell",
-        "repo": "systemd-nix",
-        "type": "github"
+        "nixpkgs": "nixpkgs"
       }
     }
   },
