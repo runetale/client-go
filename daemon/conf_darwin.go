@@ -24,6 +24,6 @@ const SystemConfig = `
 </plist>
 `
 
-const DameonFilePath = "/Library/LaunchDaemons/com.wissy.wissy.plist"
+const DaemonFilePath = "/Library/LaunchDaemons/com.wissy.wissy.plist"
 const BinPath = "/usr/local/bin/wissy"
 const ServiceName = "com.wissy.wissy"

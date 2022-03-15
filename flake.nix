@@ -1,34 +1,72 @@
 {
-  inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-  };
+  description = "wissy";
 
-  # TODO: (shintard) support aarch64 package
-  outputs = { self, nixpkgs, flake-utils, ... }:
-    let systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
-     in flake-utils.lib.eachSystem systems (system:
-      let
-        buildDeps = with nixpkgs; [ git go ];
-        devDeps = with nixpkgs;
-          buildDeps ++ [
-            protoc-gen-go
-            go_1_17
-            goimports
-            gopls
-            protobuf
-            protoc-gen-go-grpc
-          ];
-      in
-      { devShell = nixpkgs.mkShell {
-        buildInputs = devDeps; 
+  inputs.nixpkgs.url = "nixpkgs/nixos-21.11";
 
-        shellHook = ''
-          export GOPATH=$GOPATH
-          PATH=$PATH:$GOPATH/bin
-          export GO111MODULE=on
-        '';
-      };
-    }
-  );
+  outputs = { self, nixpkgs }:
+    let
+
+      # Generate a user-friendly version number.
+      version = builtins.substring 0 8 self.lastModifiedDate;
+
+      # System types to support.
+      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
+
+      # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
+      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
+
+      # Nixpkgs instantiated for supported system types.
+      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
+
+    in
+    {
+
+      # Provide some binary packages for selected system types.
+      packages = forAllSystems (system:
+        let
+          pkgs = nixpkgsFor.${system};
+        in
+        {
+          wissy = pkgs.buildGoModule {
+            pname = "wissy";
+            inherit version;
+            src = builtins.path {
+              path = ./.;
+              filter = (path: type: builtins.elem path (builtins.map toString [
+                ./go.mod
+                ./go.sum
+              ]));
+            };
+
+            vendorSha256 = pkgs.lib.fakeSha256;
+          };
+
+          # build systemd service path.
+          daemon = pkgs.substituteAll {
+            name = "wissy.service";
+            src = ./systemd/wissy.service;
+          };
+        });
+
+        defaultPackage = forAllSystems (system: self.packages.${system}.wissy);
+
+        devShell = forAllSystems (system:
+          let pkgs = nixpkgsFor.${system};
+          in pkgs.mkShell {
+            buildInputs = with pkgs; [
+              protoc-gen-go
+              go_1_17
+              goimports
+              gopls
+              protobuf
+              protoc-gen-go-grpc
+            ];
+
+            shellHook = ''
+              export GOPATH=$GOPATH
+              PATH=$PATH:$GOPATH/bin
+              export GO111MODULE=on
+            '';
+          });
+    };
 }

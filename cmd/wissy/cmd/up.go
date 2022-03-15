@@ -133,7 +133,10 @@ func execUp(ctx context.Context, args []string) error {
 	// create wireguard interface
 	//
 	i := iface.NewIface(clientCore.TunName, clientCore.WgPrivateKey, loginRes.Ip, loginRes.Cidr, wislog)
-	err = iface.CreateIface(i, loginRes.Ip, strconv.Itoa(int(loginRes.Cidr)))
+	err = iface.CreateIface(i, loginRes.Ip, strconv.Itoa(int(loginRes.Cidr)), wislog)
+
+	wislog.Logger.Infof("ip: %s. cidr: %d", loginRes.Ip, loginRes.Cidr)
+
 	if err != nil {
 		wislog.Logger.Errorf("failed creating Wireguard interface [%s]: %s", clientCore.TunName, err.Error())
 		return err
@@ -150,7 +153,7 @@ func execUp(ctx context.Context, args []string) error {
 	// setup daemon
 	//
 	if upArgs.daemon {
-		d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DameonFilePath, daemon.SystemConfig, wislog)
+		d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
 		err = d.Install()
 		if err != nil {
 			wislog.Logger.Errorf("failed to install daemon: %s", err.Error())
