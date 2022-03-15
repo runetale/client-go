@@ -34,3 +34,6 @@ go.work
 
 # sqlite
 *.db
+
+# nix
+/result
