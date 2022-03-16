@@ -279,7 +279,7 @@ func (d *daemon) IsRunnning() (string, bool) {
 			if len(data) > 1 {
 				return fmt.Sprintf("%s is running on pid: %s", d.serviceName, data[1]), true
 			}
-			return fmt.Sprintf("%s is running. but cannot get pid. please report it", d.serviceName), false
+			return fmt.Sprintf("%s is running. but cannot get pid. please report it", d.serviceName), true
 		}
 	}
 

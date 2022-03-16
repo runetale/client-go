@@ -2,10 +2,14 @@ package iface
 
 import (
 	"github.com/Notch-Technologies/wizy/wireguard"
+	"github.com/Notch-Technologies/wizy/wislog"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-func CreateIface(i *Iface, ip, cidr string) error {
+func CreateIface(
+	i *Iface, ip, cidr string,
+	wislog *wislog.WisLog,
+) error {
 	addr := ip + "/" + cidr
 
 	err := i.CreateWithUserSpace(addr)
