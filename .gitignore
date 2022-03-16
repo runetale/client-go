@@ -37,3 +37,6 @@ go.work
 
 # nix
 /result
+
+# bin
+/bin
