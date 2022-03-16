@@ -39,6 +39,7 @@
             };
 
             vendorSha256 = pkgs.lib.fakeSha256;
+            #vendorSha256 = "sha256-ApM4tG4qY3IOgCZtrCiEIuWn2mobVcXsUFiXrz9lXFg=";
           };
 
           # build systemd service path.
