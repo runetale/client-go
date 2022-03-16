@@ -5,8 +5,10 @@ import (
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
-func CreateIface(i *Iface, address string) error {
-	err := i.CreateWithUserSpace(address)
+func CreateIface(i *Iface, ip, cidr string) error {
+	addr := ip + "/" + cidr
+
+	err := i.CreateWithUserSpace(addr)
 	if err != nil {
 		return err
 	}

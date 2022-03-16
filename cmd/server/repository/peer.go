@@ -13,7 +13,7 @@ type PeerRepositoryManager interface {
 	FindBySetupKeyID(id uint) (*domain.Peer, error)
 	FindByClientPubKey(clientPubKey string) (*domain.Peer, error)
 	FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error)
-	FindByOrganizationID(organizationID string) ([]*domain.Peer, error)
+	FindPeersByOrganizationID(organizationID string) ([]*domain.Peer, error)
 }
 
 type PeerRepository struct {
@@ -188,7 +188,7 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 	return peers, nil
 }
 
-func (p *PeerRepository) FindByOrganizationID(organizationID uint) ([]*domain.Peer, error) {
+func (p *PeerRepository) FindPeersByOrganizationID(organizationID uint) ([]*domain.Peer, error) {
 	peers := make([]*domain.Peer, 0)
 
 	rows, err := p.db.Query(

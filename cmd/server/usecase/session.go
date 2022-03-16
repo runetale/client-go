@@ -86,7 +86,6 @@ func (s *SessionUsecase) createStunTurnConfig() *peer.StunTurnConfig {
 	}
 }
 
-// TODO: check to setup key validation
 func (s *SessionUsecase) CreatePeer(
 	setupKey, clientMachinePubKey,
 	serverMachinePubKey, wgPubKey string,
@@ -97,6 +96,17 @@ func (s *SessionUsecase) CreatePeer(
 
 	if s.serverStore.GetPublicKey() != serverMachinePubKey {
 		return nil, errors.New(domain.ErrInvalidPublicKey.Error())
+	}
+
+	// if there is no setup key, the machine key associated with the peer's 
+	// client is used because the peer is starting up for the first time
+	//
+	if setupKey == "" {
+		pe, err := s.peerRepository.FindByClientPubKey(clientMachinePubKey)
+		if err != nil {
+			return nil, err
+		}
+		return pe, nil
 	}
 
 	sk, err := s.setupKeyRepository.FindBySetupKey(setupKey)
@@ -121,7 +131,7 @@ func (s *SessionUsecase) CreatePeer(
 		// if the peer is registering for the first time
 		//
 		if errors.Is(err, domain.ErrNoRows) {
-			peers, err := s.peerRepository.FindByOrganizationID(user.OrganizationID)
+			peers, err := s.peerRepository.FindPeersByOrganizationID(user.OrganizationID)
 			if err != nil {
 				return nil, err
 			}
@@ -161,7 +171,7 @@ func (s *SessionUsecase) CreatePeer(
 
 			// return already registered Peers
 			//
-			peers, err = s.peerRepository.FindByOrganizationID(user.OrganizationID)
+			peers, err = s.peerRepository.FindPeersByOrganizationID(user.OrganizationID)
 			if err != nil {
 				return nil, err
 			}
@@ -202,6 +212,7 @@ func (s *SessionUsecase) CreatePeer(
 		}
 		return nil, err
 	}
+
 	return pe, nil
 }
 

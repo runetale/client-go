@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -41,12 +40,12 @@ func (oss *OrganizationServerService) Create(ctx context.Context, req *organizat
 		return nil, err
 	}
 
-	fmt.Println(org.ID)
 	organizationGroup, err := organizationUsecase.CreateOrganization(req.GetName(), req.GetDisplayName(), org.ID)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: Enable Connectionで
 	err = organizationUsecase.EnableOrganizationConnection(org.ID, true)
 	if err != nil {
 		return nil, err
