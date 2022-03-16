@@ -45,25 +45,7 @@ type ServerConfig struct {
 	TLSConfig  TLSConfig
 }
 
-func NewServerConfig(path, domain, certfile, certkey string) *ServerConfig {
-	b, err := ioutil.ReadFile(path)
-
-	switch {
-	case errors.Is(err, os.ErrNotExist):
-		return writeServerConfig(path, domain, certfile, certkey)
-	case err != nil:
-		log.Fatalf("failed to load config for server. because %s", err.Error())
-		panic(err)
-	default:
-		var cfg ServerConfig
-		if err := json.Unmarshal(b, &cfg); err != nil {
-			log.Fatalf("failed to unmarshall server config file. becasue %s", err.Error())
-		}
-		return &cfg
-	}
-}
-
-func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
+func writeServerConfig(path, domain, certfile, certkey, turnSecret string) *ServerConfig {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
 	}
@@ -73,6 +55,9 @@ func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 			Domain:   domain,
 			Certfile: certfile,
 			CertKey:  certkey,
+		},
+		TURNConfig: &TURNConfig{
+			Secret: turnSecret,
 		},
 	}
 
@@ -86,4 +71,26 @@ func writeServerConfig(path, domain, certfile, certkey string) *ServerConfig {
 	}
 
 	return &cfg
+}
+
+func NewServerConfig(path, domain, certfile, certkey, turnSecret string) *ServerConfig {
+	b, err := ioutil.ReadFile(path)
+
+	switch {
+	case errors.Is(err, os.ErrNotExist):
+		return writeServerConfig(path, domain, certfile, certkey, turnSecret)
+	case err != nil:
+		log.Fatalf("failed to load config for server. because %s", err.Error())
+		panic(err)
+	default:
+		var cfg ServerConfig
+		if err := json.Unmarshal(b, &cfg); err != nil {
+			log.Fatalf("failed to unmarshall server config file. becasue %s", err.Error())
+		}
+		return writeServerConfig(
+			path, cfg.TLSConfig.Domain,
+			cfg.TLSConfig.Certfile, cfg.TLSConfig.CertKey,
+			cfg.TURNConfig.Secret,
+		)
+	}
 }

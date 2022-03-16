@@ -46,6 +46,7 @@ var serverArgs struct {
 	domain     string
 	certfile   string
 	certkey    string
+	turnSecret string
 	version    bool
 	logFile    string
 	logLevel   string
@@ -60,6 +61,7 @@ func main() {
 	flag.StringVar(&serverArgs.domain, "domain", "", "your domain")
 	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert file")
 	flag.StringVar(&serverArgs.certkey, "cert-key", "", "your cert key")
+	flag.StringVar(&serverArgs.turnSecret, "turn-secret", "", "your cert key")
 	flag.BoolVar(&serverArgs.version, "version", false, "print version")
 	flag.StringVar(&serverArgs.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
 	flag.StringVar(&serverArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
@@ -109,15 +111,24 @@ func main() {
 
 	// new sever config
 	//
-	cfg := config.NewServerConfig(serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey)
+	cfg := config.NewServerConfig(
+		serverArgs.configpath,
+		serverArgs.domain,
+		serverArgs.certfile,
+		serverArgs.certkey,
+		serverArgs.turnSecret,
+	)
 
 	// new cert store
 	//
-	certConfig := cert.NewCertConfig(serverArgs.letsencryptDir, cfg.TLSConfig.Domain, cfg.TURNConfig.Secret, cfg.TLSConfig.Certfile)
+	certConfig := cert.NewCertConfig(
+		serverArgs.letsencryptDir, cfg.TLSConfig.Domain, cfg.TURNConfig.Secret, cfg.TLSConfig.Certfile,
+	)
 
 	// initialize auth0 client
 	//
 	auth0Client := client.NewAuth0Client()
+
 
 	// initialize peer update manager
 	//
