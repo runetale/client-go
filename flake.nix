@@ -70,6 +70,8 @@
               gopls
               protobuf
               protoc-gen-go-grpc
+              docker-compose
+              docker
             ];
 
             shellHook = ''
