@@ -1,9 +1,9 @@
 version: '3'
 services:
-    app:
+    server:
         build: .
         tty: true
         ports:
             - "443:443"
-        volumes:
-            - ./app:/go/src/app
+        env_file: .env
+
