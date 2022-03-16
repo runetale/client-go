@@ -1,0 +1,9 @@
+version: '3'
+services:
+    server:
+        build: .
+        tty: true
+        ports:
+            - "443:443"
+        env_file: .env
+
