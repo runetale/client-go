@@ -20,13 +20,13 @@
 
     in
     {
-
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         let
           pkgs = nixpkgsFor.${system};
         in
         {
+          # TOOD: (shintard) allow the wissy command to be built
           wissy = pkgs.buildGoModule {
             pname = "wissy";
             inherit version;
@@ -38,12 +38,21 @@
               ]));
             };
 
+            buildPhase = ''
+              go build -o wissy cmd/wissy/main.go
+            '';
+            
+            installPhase = ''
+              install -Dm755 wissy -t $out/bin
+            '';
+
             vendorSha256 = pkgs.lib.fakeSha256;
-            #vendorSha256 = "sha256-ApM4tG4qY3IOgCZtrCiEIuWn2mobVcXsUFiXrz9lXFg=";
+            #vendorSha256 = "sha256-X1rUNBIOWZ9aH1X8xrE4wybGqe3llfFiDH84TvwsZps=";
           };
 
           # build systemd service path.
-          daemon = pkgs.substituteAll {
+          # use when you want to generate daemon service files in nix store
+          daemon-service = pkgs.substituteAll {
             name = "wissy.service";
             src = ./systemd/wissy.service;
           };
