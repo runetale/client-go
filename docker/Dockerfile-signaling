@@ -1,0 +1,20 @@
+# build stage
+FROM golang:1.17-alpine as builder
+ARG version 
+RUN apk update
+RUN apk add sudo build-base
+WORKDIR /app
+COPY . .
+ENV GO111MODULE=auto
+
+RUN GOOS=linux CGO_ENABLED=1 go build -o signaling cmd/signaling/signaling.go
+
+# launch stage
+FROM alpine:3.14.3
+
+WORKDIR /root/
+
+COPY --from=builder /app/signaling .
+
+EXPOSE 443
+ENTRYPOINT ["./signaling"]

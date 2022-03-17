@@ -213,6 +213,8 @@ func (a *Auth0Client) CreateUser(email, password, connection, token string) (*Cr
 	return &r, nil
 }
 
+// adding users to the members of associations
+//
 func (a *Auth0Client) AddMemberOnOrganization(userID, organizationID, token string) error {
 	url := fmt.Sprintf("https://%s/api/v2/organizations/%s/members", a.Domain, organizationID)
 

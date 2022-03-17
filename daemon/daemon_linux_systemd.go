@@ -268,7 +268,7 @@ func (s *systemDRecord) IsRunnning() (string, bool) {
 			if len(data) > 1 {
 				return fmt.Sprintf("%s is running on pid: %s", s.serviceName, data[1]), true
 			}
-			return fmt.Sprintf("%s is running. but cannot get pid. please report it", s.serviceName), false
+			return fmt.Sprintf("%s is running. but cannot get pid. please report it", s.serviceName), true
 		}
 	}
 

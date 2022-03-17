@@ -1,0 +1,10 @@
+version: '3'
+services:
+    signaling:
+        build:
+            context: ../
+            dockerfile: "docker/Dockerfile-signaling"
+        tty: true
+        ports:
+            - "10000:10000"
+
