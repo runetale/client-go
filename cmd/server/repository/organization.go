@@ -26,14 +26,12 @@ func (o *OrgRepository) CreateOrganization(org *domain.Organization) error {
 	lastID, err := o.db.Exec(`
 	INSERT INTO organizations (
 		name,
-		display_name,
 		org_id,
 		created_at,
 		updated_at
-	) VALUES (?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?)
 	`,
 		org.Name,
-		org.DisplayName,
 		org.OrgID,
 		org.CreatedAt,
 		org.UpdatedAt,
@@ -62,7 +60,7 @@ func (o *OrgRepository) FindByOrganizationID(orgID string) (*domain.Organization
 			LIMIT 1
 		`, orgID)
 
-	err := row.Scan(&org.ID, &org.Name, &org.DisplayName, &org.OrgID, &org.CreatedAt, &org.UpdatedAt)
+	err := row.Scan(&org.ID, &org.Name, &org.OrgID, &org.CreatedAt, &org.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNoRows
