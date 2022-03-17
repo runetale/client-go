@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"strings"
+
 	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
@@ -8,8 +10,8 @@ import (
 )
 
 type OrganizationUsecaseCaller interface {
-	CreateOrganizationWithAuth0(name, displayName string) (*client.OrganizationResponse, error)
-	CreateOrganization(name, displayName, organizationID string) (*domain.Organization, error)
+	CreateOrganizationWithAuth0(name string) (*client.OrganizationResponse, error)
+	CreateOrganization(name, organizationID string) (*domain.Organization, error)
 	CreateUser(email, password, connection string) (*client.CreateAuth0User, error)
 	AddMemberOnOrganization(userID, organizationID string) error
 	EnableOrganizationConnection(organizationID string, isAssignMembershipOnLogin bool) error
@@ -31,13 +33,14 @@ func NewOrganizationUsecase(
 	}
 }
 
-func (o *OrganizationUsecase) CreateOrganizationWithAuth0(name, displayName string) (*client.OrganizationResponse, error) {
+func (o *OrganizationUsecase) CreateOrganizationWithAuth0(name string) (*client.OrganizationResponse, error) {
 	token, err := o.auth0Client.GetAuth0ManagementAccessToken()
 	if err != nil {
 		return nil, err
 	}
 
-	organization, err := o.auth0Client.CreateOrganization(name, displayName, token)
+	lname := strings.ToLower(name)
+	organization, err := o.auth0Client.CreateOrganization(lname, token)
 	if err != nil {
 		return nil, err
 	}
@@ -45,14 +48,14 @@ func (o *OrganizationUsecase) CreateOrganizationWithAuth0(name, displayName stri
 	return organization, nil
 }
 
-func (o *OrganizationUsecase) CreateOrganization(name, displayName, organizationID string) (*domain.Organization, error) {
-	orgGroup := domain.NewOrganization(name, displayName, organizationID)
-	err := o.orgRepository.CreateOrganization(orgGroup)
+func (o *OrganizationUsecase) CreateOrganization(name, organizationID string) (*domain.Organization, error) {
+	org := domain.NewOrganization(name, organizationID)
+	err := o.orgRepository.CreateOrganization(org)
 	if err != nil {
 		return nil, err
 	}
 
-	return orgGroup, nil
+	return org, nil
 }
 
 func (o *OrganizationUsecase) CreateUser(email, password, connection string) (*client.CreateAuth0User, error) {
