@@ -1,10 +1,60 @@
 # wissy
 
-## for install
 
-## for build
+## env
+TODO: (shintard) preparing enviroment variables
+
+## for install
+TODO: (shintard) preparing how install for wissy command
+### linux
+
+### darwin
+
+### freebsd
+
+### windows
+
+## for build without docker
+TODO: (shintard) preparing arguments for each commands
+check the command line arguments carefully!
+
+### server
+start the server without docker
+`sudo go run cmd/server/server.go`
+
+### signaling
+start the signaling without docker
+`go run cmd/signaling/signaling.go`
+
+### wissy
+start the wissy without docker
+`sudo go run cmd/wissy/up.go --key <your setup key>`
+
+## for build with docker
+start the server using docker-compose
+`make up-server`
+if you want to build
+`make build-server`
+
+start the signaling server using docker-compose
+`make up-signaling`
+if you want to build
+`make build-signaling`
+
+start the wissy using docker-compose
+`make up-wissy`
+if you want to build
+`make build-wissy`
 
 ## for development
+if you want develop server
+`cmd/server` is the server that manages the peer's information.
+
+if you want develop signaling server
+`cmd/signaling` is the server to negotiate peer.
+
+if you want develop wissy
+`cmd/wissy` is the connects to peer clients, signaling servers and servers, and performs peer communication.
 
 ## for NixOS
 TODO: Instead of using make, use flake to create the wissy binary. This will make development much easier since the build binaries can be placed directly in the store without using the nix-store command.
