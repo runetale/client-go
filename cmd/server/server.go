@@ -39,18 +39,18 @@ func init() {
 }
 
 var serverArgs struct {
-	configpath string
+	configpath     string
 	letsencryptDir string
-	port       uint16
-	verbose    int
-	domain     string
-	certfile   string
-	certkey    string
-	turnSecret string
-	version    bool
-	logFile    string
-	logLevel   string
-	dev        bool
+	port           uint16
+	verbose        int
+	domain         string
+	certfile       string
+	certkey        string
+	turnSecret     string
+	version        bool
+	logFile        string
+	logLevel       string
+	dev            bool
 }
 
 func main() {
@@ -128,7 +128,6 @@ func main() {
 	// initialize auth0 client
 	//
 	auth0Client := client.NewAuth0Client()
-
 
 	// initialize peer update manager
 	//
