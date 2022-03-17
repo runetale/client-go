@@ -7,23 +7,23 @@ store:
 	nix-store --add $(BINDIR)/wissy
 
 # docker
-# build the server
+## build the server
 build-server:
 	docker-compose -f docker/docker-compose.server.yml build
 
 up-server:
 	docker-compose -f docker/docker-compose.server.yml up -d
 
-# build the signaling server
+## build the signaling server
 build-signaling:
 	docker-compose -f docker/docker-compose.signaling.yml build
 
 up-signaling:
 	docker-compose -f docker/docker-compose.signaling.yml up -d
 
-# build the wissy
+## build the wissy
 build-wissy:
-	docker-compose -f docker/docker-compose.yml build
+	docker-compose -f docker-compose.yml build
 
 up-wissy:
-	docker-compose -f docker/docker-compose.yml up -d
+	docker-compose -f docker-compose.yml up -d
