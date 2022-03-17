@@ -7,6 +7,7 @@ option go_package = "./organization";
 service OrganizationService {
 	rpc Create(OrganizationCreateRequest) returns (OrganizationCreateResponse) {}
 	rpc CreateAdminUser(OrganizationCreateAdminUserRequest) returns (OrganizationCreateAdminUserResponse) {}
+	rpc CreateNetwork(OrganizationCreateNetworkRequest) returns (OrganizationCreateNetworkResponse) {}
 }
 
 message OrganizationCreateRequest {
@@ -26,5 +27,16 @@ message OrganizationCreateAdminUserRequest {
 }
 
 message OrganizationCreateAdminUserResponse {
+	string organizationID = 1;
+}
+
+message OrganizationCreateNetworkRequest {
+	string email = 1;
+	string companyName = 2;
+	string role = 4;
+	string userID = 5;
+}
+
+message OrganizationCreateNetworkResponse {
 	string organizationID = 1;
 }
