@@ -3,8 +3,6 @@ package domain
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type User struct {
@@ -23,7 +21,6 @@ type User struct {
 func NewUser(
 	providerID string, provider string, email string,
 	networkID, userGroupID, adminNetworkID, roleID uint,
-	permission key.PermissionType,
 ) *User {
 	return &User{
 		ProviderID:     providerID,
