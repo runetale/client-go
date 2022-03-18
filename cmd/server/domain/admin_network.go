@@ -1,10 +1,8 @@
 package domain
 
-import (
-	"time"
-)
+import "time"
 
-type Organization struct {
+type AdminNetwork struct {
 	ID        uint      `db:"id"`
 	Name      string    `db:"name"`
 	OrgID     string    `db:"org_id"`
@@ -12,8 +10,8 @@ type Organization struct {
 	UpdatedAt time.Time `db:"updated_at"`
 }
 
-func NewOrganization(name, orgID string) *Organization {
-	return &Organization{
+func NewAdminNetwork(name, orgID string) *AdminNetwork {
+	return &AdminNetwork{
 		Name:      name,
 		OrgID:     orgID,
 		CreatedAt: time.Now(),

@@ -7,22 +7,26 @@ import (
 )
 
 type SetupKey struct {
-	ID        uint             `db:"id"`
-	UserID    uint             `db:"user_id"`
-	Key       string           `db:"key"`
-	KeyType   key.SetupKeyType `db:"key_type"`
-	Revoked   bool             `db:"revoked"`
-	CreatedAt time.Time        `db:"created_at"`
-	UpdatedAt time.Time        `db:"updated_at"`
+	ID             uint             `db:"id"`
+	AdminNetworkID uint             `db:"admin_network_id"`
+	UserID         uint             `db:"user_id"`
+	Key            string           `db:"key"`
+	KeyType        key.SetupKeyType `db:"key_type"`
+	CreatedAt      time.Time        `db:"created_at"`
+	UpdatedAt      time.Time        `db:"updated_at"`
 }
 
-func NewSetupKey(userID uint, key string, keytype key.SetupKeyType, revoked bool) *SetupKey {
+func NewSetupKey(
+	adminNetworkID, userID uint,
+	key string, keytype key.SetupKeyType,
+	revoked bool,
+) *SetupKey {
 	return &SetupKey{
-		Key:       key,
-		UserID:    userID,
-		KeyType:   keytype,
-		Revoked:   revoked,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		AdminNetworkID: adminNetworkID,
+		UserID:         userID,
+		Key:            key,
+		KeyType:        keytype,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 }
