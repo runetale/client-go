@@ -33,10 +33,10 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 		`INSERT INTO peers (
   			user_id,
   			setup_key_id,
-  			organization_id,
+  			admin_network_id,
   			user_group_id,
-			client_pub_key,
   			network_id,
+			client_pub_key,
   			wg_pub_key,
   			ip,
 			cidr,
@@ -46,10 +46,10 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 		`,
 		peer.UserID,
 		peer.SetupKeyID,
-		peer.OrganizationID,
+		peer.AdminNetworkID,
 		peer.UserGroupID,
-		peer.ClientPubKey,
 		peer.NetworkID,
+		peer.ClientPubKey,
 		peer.WgPubKey,
 		peer.IP,
 		peer.CIDR,
@@ -84,11 +84,11 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 		&peer.ID,
 		&peer.UserID,
 		&peer.SetupKeyID,
-		&peer.OrganizationID,
+		&peer.AdminNetworkID,
 		&peer.UserGroupID,
+		&peer.NetworkID,
 		&peer.ClientPubKey,
 		&peer.WgPubKey,
-		&peer.NetworkID,
 		&peer.IP,
 		&peer.CIDR,
 		&peer.CreatedAt,
@@ -122,11 +122,11 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 		&peer.ID,
 		&peer.UserID,
 		&peer.SetupKeyID,
-		&peer.OrganizationID,
+		&peer.AdminNetworkID,
 		&peer.UserGroupID,
+		&peer.NetworkID,
 		&peer.ClientPubKey,
 		&peer.WgPubKey,
-		&peer.NetworkID,
 		&peer.IP,
 		&peer.CIDR,
 		&peer.CreatedAt,
@@ -153,13 +153,14 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			WHERE
 				client_pub_key = ?
 		`, clientPubKey)
-	defer rows.Close()
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNoRows
 		}
 		return nil, err
 	}
+	defer rows.Close()
 
 	for rows.Next() {
 		peer := new(domain.Peer)
@@ -167,11 +168,11 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			&peer.ID,
 			&peer.UserID,
 			&peer.SetupKeyID,
-			&peer.OrganizationID,
+			&peer.AdminNetworkID,
 			&peer.UserGroupID,
+			&peer.NetworkID,
 			&peer.ClientPubKey,
 			&peer.WgPubKey,
-			&peer.NetworkID,
 			&peer.IP,
 			&peer.CIDR,
 			&peer.CreatedAt,
@@ -197,7 +198,7 @@ func (p *PeerRepository) FindPeersByOrganizationID(organizationID uint) ([]*doma
 			FROM peers
 			WHERE organization_id = ?
 		`, organizationID)
-	defer rows.Close()
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNoRows
@@ -205,17 +206,19 @@ func (p *PeerRepository) FindPeersByOrganizationID(organizationID uint) ([]*doma
 		return nil, err
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 		peer := new(domain.Peer)
 		if err := rows.Scan(
 			&peer.ID,
 			&peer.UserID,
 			&peer.SetupKeyID,
-			&peer.OrganizationID,
+			&peer.AdminNetworkID,
 			&peer.UserGroupID,
+			&peer.NetworkID,
 			&peer.ClientPubKey,
 			&peer.WgPubKey,
-			&peer.NetworkID,
 			&peer.IP,
 			&peer.CIDR,
 			&peer.CreatedAt,

@@ -26,21 +26,23 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	lastID, err := u.db.Exec(`
 	INSERT INTO users (
 		provider_id,
-		provider,
-		organization_id,
+		admin_network_id,
 		network_id,
 		user_group_id,
-		permission,
+		role_id,
+		provider,
+		email,
 		created_at,
 		updated_at
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`,
 		user.ProviderID,
-		user.Provider,
-		user.OrganizationID,
+		user.AdminNetworkID,
 		user.NetworkID,
 		user.UserGroupID,
-		user.Permission,
+		user.RoleID,
+		user.Provider,
+		user.Email,
 		user.CreatedAt,
 		user.UpdatedAt,
 	)
@@ -71,11 +73,12 @@ func (u *UserRepository) FindByUserID(userID uint) (*domain.User, error) {
 	err := row.Scan(
 		&user.ID,
 		&user.ProviderID,
-		&user.Provider,
-		&user.OrganizationID,
+		&user.AdminNetworkID,
 		&user.NetworkID,
 		&user.UserGroupID,
-		&user.Permission,
+		&user.RoleID,
+		&user.Provider,
+		&user.Email,
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)

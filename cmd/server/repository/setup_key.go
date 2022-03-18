@@ -29,18 +29,18 @@ func NewSetupKeyRepository(
 func (r *SetupKeyRepository) CreateSetupKey(setupKey *domain.SetupKey) error {
 	lastID, err := r.db.Exec(
 		`INSERT INTO setup_keys (
+  			admin_network_id,
   			user_id,
   			key,
   			key_type,
-  			revoked,
   			created_at,
   			updated_at
 		) VALUES (?, ?, ?, ?, ?, ?)
 		`,
+		setupKey.AdminNetworkID,
 		setupKey.UserID,
 		setupKey.Key,
 		setupKey.KeyType,
-		setupKey.Revoked,
 		setupKey.CreatedAt.In(time.UTC),
 		setupKey.UpdatedAt.In(time.UTC),
 	)
@@ -70,7 +70,16 @@ func (r *SetupKeyRepository) FindBySetupKey(setupKey string) (*domain.SetupKey, 
 		LIMIT 1
 	`, key)
 
-	err := row.Scan(&sk.ID, &sk.UserID, &sk.Key, &sk.KeyType, &sk.Revoked, &sk.CreatedAt, &sk.UpdatedAt)
+	err := row.Scan(
+		&sk.ID,
+		&sk.AdminNetworkID,
+		&sk.UserID,
+		&sk.Key,
+		&sk.KeyType,
+		&sk.CreatedAt,
+		&sk.UpdatedAt,
+	)
+
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, domain.ErrNoRows

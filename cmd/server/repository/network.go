@@ -25,18 +25,18 @@ func NewNetworkRepository(db database.SQLExecuter) *NetworkRepository {
 func (n *NetworkRepository) CreateNetwork(network *domain.Network) error {
 	lastID, err := n.db.Exec(`
 	INSERT INTO networks (
+		admin_network_id,
 		name,
 		ip,
 		cidr,
-		dns,
 		created_at,
 		updated_at
 	) VALUES (?, ?, ?, ?, ?, ?)
 	`,
+		network.AdminNetworkID,
 		network.Name,
 		network.IP,
 		network.CIDR,
-		network.DNS,
 		network.CreatedAt,
 		network.UpdatedAt,
 	)
@@ -65,8 +65,14 @@ func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
 		`, id)
 
 	err := row.Scan(
-		&network.ID, &network.Name, &network.IP, &network.CIDR,
-		&network.DNS, &network.CreatedAt, &network.UpdatedAt)
+		&network.ID,
+		&network.AdminNetworkID,
+		&network.Name,
+		&network.IP,
+		&network.CIDR,
+		&network.CreatedAt,
+		&network.UpdatedAt,
+	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

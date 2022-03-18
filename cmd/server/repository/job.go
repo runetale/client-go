@@ -22,16 +22,14 @@ func NewJobRepository(db database.SQLExecuter) *JobRepository {
 func (o *JobRepository) CreateJob(job *domain.Job) error {
 	lastID, err := o.db.Exec(`
 	INSERT INTO jobs (
+		admin_network_id,
 		name,
-		user_id,
-		organization_id,
 		created_at,
 		updated_at
-	) VALUES (?, ?, ?, ?, ?)
+	) VALUES (?, ?, ?, ?)
 	`,
+		job.AdminNetworkID,
 		job.Name,
-		job.UserID,
-		job.OrganizationID,
 		job.CreatedAt,
 		job.UpdatedAt,
 	)
