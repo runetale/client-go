@@ -7,7 +7,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type UserGroupRepositoryManager interface {
+type UserGroupRepositoryCaller interface {
 	CreateUserGroup(group *domain.UserGroup) error
 	FindByUserGroupID(id uint) (*domain.UserGroup, error)
 }

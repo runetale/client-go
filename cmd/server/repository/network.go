@@ -7,8 +7,8 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type NetworkRepositoryManager interface {
-	CreateNetwork(network *domain.Network) (*domain.Network, error)
+type NetworkRepositoryCaller interface {
+	CreateNetwork(network *domain.Network) error
 	FindByNetworkID(id uint) (*domain.Network, error)
 }
 

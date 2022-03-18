@@ -5,7 +5,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type JobRepositoryManager interface {
+type JobRepositoryCaller interface {
 	CreateJob(job *domain.Job) error
 }
 

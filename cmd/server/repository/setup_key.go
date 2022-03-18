@@ -9,7 +9,7 @@ import (
 	"github.com/Notch-Technologies/wizy/types/key"
 )
 
-type SetupKeyRepositoryManager interface {
+type SetupKeyRepositoryCaller interface {
 	CreateSetupKey(setupKey *domain.SetupKey) error
 	FindBySetupKey(setupKey string) (*domain.SetupKey, error)
 }

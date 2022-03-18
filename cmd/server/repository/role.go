@@ -7,7 +7,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type RoleRepositoryManager interface {
+type RoleRepositoryCaller interface {
 	CreateRole(role *domain.Role) error
 	FindByAdminNetworkID(adminNetworkID uint) (*domain.Role, error)
 }

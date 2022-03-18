@@ -7,7 +7,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type UserRepositoryManager interface {
+type UserRepositoryCaller interface {
 	CreateUser(user *domain.User) error
 	FindByUserID(userID uint) (*domain.User, error)
 }

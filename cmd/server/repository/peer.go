@@ -8,9 +8,9 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type PeerRepositoryManager interface {
+type PeerRepositoryCaller interface {
 	CreatePeer(peer *domain.Peer) error
-	FindBySetupKeyID(id uint) (*domain.Peer, error)
+	FindBySetupKeyID(id uint, clientPubKey string) (*domain.Peer, error)
 	FindByClientPubKey(clientPubKey string) (*domain.Peer, error)
 	FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error)
 	FindPeersByOrganizationID(organizationID string) ([]*domain.Peer, error)
@@ -189,7 +189,7 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 	return peers, nil
 }
 
-func (p *PeerRepository) FindPeersByOrganizationID(organizationID uint) ([]*domain.Peer, error) {
+func (p *PeerRepository) FindPeersByOrganizationID(organizationID string) ([]*domain.Peer, error)
 	peers := make([]*domain.Peer, 0)
 
 	rows, err := p.db.Query(

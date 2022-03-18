@@ -7,7 +7,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type AdminNetworkManager interface {
+type AdminNetworkRepositoryCaller interface {
 	CreateAdminNetwork(org *domain.AdminNetwork) error
 	FindByOrganizationID(orgID string) (*domain.AdminNetwork, error)
 }
