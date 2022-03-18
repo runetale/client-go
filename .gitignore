@@ -32,7 +32,7 @@ go.work
 /vendor/
 /Godeps/
 
-# sqlite
+# database
 *.db
 
 # nix

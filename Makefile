@@ -14,12 +14,18 @@ build-server:
 up-server:
 	docker-compose -f docker/docker-compose.server.yml up -d
 
+down-server:
+	docker-compose -f docker/docker-compose.server.yml down
+
 ## build the signaling server
 build-signaling:
 	docker-compose -f docker/docker-compose.signaling.yml build
 
 up-signaling:
 	docker-compose -f docker/docker-compose.signaling.yml up -d
+
+down-signaling:
+	docker-compose -f docker/docker-compose.server.yml down
 
 ## build the wissy
 build-wissy:

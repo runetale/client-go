@@ -85,6 +85,8 @@ func (oss *OrganizationServerService) CreateAdminUser(ctx context.Context, req *
 // 3. allow organization login methods
 // 4. register a user as a member of organization
 // 5. assign admin role
+// 6. create company network (default)
+// 7. create user group (default)
 //
 func (oss *OrganizationServerService) CreateNetwork(
 	ctx context.Context, req *organization.OrganizationCreateNetworkRequest,
