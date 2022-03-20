@@ -18,8 +18,9 @@ message SetupKeyRequest {
 	uint64         userGroupID = 1;
 	string         orgGroupID = 2;
 	uint64         networkID = 3;
-	string         job = 4;
-	PermissionType permission = 5;
+	uint64         jobID = 4;
+	uint64 roleID = 5;
+	string 		   email = 6;
 }
 
 message SetupKeyResponse {

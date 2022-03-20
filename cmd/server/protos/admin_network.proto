@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package protos;
+
+option go_package = "./admin_network";
+
+service AdminNetworkService {
+	rpc CreateDefaultNetwork(CreateDefaultAdminNetworkRequest) returns (CreateDefaultAdminNetworkResponse) {}
+}
+
+message CreateDefaultAdminNetworkRequest {
+	string companyName = 1;
+	string userID = 2;
+}
+
+message CreateDefaultAdminNetworkResponse {
+	string organizationID = 1;
+}
