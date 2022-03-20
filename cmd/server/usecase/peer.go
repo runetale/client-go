@@ -3,9 +3,9 @@ package usecase
 import (
 	"fmt"
 
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
-	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/repository"
 	"github.com/Notch-Technologies/wizy/store"
 )
@@ -15,8 +15,8 @@ type PeerUsecaseCaller interface {
 }
 
 type PeerUsecase struct {
-	peerRepository    *repository.PeerRepository
-	networkRepository *repository.NetworkRepository
+	peerRepository    repository.PeerRepositoryCaller
+	networkRepository repository.NetworkRepositoryCaller
 	serverStore       *store.ServerStore
 	peerServer        peer.PeerService_SyncServer
 	config            *config.ServerConfig
@@ -31,7 +31,7 @@ func NewPeerUsecase(
 		networkRepository: repository.NewNetworkRepository(db),
 		serverStore:       server,
 		peerServer:        peerServer,
-		config: 		   config,
+		config:            config,
 	}
 }
 
@@ -46,7 +46,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		return err
 	}
 
-	peers, err := p.peerRepository.FindPeersByOrganizationID(pe.OrganizationID)
+	peers, err := p.peerRepository.FindPeersByAdminNetworkID(pe.AdminNetworkID)
 	if err != nil {
 		fmt.Println("can not find peers")
 		return err
@@ -72,7 +72,7 @@ func (p *PeerUsecase) InitialSync(clientPubKey string) error {
 		PeerConfig:        &peer.PeerConfig{Address: pe.IP},
 		RemotePeers:       remotePeers,
 		RemotePeerIsEmpty: len(remotePeers) == 0,
-		StunTurnConfig: p.createStunTurnConfig(),
+		StunTurnConfig:    p.createStunTurnConfig(),
 	})
 	if err != nil {
 		return err
