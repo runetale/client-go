@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"fmt"
+
 	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
