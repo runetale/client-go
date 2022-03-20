@@ -7,7 +7,6 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
-	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type UserServerServiceCaller interface {
@@ -32,9 +31,10 @@ func (u *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequ
 	sub := getSub(ctx)
 	networkID := msg.GetNetworkID()
 	userGroupID := msg.GetUserGroupID()
-	job := msg.GetJob()
+	jobID := msg.GetJobID()
+	roleID := msg.GetRoleID()
 	orgGroupID := msg.GetOrgGroupID()
-	permission := msg.GetPermission()
+	email := msg.GetEmail()
 
 	tx, err := u.db.Begin()
 	if err != nil {
@@ -42,7 +42,7 @@ func (u *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequ
 	}
 
 	setupKeyUsecase := usecase.NewSetupKeyUsecase(tx, u.config)
-	setupKey, err := setupKeyUsecase.CreateSetupKey(uint(networkID), uint(userGroupID), job, orgGroupID, key.PermissionType(permission), sub)
+	setupKey, err := setupKeyUsecase.CreateSetupKey(uint(networkID), uint(userGroupID), uint(jobID), uint(roleID), orgGroupID, sub, email)
 	if err != nil {
 		tx.Rollback()
 		return nil, err

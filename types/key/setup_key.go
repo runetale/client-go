@@ -37,11 +37,11 @@ type customClaims struct {
 	ProviderID string       `json:"provider_id"`
 	KeyType    SetupKeyType `json:"key_type"`
 
-	UserGroupID uint           `json:"user_group_id"`
-	OrgGroupID  uint           `json:"org_group_id"`
-	Job         string         `json:"job"`
-	Permission  PermissionType `json:"permission"`
-	Revoked     bool           `json:"revoked"`
+	AdminNetworkID uint           `json:"admin_network_id"`
+	OrgGroupID     uint           `json:"org_group_id"`
+	Job            string         `json:"job"`
+	Permission     PermissionType `json:"permission"`
+	Revoked        bool           `json:"revoked"`
 
 	CreatedAt  time.Time `json:"created_at"`
 	LastusedAt time.Time `json:"lastused_at"`
@@ -55,9 +55,9 @@ type SetupKey struct {
 }
 
 func NewSetupKey(
-	userID uint, providerID, 
-	job string, userGroupID, 
-	orgGroupID uint, permissionType PermissionType,
+	userID uint, providerID,
+	job string, userGroupID,
+	adminNetworkID uint, permissionType PermissionType,
 	issuer, audience string,
 	signedString string,
 ) (*SetupKey, error) {
@@ -75,7 +75,7 @@ func NewSetupKey(
 		providerID,
 		DefaultKey,
 		userGroupID,
-		orgGroupID,
+		adminNetworkID,
 		job,
 		permissionType,
 		false,

@@ -12,88 +12,87 @@ import (
 )
 
 type SetupKeyUsecaseCaller interface {
-	CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
-		permission key.PermissionType, sub string) (*key.SetupKey, error)
+	CreateSetupKey(networkID, userGroupID, jobID, roleID uint,
+		orgID string, sub, email string) (*key.SetupKey, error)
 }
 
 type SetupKeyUsecase struct {
-	setupKeyRepository  *repository.SetupKeyRepository
-	userRepository      *repository.UserRepository
-	orgRepository       *repository.OrgRepository
-	networkRepository   *repository.NetworkRepository
-	userGroupRepository *repository.UserGroupRepository
-	jobRepository       *repository.JobRepository
-	config 				*config.ServerConfig
+	setupKeyRepository     repository.SetupKeyRepositoryCaller
+	userRepository         repository.UserRepositoryCaller
+	networkRepository      repository.NetworkRepositoryCaller
+	userGroupRepository    repository.UserGroupRepositoryCaller
+	adminNetworkRepository repository.AdminNetworkRepositoryCaller
+	jobRepository          repository.JobRepositoryCaller
+	roleRepository         repository.RoleRepositoryCaller
+	config                 *config.ServerConfig
 }
 
 func NewSetupKeyUsecase(
 	db database.SQLExecuter, config *config.ServerConfig,
 ) SetupKeyUsecaseCaller {
 	return &SetupKeyUsecase{
-		setupKeyRepository:  repository.NewSetupKeyRepository(db),
-		userRepository:      repository.NewUserRepository(db),
-		orgRepository:       repository.NewOrgRepository(db),
-		networkRepository:   repository.NewNetworkRepository(db),
-		userGroupRepository: repository.NewUserGroupRepository(db),
-		jobRepository:       repository.NewJobRepository(db),
-		config: 			 config,
+		setupKeyRepository:     repository.NewSetupKeyRepository(db),
+		userRepository:         repository.NewUserRepository(db),
+		networkRepository:      repository.NewNetworkRepository(db),
+		userGroupRepository:    repository.NewUserGroupRepository(db),
+		adminNetworkRepository: repository.NewAdminNetworkRepository(db),
+		jobRepository:          repository.NewJobRepository(db),
+		roleRepository:         repository.NewRoleRepository(db),
+		config:                 config,
 	}
 }
 
 // TOOD: (shintard) allows network use cases to dynamically specify CIDR and IP address
 // ranges and create networks
 //
-func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, orgID string,
-	permission key.PermissionType, sub string) (*key.SetupKey, error) {
-	orgGroup, err := s.orgRepository.FindByOrganizationID(orgID)
+func (s *SetupKeyUsecase) CreateSetupKey(
+	networkID, userGroupID, jobID, roleID uint,
+	orgID string, sub, email string,
+) (*key.SetupKey, error) {
+	adminNetwork, err := s.adminNetworkRepository.FindByOrganizationID(orgID)
 	if err != nil {
 		return nil, err
 	}
 
 	network, err := s.networkRepository.FindByNetworkID(networkID)
-	if errors.Is(err, domain.ErrNoRows) {
-		// create a network in the range of default network 100.64.0.0/10 if the network does not exist
-		//
-		network = domain.NewNetwork("default", "100.64.0.0", 10, "")
-		err = s.networkRepository.CreateNetwork(network)
-		if err != nil {
-			return nil, err
-		}
-	}
 	if err != nil {
 		return nil, err
 	}
 
 	userGroup, err := s.userGroupRepository.FindByUserGroupID(userGroupID)
-	if errors.Is(err, domain.ErrNoRows) {
-		userGroup = domain.NewUserGroup("default", permission)
-		err = s.userGroupRepository.CreateUserGroup(userGroup)
-		if err != nil {
-			return nil, err
-		}
+	// if errors.Is(err, domain.ErrNoRows) {
+	// 	userGroup = domain.NewUserGroup(adminNetwork.ID, "default")
+	// 	err = s.userGroupRepository.CreateUserGroup(userGroup)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	if err != nil {
+		return nil, err
 	}
+
+	role, err := s.roleRepository.FindByID(roleID)
 	if err != nil {
 		return nil, err
 	}
 
 	i := strings.Index(sub, "|")
 	provider := sub[:i]
-	user := domain.NewUser(sub, provider, network.ID, userGroup.ID, orgGroup.ID, permission)
+	user := domain.NewUser(sub, provider, email, network.ID, userGroup.ID, adminNetwork.ID, role.ID)
 
 	err = s.userRepository.CreateUser(user)
 	if err != nil && !errors.Is(err, domain.ErrUserAlredyExists) {
 		return nil, err
 	}
 
-	job := domain.NewJob(jobName, user.ID, orgGroup.ID)
-	err = s.jobRepository.CreateJob(job)
+	job, err := s.jobRepository.FindByID(jobID)
 	if err != nil {
 		return nil, err
 	}
 
 	sk, err := key.NewSetupKey(
-		user.ID, sub, job.Name, userGroup.ID, orgGroup.ID, 
-		permission, s.config.JwtConfig.Iss, s.config.JwtConfig.Aud,
+		user.ID, sub, job.Name, userGroup.ID, adminNetwork.ID,
+		role.Permission, s.config.JwtConfig.Iss, s.config.JwtConfig.Aud,
 		s.config.JwtConfig.Secret,
 	)
 	if err != nil {
@@ -105,12 +104,12 @@ func (s *SetupKeyUsecase) CreateSetupKey(networkID, userGroupID uint, jobName, o
 		return nil, err
 	}
 
-	revoked, err := sk.IsRevoked()
+	_, err = sk.IsRevoked()
 	if err != nil {
 		return nil, err
 	}
 
-	setupKey := domain.NewSetupKey(user.ID, sk.Key, keyType, revoked)
+	setupKey := domain.NewSetupKey(adminNetwork.ID, user.ID, sk.Key, keyType)
 
 	err = s.setupKeyRepository.CreateSetupKey(setupKey)
 	if err != nil {

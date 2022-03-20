@@ -118,11 +118,11 @@ type OrganizationResponse struct {
 	DisplayName string `json:"display_name"`
 }
 
-func (a *Auth0Client) CreateOrganization(name, displayName string, token string) (*OrganizationResponse, error) {
+func (a *Auth0Client) CreateOrganization(name, token string) (*OrganizationResponse, error) {
 	url := fmt.Sprintf("https://%s/api/v2/organizations", a.Domain)
 
 	b := fmt.Sprintf(`{"name": "%s", "display_name": "%s"}`,
-		name, displayName)
+		name, name)
 
 	payload := strings.NewReader(b)
 

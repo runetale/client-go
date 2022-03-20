@@ -3,31 +3,33 @@ package domain
 import (
 	"encoding/json"
 	"time"
-
-	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type User struct {
-	ID             uint               `db:"id"`
-	ProviderID     string             `db:"provider_id"`
-	Provider       string             `db:"provider"`
-	OrganizationID uint               `db:"organization_id"`
-	NetworkID      uint               `db:"network_id"`
-	UserGroupID    uint               `db:"user_group_id"`
-	Permission     key.PermissionType `db:"permission"`
-	CreatedAt      time.Time          `db:"created_at"`
-	UpdatedAt      time.Time          `db:"updated_at"`
+	ID             uint      `db:"id"`
+	ProviderID     string    `db:"provider_id"`
+	AdminNetworkID uint      `db:"admin_network_id"`
+	NetworkID      uint      `db:"network_id"`
+	UserGroupID    uint      `db:"user_group_id"`
+	RoleID         uint      `db:"role_id"`
+	Provider       string    `db:"provider"`
+	Email          string    `db:"email"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
 }
 
-func NewUser(providerID string, provider string,
-	networkID, userGroupID, orgID uint, permission key.PermissionType) *User {
+func NewUser(
+	providerID string, provider string, email string,
+	networkID, userGroupID, adminNetworkID, roleID uint,
+) *User {
 	return &User{
 		ProviderID:     providerID,
-		Provider:       provider,
-		OrganizationID: orgID,
+		AdminNetworkID: adminNetworkID,
 		NetworkID:      networkID,
 		UserGroupID:    userGroupID,
-		Permission:     permission,
+		RoleID:         roleID,
+		Provider:       provider,
+		Email:          email,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}

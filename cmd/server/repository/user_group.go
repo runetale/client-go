@@ -7,7 +7,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
 )
 
-type UserGroupRepositoryManager interface {
+type UserGroupRepositoryCaller interface {
 	CreateUserGroup(group *domain.UserGroup) error
 	FindByUserGroupID(id uint) (*domain.UserGroup, error)
 }
@@ -25,14 +25,14 @@ func NewUserGroupRepository(db database.SQLExecuter) *UserGroupRepository {
 func (u *UserGroupRepository) CreateUserGroup(group *domain.UserGroup) error {
 	lastID, err := u.db.Exec(`
 	INSERT INTO user_groups (
+		admin_network_id,
 		name,
-		permission,
 		created_at,
 		updated_at
 	) VALUES (?, ?, ?, ?)
 	`,
+		group.AdminNetworkID,
 		group.Name,
-		group.Permission,
 		group.CreatedAt,
 		group.UpdatedAt,
 	)
@@ -62,8 +62,8 @@ func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, err
 
 	err := row.Scan(
 		&userGroup.ID,
+		&userGroup.AdminNetworkID,
 		&userGroup.Name,
-		&userGroup.Permission,
 		&userGroup.CreatedAt,
 		&userGroup.UpdatedAt,
 	)

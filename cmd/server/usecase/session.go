@@ -22,10 +22,10 @@ type SessionUsecaseCaller interface {
 }
 
 type SessionUsecase struct {
-	setupKeyRepository *repository.SetupKeyRepository
-	userRepository     *repository.UserRepository
-	peerRepository     *repository.PeerRepository
-	networkRepository  *repository.NetworkRepository
+	setupKeyRepository repository.SetupKeyRepositoryCaller
+	userRepository     repository.UserRepositoryCaller
+	peerRepository     repository.PeerRepositoryCaller
+	networkRepository  repository.NetworkRepositoryCaller
 	serverStore        *store.ServerStore
 	peerUpdateManager  *channel.PeersUpdateManager
 	config             *config.ServerConfig
@@ -98,7 +98,7 @@ func (s *SessionUsecase) CreatePeer(
 		return nil, errors.New(domain.ErrInvalidPublicKey.Error())
 	}
 
-	// if there is no setup key, the machine key associated with the peer's 
+	// if there is no setup key, the machine key associated with the peer's
 	// client is used because the peer is starting up for the first time
 	//
 	if setupKey == "" {
@@ -131,7 +131,7 @@ func (s *SessionUsecase) CreatePeer(
 		// if the peer is registering for the first time
 		//
 		if errors.Is(err, domain.ErrNoRows) {
-			peers, err := s.peerRepository.FindPeersByOrganizationID(user.OrganizationID)
+			peers, err := s.peerRepository.FindPeersByAdminNetworkID(user.AdminNetworkID)
 			if err != nil {
 				return nil, err
 			}
@@ -157,7 +157,7 @@ func (s *SessionUsecase) CreatePeer(
 				user.NetworkID,
 				user.UserGroupID,
 				user.ID,
-				user.OrganizationID,
+				user.AdminNetworkID,
 				allocIP.String(),
 				network.CIDR,
 				clientMachinePubKey,
@@ -171,7 +171,7 @@ func (s *SessionUsecase) CreatePeer(
 
 			// return already registered Peers
 			//
-			peers, err = s.peerRepository.FindPeersByOrganizationID(user.OrganizationID)
+			peers, err = s.peerRepository.FindPeersByAdminNetworkID(user.AdminNetworkID)
 			if err != nil {
 				return nil, err
 			}

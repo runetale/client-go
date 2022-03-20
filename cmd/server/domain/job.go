@@ -6,18 +6,16 @@ import (
 
 type Job struct {
 	ID             uint      `db:"id"`
+	AdminNetworkID uint      `db:"admin_network_id"`
 	Name           string    `db:"name"`
-	UserID         uint      `db:"user_id"`
-	OrganizationID uint      `db:"organization_id"`
 	CreatedAt      time.Time `db:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at"`
 }
 
-func NewJob(name string, userID, orgID uint) *Job {
+func NewJob(adminNetworkID uint, name string) *Job {
 	return &Job{
 		Name:           name,
-		UserID:         userID,
-		OrganizationID: orgID,
+		AdminNetworkID: adminNetworkID,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}

@@ -2,23 +2,23 @@ package domain
 
 import (
 	"time"
-
-	"github.com/Notch-Technologies/wizy/types/key"
 )
 
 type UserGroup struct {
-	ID         uint               `db:"id"`
-	Name       string             `db:"name"`
-	Permission key.PermissionType `db:"permission"`
-	CreatedAt  time.Time          `db:"created_at"`
-	UpdatedAt  time.Time          `db:"updated_at"`
+	ID             uint      `db:"id"`
+	AdminNetworkID uint      `db:"admin_network_id"`
+	Name           string    `db:"name"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
 }
 
-func NewUserGroup(name string, permission key.PermissionType) *UserGroup {
+func NewUserGroup(
+	adminNetworkID uint, name string,
+) *UserGroup {
 	return &UserGroup{
-		Name:       name,
-		Permission: permission,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		AdminNetworkID: adminNetworkID,
+		Name:           name,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
 	}
 }
