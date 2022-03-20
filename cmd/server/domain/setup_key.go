@@ -19,7 +19,6 @@ type SetupKey struct {
 func NewSetupKey(
 	adminNetworkID, userID uint,
 	key string, keytype key.SetupKeyType,
-	revoked bool,
 ) *SetupKey {
 	return &SetupKey{
 		AdminNetworkID: adminNetworkID,

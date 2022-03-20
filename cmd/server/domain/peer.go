@@ -20,7 +20,7 @@ type Peer struct {
 }
 
 func NewPeer(
-	setupKeyID, networkID, userGroupID, userID, orgID, adminNetworkID uint,
+	setupKeyID, networkID, userGroupID, userID, adminNetworkID uint,
 	ip string, cidr uint, clientPubKey, wgPubKey string,
 ) *Peer {
 	return &Peer{

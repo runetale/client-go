@@ -18,10 +18,11 @@ type Role struct {
 func NewRole(
 	adminNetworkID uint, name string,
 	permission key.PermissionType,
-) *Job {
-	return &Job{
+) *Role {
+	return &Role{
 		Name:           name,
 		AdminNetworkID: adminNetworkID,
+		Permission:     permission,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}
