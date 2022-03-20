@@ -72,6 +72,7 @@
               protoc-gen-go-grpc
               docker-compose
               docker
+              sqlite
             ];
 
             shellHook = ''
