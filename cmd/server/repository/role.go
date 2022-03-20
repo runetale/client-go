@@ -10,6 +10,7 @@ import (
 type RoleRepositoryCaller interface {
 	CreateRole(role *domain.Role) error
 	FindByAdminNetworkID(adminNetworkID uint) (*domain.Role, error)
+	FindByID(id uint) (*domain.Role, error)
 }
 
 type RoleRepository struct {
@@ -61,6 +62,38 @@ func (r *RoleRepository) FindByAdminNetworkID(adminNetworkID uint) (*domain.Role
 				admin_network_id = ?
 			LIMIT 1
 		`, adminNetworkID)
+
+	err := row.Scan(
+		&role.ID,
+		&role.AdminNetworkID,
+		&role.Name,
+		&role.Permission,
+		&role.CreatedAt,
+		&role.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+	return &role, nil
+}
+
+func (r *RoleRepository) FindByID(id uint) (*domain.Role, error) {
+	var (
+		role domain.Role
+	)
+
+	row := r.db.QueryRow(
+		`
+			SELECT *
+			FROM roles
+			WHERE
+				id = ?
+			LIMIT 1
+		`, id)
 
 	err := row.Scan(
 		&role.ID,
