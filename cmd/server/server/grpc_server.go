@@ -13,7 +13,7 @@ type Server struct {
 	UserServerService         service.UserServerServiceCaller
 	PeerServerService         service.PeerServerServiceCaller
 	SessionServerService      service.SessionServerServiceCaller
-	OrganizationServerService service.OrganizationServerServiceCaller
+	AdminNetworkServerService service.AdminNetworkServerServiceCaller
 }
 
 func NewServer(
@@ -25,6 +25,6 @@ func NewServer(
 		UserServerService:         service.NewUserServerService(db, config),
 		PeerServerService:         service.NewPeerServerService(db, config, server, peerUpdateManager),
 		SessionServerService:      service.NewSessionServerService(db, config, server, peerUpdateManager),
-		OrganizationServerService: service.NewOrganizationServerService(db, client),
+		AdminNetworkServerService: service.NewAdminNetworkServerService(db, client),
 	}
 }
