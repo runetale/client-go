@@ -79,14 +79,14 @@ func main() {
 	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert file")
 	flag.StringVar(&serverArgs.certkey, "cert-key", "", "your cert key")
 
-	flag.StringVar(&serverArgs.turnURL, "turn-url", "stun:www.notchturn.net:3478", "your turn url")
+	flag.StringVar(&serverArgs.turnURL, "turn-url", "turn:www.notchturn.net:3478", "your turn url")
 	flag.StringVar(&serverArgs.turnUserName, "turn-user", "", "your turn username")
 	flag.StringVar(&serverArgs.turnPassword, "turn-pass", "", "your turn password")
 	flag.StringVar(&serverArgs.turnSecret, "turn-secret", "", "your cert key")
 	flag.StringVar(&serverArgs.ttl, "turn-ttl", "0", "ttl duration")
 	flag.BoolVar(&serverArgs.credentials, "turn-credentials", false, "")
 
-	flag.StringVar(&serverArgs.stunURL, "stun-url", "turn:www.notchturn.net:3478", "your stun url")
+	flag.StringVar(&serverArgs.stunURL, "stun-url", "stun:www.notchturn.net:3478", "your stun url")
 	flag.StringVar(&serverArgs.stunUserName, "stun-user", "", "your stun username")
 	flag.StringVar(&serverArgs.stunPassword, "stun-pass", "", "your stun password")
 

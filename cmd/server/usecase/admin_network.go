@@ -117,6 +117,9 @@ func (u *AdminNetworkUsecase) CreateAdminNetworkWithDefault(
 	if err != nil {
 		return nil, err
 	}
+	
+	// TODO: return to create JWT for companies to access?
+	//
 
 	return adminNetwork, nil
 }

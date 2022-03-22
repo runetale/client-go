@@ -29,10 +29,6 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 		return nil, err
 	}
 
-	//if !strings.HasPrefix(sub, "auth0") {
-	//	return nil, errors.New(domain.ErrInvalidHeader.Error())
-	//}
-
 	accessToken, err := m.client.GetAuth0ManagementAccessToken()
 	if err != nil {
 		return nil, errors.New(domain.ErrCanNotGetAccessToken.Error())
