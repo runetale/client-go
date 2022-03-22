@@ -181,7 +181,7 @@ func (s *SessionUsecase) CreatePeer(
 				for _, p := range peers {
 					if remotePeer.WgPubKey != p.WgPubKey {
 						peersToSend = append(peersToSend, &peer.RemotePeer{
-							WgPubKey:   p.ClientMachinePubKey,
+							WgPubKey:   p.WgPubKey,
 							AllowedIps: []string{fmt.Sprintf(allowedIPsFormat, p.IP, p.CIDR)},
 						})
 					}
