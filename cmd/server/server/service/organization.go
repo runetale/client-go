@@ -13,14 +13,14 @@ type OrganizationServerServiceCaller interface {
 }
 
 type OrganizationServerService struct {
-	db          *database.Sqlite
+	db *database.Sqlite
 }
 
 func NewOrganizationServerService(
 	db *database.Sqlite,
 ) OrganizationServerServiceCaller {
 	return &OrganizationServerService{
-		db:          db,
+		db: db,
 	}
 }
 
