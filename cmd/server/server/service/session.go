@@ -94,6 +94,6 @@ func (s *SessionServerService) Login(ctx context.Context, msg *session.LoginRequ
 		ClientPublicKey: serverMachinePubKey,
 		Ip:              peer.IP,
 		Cidr:            uint64(peer.CIDR),
-		SignalingHost: 	 s.config.Signal.URL,
+		SignalingHost:   s.config.Signal.URL,
 	}, nil
 }

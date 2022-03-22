@@ -10,6 +10,7 @@ import (
 type UserGroupRepositoryCaller interface {
 	CreateUserGroup(group *domain.UserGroup) error
 	FindByUserGroupID(id uint) (*domain.UserGroup, error)
+	FindByAdminNetworkID(id uint) (*domain.UserGroup, error)
 }
 
 type UserGroupRepository struct {
@@ -57,6 +58,38 @@ func (u *UserGroupRepository) FindByUserGroupID(id uint) (*domain.UserGroup, err
 			FROM user_groups
 			WHERE
 				id = ?
+			LIMIT 1
+		`, id)
+
+	err := row.Scan(
+		&userGroup.ID,
+		&userGroup.AdminNetworkID,
+		&userGroup.Name,
+		&userGroup.CreatedAt,
+		&userGroup.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &userGroup, nil
+}
+
+func (u *UserGroupRepository) FindByAdminNetworkID(id uint) (*domain.UserGroup, error) {
+	var (
+		userGroup domain.UserGroup
+	)
+
+	row := u.db.QueryRow(
+		`
+			SELECT *
+			FROM user_groups
+			WHERE
+				admin_network_id = ?
 			LIMIT 1
 		`, id)
 

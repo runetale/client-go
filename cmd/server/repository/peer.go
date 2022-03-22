@@ -10,9 +10,10 @@ import (
 
 type PeerRepositoryCaller interface {
 	CreatePeer(peer *domain.Peer) error
-	FindBySetupKeyID(id uint, clientPubKey string) (*domain.Peer, error)
-	FindByClientPubKey(clientPubKey string) (*domain.Peer, error)
-	FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error)
+	FindBySetupKeyID(id uint, clientMachinePubKey string) (*domain.Peer, error)
+	FindByClientMachinePubKey(clientMachinePubKey string) (*domain.Peer, error)
+	FindByWgPubKey(wgPubKey string) (*domain.Peer, error)
+	FindPeersByClientMachinePubKey(clientMachinePubKey string) ([]*domain.Peer, error)
 	FindPeersByAdminNetworkID(organizationID uint) ([]*domain.Peer, error)
 }
 
@@ -36,7 +37,7 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
   			admin_network_id,
   			user_group_id,
   			network_id,
-			client_pub_key,
+			client_machine_pub_key,
   			wg_pub_key,
   			ip,
 			cidr,
@@ -49,7 +50,7 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 		peer.AdminNetworkID,
 		peer.UserGroupID,
 		peer.NetworkID,
-		peer.ClientPubKey,
+		peer.ClientMachinePubKey,
 		peer.WgPubKey,
 		peer.IP,
 		peer.CIDR,
@@ -66,7 +67,7 @@ func (p *PeerRepository) CreatePeer(peer *domain.Peer) error {
 	return nil
 }
 
-func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain.Peer, error) {
+func (p *PeerRepository) FindBySetupKeyID(id uint, clientMachinePubKey string) (*domain.Peer, error) {
 	var (
 		peer domain.Peer
 	)
@@ -77,9 +78,9 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 			FROM peers
 			WHERE
   				setup_key_id = ? AND
-				client_pub_key = ?
+				client_machine_pub_key = ?
 			LIMIT 1
-		`, id, clientPubKey)
+		`, id, clientMachinePubKey)
 	err := row.Scan(
 		&peer.ID,
 		&peer.UserID,
@@ -87,7 +88,7 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 		&peer.AdminNetworkID,
 		&peer.UserGroupID,
 		&peer.NetworkID,
-		&peer.ClientPubKey,
+		&peer.ClientMachinePubKey,
 		&peer.WgPubKey,
 		&peer.IP,
 		&peer.CIDR,
@@ -105,7 +106,7 @@ func (p *PeerRepository) FindBySetupKeyID(id uint, clientPubKey string) (*domain
 	return &peer, nil
 }
 
-func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, error) {
+func (p *PeerRepository) FindByClientMachinePubKey(clientMachinePubKey string) (*domain.Peer, error) {
 	var (
 		peer domain.Peer
 	)
@@ -115,9 +116,9 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 			SELECT *
 			FROM peers
 			WHERE
-				client_pub_key = ?
+				client_machine_pub_key = ?
 			LIMIT 1
-		`, clientPubKey)
+		`, clientMachinePubKey)
 	err := row.Scan(
 		&peer.ID,
 		&peer.UserID,
@@ -125,7 +126,7 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 		&peer.AdminNetworkID,
 		&peer.UserGroupID,
 		&peer.NetworkID,
-		&peer.ClientPubKey,
+		&peer.ClientMachinePubKey,
 		&peer.WgPubKey,
 		&peer.IP,
 		&peer.CIDR,
@@ -143,7 +144,45 @@ func (p *PeerRepository) FindByClientPubKey(clientPubKey string) (*domain.Peer, 
 	return &peer, nil
 }
 
-func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain.Peer, error) {
+func (p *PeerRepository) FindByWgPubKey(wgPubKey string) (*domain.Peer, error) {
+	var (
+		peer domain.Peer
+	)
+
+	row := p.db.QueryRow(
+		`
+			SELECT *
+			FROM peers
+			WHERE
+				wg_pub_key = ?
+			LIMIT 1
+		`, wgPubKey)
+	err := row.Scan(
+		&peer.ID,
+		&peer.UserID,
+		&peer.SetupKeyID,
+		&peer.AdminNetworkID,
+		&peer.UserGroupID,
+		&peer.NetworkID,
+		&peer.ClientMachinePubKey,
+		&peer.WgPubKey,
+		&peer.IP,
+		&peer.CIDR,
+		&peer.CreatedAt,
+		&peer.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &peer, nil
+}
+
+func (p *PeerRepository) FindPeersByClientMachinePubKey(clientMachinePubKey string) ([]*domain.Peer, error) {
 	peers := make([]*domain.Peer, 0)
 
 	rows, err := p.db.Query(
@@ -151,8 +190,8 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			SELECT *
 			FROM peers
 			WHERE
-				client_pub_key = ?
-		`, clientPubKey)
+				client_machine_pub_key = ?
+		`, clientMachinePubKey)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -171,7 +210,7 @@ func (p *PeerRepository) FindPeersByClientPubKey(clientPubKey string) ([]*domain
 			&peer.AdminNetworkID,
 			&peer.UserGroupID,
 			&peer.NetworkID,
-			&peer.ClientPubKey,
+			&peer.ClientMachinePubKey,
 			&peer.WgPubKey,
 			&peer.IP,
 			&peer.CIDR,
@@ -217,7 +256,7 @@ func (p *PeerRepository) FindPeersByAdminNetworkID(adminNetworkID uint) ([]*doma
 			&peer.AdminNetworkID,
 			&peer.UserGroupID,
 			&peer.NetworkID,
-			&peer.ClientPubKey,
+			&peer.ClientMachinePubKey,
 			&peer.WgPubKey,
 			&peer.IP,
 			&peer.CIDR,

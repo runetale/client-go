@@ -73,6 +73,7 @@
               docker-compose
               docker
               sqlite
+              wireguard-tools
             ];
 
             shellHook = ''

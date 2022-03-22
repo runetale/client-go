@@ -42,9 +42,6 @@ func NewSetupKeyUsecase(
 	}
 }
 
-// TOOD: (shintard) allows network use cases to dynamically specify CIDR and IP address
-// ranges and create networks
-//
 func (s *SetupKeyUsecase) CreateSetupKey(
 	networkID, userGroupID, jobID, roleID uint,
 	orgID string, sub, email string,
@@ -60,13 +57,6 @@ func (s *SetupKeyUsecase) CreateSetupKey(
 	}
 
 	userGroup, err := s.userGroupRepository.FindByUserGroupID(userGroupID)
-	// if errors.Is(err, domain.ErrNoRows) {
-	// 	userGroup = domain.NewUserGroup(adminNetwork.ID, "default")
-	// 	err = s.userGroupRepository.CreateUserGroup(userGroup)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
 	if err != nil {
 		return nil, err
 	}

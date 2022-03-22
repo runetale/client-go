@@ -23,7 +23,6 @@ func checkDistro(file string) bool {
 	return err == nil
 }
 
-
 func linuxDistro() Distribution {
 	switch {
 	case checkDistro("/run/current-system/sw/bin/nixos-version"):
@@ -31,5 +30,3 @@ func linuxDistro() Distribution {
 	}
 	return ""
 }
-
-

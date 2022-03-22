@@ -34,7 +34,7 @@ func (p *PeerClientService) Sync(
 	msgHandler func(msg *peer.SyncResponse) error,
 ) error {
 	stream, err := p.peerClientService.Sync(p.ctx, &peer.SyncRequest{
-		PrivateKey:       p.privateKey.String(),
+		WgPublicKey:      p.privateKey.PublicKey().String(),
 		ClientMachineKey: clientMachineKey,
 	})
 	if err != nil {

@@ -102,7 +102,7 @@ func (s *SessionUsecase) CreatePeer(
 	// client is used because the peer is starting up for the first time
 	//
 	if setupKey == "" {
-		pe, err := s.peerRepository.FindByClientPubKey(clientMachinePubKey)
+		pe, err := s.peerRepository.FindByClientMachinePubKey(clientMachinePubKey)
 		if err != nil {
 			return nil, err
 		}
@@ -181,18 +181,18 @@ func (s *SessionUsecase) CreatePeer(
 				for _, p := range peers {
 					if remotePeer.WgPubKey != p.WgPubKey {
 						peersToSend = append(peersToSend, &peer.RemotePeer{
-							WgPubKey:   p.ClientPubKey,
+							WgPubKey:   p.WgPubKey,
 							AllowedIps: []string{fmt.Sprintf(allowedIPsFormat, p.IP, p.CIDR)},
 						})
 					}
 				}
 
-				fmt.Printf("send peer information to the %s update channel\n", remotePeer.ClientPubKey)
+				fmt.Printf("send peer information to the %s update channel\n", remotePeer.ClientMachinePubKey)
 
 				// send update message to remote peer
 				//
 				err := s.peerUpdateManager.SendUpdate(
-					remotePeer.ClientPubKey,
+					remotePeer.ClientMachinePubKey,
 					&channel.UpdateMessage{
 						Update: &peer.SyncResponse{
 							PeerConfig:        &peer.PeerConfig{Address: newPeer.IP},

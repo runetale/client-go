@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"github.com/Notch-Technologies/wizy/cmd/server/channel"
+	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/usecase"
 	"github.com/Notch-Technologies/wizy/store"
-	"github.com/Notch-Technologies/wizy/cmd/server/config"
 )
 
 type PeerServerServiceCaller interface {
@@ -32,14 +32,14 @@ func NewPeerServerService(
 		db:                db,
 		serverStore:       server,
 		peerUpdateManager: peerUpdateManager,
-		config: config,
+		config:            config,
 	}
 }
 
 func (p *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_SyncServer) error {
 	pu := usecase.NewPeerUsecase(p.db, p.config, p.serverStore, srv)
 
-	err := pu.InitialSync(req.GetClientMachineKey())
+	err := pu.InitialSync(req.GetClientMachineKey(), req.GetWgPublicKey())
 	if err != nil {
 		return err
 	}

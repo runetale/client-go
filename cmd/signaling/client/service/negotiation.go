@@ -139,12 +139,11 @@ func (n *NegotiationClientService) Receive(
 
 		fmt.Printf("received a new message from Peer [fingerprint: %s]\n", msg.ClientMachineKey)
 
-		// CreatePeerの時に他のPeerのClientMachineKeyは送信されているのは確認できた
 		err = msgHandler(msg)
 
+		// TODO: (fix shintard) error handling
 		if err != nil {
 			fmt.Printf("error while handling message of Peer [key: %s] error: [%s]\n", msg.ClientMachineKey, err.Error())
-			return err
 		}
 	}
 }

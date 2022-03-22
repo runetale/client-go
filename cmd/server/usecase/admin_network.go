@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"fmt"
+	"strings"
 
 	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
@@ -11,12 +11,13 @@ import (
 )
 
 type AdminNetworkUsecaseCaller interface {
-	CreateAdminNetworkWithDefault(name, organizationID string) (*domain.AdminNetwork, error)
+	CreateAdminNetworkWithDefault(userID, name, email, organizationID string) (*domain.AdminNetwork, error)
 }
 
 type AdminNetworkUsecase struct {
 	adminNetworkRepository repository.AdminNetworkRepositoryCaller
 	networkRepository      repository.NetworkRepositoryCaller
+	userRepository         repository.UserRepositoryCaller
 	userGroupRepository    repository.UserGroupRepositoryCaller
 	jobRepository          repository.JobRepositoryCaller
 	roleRepository         repository.RoleRepositoryCaller
@@ -31,6 +32,7 @@ func NewAdminNetworkUsecase(
 		adminNetworkRepository: repository.NewAdminNetworkRepository(db),
 		networkRepository:      repository.NewNetworkRepository(db),
 		userGroupRepository:    repository.NewUserGroupRepository(db),
+		userRepository:         repository.NewUserRepository(db),
 		jobRepository:          repository.NewJobRepository(db),
 		roleRepository:         repository.NewRoleRepository(db),
 		auth0Client:            client,
@@ -42,15 +44,23 @@ func NewAdminNetworkUsecase(
 // 3. create user group (default)
 // 4. create job group (default)
 // 5. role group (default)
+// 6. create user
 //
 func (u *AdminNetworkUsecase) CreateAdminNetworkWithDefault(
-	name, organizationID string,
+	userID, name, email, organizationID string,
 ) (*domain.AdminNetwork, error) {
 	const (
 		dName = "default"
 		ip    = "100.64.0.0"
 		cidr  = 10
 	)
+
+	// google-oauth2|hogehoge
+	// we'll make it look like this.
+	// google-oauth2 and hogehoge
+	i := strings.Index(userID, "|")
+	provider := userID[:i]
+	providerID := userID[i+1:]
 
 	// 1
 	//
@@ -91,6 +101,25 @@ func (u *AdminNetworkUsecase) CreateAdminNetworkWithDefault(
 	if err != nil {
 		return nil, err
 	}
+
+	// 6
+	//
+	user := domain.NewUser(
+		providerID,
+		provider,
+		email,
+		network.ID,
+		userGroup.ID,
+		adminNetwork.ID,
+		role.ID,
+	)
+	err = u.userRepository.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+	
+	// TODO: return to create JWT for companies to access?
+	//
 
 	return adminNetwork, nil
 }

@@ -9,11 +9,11 @@ import (
 
 type systemVRecord struct {
 	// binary path
-	binPath  string
+	binPath string
 	// daemon name
 	serviceName string
 	// daemon file path
-	daemonFilePath  string
+	daemonFilePath string
 	// daemon system config
 	systemConfig string
 

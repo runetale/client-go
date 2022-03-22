@@ -3,7 +3,6 @@ package grpcserver
 import (
 	"context"
 	"errors"
-	"strings"
 
 	client "github.com/Notch-Technologies/wizy/auth0"
 	"github.com/Notch-Technologies/wizy/cmd/server/domain"
@@ -28,10 +27,6 @@ func (m *Middleware) Authenticate(ctx context.Context) (newCtx context.Context, 
 	sub, err := auth.AuthFromMD(ctx, "sub")
 	if err != nil {
 		return nil, err
-	}
-
-	if !strings.HasPrefix(sub, "auth0") {
-		return nil, errors.New(domain.ErrInvalidHeader.Error())
 	}
 
 	accessToken, err := m.client.GetAuth0ManagementAccessToken()

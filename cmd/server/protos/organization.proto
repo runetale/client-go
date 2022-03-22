@@ -5,38 +5,17 @@ package protos;
 option go_package = "./organization";
 
 service OrganizationService {
-	rpc Create(OrganizationCreateRequest) returns (OrganizationCreateResponse) {}
-	rpc CreateAdminUser(OrganizationCreateAdminUserRequest) returns (OrganizationCreateAdminUserResponse) {}
-	rpc CreateNetwork(OrganizationCreateNetworkRequest) returns (OrganizationCreateNetworkResponse) {}
+	rpc GetNetwork(GetNetworkRequest) returns (GetNetworkResponse) {}
 }
 
-message OrganizationCreateRequest {
-	string name = 1;
-	string displayName = 2;
-	string logoURL = 3;
+message GetNetworkRequest {
+	string orgID = 1;
 }
 
-message OrganizationCreateResponse {
-	string organizationID = 1;
-}
-
-message OrganizationCreateAdminUserRequest {
-	string email = 1;
-	string password = 2;
-	string organizationID = 3;
-}
-
-message OrganizationCreateAdminUserResponse {
-	string organizationID = 1;
-}
-
-message OrganizationCreateNetworkRequest {
-	string email = 1;
-	string companyName = 2;
-	string role = 4;
-	string userID = 5;
-}
-
-message OrganizationCreateNetworkResponse {
-	string organizationID = 1;
+message GetNetworkResponse {
+	uint64         userGroupID = 1;
+	string         orgID = 2;
+	uint64         networkID = 3;
+	uint64         jobID = 4;
+	uint64 		   roleID = 5;
 }

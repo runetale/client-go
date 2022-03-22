@@ -10,6 +10,7 @@ import (
 type JobRepositoryCaller interface {
 	CreateJob(job *domain.Job) error
 	FindByID(id uint) (*domain.Job, error)
+	FindByAdminNetworkID(id uint) (*domain.Job, error)
 }
 
 type JobRepository struct {
@@ -57,6 +58,37 @@ func (r *JobRepository) FindByID(id uint) (*domain.Job, error) {
 			FROM jobs
 			WHERE
 				id = ?
+			LIMIT 1
+		`, id)
+
+	err := row.Scan(
+		&job.ID,
+		&job.AdminNetworkID,
+		&job.Name,
+		&job.CreatedAt,
+		&job.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+	return &job, nil
+}
+
+func (r *JobRepository) FindByAdminNetworkID(id uint) (*domain.Job, error) {
+	var (
+		job domain.Job
+	)
+
+	row := r.db.QueryRow(
+		`
+			SELECT *
+			FROM jobs
+			WHERE
+				admin_network_id = ?
 			LIMIT 1
 		`, id)
 

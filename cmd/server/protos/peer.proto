@@ -9,7 +9,7 @@ service PeerService {
 }
 
 message SyncRequest {
-	string privateKey = 1;
+	string wgPublicKey = 1;
 	string clientMachineKey = 2;
 }
 

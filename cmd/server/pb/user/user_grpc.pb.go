@@ -18,7 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	SetupKey(ctx context.Context, in *SetupKeyRequest, opts ...grpc.CallOption) (*SetupKeyResponse, error)
+	CreateSetupKey(ctx context.Context, in *CreateSetupKeyRequest, opts ...grpc.CallOption) (*CreateSetupKeyResponse, error)
 }
 
 type userServiceClient struct {
@@ -29,9 +29,9 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) SetupKey(ctx context.Context, in *SetupKeyRequest, opts ...grpc.CallOption) (*SetupKeyResponse, error) {
-	out := new(SetupKeyResponse)
-	err := c.cc.Invoke(ctx, "/protos.UserService/SetupKey", in, out, opts...)
+func (c *userServiceClient) CreateSetupKey(ctx context.Context, in *CreateSetupKeyRequest, opts ...grpc.CallOption) (*CreateSetupKeyResponse, error) {
+	out := new(CreateSetupKeyResponse)
+	err := c.cc.Invoke(ctx, "/protos.UserService/CreateSetupKey", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -42,15 +42,15 @@ func (c *userServiceClient) SetupKey(ctx context.Context, in *SetupKeyRequest, o
 // All implementations should embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	SetupKey(context.Context, *SetupKeyRequest) (*SetupKeyResponse, error)
+	CreateSetupKey(context.Context, *CreateSetupKeyRequest) (*CreateSetupKeyResponse, error)
 }
 
 // UnimplementedUserServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) SetupKey(context.Context, *SetupKeyRequest) (*SetupKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SetupKey not implemented")
+func (UnimplementedUserServiceServer) CreateSetupKey(context.Context, *CreateSetupKeyRequest) (*CreateSetupKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateSetupKey not implemented")
 }
 
 // UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -64,20 +64,20 @@ func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
 	s.RegisterService(&UserService_ServiceDesc, srv)
 }
 
-func _UserService_SetupKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SetupKeyRequest)
+func _UserService_CreateSetupKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSetupKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).SetupKey(ctx, in)
+		return srv.(UserServiceServer).CreateSetupKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protos.UserService/SetupKey",
+		FullMethod: "/protos.UserService/CreateSetupKey",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).SetupKey(ctx, req.(*SetupKeyRequest))
+		return srv.(UserServiceServer).CreateSetupKey(ctx, req.(*CreateSetupKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -90,8 +90,8 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UserServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SetupKey",
-			Handler:    _UserService_SetupKey_Handler,
+			MethodName: "CreateSetupKey",
+			Handler:    _UserService_CreateSetupKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
