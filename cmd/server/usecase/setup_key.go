@@ -60,13 +60,6 @@ func (s *SetupKeyUsecase) CreateSetupKey(
 	}
 
 	userGroup, err := s.userGroupRepository.FindByUserGroupID(userGroupID)
-	// if errors.Is(err, domain.ErrNoRows) {
-	// 	userGroup = domain.NewUserGroup(adminNetwork.ID, "default")
-	// 	err = s.userGroupRepository.CreateUserGroup(userGroup)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
 	if err != nil {
 		return nil, err
 	}

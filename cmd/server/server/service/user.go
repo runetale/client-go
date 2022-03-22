@@ -10,7 +10,7 @@ import (
 )
 
 type UserServerServiceCaller interface {
-	SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error)
+	CreateSetupKey(ctx context.Context, msg *user.CreateSetupKeyRequest) (*user.CreateSetupKeyResponse, error)
 }
 
 type UserServerService struct {
@@ -27,13 +27,14 @@ func NewUserServerService(
 	}
 }
 
-func (u *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequest) (*user.SetupKeyResponse, error) {
+func (u *UserServerService) CreateSetupKey(ctx context.Context, msg *user.CreateSetupKeyRequest) (*user.CreateSetupKeyResponse, error) {
 	sub := getSub(ctx)
-	networkID := msg.GetNetworkID()
+
 	userGroupID := msg.GetUserGroupID()
+	orgGroupID := msg.GetOrgGroupID()
+	networkID := msg.GetNetworkID()
 	jobID := msg.GetJobID()
 	roleID := msg.GetRoleID()
-	orgGroupID := msg.GetOrgGroupID()
 	email := msg.GetEmail()
 
 	tx, err := u.db.Begin()
@@ -50,7 +51,7 @@ func (u *UserServerService) SetupKey(ctx context.Context, msg *user.SetupKeyRequ
 
 	tx.Commit()
 
-	return &user.SetupKeyResponse{
+	return &user.CreateSetupKeyResponse{
 		SetupKey: setupKey.SetupKey(),
 	}, nil
 }

@@ -18,9 +18,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrganizationServiceClient interface {
-	Create(ctx context.Context, in *OrganizationCreateRequest, opts ...grpc.CallOption) (*OrganizationCreateResponse, error)
-	CreateAdminUser(ctx context.Context, in *OrganizationCreateAdminUserRequest, opts ...grpc.CallOption) (*OrganizationCreateAdminUserResponse, error)
-	CreateNetwork(ctx context.Context, in *OrganizationCreateNetworkRequest, opts ...grpc.CallOption) (*OrganizationCreateNetworkResponse, error)
+	GetNetwork(ctx context.Context, in *GetNetworkRequest, opts ...grpc.CallOption) (*GetNetworkResponse, error)
 }
 
 type organizationServiceClient struct {
@@ -31,27 +29,9 @@ func NewOrganizationServiceClient(cc grpc.ClientConnInterface) OrganizationServi
 	return &organizationServiceClient{cc}
 }
 
-func (c *organizationServiceClient) Create(ctx context.Context, in *OrganizationCreateRequest, opts ...grpc.CallOption) (*OrganizationCreateResponse, error) {
-	out := new(OrganizationCreateResponse)
-	err := c.cc.Invoke(ctx, "/protos.OrganizationService/Create", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *organizationServiceClient) CreateAdminUser(ctx context.Context, in *OrganizationCreateAdminUserRequest, opts ...grpc.CallOption) (*OrganizationCreateAdminUserResponse, error) {
-	out := new(OrganizationCreateAdminUserResponse)
-	err := c.cc.Invoke(ctx, "/protos.OrganizationService/CreateAdminUser", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *organizationServiceClient) CreateNetwork(ctx context.Context, in *OrganizationCreateNetworkRequest, opts ...grpc.CallOption) (*OrganizationCreateNetworkResponse, error) {
-	out := new(OrganizationCreateNetworkResponse)
-	err := c.cc.Invoke(ctx, "/protos.OrganizationService/CreateNetwork", in, out, opts...)
+func (c *organizationServiceClient) GetNetwork(ctx context.Context, in *GetNetworkRequest, opts ...grpc.CallOption) (*GetNetworkResponse, error) {
+	out := new(GetNetworkResponse)
+	err := c.cc.Invoke(ctx, "/protos.OrganizationService/GetNetwork", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -62,23 +42,15 @@ func (c *organizationServiceClient) CreateNetwork(ctx context.Context, in *Organ
 // All implementations should embed UnimplementedOrganizationServiceServer
 // for forward compatibility
 type OrganizationServiceServer interface {
-	Create(context.Context, *OrganizationCreateRequest) (*OrganizationCreateResponse, error)
-	CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error)
-	CreateNetwork(context.Context, *OrganizationCreateNetworkRequest) (*OrganizationCreateNetworkResponse, error)
+	GetNetwork(context.Context, *GetNetworkRequest) (*GetNetworkResponse, error)
 }
 
 // UnimplementedOrganizationServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedOrganizationServiceServer struct {
 }
 
-func (UnimplementedOrganizationServiceServer) Create(context.Context, *OrganizationCreateRequest) (*OrganizationCreateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
-}
-func (UnimplementedOrganizationServiceServer) CreateAdminUser(context.Context, *OrganizationCreateAdminUserRequest) (*OrganizationCreateAdminUserResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAdminUser not implemented")
-}
-func (UnimplementedOrganizationServiceServer) CreateNetwork(context.Context, *OrganizationCreateNetworkRequest) (*OrganizationCreateNetworkResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateNetwork not implemented")
+func (UnimplementedOrganizationServiceServer) GetNetwork(context.Context, *GetNetworkRequest) (*GetNetworkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNetwork not implemented")
 }
 
 // UnsafeOrganizationServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -92,56 +64,20 @@ func RegisterOrganizationServiceServer(s grpc.ServiceRegistrar, srv Organization
 	s.RegisterService(&OrganizationService_ServiceDesc, srv)
 }
 
-func _OrganizationService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrganizationCreateRequest)
+func _OrganizationService_GetNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetNetworkRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrganizationServiceServer).Create(ctx, in)
+		return srv.(OrganizationServiceServer).GetNetwork(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protos.OrganizationService/Create",
+		FullMethod: "/protos.OrganizationService/GetNetwork",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrganizationServiceServer).Create(ctx, req.(*OrganizationCreateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OrganizationService_CreateAdminUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrganizationCreateAdminUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrganizationServiceServer).CreateAdminUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.OrganizationService/CreateAdminUser",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrganizationServiceServer).CreateAdminUser(ctx, req.(*OrganizationCreateAdminUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _OrganizationService_CreateNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrganizationCreateNetworkRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(OrganizationServiceServer).CreateNetwork(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.OrganizationService/CreateNetwork",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrganizationServiceServer).CreateNetwork(ctx, req.(*OrganizationCreateNetworkRequest))
+		return srv.(OrganizationServiceServer).GetNetwork(ctx, req.(*GetNetworkRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -154,16 +90,8 @@ var OrganizationService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OrganizationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Create",
-			Handler:    _OrganizationService_Create_Handler,
-		},
-		{
-			MethodName: "CreateAdminUser",
-			Handler:    _OrganizationService_CreateAdminUser_Handler,
-		},
-		{
-			MethodName: "CreateNetwork",
-			Handler:    _OrganizationService_CreateNetwork_Handler,
+			MethodName: "GetNetwork",
+			Handler:    _OrganizationService_GetNetwork_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

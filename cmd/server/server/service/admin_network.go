@@ -35,6 +35,7 @@ func (s *AdminNetworkServerService) CreateDefaultNetwork(ctx context.Context, re
 
 	companyName := req.GetCompanyName()
 	userID := req.GetUserID()
+	email := req.GetEmail()
 
 	adminNetworkUsecase := usecase.NewAdminNetworkUsecase(s.db, s.auth0Client)
 	auth0Usecase := usecase.NewAuth0Usecase(s.auth0Client)
@@ -48,7 +49,7 @@ func (s *AdminNetworkServerService) CreateDefaultNetwork(ctx context.Context, re
 
 	// 2
 	//
-	adminNetwork, err := adminNetworkUsecase.CreateAdminNetworkWithDefault(companyName, auth0Org.ID)
+	adminNetwork, err := adminNetworkUsecase.CreateAdminNetworkWithDefault(userID, companyName, email, auth0Org.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -75,6 +76,6 @@ func (s *AdminNetworkServerService) CreateDefaultNetwork(ctx context.Context, re
 	}
 
 	return &admin_network.CreateDefaultAdminNetworkResponse{
-		OrganizationID: userID,
+		OrganizationID: adminNetwork.OrgID,
 	}, nil
 }

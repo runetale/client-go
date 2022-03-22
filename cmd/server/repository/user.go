@@ -9,6 +9,7 @@ import (
 
 type UserRepositoryCaller interface {
 	CreateUser(user *domain.User) error
+	FindByProviderID(providerID uint) (*domain.User, error)
 	FindByUserID(userID uint) (*domain.User, error)
 }
 
@@ -54,6 +55,43 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	user.ID = uint(lastID)
 
 	return nil
+}
+
+func (u *UserRepository) FindByProviderID(providerID uint) (*domain.User, error) {
+	var (
+		user domain.User
+	)
+
+	row := u.db.QueryRow(
+		`
+			SELECT *
+			FROM users
+			WHERE
+				provider_id = ?
+			LIMIT 1
+		`, providerID)
+
+	err := row.Scan(
+		&user.ID,
+		&user.ProviderID,
+		&user.AdminNetworkID,
+		&user.NetworkID,
+		&user.UserGroupID,
+		&user.RoleID,
+		&user.Provider,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }
 
 func (u *UserRepository) FindByUserID(userID uint) (*domain.User, error) {

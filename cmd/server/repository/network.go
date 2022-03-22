@@ -10,6 +10,7 @@ import (
 type NetworkRepositoryCaller interface {
 	CreateNetwork(network *domain.Network) error
 	FindByNetworkID(id uint) (*domain.Network, error)
+	FindByAdminNetworkID(id uint) (*domain.Network, error)
 }
 
 type NetworkRepository struct {
@@ -61,6 +62,39 @@ func (n *NetworkRepository) FindByNetworkID(id uint) (*domain.Network, error) {
 			FROM networks
 			WHERE
 				id = ?
+			LIMIT 1
+		`, id)
+
+	err := row.Scan(
+		&network.ID,
+		&network.AdminNetworkID,
+		&network.Name,
+		&network.IP,
+		&network.CIDR,
+		&network.CreatedAt,
+		&network.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+	return &network, nil
+}
+
+func (n *NetworkRepository) FindByAdminNetworkID(id uint) (*domain.Network, error) {
+	var (
+		network domain.Network
+	)
+
+	row := n.db.QueryRow(
+		`
+			SELECT *
+			FROM networks
+			WHERE
+				admin_network_id = ?
 			LIMIT 1
 		`, id)
 

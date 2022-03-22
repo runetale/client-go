@@ -15,6 +15,7 @@ import (
 	"github.com/Notch-Technologies/wizy/cmd/server/config"
 	"github.com/Notch-Technologies/wizy/cmd/server/database"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/admin_network"
+	"github.com/Notch-Technologies/wizy/cmd/server/pb/organization"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/peer"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/session"
 	"github.com/Notch-Technologies/wizy/cmd/server/pb/user"
@@ -158,6 +159,7 @@ func main() {
 	user.RegisterUserServiceServer(grpcServer, s.UserServerService)
 	session.RegisterSessionServiceServer(grpcServer, s.SessionServerService)
 	admin_network.RegisterAdminNetworkServiceServer(grpcServer, s.AdminNetworkServerService)
+	organization.RegisterOrganizationServiceServer(grpcServer, s.OrganizationServerService)
 
 	wislog.Logger.Infof("starting server: localhost:%v", serverArgs.port)
 
