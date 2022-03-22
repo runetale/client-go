@@ -49,7 +49,7 @@ type ServerConfig struct {
 func writeServerConfig(
 	path, domain, certfile, certkey, turnSecret string,
 	stun []*Host, turnConfig *TURNConfig, signal *Host,
-
+	iss, aud, secret string,
 ) *ServerConfig {
 	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
 		log.Fatal(err)
@@ -65,6 +65,11 @@ func writeServerConfig(
 			CertKey:  certkey,
 		},
 		Signal: signal,
+		JwtConfig: JwtConfig{
+			Aud: aud,
+			Iss: iss,
+			Secret: secret,
+		},
 	}
 
 	b, err := json.MarshalIndent(cfg, "", "\t")
@@ -86,6 +91,10 @@ func NewServerConfig(
 	signalHost string,
 ) *ServerConfig {
 	b, err := ioutil.ReadFile(path)
+
+	iss := os.Getenv("JWT_ISS")
+	aud := os.Getenv("JWT_AUD")
+	secret := os.Getenv("JWT_SECRET")
 
 	switch {
 	case errors.Is(err, os.ErrNotExist):
@@ -123,6 +132,7 @@ func NewServerConfig(
 		return writeServerConfig(
 			path, domain, certfile, certkey, turnSecret,
 			stun, turns, signal,
+			iss, aud, secret,
 		)
 	case err != nil:
 		log.Fatalf("failed to load config for server. because %s", err.Error())
@@ -135,6 +145,7 @@ func NewServerConfig(
 		return writeServerConfig(
 			path, cfg.TLSConfig.Domain, cfg.TLSConfig.Certfile, cfg.TLSConfig.CertKey, cfg.TURNConfig.Secret,
 			cfg.Stuns, cfg.TURNConfig, cfg.Signal,
+			cfg.JwtConfig.Iss, cfg.JwtConfig.Aud, cfg.JwtConfig.Secret,
 		)
 	}
 }
