@@ -39,7 +39,7 @@ func NewPeerServerService(
 func (p *PeerServerService) Sync(req *peer.SyncRequest, srv peer.PeerService_SyncServer) error {
 	pu := usecase.NewPeerUsecase(p.db, p.config, p.serverStore, srv)
 
-	err := pu.InitialSync(req.GetClientMachineKey())
+	err := pu.InitialSync(req.GetClientMachineKey(), req.GetWgPublicKey())
 	if err != nil {
 		return err
 	}

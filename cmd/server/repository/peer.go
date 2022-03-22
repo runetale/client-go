@@ -12,6 +12,7 @@ type PeerRepositoryCaller interface {
 	CreatePeer(peer *domain.Peer) error
 	FindBySetupKeyID(id uint, clientMachinePubKey string) (*domain.Peer, error)
 	FindByClientMachinePubKey(clientMachinePubKey string) (*domain.Peer, error)
+	FindByWgPubKey(wgPubKey string) (*domain.Peer, error)
 	FindPeersByClientMachinePubKey(clientMachinePubKey string) ([]*domain.Peer, error)
 	FindPeersByAdminNetworkID(organizationID uint) ([]*domain.Peer, error)
 }
@@ -118,6 +119,44 @@ func (p *PeerRepository) FindByClientMachinePubKey(clientMachinePubKey string) (
 				client_machine_pub_key = ?
 			LIMIT 1
 		`, clientMachinePubKey)
+	err := row.Scan(
+		&peer.ID,
+		&peer.UserID,
+		&peer.SetupKeyID,
+		&peer.AdminNetworkID,
+		&peer.UserGroupID,
+		&peer.NetworkID,
+		&peer.ClientMachinePubKey,
+		&peer.WgPubKey,
+		&peer.IP,
+		&peer.CIDR,
+		&peer.CreatedAt,
+		&peer.UpdatedAt,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &peer, nil
+}
+
+func (p *PeerRepository) FindByWgPubKey(wgPubKey string) (*domain.Peer, error) {
+	var (
+		peer domain.Peer
+	)
+
+	row := p.db.QueryRow(
+		`
+			SELECT *
+			FROM peers
+			WHERE
+				wg_pub_key = ?
+			LIMIT 1
+		`, wgPubKey)
 	err := row.Scan(
 		&peer.ID,
 		&peer.UserID,

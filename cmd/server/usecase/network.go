@@ -39,7 +39,11 @@ func NewNetworkUsecase(
 func (u *NetworkUsecase) GetNetwork(sub, organizationID string) (*organization.GetNetworkResponse, error) {
 	i := strings.Index(sub, "|")
 	providerID := sub[i+1:]
+
 	_, err := u.userRepository.FindByProviderID(providerID)
+	if err != nil {
+		return nil, err
+	}
 
 	adminNetwork, err := u.adminNetworkRepository.FindByOrganizationID(organizationID)
 	if err != nil {

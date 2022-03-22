@@ -11,7 +11,7 @@ import (
 )
 
 type PeerUsecaseCaller interface {
-	InitialSync(clientMachinePubKey string) error
+	InitialSync(clientMachinePubKey, wgPublicKey string) error
 }
 
 type PeerUsecase struct {
@@ -35,16 +35,31 @@ func NewPeerUsecase(
 	}
 }
 
-func (p *PeerUsecase) InitialSync(clientMachinePubKey string) error {
+func (p *PeerUsecase) InitialSync(clientMachinePubKey, wgPublicKey string) error {
 	var (
 		allowedIPsFormat = "%s/%d"
 	)
-
+	
+	fmt.Println("Initial Sync")
 	pe, err := p.peerRepository.FindByClientMachinePubKey(clientMachinePubKey)
 	if err != nil {
-		fmt.Println("can not find pub key")
+		fmt.Println("can not find client machine pub key")
 		return err
 	}
+
+	fmt.Println("Initial Sync")
+	a, err := p.peerRepository.FindByWgPubKey(wgPublicKey)
+	if err != nil {
+		fmt.Println("can not find wg pub key")
+		return err
+	}
+	fmt.Println("Initial Sync")
+
+	fmt.Println("truth admin network id")
+	fmt.Println(a.AdminNetworkID)
+
+	fmt.Println("non truth admin network id")
+	fmt.Println(pe.AdminNetworkID)
 
 	peers, err := p.peerRepository.FindPeersByAdminNetworkID(pe.AdminNetworkID)
 	if err != nil {
