@@ -9,7 +9,7 @@ import (
 
 type UserRepositoryCaller interface {
 	CreateUser(user *domain.User) error
-	FindByProviderID(providerID uint) (*domain.User, error)
+	FindByProviderID(providerID string) (*domain.User, error)
 	FindByUserID(userID uint) (*domain.User, error)
 }
 
@@ -57,7 +57,7 @@ func (u *UserRepository) CreateUser(user *domain.User) error {
 	return nil
 }
 
-func (u *UserRepository) FindByProviderID(providerID uint) (*domain.User, error) {
+func (u *UserRepository) FindByProviderID(providerID string) (*domain.User, error) {
 	var (
 		user domain.User
 	)
