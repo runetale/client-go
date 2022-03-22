@@ -174,7 +174,7 @@ func (e *Engine) syncClient() {
 				if err != nil {
 					return err
 				}
-            	
+
 				err = e.updateStuns(update.StunTurnConfig.Stuns)
 				if err != nil {
 					return err
