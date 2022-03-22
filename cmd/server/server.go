@@ -40,32 +40,63 @@ func init() {
 }
 
 var serverArgs struct {
-	configpath     string
+	// server
+	configpath string
+	port       uint16
+	// tls
 	letsencryptDir string
-	port           uint16
-	verbose        int
 	domain         string
 	certfile       string
 	certkey        string
-	turnSecret     string
-	version        bool
-	logFile        string
-	logLevel       string
-	dev            bool
+	// turn
+	turnURL      string // format like this"turn:www.notchturn.net:3478"
+	turnUserName string
+	turnPassword string
+	turnSecret   string
+	ttl          string
+	credentials  bool
+	// stun
+	stunURL      string // format like this"stun:www.notchturn.net:3478"
+	stunUserName string
+	stunPassword string
+	// signal
+	signalURL string // format "172.16.165.128:10000" or "yourdomain:10000"
+	// log
+	logFile  string
+	logLevel string
+	verbose  int
+
+	version bool
+	dev     bool
 }
 
 func main() {
 	flag.StringVar(&serverArgs.configpath, "config", paths.DefaultServerConfigFile(), "path of server config file")
-	flag.StringVar(&serverArgs.letsencryptDir, "letsencypt-dir", paths.DefaultLetsEncryptDir(), "directory of letsencrypt")
 	flag.Var(flagtype.PortValue(&serverArgs.port, flagtype.DefaultGrpcServerPort), "port", "specify the port of the server")
-	flag.IntVar(&serverArgs.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
+
+	flag.StringVar(&serverArgs.letsencryptDir, "letsencypt-dir", paths.DefaultLetsEncryptDir(), "directory of letsencrypt")
 	flag.StringVar(&serverArgs.domain, "domain", "", "your domain")
 	flag.StringVar(&serverArgs.certfile, "cert-file", "", "your cert file")
 	flag.StringVar(&serverArgs.certkey, "cert-key", "", "your cert key")
+
+	flag.StringVar(&serverArgs.turnURL, "turn-url", "stun:www.notchturn.net:3478", "your turn url")
+	flag.StringVar(&serverArgs.turnUserName, "turn-user", "", "your turn username")
+	flag.StringVar(&serverArgs.turnPassword, "turn-pass", "", "your turn password")
 	flag.StringVar(&serverArgs.turnSecret, "turn-secret", "", "your cert key")
-	flag.BoolVar(&serverArgs.version, "version", false, "print version")
+	flag.StringVar(&serverArgs.ttl, "turn-ttl", "0", "ttl duration")
+	flag.BoolVar(&serverArgs.credentials, "turn-credentials", false, "")
+
+	flag.StringVar(&serverArgs.stunURL, "stun-url", "turn:www.notchturn.net:3478", "your stun url")
+	flag.StringVar(&serverArgs.stunUserName, "stun-user", "", "your stun username")
+	flag.StringVar(&serverArgs.stunPassword, "stun-pass", "", "your stun password")
+
+	flag.StringVar(&serverArgs.signalURL, "signal-url", "172.16.165.128:10000", "your signal url")
+
 	flag.StringVar(&serverArgs.logFile, "logfile", paths.DefaultServerLogFile(), "set logfile path")
 	flag.StringVar(&serverArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
+	flag.IntVar(&serverArgs.verbose, "verbose", 0, "0 is the default value, 1 is a redundant message")
+
+	flag.BoolVar(&serverArgs.version, "version", false, "print version")
 	flag.BoolVar(&serverArgs.dev, "dev", true, "is dev")
 
 	flag.Parse()
@@ -113,11 +144,10 @@ func main() {
 	// new sever config
 	//
 	cfg := config.NewServerConfig(
-		serverArgs.configpath,
-		serverArgs.domain,
-		serverArgs.certfile,
-		serverArgs.certkey,
-		serverArgs.turnSecret,
+		serverArgs.configpath, serverArgs.domain, serverArgs.certfile, serverArgs.certkey, serverArgs.turnSecret,
+		serverArgs.stunURL, serverArgs.stunUserName, serverArgs.stunPassword,
+		serverArgs.turnURL, serverArgs.turnUserName, serverArgs.turnPassword, serverArgs.ttl, serverArgs.credentials,
+		serverArgs.signalURL,
 	)
 
 	// new cert store
