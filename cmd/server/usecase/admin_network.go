@@ -17,7 +17,7 @@ type AdminNetworkUsecaseCaller interface {
 type AdminNetworkUsecase struct {
 	adminNetworkRepository repository.AdminNetworkRepositoryCaller
 	networkRepository      repository.NetworkRepositoryCaller
-	userRepository 	   	   repository.UserRepositoryCaller
+	userRepository         repository.UserRepositoryCaller
 	userGroupRepository    repository.UserGroupRepositoryCaller
 	jobRepository          repository.JobRepositoryCaller
 	roleRepository         repository.RoleRepositoryCaller
@@ -32,7 +32,7 @@ func NewAdminNetworkUsecase(
 		adminNetworkRepository: repository.NewAdminNetworkRepository(db),
 		networkRepository:      repository.NewNetworkRepository(db),
 		userGroupRepository:    repository.NewUserGroupRepository(db),
-		userRepository: 	    repository.NewUserRepository(db),
+		userRepository:         repository.NewUserRepository(db),
 		jobRepository:          repository.NewJobRepository(db),
 		roleRepository:         repository.NewRoleRepository(db),
 		auth0Client:            client,
@@ -101,7 +101,6 @@ func (u *AdminNetworkUsecase) CreateAdminNetworkWithDefault(
 	if err != nil {
 		return nil, err
 	}
-
 
 	// 6
 	//

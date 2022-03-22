@@ -16,7 +16,7 @@ type NetworkUsecaseCaller interface {
 type NetworkUsecase struct {
 	adminNetworkRepository repository.AdminNetworkRepositoryCaller
 	networkRepository      repository.NetworkRepositoryCaller
-	userRepository 	   	   repository.UserRepositoryCaller
+	userRepository         repository.UserRepositoryCaller
 	userGroupRepository    repository.UserGroupRepositoryCaller
 	jobRepository          repository.JobRepositoryCaller
 	roleRepository         repository.RoleRepositoryCaller
@@ -30,7 +30,7 @@ func NewNetworkUsecase(
 		adminNetworkRepository: repository.NewAdminNetworkRepository(db),
 		networkRepository:      repository.NewNetworkRepository(db),
 		userGroupRepository:    repository.NewUserGroupRepository(db),
-		userRepository: 	    repository.NewUserRepository(db),
+		userRepository:         repository.NewUserRepository(db),
 		jobRepository:          repository.NewJobRepository(db),
 		roleRepository:         repository.NewRoleRepository(db),
 	}
@@ -68,9 +68,9 @@ func (u *NetworkUsecase) GetNetwork(sub, organizationID string) (*organization.G
 
 	return &organization.GetNetworkResponse{
 		UserGroupID: uint64(userGroup.ID),
-		OrgID: organizationID,
-		NetworkID: uint64(network.ID),
-		JobID: uint64(job.ID),
-		RoleID: uint64(role.ID),
+		OrgID:       organizationID,
+		NetworkID:   uint64(network.ID),
+		JobID:       uint64(job.ID),
+		RoleID:      uint64(role.ID),
 	}, nil
 }
