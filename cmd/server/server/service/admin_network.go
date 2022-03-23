@@ -11,6 +11,7 @@ import (
 
 type AdminNetworkServerServiceCaller interface {
 	CreateDefaultNetwork(ctx context.Context, req *admin_network.CreateDefaultAdminNetworkRequest) (*admin_network.CreateDefaultAdminNetworkResponse, error)
+	LoginNetwork(ctx context.Context, req *admin_network.LoginNetworkRequest) (*admin_network.LoginNetworkResponse, error)
 }
 
 type AdminNetworkServerService struct {
@@ -76,6 +77,21 @@ func (s *AdminNetworkServerService) CreateDefaultNetwork(ctx context.Context, re
 	}
 
 	return &admin_network.CreateDefaultAdminNetworkResponse{
+		OrganizationID: adminNetwork.OrgID,
+	}, nil
+}
+
+func (s *AdminNetworkServerService) LoginNetwork(ctx context.Context, req *admin_network.LoginNetworkRequest) (*admin_network.LoginNetworkResponse, error) {
+	networkName := req.GetNetworkName()
+	userID := req.GetUserID()
+
+	adminNetworkUsecase := usecase.NewAdminNetworkUsecase(s.db, s.auth0Client)
+	adminNetwork, err := adminNetworkUsecase.Login(userID, networkName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin_network.LoginNetworkResponse{
 		OrganizationID: adminNetwork.OrgID,
 	}, nil
 }

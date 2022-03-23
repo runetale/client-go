@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"fmt"
 	"strings"
 
 	client "github.com/Notch-Technologies/wizy/auth0"
@@ -12,6 +13,7 @@ import (
 
 type AdminNetworkUsecaseCaller interface {
 	CreateAdminNetworkWithDefault(userID, name, email, organizationID string) (*domain.AdminNetwork, error)
+	Login(userID, companyName string) (*domain.AdminNetwork, error)
 }
 
 type AdminNetworkUsecase struct {
@@ -117,8 +119,27 @@ func (u *AdminNetworkUsecase) CreateAdminNetworkWithDefault(
 	if err != nil {
 		return nil, err
 	}
-	
-	// TODO: return to create JWT for companies to access?
+
+	// TODO: (shintard) create jwt token and return to jwt token
+	//
+
+	return adminNetwork, nil
+}
+
+func (u *AdminNetworkUsecase) Login(userID, companyName string) (*domain.AdminNetwork, error) {
+	adminNetwork, err := u.adminNetworkRepository.FindByName(companyName)
+	if err != nil {
+		return nil, err
+	}
+
+	i := strings.Index(userID, "|")
+	providerID := userID[i+1:]
+	_, err = u.userRepository.FindByProviderID(providerID)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: (shintard) create jwt token and return to jwt token
 	//
 
 	return adminNetwork, nil
