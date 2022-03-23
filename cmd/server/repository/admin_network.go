@@ -10,6 +10,7 @@ import (
 type AdminNetworkRepositoryCaller interface {
 	CreateAdminNetwork(org *domain.AdminNetwork) error
 	FindByOrganizationID(orgID string) (*domain.AdminNetwork, error)
+	FindByName(name string) (*domain.AdminNetwork, error)
 }
 
 type AdminNetworkRepository struct {
@@ -59,6 +60,37 @@ func (a *AdminNetworkRepository) FindByOrganizationID(orgID string) (*domain.Adm
 				org_id = ?
 			LIMIT 1
 		`, orgID)
+
+	err := row.Scan(
+		&admin.ID,
+		&admin.Name,
+		&admin.OrgID,
+		&admin.CreatedAt,
+		&admin.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, domain.ErrNoRows
+		}
+		return nil, err
+	}
+
+	return &admin, nil
+}
+
+func (a *AdminNetworkRepository) FindByName(name string) (*domain.AdminNetwork, error) {
+	var (
+		admin domain.AdminNetwork
+	)
+
+	row := a.db.QueryRow(
+		`
+			SELECT *
+			FROM admin_networks
+			WHERE
+				name = ?
+			LIMIT 1
+		`, name)
 
 	err := row.Scan(
 		&admin.ID,

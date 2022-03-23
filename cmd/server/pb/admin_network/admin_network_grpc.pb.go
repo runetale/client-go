@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminNetworkServiceClient interface {
 	CreateDefaultNetwork(ctx context.Context, in *CreateDefaultAdminNetworkRequest, opts ...grpc.CallOption) (*CreateDefaultAdminNetworkResponse, error)
+	LoginNetwork(ctx context.Context, in *LoginNetworkRequest, opts ...grpc.CallOption) (*LoginNetworkResponse, error)
 }
 
 type adminNetworkServiceClient struct {
@@ -38,11 +39,21 @@ func (c *adminNetworkServiceClient) CreateDefaultNetwork(ctx context.Context, in
 	return out, nil
 }
 
+func (c *adminNetworkServiceClient) LoginNetwork(ctx context.Context, in *LoginNetworkRequest, opts ...grpc.CallOption) (*LoginNetworkResponse, error) {
+	out := new(LoginNetworkResponse)
+	err := c.cc.Invoke(ctx, "/protos.AdminNetworkService/LoginNetwork", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminNetworkServiceServer is the server API for AdminNetworkService service.
 // All implementations should embed UnimplementedAdminNetworkServiceServer
 // for forward compatibility
 type AdminNetworkServiceServer interface {
 	CreateDefaultNetwork(context.Context, *CreateDefaultAdminNetworkRequest) (*CreateDefaultAdminNetworkResponse, error)
+	LoginNetwork(context.Context, *LoginNetworkRequest) (*LoginNetworkResponse, error)
 }
 
 // UnimplementedAdminNetworkServiceServer should be embedded to have forward compatible implementations.
@@ -51,6 +62,9 @@ type UnimplementedAdminNetworkServiceServer struct {
 
 func (UnimplementedAdminNetworkServiceServer) CreateDefaultNetwork(context.Context, *CreateDefaultAdminNetworkRequest) (*CreateDefaultAdminNetworkResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDefaultNetwork not implemented")
+}
+func (UnimplementedAdminNetworkServiceServer) LoginNetwork(context.Context, *LoginNetworkRequest) (*LoginNetworkResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginNetwork not implemented")
 }
 
 // UnsafeAdminNetworkServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -82,6 +96,24 @@ func _AdminNetworkService_CreateDefaultNetwork_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminNetworkService_LoginNetwork_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginNetworkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminNetworkServiceServer).LoginNetwork(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.AdminNetworkService/LoginNetwork",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminNetworkServiceServer).LoginNetwork(ctx, req.(*LoginNetworkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminNetworkService_ServiceDesc is the grpc.ServiceDesc for AdminNetworkService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -92,6 +124,10 @@ var AdminNetworkService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateDefaultNetwork",
 			Handler:    _AdminNetworkService_CreateDefaultNetwork_Handler,
+		},
+		{
+			MethodName: "LoginNetwork",
+			Handler:    _AdminNetworkService_LoginNetwork_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

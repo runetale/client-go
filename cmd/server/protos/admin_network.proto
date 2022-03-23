@@ -6,6 +6,7 @@ option go_package = "./admin_network";
 
 service AdminNetworkService {
 	rpc CreateDefaultNetwork(CreateDefaultAdminNetworkRequest) returns (CreateDefaultAdminNetworkResponse) {}
+	rpc LoginNetwork(LoginNetworkRequest) returns (LoginNetworkResponse) {}
 }
 
 message CreateDefaultAdminNetworkRequest {
@@ -15,5 +16,14 @@ message CreateDefaultAdminNetworkRequest {
 }
 
 message CreateDefaultAdminNetworkResponse {
+	string organizationID = 1;
+}
+
+message LoginNetworkRequest {
+	string networkName = 1;
+	string userID = 2;
+}
+
+message LoginNetworkResponse {
 	string organizationID = 1;
 }
