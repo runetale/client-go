@@ -22,9 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NegotiationClient interface {
-	Offer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
-	Answer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
-	Candidate(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
+	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
+	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
+	Candidate(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
 	StartConnect(ctx context.Context, opts ...grpc.CallOption) (Negotiation_StartConnectClient, error)
 }
 
@@ -36,7 +36,7 @@ func NewNegotiationClient(cc grpc.ClientConnInterface) NegotiationClient {
 	return &negotiationClient{cc}
 }
 
-func (c *negotiationClient) Offer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
+func (c *negotiationClient) Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
 	out := new(NegotiationResponse)
 	err := c.cc.Invoke(ctx, "/protos.Negotiation/Offer", in, out, opts...)
 	if err != nil {
@@ -45,7 +45,7 @@ func (c *negotiationClient) Offer(ctx context.Context, in *NegotiationRequest, o
 	return out, nil
 }
 
-func (c *negotiationClient) Answer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
+func (c *negotiationClient) Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
 	out := new(NegotiationResponse)
 	err := c.cc.Invoke(ctx, "/protos.Negotiation/Answer", in, out, opts...)
 	if err != nil {
@@ -54,7 +54,7 @@ func (c *negotiationClient) Answer(ctx context.Context, in *NegotiationRequest, 
 	return out, nil
 }
 
-func (c *negotiationClient) Candidate(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
+func (c *negotiationClient) Candidate(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
 	out := new(NegotiationResponse)
 	err := c.cc.Invoke(ctx, "/protos.Negotiation/Candidate", in, out, opts...)
 	if err != nil {
@@ -98,9 +98,9 @@ func (x *negotiationStartConnectClient) Recv() (*NegotiationResponse, error) {
 // All implementations should embed UnimplementedNegotiationServer
 // for forward compatibility
 type NegotiationServer interface {
-	Offer(context.Context, *NegotiationRequest) (*NegotiationResponse, error)
-	Answer(context.Context, *NegotiationRequest) (*NegotiationResponse, error)
-	Candidate(context.Context, *NegotiationRequest) (*NegotiationResponse, error)
+	Offer(context.Context, *HandshakeRequest) (*NegotiationResponse, error)
+	Answer(context.Context, *HandshakeRequest) (*NegotiationResponse, error)
+	Candidate(context.Context, *HandshakeRequest) (*NegotiationResponse, error)
 	StartConnect(Negotiation_StartConnectServer) error
 }
 
@@ -108,13 +108,13 @@ type NegotiationServer interface {
 type UnimplementedNegotiationServer struct {
 }
 
-func (UnimplementedNegotiationServer) Offer(context.Context, *NegotiationRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServer) Offer(context.Context, *HandshakeRequest) (*NegotiationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Offer not implemented")
 }
-func (UnimplementedNegotiationServer) Answer(context.Context, *NegotiationRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServer) Answer(context.Context, *HandshakeRequest) (*NegotiationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Answer not implemented")
 }
-func (UnimplementedNegotiationServer) Candidate(context.Context, *NegotiationRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServer) Candidate(context.Context, *HandshakeRequest) (*NegotiationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Candidate not implemented")
 }
 func (UnimplementedNegotiationServer) StartConnect(Negotiation_StartConnectServer) error {
@@ -133,7 +133,7 @@ func RegisterNegotiationServer(s grpc.ServiceRegistrar, srv NegotiationServer) {
 }
 
 func _Negotiation_Offer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NegotiationRequest)
+	in := new(HandshakeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -145,13 +145,13 @@ func _Negotiation_Offer_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: "/protos.Negotiation/Offer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NegotiationServer).Offer(ctx, req.(*NegotiationRequest))
+		return srv.(NegotiationServer).Offer(ctx, req.(*HandshakeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Negotiation_Answer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NegotiationRequest)
+	in := new(HandshakeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -163,13 +163,13 @@ func _Negotiation_Answer_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: "/protos.Negotiation/Answer",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NegotiationServer).Answer(ctx, req.(*NegotiationRequest))
+		return srv.(NegotiationServer).Answer(ctx, req.(*HandshakeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Negotiation_Candidate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NegotiationRequest)
+	in := new(HandshakeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -181,7 +181,7 @@ func _Negotiation_Candidate_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/protos.Negotiation/Candidate",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NegotiationServer).Candidate(ctx, req.(*NegotiationRequest))
+		return srv.(NegotiationServer).Candidate(ctx, req.(*HandshakeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
