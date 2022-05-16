@@ -26,7 +26,7 @@ type NegotiationClient interface {
 	Offer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Answer(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Candidate(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	StartConnect(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (Negotiation_StartConnectClient, error)
+	StartConnect(ctx context.Context, opts ...grpc.CallOption) (Negotiation_StartConnectClient, error)
 }
 
 type negotiationClient struct {
@@ -64,28 +64,27 @@ func (c *negotiationClient) Candidate(ctx context.Context, in *NegotiationReques
 	return out, nil
 }
 
-func (c *negotiationClient) StartConnect(ctx context.Context, in *NegotiationRequest, opts ...grpc.CallOption) (Negotiation_StartConnectClient, error) {
+func (c *negotiationClient) StartConnect(ctx context.Context, opts ...grpc.CallOption) (Negotiation_StartConnectClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Negotiation_ServiceDesc.Streams[0], "/protos.Negotiation/StartConnect", opts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &negotiationStartConnectClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
 	return x, nil
 }
 
 type Negotiation_StartConnectClient interface {
+	Send(*NegotiationRequest) error
 	Recv() (*NegotiationResponse, error)
 	grpc.ClientStream
 }
 
 type negotiationStartConnectClient struct {
 	grpc.ClientStream
+}
+
+func (x *negotiationStartConnectClient) Send(m *NegotiationRequest) error {
+	return x.ClientStream.SendMsg(m)
 }
 
 func (x *negotiationStartConnectClient) Recv() (*NegotiationResponse, error) {
@@ -103,7 +102,7 @@ type NegotiationServer interface {
 	Offer(context.Context, *NegotiationRequest) (*emptypb.Empty, error)
 	Answer(context.Context, *NegotiationRequest) (*emptypb.Empty, error)
 	Candidate(context.Context, *NegotiationRequest) (*emptypb.Empty, error)
-	StartConnect(*NegotiationRequest, Negotiation_StartConnectServer) error
+	StartConnect(Negotiation_StartConnectServer) error
 }
 
 // UnimplementedNegotiationServer should be embedded to have forward compatible implementations.
@@ -119,7 +118,7 @@ func (UnimplementedNegotiationServer) Answer(context.Context, *NegotiationReques
 func (UnimplementedNegotiationServer) Candidate(context.Context, *NegotiationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Candidate not implemented")
 }
-func (UnimplementedNegotiationServer) StartConnect(*NegotiationRequest, Negotiation_StartConnectServer) error {
+func (UnimplementedNegotiationServer) StartConnect(Negotiation_StartConnectServer) error {
 	return status.Errorf(codes.Unimplemented, "method StartConnect not implemented")
 }
 
@@ -189,15 +188,12 @@ func _Negotiation_Candidate_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _Negotiation_StartConnect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(NegotiationRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(NegotiationServer).StartConnect(m, &negotiationStartConnectServer{stream})
+	return srv.(NegotiationServer).StartConnect(&negotiationStartConnectServer{stream})
 }
 
 type Negotiation_StartConnectServer interface {
 	Send(*NegotiationResponse) error
+	Recv() (*NegotiationRequest, error)
 	grpc.ServerStream
 }
 
@@ -207,6 +203,14 @@ type negotiationStartConnectServer struct {
 
 func (x *negotiationStartConnectServer) Send(m *NegotiationResponse) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func (x *negotiationStartConnectServer) Recv() (*NegotiationRequest, error) {
+	m := new(NegotiationRequest)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // Negotiation_ServiceDesc is the grpc.ServiceDesc for Negotiation service.
@@ -234,6 +238,7 @@ var Negotiation_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "StartConnect",
 			Handler:       _Negotiation_StartConnect_Handler,
 			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "notch/dotshake/v1/negotiation.proto",
