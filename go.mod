@@ -24,6 +24,7 @@ require (
 )
 
 require (
+	github.com/Notch-Technologies/client-go v0.0.0-20220516132720-fb36461793b2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
