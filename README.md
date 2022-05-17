@@ -1,11 +1,11 @@
-# wissy
+# dotshake
 
 
 ## env
 TODO: (shintard) preparing enviroment variables
 
 ## for install
-TODO: (shintard) preparing how install for wissy command
+TODO: (shintard) preparing how install for dotshake command
 ### linux
 
 ### darwin
@@ -26,9 +26,9 @@ start the server without docker
 start the signaling without docker
 `go run cmd/signaling/signaling.go`
 
-### wissy
-start the wissy without docker
-`sudo go run cmd/wissy/up.go --key <your setup key>`
+### dotshake
+start the dotshake without docker
+`sudo go run cmd/dotshake/up.go --key <your setup key>`
 
 ## for build with docker
 start the server using docker-compose
@@ -41,10 +41,10 @@ start the signaling server using docker-compose
 if you want to build
 `make build-signaling`
 
-start the wissy using docker-compose
-`make up-wissy`
+start the dotshake using docker-compose
+`make up-dotshake`
 if you want to build
-`make build-wissy`
+`make build-dotshake`
 
 ## for development
 if you want develop server
@@ -53,14 +53,14 @@ if you want develop server
 if you want develop signaling server
 `cmd/signaling` is the server to negotiate peer.
 
-if you want develop wissy
-`cmd/wissy` is the connects to peer clients, signaling servers and servers, and performs peer communication.
+if you want develop dotshake
+`cmd/dotshake` is the connects to peer clients, signaling servers and servers, and performs peer communication.
 
 ## for NixOS
-TODO: Instead of using make, use flake to create the wissy binary. This will make development much easier since the build binaries can be placed directly in the store without using the nix-store command.
+TODO: Instead of using make, use flake to create the dotshake binary. This will make development much easier since the build binaries can be placed directly in the store without using the nix-store command.
 
 if you want to run it in a daemon,
-1. run `make store` to create a wissy build binary in store
+1. run `make store` to create a dotshake build binary in store
 2. add the store path as follows and rebuild nixos
 
 ```
@@ -69,22 +69,22 @@ if you want to run it in a daemon,
   let
   in {
     nixpkgs.overlays = [(self: super: {
-      wissy = pkgs.writeScriptBin "wissy" ''
+      dotshake = pkgs.writeScriptBin "dotshake" ''
         #! ${pkgs.stdenv.shell} -e
         exec </your store binary> up // place your own built binaries in the store
       '';
     })];
   
-    # for development wissy
-    systemd.services.wissy = {
-      description = "wissy daemon";
+    # for development dotshake
+    systemd.services.dotshake = {
+      description = "dotshake daemon";
       wants  = [ "network-online.target" "systemd-networkd-wait-online.service"];
       after = [ "network-online.target" ];
       path = [ pkgs.iproute ];
       serviceConfig = {
         User = "root";
         Type = "simple";
-        ExecStart = "${pkgs.wissy}/bin/wissy";
+        ExecStart = "${pkgs.dotshake}/bin/dotshake";
         Restart = "on-failure";
         RestartSec = "15";
       };

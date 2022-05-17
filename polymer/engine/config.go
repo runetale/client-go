@@ -1,8 +1,8 @@
 package engine
 
 import (
-	"github.com/Notch-Technologies/wizy/core"
-	"github.com/Notch-Technologies/wizy/wireguard"
+	"github.com/Notch-Technologies/dotshake/core"
+	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 

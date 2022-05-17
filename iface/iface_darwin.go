@@ -1,14 +1,14 @@
 package iface
 
 import (
-	"github.com/Notch-Technologies/wizy/wireguard"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/dotlog"
+	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 func CreateIface(
 	i *Iface, ip, cidr string,
-	wislog *wislog.WisLog,
+	dotlog *dotlog.DotLog,
 ) error {
 	addr := ip + "/" + cidr
 

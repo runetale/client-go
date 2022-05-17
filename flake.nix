@@ -1,5 +1,5 @@
 {
-  description = "wissy";
+  description = "dotshake";
 
   inputs.nixpkgs.url = "nixpkgs/nixos-21.11";
 
@@ -26,9 +26,9 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          # TOOD: (shintard) allow the wissy command to be built
-          wissy = pkgs.buildGoModule {
-            pname = "wissy";
+          # TOOD: (shintard) allow the dotshake command to be built
+          dotshake = pkgs.buildGoModule {
+            pname = "dotshake";
             inherit version;
             src = builtins.path {
               path = ./.;
@@ -39,11 +39,11 @@
             };
 
             buildPhase = ''
-              go build -o wissy cmd/wissy/main.go
+              go build -o dotshake cmd/dotshake/main.go
             '';
             
             installPhase = ''
-              install -Dm755 wissy -t $out/bin
+              install -Dm755 dotshake -t $out/bin
             '';
 
             vendorSha256 = pkgs.lib.fakeSha256;
@@ -53,12 +53,12 @@
           # build systemd service path.
           # use when you want to generate daemon service files in nix store
           daemon-service = pkgs.substituteAll {
-            name = "wissy.service";
-            src = ./systemd/wissy.service;
+            name = "dotshake.service";
+            src = ./systemd/dotshake.service;
           };
         });
 
-        defaultPackage = forAllSystems (system: self.packages.${system}.wissy);
+        defaultPackage = forAllSystems (system: self.packages.${system}.dotshake);
 
         devShell = forAllSystems (system:
           let pkgs = nixpkgsFor.${system};

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/wislog"
 )
 
 type systemVRecord struct {

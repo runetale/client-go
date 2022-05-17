@@ -1,6 +1,6 @@
 package daemon
 
-import "github.com/Notch-Technologies/wizy/wislog"
+import "github.com/Notch-Technologies/dotshake/dotlog"
 
 type Daemon interface {
 	Install() error
@@ -20,7 +20,7 @@ type Daemon interface {
 
 func NewDaemon(
 	binPath, serviceName, daemonFilePath, systemConfig string,
-	wl *wislog.WisLog,
+	wl *dotlog.DotLog,
 ) Daemon {
 	return newDaemon(binPath, serviceName, daemonFilePath, systemConfig, wl)
 }

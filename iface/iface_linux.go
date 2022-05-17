@@ -6,9 +6,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/Notch-Technologies/wizy/version"
-	"github.com/Notch-Technologies/wizy/wireguard"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/version"
+	"github.com/Notch-Technologies/dotshake/wireguard"
+	"github.com/Notch-Technologies/dotshake/wislog"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )

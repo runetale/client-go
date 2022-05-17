@@ -12,7 +12,7 @@ import (
 //
 
 const (
-	SetupKeyPrefix = "w_"
+	SetupKeyPrefix = "d_"
 )
 
 // key usage types.

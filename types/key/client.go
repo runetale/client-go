@@ -4,7 +4,7 @@ import (
 	"go4.org/mem"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 
-	"github.com/Notch-Technologies/wizy/types/structs"
+	"github.com/Notch-Technologies/dotshake/types/structs"
 )
 
 const (

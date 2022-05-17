@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/Notch-Technologies/wizy/cmd/wissy/tun"
-	"github.com/Notch-Technologies/wizy/types/key"
-	"github.com/Notch-Technologies/wizy/utils"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/cmd/dotshake/tun"
+	"github.com/Notch-Technologies/dotshake/types/key"
+	"github.com/Notch-Technologies/dotshake/utils"
+	"github.com/Notch-Technologies/dotshake/wislog"
 )
 
 type ClientCore struct {

@@ -3,7 +3,7 @@ package daemon
 import (
 	"os"
 
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/wislog"
 )
 
 func newDaemon(

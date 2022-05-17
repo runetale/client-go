@@ -7,11 +7,11 @@ const SystemConfig = `
 <dict>
 
   <key>Label</key>
-  <string>com.wissy.wissy</string>
+  <string>com.dotshake.dotshake</string>
 
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/local/bin/wissy</string>
+    <string>/usr/local/bin/dotshake</string>
     <string>up</string>
   </array>
 
@@ -24,6 +24,6 @@ const SystemConfig = `
 </plist>
 `
 
-const DaemonFilePath = "/Library/LaunchDaemons/com.wissy.wissy.plist"
-const BinPath = "/usr/local/bin/wissy"
-const ServiceName = "com.wissy.wissy"
+const DaemonFilePath = "/Library/LaunchDaemons/com.dotshake.dotshake.plist"
+const BinPath = "/usr/local/bin/dotshake"
+const ServiceName = "com.dotshake.dotshake"

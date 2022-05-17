@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/Notch-Technologies/wizy/paths"
-	"github.com/Notch-Technologies/wizy/utils"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/dotlog"
+	"github.com/Notch-Technologies/dotshake/paths"
+	"github.com/Notch-Technologies/dotshake/utils"
 )
 
 type FileStoreManager interface {
@@ -25,12 +25,12 @@ type FileStoreManager interface {
 type FileStore struct {
 	path   string
 	cache  map[StateKey][]byte
-	wislog *wislog.WisLog
+	dotlog *dotlog.DotLog
 
 	mu sync.RWMutex
 }
 
-func NewFileStore(path string, wl *wislog.WisLog) (*FileStore, error) {
+func NewFileStore(path string, dotlog *dotlog.DotLog) (*FileStore, error) {
 	if err := paths.MkStateDir(filepath.Dir(path)); err != nil {
 		return nil, fmt.Errorf("does not creating state directory: %w", err)
 	}
@@ -52,7 +52,7 @@ func NewFileStore(path string, wl *wislog.WisLog) (*FileStore, error) {
 	fs := &FileStore{
 		path:   path,
 		cache:  make(map[StateKey][]byte),
-		wislog: wl,
+		dotlog: dotlog,
 	}
 
 	if err := json.Unmarshal(b, &fs.cache); err != nil {

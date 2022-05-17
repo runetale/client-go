@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/wislog"
 )
 
 type daemon struct {
@@ -55,9 +55,9 @@ func (d *daemon) Install() (err error) {
 	// TODO: added check privileges and is installed
 
 	// seriously copy the binary
-	// - create binary path => "/usr/local/bin/wissy"
+	// - create binary path => "/usr/local/bin/dotshake"
 	// - execution path at build time => exeFile
-	// - create tmp file => "/usr/local/bin/wissy.tmp"
+	// - create tmp file => "/usr/local/bin/dotshake.tmp"
 	// - copy exeFile to tmp file
 	// - setting permisiion to tmpBin
 	// - tmpBin to a real executable file

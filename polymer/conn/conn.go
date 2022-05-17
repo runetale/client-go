@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Notch-Technologies/wizy/iface"
+	"github.com/Notch-Technologies/dotshake/iface"
 	"github.com/pion/ice/v2"
 )
 

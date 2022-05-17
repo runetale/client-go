@@ -1,4 +1,4 @@
-module github.com/Notch-Technologies/wizy
+module github.com/Notch-Technologies/dotshake
 
 go 1.17
 

@@ -9,7 +9,7 @@ Wants=network-online.target systemd-networkd-wait-online.service
 [Service]
 User=root
 Type=simple
-ExecStart=/bin/wissy up
+ExecStart=/bin/dotshake up
 Restart=on-failure
 RestartSec=15s
 
@@ -17,6 +17,6 @@ RestartSec=15s
 WantedBy=multi-user.target
 `
 
-const DaemonFilePath = "/etc/systemd/system/wissy.service"
-const BinPath = "/bin/wissy"
-const ServiceName = "wissy"
+const DaemonFilePath = "/etc/systemd/system/dotshake.service"
+const BinPath = "/bin/dotshake"
+const ServiceName = "dotshake"

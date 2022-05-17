@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/Notch-Technologies/wizy/iface"
+	"github.com/Notch-Technologies/dotshake/iface"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 

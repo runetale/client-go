@@ -3,8 +3,8 @@ BINDIR:=bin
 # TODO: (shintard) it will disappear once flake is supported
 .PHONY: store
 store:
-	go build -o $(BINDIR)/wissy cmd/wissy/main.go
-	nix-store --add $(BINDIR)/wissy
+	go build -o $(BINDIR)/dotshake cmd/dotshake/main.go
+	nix-store --add $(BINDIR)/dotshake
 
 # docker
 ## build the server
@@ -27,9 +27,9 @@ up-signaling:
 down-signaling:
 	docker-compose -f docker/docker-compose.server.yml down
 
-## build the wissy
-build-wissy:
+## build the dotshake
+build-dotshake:
 	docker-compose -f docker-compose.yml build
 
-up-wissy:
+up-dotshake:
 	docker-compose -f docker-compose.yml up -d

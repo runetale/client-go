@@ -12,11 +12,11 @@ import (
 func DefaultWissyServerStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
-		return "/var/db/wissy/server.state"
+		return "/var/db/dotshake/server.state"
 	case "linux":
-		return "/var/lib/wissy/server.state"
+		return "/var/lib/dotshake/server.state"
 	case "darwin":
-		return "/Library/wissy/server.state"
+		return "/Library/dotshake/server.state"
 	default:
 		return ""
 	}
@@ -27,45 +27,45 @@ func DefaultWissyServerStateFile() string {
 func DefaultWicsClientStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
-		return "/var/db/wissy/client.state"
+		return "/var/db/dotshake/client.state"
 	case "linux":
-		return "/var/lib/wissy/client.state"
+		return "/var/lib/dotshake/client.state"
 	case "darwin":
-		return "/Library/wissy/client.state"
+		return "/Library/dotshake/client.state"
 	default:
 		return ""
 	}
 }
 
 func DefaultClientConfigFile() string {
-	return "/etc/wissy/client.json"
+	return "/etc/dotshake/client.json"
 }
 
 // json file to manage the server startup config.
 func DefaultServerConfigFile() string {
-	return "/etc/wissy/server.json"
+	return "/etc/dotshake/server.json"
 }
 
 func DefaultClientLogFile() string {
-	return "/var/log/wissy/client.log"
+	return "/var/log/dotshake/client.log"
 }
 
 func DefaultServerLogFile() string {
-	return "/var/log/wissy/server.log"
+	return "/var/log/dotshake/server.log"
 }
 
 func DefaultSignalingLogFile() string {
-	return "/var/log/wissy/signaling.log"
+	return "/var/log/dotshake/signaling.log"
 }
 
 func DefaultLetsEncryptDir() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
-		return "/var/db/wissy/letsencrypt"
+		return "/var/db/dotshake/letsencrypt"
 	case "linux":
-		return "/var/lib/wissy/letsencrypt"
+		return "/var/lib/dotshake/letsencrypt"
 	case "darwin":
-		return "/Library/wissy/letsencrypt"
+		return "/Library/dotshake/letsencrypt"
 	default:
 		return ""
 	}
@@ -84,7 +84,7 @@ func checkStateDirPermission(dir string) error {
 		perm = 700
 	)
 
-	if filepath.Base(dir) != "wissy" {
+	if filepath.Base(dir) != "dotshake" {
 		return nil
 	}
 

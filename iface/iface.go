@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Notch-Technologies/wizy/wireguard"
-	"github.com/Notch-Technologies/wizy/wislog"
+	"github.com/Notch-Technologies/dotshake/dotlog"
+	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
@@ -26,12 +26,12 @@ type Iface struct {
 	// your cidr range
 	CIDR uint64
 
-	wislog *wislog.WisLog
+	dotLog *dotlog.DotLog
 }
 
 func NewIface(
 	tunName, wgPrivateKey, ip string,
-	cidr uint64, wislog *wislog.WisLog,
+	cidr uint64, dotlog *dotlog.DotLog,
 ) *Iface {
 	return &Iface{
 		Name:         tunName,
@@ -39,7 +39,7 @@ func NewIface(
 		IP:           ip,
 		CIDR:         cidr,
 
-		wislog: wislog,
+		dotLog: dotlog,
 	}
 }
 
@@ -188,7 +188,7 @@ func (i *Iface) CreateWithUserSpace(address string) error {
 		return err
 	}
 
-	tunDevice := device.NewDevice(tunIface, conn.NewDefaultBind(), device.NewLogger(device.LogLevelSilent, "wissy: "))
+	tunDevice := device.NewDevice(tunIface, conn.NewDefaultBind(), device.NewLogger(device.LogLevelSilent, "dotshake: "))
 	err = tunDevice.Up()
 	if err != nil {
 		return err
