@@ -11,28 +11,6 @@ import (
 	"github.com/pion/ice/v2"
 )
 
-type ConnStatus int
-
-func (s ConnStatus) String() string {
-	switch s {
-	case StatusConnecting:
-		return "StatusConnecting"
-	case StatusConnected:
-		return "StatusConnected"
-	case StatusDisconnected:
-		return "StatusDisconnected"
-	default:
-		fmt.Printf("unknown status: %d\n", s)
-		return "INVALID_PEER_CONNECTION_STATUS"
-	}
-}
-
-const (
-	StatusConnected = iota
-	StatusConnecting
-	StatusDisconnected
-)
-
 // ConnConfig is a peer Connection configuration
 type ConnConfig struct {
 	// Key is a public key of a remote peer

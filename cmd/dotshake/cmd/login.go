@@ -5,15 +5,20 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"time"
 
-	"github.com/Notch-Technologies/dotshake/cmd/server/client"
+	grpc_client "github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/core"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/paths"
+	"github.com/Notch-Technologies/dotshake/polymer/conn"
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
-	"github.com/Notch-Technologies/dotshake/wislog"
 	"github.com/peterbourgon/ff/v2/ffcli"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 )
 
 var (
@@ -49,7 +54,7 @@ var loginCmd = &ffcli.Command{
 		fs.Int64Var(&loginArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&loginArgs.setupKey, "key", "", "setup key issued by the grpc server")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
-		fs.StringVar(&loginArgs.logLevel, "loglevel", wislog.DebugLevelStr, "set log level")
+		fs.StringVar(&loginArgs.logLevel, "loglevel", dotlog.DebugLevelStr, "set log level")
 		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
 		return fs
 	})(),
@@ -59,24 +64,24 @@ var loginCmd = &ffcli.Command{
 func execLogin(ctx context.Context, args []string) error {
 	// initialize dotshake logger
 	//
-	err := wislog.InitWisLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
+	err := dotlog.InitDotLog(loginArgs.logLevel, loginArgs.logFile, loginArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger. because %v", err)
 	}
 
-	wislog := wislog.NewWisLog("login")
+	dotlog := dotlog.NewDotLog("login")
 
 	// initialize file store
 	//
-	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), wislog)
+	cfs, err := store.NewFileStore(paths.DefaultWicsClientStateFile(), dotlog)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to create clietnt state. because %v", err)
+		dotlog.Logger.Fatalf("failed to create clietnt state. because %v", err)
 	}
 
-	cs := store.NewClientStore(cfs, wislog)
+	cs := store.NewClientStore(cfs, dotlog)
 	err = cs.WritePrivateKey()
 	if err != nil {
-		wislog.Logger.Fatalf("failed to write client state private key. because %v", err)
+		dotlog.Logger.Fatalf("failed to write client state private key. because %v", err)
 	}
 
 	// initialize client Core
@@ -85,42 +90,57 @@ func execLogin(ctx context.Context, args []string) error {
 		loginArgs.clientPath,
 		loginArgs.serverHost, int(loginArgs.serverPort),
 		loginArgs.signalHost, int(loginArgs.signalPort),
-		wislog,
+		dotlog,
 	)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to initialize client core. because %v", err)
+		dotlog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
 	clientCore = clientCore.GetClientCore()
 
 	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to parse wg private key. because %v", err)
+		dotlog.Logger.Fatalf("failed to parse wg private key. because %v", err)
 	}
 
 	// initialize grpc client
 	//
-	gClient, err := client.NewGrpcClient(ctx, clientCore.ServerHost, wgPrivateKey, wislog)
+
+	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	option := grpc.WithTransportCredentials(insecure.NewCredentials())
+	gconn, err := grpc.DialContext(
+		clientCtx,
+		clientCore.SignalHost.Host,
+		option,
+		grpc.WithBlock(),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    10 * time.Second,
+			Timeout: 10 * time.Second,
+		}))
+
+	client := grpc_client.NewSignalClient(ctx, gconn, conn.NewConnectedState())
 	if err != nil {
-		wislog.Logger.Fatalf("failed to connect server client. because %v", err)
+		dotlog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
 
-	wislog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
+	dotlog.Logger.Infof("connected to server %s", clientCore.ServerHost.String())
 
 	// get server public key
 	//
-	serverPubKey, err := gClient.GetServerPublicKey()
+	serverPubKey, err := client.GetServerPublicKey()
 	if err != nil {
-		wislog.Logger.Fatalf("failed to get server public key. %v", err)
+		dotlog.Logger.Fatalf("failed to get server public key. %v", err)
 	}
 
 	// start logging in
 	//
-	login, err := gClient.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
+	login, err := client.Login(loginArgs.setupKey, cs.GetPublicKey(), serverPubKey, wgPrivateKey)
 	if err != nil {
-		wislog.Logger.Fatalf("failed to login. because %v", err)
+		dotlog.Logger.Fatalf("failed to login. because %v", err)
 	}
 
-	wislog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
+	dotlog.Logger.Infof("setup_key: [%s] was generated from [%s]", login.SetupKey, login.ClientPublicKey)
 
 	fmt.Println("login succeded.")
 	fmt.Printf("your ip [%s/%d]", login.Ip, login.Cidr)

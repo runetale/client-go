@@ -18,7 +18,7 @@ require (
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	golang.zx2c4.com/wireguard v0.0.0-20220310012736-ae6bc4dd64e1
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20220208144051-fde48d68ee68
-	google.golang.org/grpc v1.45.0
+	google.golang.org/grpc v1.46.2
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )

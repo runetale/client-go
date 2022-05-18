@@ -10,9 +10,9 @@ import (
 	"strconv"
 
 	"github.com/Notch-Technologies/dotshake/cmd/dotshake/tun"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/types/key"
 	"github.com/Notch-Technologies/dotshake/utils"
-	"github.com/Notch-Technologies/dotshake/wislog"
 )
 
 type ClientCore struct {
@@ -26,14 +26,14 @@ type ClientCore struct {
 
 	path string
 
-	wislog *wislog.WisLog
+	dotlog *dotlog.DotLog
 }
 
 func NewClientCore(
 	path string,
 	serverHost string, serverPort int,
 	signalHost string, signalPort int,
-	wl *wislog.WisLog,
+	dl *dotlog.DotLog,
 ) (*ClientCore, error) {
 	var serverHostURL *url.URL
 	var signalHostURL *url.URL
@@ -61,7 +61,7 @@ func NewClientCore(
 
 		path: path,
 
-		wislog: wl,
+		dotlog: dl,
 	}, nil
 }
 
@@ -71,7 +71,7 @@ func (c *ClientCore) writeClientCore(
 	igonoreTUNs, ifaceBlackList []string,
 ) *ClientCore {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0777); err != nil {
-		c.wislog.Logger.Fatalf("failed to create directory with %s. because %s", c.path, err.Error())
+		c.dotlog.Logger.Fatalf("failed to create directory with %s. because %s", c.path, err.Error())
 	}
 
 	c.WgPrivateKey = wgPrivateKey
@@ -99,17 +99,17 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 	case errors.Is(err, os.ErrNotExist):
 		privKey, err := key.NewGenerateKey()
 		if err != nil {
-			c.wislog.Logger.Error("failed to generate key for wireguard")
+			c.dotlog.Logger.Error("failed to generate key for wireguard")
 			panic(err)
 		}
 		return c.writeClientCore(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{}, []string{tun.TunName(), "tun0"})
 	case err != nil:
-		c.wislog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
+		c.dotlog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
 		panic(err)
 	default:
 		var core ClientCore
 		if err := json.Unmarshal(b, &core); err != nil {
-			c.wislog.Logger.Fatalf("can not read client config file. because %v", err)
+			c.dotlog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
 		return c.writeClientCore(core.WgPrivateKey, core.TunName, core.ServerHost, core.SignalHost, core.IgonoreTUNs, core.IfaceBlackList)
 	}

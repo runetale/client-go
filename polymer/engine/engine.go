@@ -12,9 +12,9 @@ import (
 	"github.com/Notch-Technologies/dotshake/cmd/server/pb/peer"
 	signaling "github.com/Notch-Technologies/dotshake/cmd/signaling/client"
 	"github.com/Notch-Technologies/dotshake/cmd/signaling/pb/negotiation"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
 	"github.com/Notch-Technologies/dotshake/polymer/conn"
-	"github.com/Notch-Technologies/dotshake/wislog"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -39,11 +39,11 @@ type Engine struct {
 
 	syncMsgMux *sync.Mutex
 
-	wislog *wislog.WisLog
+	dotlog *dotlog.DotLog
 }
 
 func NewEngine(
-	log *wislog.WisLog,
+	log *dotlog.DotLog,
 	iface *iface.Iface,
 	client client.ClientCaller,
 	sClient signaling.ClientCaller,
@@ -67,7 +67,7 @@ func NewEngine(
 
 		syncMsgMux: &sync.Mutex{},
 
-		wislog: log,
+		dotlog: log,
 		cancel: cancel,
 		ctx:    ctx,
 
