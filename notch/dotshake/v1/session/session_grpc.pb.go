@@ -29,8 +29,9 @@ type SessionServiceClient interface {
 	// Webからログインせずにdotshakeから直接叩く場合(ユーザーがまだ作られていない場合)はユーザーの作成、つまりSignInを行う
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
 	// dotshakeのpeerの立ち上げが完了した時に叩くdotshake側で叩くRPC
+	CompletePeerUp(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PeerUpCompleteResponse, error)
 	// webでStream接続しておいて立ち上げ完了を受け取る
-	PeerUpComplete(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (SessionService_PeerUpCompleteClient, error)
+	StreamCompleteUp(ctx context.Context, opts ...grpc.CallOption) (SessionService_StreamCompleteUpClient, error)
 }
 
 type sessionServiceClient struct {
@@ -59,31 +60,39 @@ func (c *sessionServiceClient) SignUp(ctx context.Context, in *SignUpRequest, op
 	return out, nil
 }
 
-func (c *sessionServiceClient) PeerUpComplete(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (SessionService_PeerUpCompleteClient, error) {
-	stream, err := c.cc.NewStream(ctx, &SessionService_ServiceDesc.Streams[0], "/protos.SessionService/PeerUpComplete", opts...)
+func (c *sessionServiceClient) CompletePeerUp(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PeerUpCompleteResponse, error) {
+	out := new(PeerUpCompleteResponse)
+	err := c.cc.Invoke(ctx, "/protos.SessionService/CompletePeerUp", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &sessionServicePeerUpCompleteClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
+	return out, nil
+}
+
+func (c *sessionServiceClient) StreamCompleteUp(ctx context.Context, opts ...grpc.CallOption) (SessionService_StreamCompleteUpClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SessionService_ServiceDesc.Streams[0], "/protos.SessionService/StreamCompleteUp", opts...)
+	if err != nil {
 		return nil, err
 	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
+	x := &sessionServiceStreamCompleteUpClient{stream}
 	return x, nil
 }
 
-type SessionService_PeerUpCompleteClient interface {
+type SessionService_StreamCompleteUpClient interface {
+	Send(*emptypb.Empty) error
 	Recv() (*PeerUpCompleteResponse, error)
 	grpc.ClientStream
 }
 
-type sessionServicePeerUpCompleteClient struct {
+type sessionServiceStreamCompleteUpClient struct {
 	grpc.ClientStream
 }
 
-func (x *sessionServicePeerUpCompleteClient) Recv() (*PeerUpCompleteResponse, error) {
+func (x *sessionServiceStreamCompleteUpClient) Send(m *emptypb.Empty) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *sessionServiceStreamCompleteUpClient) Recv() (*PeerUpCompleteResponse, error) {
 	m := new(PeerUpCompleteResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -101,8 +110,9 @@ type SessionServiceServer interface {
 	// Webからログインせずにdotshakeから直接叩く場合(ユーザーがまだ作られていない場合)はユーザーの作成、つまりSignInを行う
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
 	// dotshakeのpeerの立ち上げが完了した時に叩くdotshake側で叩くRPC
+	CompletePeerUp(context.Context, *emptypb.Empty) (*PeerUpCompleteResponse, error)
 	// webでStream接続しておいて立ち上げ完了を受け取る
-	PeerUpComplete(*emptypb.Empty, SessionService_PeerUpCompleteServer) error
+	StreamCompleteUp(SessionService_StreamCompleteUpServer) error
 }
 
 // UnimplementedSessionServiceServer should be embedded to have forward compatible implementations.
@@ -115,8 +125,11 @@ func (UnimplementedSessionServiceServer) SignIn(context.Context, *SignInRequest)
 func (UnimplementedSessionServiceServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedSessionServiceServer) PeerUpComplete(*emptypb.Empty, SessionService_PeerUpCompleteServer) error {
-	return status.Errorf(codes.Unimplemented, "method PeerUpComplete not implemented")
+func (UnimplementedSessionServiceServer) CompletePeerUp(context.Context, *emptypb.Empty) (*PeerUpCompleteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CompletePeerUp not implemented")
+}
+func (UnimplementedSessionServiceServer) StreamCompleteUp(SessionService_StreamCompleteUpServer) error {
+	return status.Errorf(codes.Unimplemented, "method StreamCompleteUp not implemented")
 }
 
 // UnsafeSessionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -166,25 +179,48 @@ func _SessionService_SignUp_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SessionService_PeerUpComplete_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(emptypb.Empty)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _SessionService_CompletePeerUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(SessionServiceServer).PeerUpComplete(m, &sessionServicePeerUpCompleteServer{stream})
+	if interceptor == nil {
+		return srv.(SessionServiceServer).CompletePeerUp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.SessionService/CompletePeerUp",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).CompletePeerUp(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-type SessionService_PeerUpCompleteServer interface {
+func _SessionService_StreamCompleteUp_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(SessionServiceServer).StreamCompleteUp(&sessionServiceStreamCompleteUpServer{stream})
+}
+
+type SessionService_StreamCompleteUpServer interface {
 	Send(*PeerUpCompleteResponse) error
+	Recv() (*emptypb.Empty, error)
 	grpc.ServerStream
 }
 
-type sessionServicePeerUpCompleteServer struct {
+type sessionServiceStreamCompleteUpServer struct {
 	grpc.ServerStream
 }
 
-func (x *sessionServicePeerUpCompleteServer) Send(m *PeerUpCompleteResponse) error {
+func (x *sessionServiceStreamCompleteUpServer) Send(m *PeerUpCompleteResponse) error {
 	return x.ServerStream.SendMsg(m)
+}
+
+func (x *sessionServiceStreamCompleteUpServer) Recv() (*emptypb.Empty, error) {
+	m := new(emptypb.Empty)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // SessionService_ServiceDesc is the grpc.ServiceDesc for SessionService service.
@@ -202,12 +238,17 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SignUp",
 			Handler:    _SessionService_SignUp_Handler,
 		},
+		{
+			MethodName: "CompletePeerUp",
+			Handler:    _SessionService_CompletePeerUp_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "PeerUpComplete",
-			Handler:       _SessionService_PeerUpComplete_Handler,
+			StreamName:    "StreamCompleteUp",
+			Handler:       _SessionService_StreamCompleteUp_Handler,
 			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
 	Metadata: "notch/dotshake/v1/session.proto",
