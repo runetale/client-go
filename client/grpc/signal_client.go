@@ -10,19 +10,18 @@ import (
 	"github.com/Notch-Technologies/dotshake/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/internal/metadata"
 	"google.golang.org/grpc/metadata"
 )
 
 type SignalClientImpl interface {
-	// Offer, Answer, Candidate
+	// TODO: (shintard) Offer, Answer, Candidate
 	StartConnect(mk string, handler func(msg *negotiation.NegotiationResponse) error) error
 	WaitStartConnect()
 	IsReady() bool
 }
 
 type SignalClient struct {
-	client negotiation.NegotiationClient
+	client negotiation.NegotiationServiceClient
 	conn   *grpc.ClientConn
 	ctx    context.Context
 
@@ -33,7 +32,7 @@ type SignalClient struct {
 
 func NewSignalClient(ctx context.Context, conn *grpc.ClientConn, cs *conn.ConnectState) SignalClientImpl {
 	return &SignalClient{
-		client: negotiation.NewNegotiationClient(conn),
+		client: negotiation.NewNegotiationServiceClient(conn),
 		conn:   conn,
 		ctx:    ctx,
 
@@ -45,7 +44,7 @@ func NewSignalClient(ctx context.Context, conn *grpc.ClientConn, cs *conn.Connec
 }
 
 // actually connected to grpc stream
-func (c *SignalClient) connectStream(ctx context.Context) (negotiation.Negotiation_StartConnectClient, error) {
+func (c *SignalClient) connectStream(ctx context.Context) (negotiation.NegotiationService_StartConnectClient, error) {
 	stream, err := c.client.StartConnect(ctx, grpc.WaitForReady(true))
 	if err != nil {
 		return nil, err
