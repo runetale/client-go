@@ -16,7 +16,7 @@ type ClientManager interface {
 
 type ClientStore struct {
 	storeManager FileStoreManager
-	privateKey   key.WicsClientPrivateState
+	privateKey   key.DotshakeClientPrivateState
 	dotlog       *dotlog.DotLog
 
 	mu sync.Mutex
