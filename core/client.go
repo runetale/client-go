@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/Notch-Technologies/dotshake/cmd/dotshake/tun"
 	"github.com/Notch-Technologies/dotshake/dotlog"
+	"github.com/Notch-Technologies/dotshake/tun"
 	"github.com/Notch-Technologies/dotshake/types/key"
 	"github.com/Notch-Technologies/dotshake/utils"
 )
@@ -19,7 +19,6 @@ type ClientCore struct {
 	WgPrivateKey   string
 	ServerHost     *url.URL
 	SignalHost     *url.URL
-	IgonoreTUNs    []string
 	TunName        string
 	PreSharedKey   string
 	IfaceBlackList []string
@@ -68,7 +67,7 @@ func NewClientCore(
 func (c *ClientCore) writeClientCore(
 	wgPrivateKey, tunName string,
 	serverHost, signalHost *url.URL,
-	igonoreTUNs, ifaceBlackList []string,
+	ifaceBlackList []string,
 ) *ClientCore {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0777); err != nil {
 		c.dotlog.Logger.Fatalf("failed to create directory with %s. because %s", c.path, err.Error())
@@ -78,7 +77,6 @@ func (c *ClientCore) writeClientCore(
 	c.TunName = tunName
 	c.ServerHost = serverHost
 	c.SignalHost = signalHost
-	c.IgonoreTUNs = igonoreTUNs
 	c.IfaceBlackList = ifaceBlackList
 
 	b, err := json.MarshalIndent(*c, "", "\t")
@@ -102,7 +100,7 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 			c.dotlog.Logger.Error("failed to generate key for wireguard")
 			panic(err)
 		}
-		return c.writeClientCore(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{}, []string{tun.TunName(), "tun0"})
+		return c.writeClientCore(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{tun.TunName(), "tun0"})
 	case err != nil:
 		c.dotlog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
 		panic(err)
@@ -111,6 +109,6 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 		if err := json.Unmarshal(b, &core); err != nil {
 			c.dotlog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
-		return c.writeClientCore(core.WgPrivateKey, core.TunName, core.ServerHost, core.SignalHost, core.IgonoreTUNs, core.IfaceBlackList)
+		return c.writeClientCore(core.WgPrivateKey, core.TunName, c.ServerHost, c.SignalHost, core.IfaceBlackList)
 	}
 }
