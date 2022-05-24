@@ -7,8 +7,8 @@
 package session
 
 import (
+	login_session "./login_session"
 	context "context"
-	login_session "github.com/Notch-Technologies/client-go/notch/dotshake/v1/login_session"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
