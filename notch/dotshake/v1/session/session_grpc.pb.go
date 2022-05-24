@@ -7,7 +7,6 @@
 package session
 
 import (
-	login_session "./login_session"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -30,7 +29,7 @@ type SessionServiceClient interface {
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
 	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
 	// クライアント側でTokenの検証を行った後に叩く
-	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*login_session.PeerLoginSessionResponse, error)
+	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error)
 }
 
 type sessionServiceClient struct {
@@ -59,8 +58,8 @@ func (c *sessionServiceClient) SignUp(ctx context.Context, in *SignUpRequest, op
 	return out, nil
 }
 
-func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*login_session.PeerLoginSessionResponse, error) {
-	out := new(login_session.PeerLoginSessionResponse)
+func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error) {
+	out := new(VerifyPeerLoginSessionResponse)
 	err := c.cc.Invoke(ctx, "/protos.SessionService/VerifyPeerLoginSession", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -79,7 +78,7 @@ type SessionServiceServer interface {
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
 	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
 	// クライアント側でTokenの検証を行った後に叩く
-	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*login_session.PeerLoginSessionResponse, error)
+	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error)
 }
 
 // UnimplementedSessionServiceServer should be embedded to have forward compatible implementations.
@@ -92,7 +91,7 @@ func (UnimplementedSessionServiceServer) SignIn(context.Context, *SignInRequest)
 func (UnimplementedSessionServiceServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
-func (UnimplementedSessionServiceServer) VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*login_session.PeerLoginSessionResponse, error) {
+func (UnimplementedSessionServiceServer) VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyPeerLoginSession not implemented")
 }
 
