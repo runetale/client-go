@@ -7,7 +7,7 @@
 package session
 
 import (
-	login_session "./login_session"
+	login_session "github.com/Notch-Technologies/client-go/notch/dotshake/v1/login_session"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
