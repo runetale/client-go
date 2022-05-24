@@ -23,9 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginSessionServiceClient interface {
-	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
-	// クライアント側でTokenの検証を行った後に叩く
-	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*PeerLoginSessionResponse, error)
 	// dotshakeクライアントからStream接続を行い立ち上げ完了を受け取る
 	StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginSessionService_StreamPeerLoginSessionClient, error)
 }
@@ -36,15 +33,6 @@ type loginSessionServiceClient struct {
 
 func NewLoginSessionServiceClient(cc grpc.ClientConnInterface) LoginSessionServiceClient {
 	return &loginSessionServiceClient{cc}
-}
-
-func (c *loginSessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*PeerLoginSessionResponse, error) {
-	out := new(PeerLoginSessionResponse)
-	err := c.cc.Invoke(ctx, "/protos.LoginSessionService/VerifyPeerLoginSession", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *loginSessionServiceClient) StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginSessionService_StreamPeerLoginSessionClient, error) {
@@ -82,9 +70,6 @@ func (x *loginSessionServiceStreamPeerLoginSessionClient) Recv() (*PeerLoginSess
 // All implementations should embed UnimplementedLoginSessionServiceServer
 // for forward compatibility
 type LoginSessionServiceServer interface {
-	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
-	// クライアント側でTokenの検証を行った後に叩く
-	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*PeerLoginSessionResponse, error)
 	// dotshakeクライアントからStream接続を行い立ち上げ完了を受け取る
 	StreamPeerLoginSession(LoginSessionService_StreamPeerLoginSessionServer) error
 }
@@ -93,9 +78,6 @@ type LoginSessionServiceServer interface {
 type UnimplementedLoginSessionServiceServer struct {
 }
 
-func (UnimplementedLoginSessionServiceServer) VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*PeerLoginSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyPeerLoginSession not implemented")
-}
 func (UnimplementedLoginSessionServiceServer) StreamPeerLoginSession(LoginSessionService_StreamPeerLoginSessionServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPeerLoginSession not implemented")
 }
@@ -109,24 +91,6 @@ type UnsafeLoginSessionServiceServer interface {
 
 func RegisterLoginSessionServiceServer(s grpc.ServiceRegistrar, srv LoginSessionServiceServer) {
 	s.RegisterService(&LoginSessionService_ServiceDesc, srv)
-}
-
-func _LoginSessionService_VerifyPeerLoginSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyPeerLoginSessionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LoginSessionServiceServer).VerifyPeerLoginSession(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/protos.LoginSessionService/VerifyPeerLoginSession",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LoginSessionServiceServer).VerifyPeerLoginSession(ctx, req.(*VerifyPeerLoginSessionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _LoginSessionService_StreamPeerLoginSession_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -161,12 +125,7 @@ func (x *loginSessionServiceStreamPeerLoginSessionServer) Recv() (*emptypb.Empty
 var LoginSessionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.LoginSessionService",
 	HandlerType: (*LoginSessionServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "VerifyPeerLoginSession",
-			Handler:    _LoginSessionService_VerifyPeerLoginSession_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StreamPeerLoginSession",
