@@ -129,10 +129,12 @@ func execLogin(ctx context.Context, args []string) error {
 
 	if !res.IsRegistered {
 		fmt.Printf("please log in via this link => %s\n", res.LoginUrl)
-		err = client.ConnectStreamPeerLoginSession(ctx, cs.GetPublicKey())
+		msg, err := client.ConnectStreamPeerLoginSession(ctx, cs.GetPublicKey())
 		if err != nil {
 			return err
 		}
+		fmt.Println(msg)
+		// TODO: peerの立ち上げを行う
 	}
 
 	stop := make(chan struct{})
