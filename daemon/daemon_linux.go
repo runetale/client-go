@@ -3,12 +3,12 @@ package daemon
 import (
 	"os"
 
-	"github.com/Notch-Technologies/dotshake/wislog"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 )
 
 func newDaemon(
 	binPath, serviceName, daemonFilePath, systemConfig string,
-	wl *wislog.WisLog,
+	wl *dotlog.DotLog,
 ) Daemon {
 	if _, err := os.Stat("/run/systemd/system"); err == nil {
 		return &systemDRecord{
@@ -17,7 +17,7 @@ func newDaemon(
 			daemonFilePath: daemonFilePath,
 			systemConfig:   systemConfig,
 
-			wislog: wl,
+			dotlog: wl,
 		}
 	}
 	if _, err := os.Stat("/sbin/initctl"); err == nil {
@@ -27,7 +27,7 @@ func newDaemon(
 			daemonFilePath: daemonFilePath,
 			systemConfig:   systemConfig,
 
-			wislog: wl,
+			dotlog: wl,
 		}
 	}
 
@@ -37,6 +37,6 @@ func newDaemon(
 		daemonFilePath: daemonFilePath,
 		systemConfig:   systemConfig,
 
-		wislog: wl,
+		dotlog: wl,
 	}
 }

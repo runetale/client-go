@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Notch-Technologies/dotshake/wislog"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 )
 
 type systemVRecord struct {
@@ -17,13 +17,13 @@ type systemVRecord struct {
 	// daemon system config
 	systemConfig string
 
-	wislog *wislog.WisLog
+	dotlog *dotlog.DotLog
 }
 
 func (d *systemVRecord) Install() (err error) {
 	defer func() {
 		if os.Getuid() != 0 && err != nil {
-			d.wislog.Logger.Errorf("run it again with sudo privileges: %s", err.Error())
+			d.dotlog.Logger.Errorf("run it again with sudo privileges: %s", err.Error())
 			err = fmt.Errorf("run it again with sudo privileges: %s", err.Error())
 		}
 	}()
