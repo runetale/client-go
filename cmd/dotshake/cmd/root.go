@@ -27,7 +27,7 @@ For help on subcommands, prefix with -help.
 Flags and options are subject to change.
 `),
 		Subcommands: []*ffcli.Command{
-			upCmd,
+			// upCmd,
 			loginCmd,
 			daemonCmd,
 			versionCmd,

@@ -8,7 +8,6 @@ import (
 	"github.com/Notch-Technologies/dotshake/daemon"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/paths"
-	"github.com/Notch-Technologies/dotshake/wislog"
 	"github.com/peterbourgon/ff/v2/ffcli"
 )
 
@@ -69,13 +68,13 @@ var uninstallDaemonCmd = &ffcli.Command{
 }
 
 func uninstallDaemon(ctx context.Context, args []string) error {
-	err := wislog.InitWisLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
+	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
-	wislog := wislog.NewWisLog("daemon")
+	dotlog := dotlog.NewDotLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, dotlog)
 	err = d.Uninstall()
 	if err != nil {
 		return err
@@ -135,13 +134,13 @@ var statusCmd = &ffcli.Command{
 }
 
 func statusDaemon(ctx context.Context, args []string) error {
-	err := wislog.InitWisLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
+	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
-	wislog := wislog.NewWisLog("daemon")
+	dotlog := dotlog.NewDotLog("daemon")
 
-	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, wislog)
+	d := daemon.NewDaemon(daemon.BinPath, daemon.ServiceName, daemon.DaemonFilePath, daemon.SystemConfig, dotlog)
 	err = d.Status()
 	if err != nil {
 		return err

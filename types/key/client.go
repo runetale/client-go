@@ -12,36 +12,36 @@ const (
 	clientPublicKeyPrefix  = "public_client_key:"
 )
 
-type WicsClientPrivateState struct {
+type DotshakeClientPrivateState struct {
 	_          structs.Incomparable
 	privateKey wgtypes.Key
 }
 
-func NewClientPrivateKey() (WicsClientPrivateState, error) {
+func NewClientPrivateKey() (DotshakeClientPrivateState, error) {
 	k, err := wgtypes.GeneratePrivateKey()
 	if err != nil {
-		return WicsClientPrivateState{}, err
+		return DotshakeClientPrivateState{}, err
 	}
 
-	return WicsClientPrivateState{
+	return DotshakeClientPrivateState{
 		privateKey: k,
 	}, nil
 }
 
-func (s WicsClientPrivateState) MarshalText() ([]byte, error) {
+func (s DotshakeClientPrivateState) MarshalText() ([]byte, error) {
 	return toHex(s.privateKey[:], clientPrivateKeyPrefix), nil
 }
 
-func (s *WicsClientPrivateState) UnmarshalText(b []byte) error {
+func (s *DotshakeClientPrivateState) UnmarshalText(b []byte) error {
 	return parseHex(s.privateKey[:], mem.B(b), mem.S(clientPrivateKeyPrefix))
 }
 
-func (s WicsClientPrivateState) PublicKey() string {
+func (s DotshakeClientPrivateState) PublicKey() string {
 	pkey := s.privateKey.PublicKey().String()
 	return pkey
 }
 
-func (s WicsClientPrivateState) PrivateKey() string {
+func (s DotshakeClientPrivateState) PrivateKey() string {
 	pkey := s.privateKey.String()
 	return pkey
 }

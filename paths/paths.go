@@ -24,7 +24,7 @@ func DefaultWissyServerStateFile() string {
 
 // state file to manage the secret information of the server.
 // do not disclose to the outside world.
-func DefaultWicsClientStateFile() string {
+func DefaultDotshakeClientStateFile() string {
 	switch runtime.GOOS {
 	case "freebsd", "openbsd":
 		return "/var/db/dotshake/client.state"

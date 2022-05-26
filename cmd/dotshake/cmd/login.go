@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -14,6 +16,8 @@ import (
 	"github.com/Notch-Technologies/dotshake/core"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/paths"
+	"github.com/Notch-Technologies/dotshake/polymer"
+	"github.com/Notch-Technologies/dotshake/polymer/conn"
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
 	"github.com/peterbourgon/ff/v2/ffcli"
@@ -23,21 +27,12 @@ import (
 	"google.golang.org/grpc/keepalive"
 )
 
-var (
-	stopCh chan int
-)
-
-func init() {
-	stopCh = make(chan int)
-}
-
 var loginArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
 	signalHost string
 	signalPort int64
-	setupKey   string
 	logFile    string
 	logLevel   string
 	dev        bool
@@ -126,12 +121,12 @@ func execLogin(ctx context.Context, args []string) error {
 			Timeout: 10 * time.Second,
 		}))
 
-	client := grpc_client.NewServerClient(ctx, gconn)
+	serverClient := grpc_client.NewServerClient(ctx, gconn)
 	if err != nil {
 		dotlog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
 
-	res, err := client.GetMachine(cs.GetPublicKey())
+	res, err := serverClient.GetMachine(cs.GetPublicKey())
 	if err != nil {
 		return err
 	}
