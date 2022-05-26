@@ -3,6 +3,8 @@ module github.com/Notch-Technologies/dotshake
 go 1.17
 
 require (
+	github.com/Notch-Technologies/client-go v0.0.0-20220526061456-33e115447497
+	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/protobuf v1.5.2

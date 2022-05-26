@@ -86,6 +86,16 @@ github.com/Microsoft/hcsshim v0.8.21/go.mod h1:+w2gRZ5ReXQhFOrvSQeNfhrYB/dg3oDwT
 github.com/Microsoft/hcsshim/test v0.0.0-20201218223536-d3e5debf77da/go.mod h1:5hlzMzRKMLyo42nCZ9oml8AdTlq/0cvIaBv6tK1RehU=
 github.com/Microsoft/hcsshim/test v0.0.0-20210227013316-43a75bb4edd3/go.mod h1:mw7qgWloBUl75W/gVH3cQszUg1+gUITj7D6NY7ywVnY=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
+github.com/Notch-Technologies/client-go v0.0.0-20220518101438-01f934b1e12a h1:jjLIfIm/KLN0Kv5s3c3D8vjqV43Td33Txb9VqrRiUtg=
+github.com/Notch-Technologies/client-go v0.0.0-20220518101438-01f934b1e12a/go.mod h1:H6kztb5A10HRS2x9v8sfBe3R18GVaVO0t24PtCyeXOU=
+github.com/Notch-Technologies/client-go v0.0.0-20220520092120-11f4bf52b3f7 h1:017AV42TSAdt/RtgWHtH5o5Gg8UnLqJi1djwpVVLAaw=
+github.com/Notch-Technologies/client-go v0.0.0-20220520092120-11f4bf52b3f7/go.mod h1:H6kztb5A10HRS2x9v8sfBe3R18GVaVO0t24PtCyeXOU=
+github.com/Notch-Technologies/client-go v0.0.0-20220524044503-b2c05a06f3fc h1:8hN7QNg7LpUDpozeIwOn7g2+pDzY0prkX3r49MQrfr4=
+github.com/Notch-Technologies/client-go v0.0.0-20220524044503-b2c05a06f3fc/go.mod h1:H6kztb5A10HRS2x9v8sfBe3R18GVaVO0t24PtCyeXOU=
+github.com/Notch-Technologies/client-go v0.0.0-20220525034215-9d170989ad9d h1:YP0AccPkDtVvoT1RM8Y1w9ciM9/M/XJXTrE+3J0C8Yw=
+github.com/Notch-Technologies/client-go v0.0.0-20220525034215-9d170989ad9d/go.mod h1:H6kztb5A10HRS2x9v8sfBe3R18GVaVO0t24PtCyeXOU=
+github.com/Notch-Technologies/client-go v0.0.0-20220526061456-33e115447497 h1:518BK6mX4Cxnx93zjtPtDgtBKNw+D/nfH2IBWhyWXIA=
+github.com/Notch-Technologies/client-go v0.0.0-20220526061456-33e115447497/go.mod h1:H6kztb5A10HRS2x9v8sfBe3R18GVaVO0t24PtCyeXOU=
 github.com/OneOfOne/xxhash v1.2.2/go.mod h1:HSdplMjZKSmBqAxg5vPj2TmRDmfkzw+cTzAElWljhcU=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
