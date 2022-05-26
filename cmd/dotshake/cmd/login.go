@@ -13,7 +13,7 @@ import (
 	"time"
 
 	grpc_client "github.com/Notch-Technologies/dotshake/client/grpc"
-	"github.com/Notch-Technologies/dotshake/core"
+	"github.com/Notch-Technologies/dotshake/conf"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/paths"
 	"github.com/Notch-Technologies/dotshake/polymer"
@@ -21,7 +21,6 @@ import (
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
 	"github.com/peterbourgon/ff/v2/ffcli"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
@@ -84,9 +83,9 @@ func execLogin(ctx context.Context, args []string) error {
 
 	fmt.Printf("client machine key: %s\n", cs.GetPublicKey())
 
-	// initialize client Core
+	// initialize client conf
 	//
-	clientCore, err := core.NewClientCore(
+	clientConf, err := conf.NewClientConf(
 		loginArgs.clientPath,
 		loginArgs.serverHost, int(loginArgs.serverPort),
 		loginArgs.signalHost, int(loginArgs.signalPort),
@@ -97,13 +96,7 @@ func execLogin(ctx context.Context, args []string) error {
 		dotlog.Logger.Fatalf("failed to initialize client core. because %v", err)
 	}
 
-	clientCore = clientCore.GetClientCore()
-
-	wgPrivateKey, err := wgtypes.ParseKey(clientCore.WgPrivateKey)
-	if err != nil {
-		dotlog.Logger.Fatalf("failed to parse wg private key. because %v", err)
-	}
-	fmt.Printf("wg private key: %s\n", wgPrivateKey)
+	clientConf = clientConf.GetClientConf()
 
 	// initialize grpc client
 	//
@@ -113,7 +106,7 @@ func execLogin(ctx context.Context, args []string) error {
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
 	gconn, err := grpc.DialContext(
 		clientCtx,
-		clientCore.ServerHost.Host,
+		clientConf.ServerHost.Host,
 		option,
 		grpc.WithBlock(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
@@ -174,19 +167,21 @@ func execLogin(ctx context.Context, args []string) error {
 		signalClient,
 		serverClient,
 		dotlog,
-		pctx,
-		cancel,
+		clientConf.TunName,
 		cs.GetPublicKey(),
 		res.Ip,
 		res.Cidr,
-		clientCore.WgPrivateKey,
+		clientConf.WgPrivateKey,
+		clientConf.BlackList,
+		pctx,
+		cancel,
 	)
 	if err != nil {
 		dotlog.Logger.Fatalf("failed to connect signal client. because %v", err)
 		return err
 	}
 
-	// start peer connection
+	// start polymer
 	err = polymer.Start()
 	if err != nil {
 		dotlog.Logger.Fatalf("failed to start polymer. because %v", err)

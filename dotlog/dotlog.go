@@ -80,7 +80,7 @@ func InitDotLog(logLevel string, logFile string, dev bool) error {
 		Development:   dev,
 		Encoding:      "console",
 		EncoderConfig: encoderConfig,
-		OutputPaths:   []string{fmt.Sprintf("lumberjack:%s", logFile)},
+		OutputPaths:   []string{fmt.Sprintf("lumberjack:%s", logFile), "stderr"},
 	}
 
 	_globalLogger, err := loggerConfig.Build()

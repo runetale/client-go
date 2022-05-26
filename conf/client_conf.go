@@ -1,4 +1,4 @@
-package core
+package conf
 
 import (
 	"encoding/json"
@@ -15,25 +15,25 @@ import (
 	"github.com/Notch-Technologies/dotshake/utils"
 )
 
-type ClientCore struct {
-	WgPrivateKey   string
-	ServerHost     *url.URL
-	SignalHost     *url.URL
-	TunName        string
-	PreSharedKey   string
-	IfaceBlackList []string
+type ClientConf struct {
+	WgPrivateKey string
+	ServerHost   *url.URL
+	SignalHost   *url.URL
+	TunName      string
+	PreSharedKey string
+	BlackList    []string
 
 	path string
 
 	dotlog *dotlog.DotLog
 }
 
-func NewClientCore(
+func NewClientConf(
 	path string,
 	serverHost string, serverPort int,
 	signalHost string, signalPort int,
 	dl *dotlog.DotLog,
-) (*ClientCore, error) {
+) (*ClientConf, error) {
 	var serverHostURL *url.URL
 	var signalHostURL *url.URL
 	var err error
@@ -54,7 +54,7 @@ func NewClientCore(
 		}
 	}
 
-	return &ClientCore{
+	return &ClientConf{
 		ServerHost: serverHostURL,
 		SignalHost: signalHostURL,
 
@@ -64,11 +64,11 @@ func NewClientCore(
 	}, nil
 }
 
-func (c *ClientCore) writeClientCore(
+func (c *ClientConf) writeClientConf(
 	wgPrivateKey, tunName string,
 	serverHost, signalHost *url.URL,
-	ifaceBlackList []string,
-) *ClientCore {
+	blackList []string,
+) *ClientConf {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0777); err != nil {
 		c.dotlog.Logger.Fatalf("failed to create directory with %s. because %s", c.path, err.Error())
 	}
@@ -77,7 +77,7 @@ func (c *ClientCore) writeClientCore(
 	c.TunName = tunName
 	c.ServerHost = serverHost
 	c.SignalHost = signalHost
-	c.IfaceBlackList = ifaceBlackList
+	c.BlackList = blackList
 
 	b, err := json.MarshalIndent(*c, "", "\t")
 	if err != nil {
@@ -91,7 +91,7 @@ func (c *ClientCore) writeClientCore(
 	return c
 }
 
-func (c *ClientCore) GetClientCore() *ClientCore {
+func (c *ClientConf) GetClientConf() *ClientConf {
 	b, err := ioutil.ReadFile(c.path)
 	switch {
 	case errors.Is(err, os.ErrNotExist):
@@ -100,15 +100,15 @@ func (c *ClientCore) GetClientCore() *ClientCore {
 			c.dotlog.Logger.Error("failed to generate key for wireguard")
 			panic(err)
 		}
-		return c.writeClientCore(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{tun.TunName(), "tun0"})
+		return c.writeClientConf(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{tun.TunName(), "tun0"})
 	case err != nil:
 		c.dotlog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
 		panic(err)
 	default:
-		var core ClientCore
+		var core ClientConf
 		if err := json.Unmarshal(b, &core); err != nil {
 			c.dotlog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
-		return c.writeClientCore(core.WgPrivateKey, core.TunName, c.ServerHost, c.SignalHost, core.IfaceBlackList)
+		return c.writeClientConf(core.WgPrivateKey, core.TunName, c.ServerHost, c.SignalHost, core.BlackList)
 	}
 }

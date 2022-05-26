@@ -14,11 +14,13 @@ func CreateIface(
 
 	err := i.CreateWithUserSpace(addr)
 	if err != nil {
+		dotlog.Logger.Fatalf("failed to user space. because %v", err)
 		return err
 	}
 
 	key, err := wgtypes.ParseKey(i.WgPrivateKey)
 	if err != nil {
+		dotlog.Logger.Fatalf("failed to parsing wireguard private key %v", err)
 		return err
 	}
 

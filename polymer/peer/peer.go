@@ -1,22 +1,31 @@
 package peer
 
 import (
-	"net/url"
+	"sync"
+
+	"github.com/Notch-Technologies/dotshake/client/grpc"
 )
 
-// Peer
 type Peer struct {
-	WgPrivateKey   string
-	Host           *url.URL
-	IFaceBlackList []string
-	WgIface        string
+	serverClient grpc.ServerClientImpl
+
+	mk string
+
+	mu *sync.Mutex
+	ch chan struct{}
 }
 
-func NewPeer(privateKey string, host *url.URL, blackList []string, iface string) *Peer {
+func NewPeer(
+	serverClient grpc.ServerClientImpl,
+	mk string,
+	ch chan struct{},
+) *Peer {
 	return &Peer{
-		WgPrivateKey:   privateKey,
-		Host:           host,
-		IFaceBlackList: blackList,
-		WgIface:        iface,
+		serverClient: serverClient,
+
+		mk: mk,
+
+		mu: &sync.Mutex{},
+		ch: ch,
 	}
 }

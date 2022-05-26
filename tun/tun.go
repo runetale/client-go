@@ -9,9 +9,9 @@ func TunName() string {
 	case "linux":
 		return "ws0"
 	case "darwin":
-		return "utun"
+		return "utun100"
 	case "windows":
-		return "Wissy"
+		return "dotshake"
 	}
 	return "ws0"
 }

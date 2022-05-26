@@ -24,14 +24,14 @@ type Iface struct {
 	// your ip
 	IP string
 	// your cidr range
-	CIDR uint64
+	CIDR string
 
-	dotLog *dotlog.DotLog
+	dotlog *dotlog.DotLog
 }
 
 func NewIface(
 	tunName, wgPrivateKey, ip string,
-	cidr uint64, dotlog *dotlog.DotLog,
+	cidr string, dotlog *dotlog.DotLog,
 ) *Iface {
 	return &Iface{
 		Name:         tunName,
@@ -39,7 +39,7 @@ func NewIface(
 		IP:           ip,
 		CIDR:         cidr,
 
-		dotLog: dotlog,
+		dotlog: dotlog,
 	}
 }
 
@@ -146,7 +146,7 @@ func (i *Iface) configureDevice(config wgtypes.Config) error {
 		return err
 	}
 
-	fmt.Printf("create Wireguard device %s\n", i.Name)
+	fmt.Printf("create wg device %s\n", i.Name)
 
 	return wg.ConfigureDevice(i.Name, config)
 }
