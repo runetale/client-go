@@ -9,7 +9,6 @@ import (
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
 	"github.com/Notch-Technologies/dotshake/polymer/dotmachine"
-	"github.com/Notch-Technologies/dotshake/polymer/dotsignal"
 	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -25,7 +24,6 @@ type Polymer struct {
 	wgPort    int
 	blackList []string
 
-	ds *dotsignal.DotSignal
 	dm *dotmachine.DotMachine
 
 	ctx    context.Context
@@ -68,7 +66,6 @@ func NewPolymer(
 		wgPort:    wireguard.WgPort,
 		blackList: blackList,
 
-		ds: dotsignal.NewDotSignal(signalClient, mk, rootch, mu, dotlog),
 		dm: dotmachine.NewDotMachine(serverClient, mk, rootch, mu, dotlog),
 
 		ctx:    ctx,
@@ -94,7 +91,6 @@ func (p *Polymer) Start() error {
 		return err
 	}
 
-	p.ds.ConnectDotSignal()
 	p.dm.Up()
 
 	go func() {

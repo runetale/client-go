@@ -41,34 +41,12 @@ func DefaultClientConfigFile() string {
 	return "/etc/dotshake/client.json"
 }
 
-// json file to manage the server startup config.
-func DefaultServerConfigFile() string {
-	return "/etc/dotshake/server.json"
-}
-
 func DefaultClientLogFile() string {
 	return "/var/log/dotshake/client.log"
 }
 
-func DefaultServerLogFile() string {
-	return "/var/log/dotshake/server.log"
-}
-
-func DefaultSignalingLogFile() string {
-	return "/var/log/dotshake/signaling.log"
-}
-
-func DefaultLetsEncryptDir() string {
-	switch runtime.GOOS {
-	case "freebsd", "openbsd":
-		return "/var/db/dotshake/letsencrypt"
-	case "linux":
-		return "/var/lib/dotshake/letsencrypt"
-	case "darwin":
-		return "/Library/dotshake/letsencrypt"
-	default:
-		return ""
-	}
+func DefaultDotShakerLogFile() string {
+	return "/var/log/dotshaker/client.log"
 }
 
 func MkStateDir(dirPath string) error {
