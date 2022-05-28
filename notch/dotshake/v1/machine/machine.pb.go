@@ -108,6 +108,376 @@ func (x *GetMachineResponse) GetSignalPort() uint64 {
 	return 0
 }
 
+type SyncMachinesRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientMachineKey string `protobuf:"bytes,1,opt,name=clientMachineKey,proto3" json:"clientMachineKey,omitempty"`
+}
+
+func (x *SyncMachinesRequest) Reset() {
+	*x = SyncMachinesRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SyncMachinesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncMachinesRequest) ProtoMessage() {}
+
+func (x *SyncMachinesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncMachinesRequest.ProtoReflect.Descriptor instead.
+func (*SyncMachinesRequest) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SyncMachinesRequest) GetClientMachineKey() string {
+	if x != nil {
+		return x.ClientMachineKey
+	}
+	return ""
+}
+
+type SyncMachinesResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	RtcConfig   *RtcConfig    `protobuf:"bytes,1,opt,name=rtcConfig,proto3" json:"rtcConfig,omitempty"`
+	IsEmpty     bool          `protobuf:"varint,2,opt,name=isEmpty,proto3" json:"isEmpty,omitempty"`
+	RemotePeers []*RemotePeer `protobuf:"bytes,3,rep,name=remotePeers,proto3" json:"remotePeers,omitempty"`
+}
+
+func (x *SyncMachinesResponse) Reset() {
+	*x = SyncMachinesResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SyncMachinesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SyncMachinesResponse) ProtoMessage() {}
+
+func (x *SyncMachinesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SyncMachinesResponse.ProtoReflect.Descriptor instead.
+func (*SyncMachinesResponse) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *SyncMachinesResponse) GetRtcConfig() *RtcConfig {
+	if x != nil {
+		return x.RtcConfig
+	}
+	return nil
+}
+
+func (x *SyncMachinesResponse) GetIsEmpty() bool {
+	if x != nil {
+		return x.IsEmpty
+	}
+	return false
+}
+
+func (x *SyncMachinesResponse) GetRemotePeers() []*RemotePeer {
+	if x != nil {
+		return x.RemotePeers
+	}
+	return nil
+}
+
+type RemotePeer struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ClientMachineKey string   `protobuf:"bytes,1,opt,name=clientMachineKey,proto3" json:"clientMachineKey,omitempty"`
+	AllowedIPs       []string `protobuf:"bytes,2,rep,name=allowedIPs,proto3" json:"allowedIPs,omitempty"`
+}
+
+func (x *RemotePeer) Reset() {
+	*x = RemotePeer{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RemotePeer) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemotePeer) ProtoMessage() {}
+
+func (x *RemotePeer) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemotePeer.ProtoReflect.Descriptor instead.
+func (*RemotePeer) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RemotePeer) GetClientMachineKey() string {
+	if x != nil {
+		return x.ClientMachineKey
+	}
+	return ""
+}
+
+func (x *RemotePeer) GetAllowedIPs() []string {
+	if x != nil {
+		return x.AllowedIPs
+	}
+	return nil
+}
+
+type StunHost struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Url      string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Username string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Password string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (x *StunHost) Reset() {
+	*x = StunHost{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StunHost) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StunHost) ProtoMessage() {}
+
+func (x *StunHost) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StunHost.ProtoReflect.Descriptor instead.
+func (*StunHost) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *StunHost) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *StunHost) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *StunHost) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+type TurnHost struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Url                  string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	Username             string `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty"`
+	Password             string `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	CredentialsTTL       string `protobuf:"bytes,4,opt,name=credentialsTTL,proto3" json:"credentialsTTL,omitempty"`
+	Secret               string `protobuf:"bytes,5,opt,name=secret,proto3" json:"secret,omitempty"`
+	TimeBasedCredentials bool   `protobuf:"varint,6,opt,name=timeBasedCredentials,proto3" json:"timeBasedCredentials,omitempty"`
+}
+
+func (x *TurnHost) Reset() {
+	*x = TurnHost{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TurnHost) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TurnHost) ProtoMessage() {}
+
+func (x *TurnHost) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TurnHost.ProtoReflect.Descriptor instead.
+func (*TurnHost) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *TurnHost) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *TurnHost) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+func (x *TurnHost) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *TurnHost) GetCredentialsTTL() string {
+	if x != nil {
+		return x.CredentialsTTL
+	}
+	return ""
+}
+
+func (x *TurnHost) GetSecret() string {
+	if x != nil {
+		return x.Secret
+	}
+	return ""
+}
+
+func (x *TurnHost) GetTimeBasedCredentials() bool {
+	if x != nil {
+		return x.TimeBasedCredentials
+	}
+	return false
+}
+
+type RtcConfig struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TurnHost *TurnHost `protobuf:"bytes,1,opt,name=turnHost,proto3" json:"turnHost,omitempty"`
+	StunHost *StunHost `protobuf:"bytes,2,opt,name=stunHost,proto3" json:"stunHost,omitempty"`
+}
+
+func (x *RtcConfig) Reset() {
+	*x = RtcConfig{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_notch_dotshake_v1_machine_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RtcConfig) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RtcConfig) ProtoMessage() {}
+
+func (x *RtcConfig) ProtoReflect() protoreflect.Message {
+	mi := &file_notch_dotshake_v1_machine_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RtcConfig.ProtoReflect.Descriptor instead.
+func (*RtcConfig) Descriptor() ([]byte, []int) {
+	return file_notch_dotshake_v1_machine_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *RtcConfig) GetTurnHost() *TurnHost {
+	if x != nil {
+		return x.TurnHost
+	}
+	return nil
+}
+
+func (x *RtcConfig) GetStunHost() *StunHost {
+	if x != nil {
+		return x.StunHost
+	}
+	return nil
+}
+
 var File_notch_dotshake_v1_machine_proto protoreflect.FileDescriptor
 
 var file_notch_dotshake_v1_machine_proto_rawDesc = []byte{
@@ -127,13 +497,62 @@ var file_notch_dotshake_v1_machine_proto_rawDesc = []byte{
 	0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x48, 0x6f, 0x73,
 	0x74, 0x12, 0x1e, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x6f, 0x72, 0x74, 0x18,
 	0x06, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x6f, 0x72,
-	0x74, 0x32, 0x54, 0x0a, 0x0e, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x53, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x12, 0x42, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e,
-	0x65, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x6d, 0x61, 0x63,
-	0x68, 0x69, 0x6e, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x22, 0x41, 0x0a, 0x13, 0x53, 0x79, 0x6e, 0x63, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65,
+	0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2a, 0x0a, 0x10, 0x63, 0x6c, 0x69, 0x65,
+	0x6e, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x10, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e,
+	0x65, 0x4b, 0x65, 0x79, 0x22, 0x97, 0x01, 0x0a, 0x14, 0x53, 0x79, 0x6e, 0x63, 0x4d, 0x61, 0x63,
+	0x68, 0x69, 0x6e, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2f, 0x0a,
+	0x09, 0x72, 0x74, 0x63, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x11, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e, 0x52, 0x74, 0x63, 0x43, 0x6f, 0x6e,
+	0x66, 0x69, 0x67, 0x52, 0x09, 0x72, 0x74, 0x63, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x18,
+	0x0a, 0x07, 0x69, 0x73, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x07, 0x69, 0x73, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x12, 0x34, 0x0a, 0x0b, 0x72, 0x65, 0x6d, 0x6f,
+	0x74, 0x65, 0x50, 0x65, 0x65, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x50, 0x65, 0x65,
+	0x72, 0x52, 0x0b, 0x72, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x50, 0x65, 0x65, 0x72, 0x73, 0x22, 0x58,
+	0x0a, 0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x74, 0x65, 0x50, 0x65, 0x65, 0x72, 0x12, 0x2a, 0x0a, 0x10,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x4b, 0x65, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x10, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x4d, 0x61,
+	0x63, 0x68, 0x69, 0x6e, 0x65, 0x4b, 0x65, 0x79, 0x12, 0x1e, 0x0a, 0x0a, 0x61, 0x6c, 0x6c, 0x6f,
+	0x77, 0x65, 0x64, 0x49, 0x50, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0a, 0x61, 0x6c,
+	0x6c, 0x6f, 0x77, 0x65, 0x64, 0x49, 0x50, 0x73, 0x22, 0x54, 0x0a, 0x08, 0x53, 0x74, 0x75, 0x6e,
+	0x48, 0x6f, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x03, 0x75, 0x72, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61,
+	0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x22, 0xc8,
+	0x01, 0x0a, 0x08, 0x54, 0x75, 0x72, 0x6e, 0x48, 0x6f, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x75,
+	0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x75, 0x72, 0x6c, 0x12, 0x1a, 0x0a,
+	0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x61, 0x73,
+	0x73, 0x77, 0x6f, 0x72, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x70, 0x61, 0x73,
+	0x73, 0x77, 0x6f, 0x72, 0x64, 0x12, 0x26, 0x0a, 0x0e, 0x63, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74,
+	0x69, 0x61, 0x6c, 0x73, 0x54, 0x54, 0x4c, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0e, 0x63,
+	0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x54, 0x54, 0x4c, 0x12, 0x16, 0x0a,
+	0x06, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73,
+	0x65, 0x63, 0x72, 0x65, 0x74, 0x12, 0x32, 0x0a, 0x14, 0x74, 0x69, 0x6d, 0x65, 0x42, 0x61, 0x73,
+	0x65, 0x64, 0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x18, 0x06, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x14, 0x74, 0x69, 0x6d, 0x65, 0x42, 0x61, 0x73, 0x65, 0x64, 0x43, 0x72,
+	0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x73, 0x22, 0x67, 0x0a, 0x09, 0x52, 0x74, 0x63,
+	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x2c, 0x0a, 0x08, 0x74, 0x75, 0x72, 0x6e, 0x48, 0x6f,
+	0x73, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x73, 0x2e, 0x54, 0x75, 0x72, 0x6e, 0x48, 0x6f, 0x73, 0x74, 0x52, 0x08, 0x74, 0x75, 0x72, 0x6e,
+	0x48, 0x6f, 0x73, 0x74, 0x12, 0x2c, 0x0a, 0x08, 0x73, 0x74, 0x75, 0x6e, 0x48, 0x6f, 0x73, 0x74,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e,
+	0x53, 0x74, 0x75, 0x6e, 0x48, 0x6f, 0x73, 0x74, 0x52, 0x08, 0x73, 0x74, 0x75, 0x6e, 0x48, 0x6f,
+	0x73, 0x74, 0x32, 0xa3, 0x01, 0x0a, 0x0e, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x53, 0x65,
+	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x42, 0x0a, 0x0a, 0x47, 0x65, 0x74, 0x4d, 0x61, 0x63, 0x68,
+	0x69, 0x6e, 0x65, 0x12, 0x16, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x45, 0x6d, 0x70, 0x74, 0x79, 0x1a, 0x1a, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x73, 0x2e, 0x47, 0x65, 0x74, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x4d, 0x0a, 0x0c, 0x53, 0x79, 0x6e,
+	0x63, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x73, 0x12, 0x1b, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x73, 0x2e, 0x53, 0x79, 0x6e, 0x63, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e,
+	0x53, 0x79, 0x6e, 0x63, 0x4d, 0x61, 0x63, 0x68, 0x69, 0x6e, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x30, 0x01, 0x42, 0x0b, 0x5a, 0x09, 0x2e, 0x2f, 0x6d, 0x61,
+	0x63, 0x68, 0x69, 0x6e, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -148,19 +567,31 @@ func file_notch_dotshake_v1_machine_proto_rawDescGZIP() []byte {
 	return file_notch_dotshake_v1_machine_proto_rawDescData
 }
 
-var file_notch_dotshake_v1_machine_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_notch_dotshake_v1_machine_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_notch_dotshake_v1_machine_proto_goTypes = []interface{}{
-	(*GetMachineResponse)(nil), // 0: protos.GetMachineResponse
-	(*emptypb.Empty)(nil),      // 1: google.protobuf.Empty
+	(*GetMachineResponse)(nil),   // 0: protos.GetMachineResponse
+	(*SyncMachinesRequest)(nil),  // 1: protos.SyncMachinesRequest
+	(*SyncMachinesResponse)(nil), // 2: protos.SyncMachinesResponse
+	(*RemotePeer)(nil),           // 3: protos.RemotePeer
+	(*StunHost)(nil),             // 4: protos.StunHost
+	(*TurnHost)(nil),             // 5: protos.TurnHost
+	(*RtcConfig)(nil),            // 6: protos.RtcConfig
+	(*emptypb.Empty)(nil),        // 7: google.protobuf.Empty
 }
 var file_notch_dotshake_v1_machine_proto_depIdxs = []int32{
-	1, // 0: protos.MachineService.GetMachine:input_type -> google.protobuf.Empty
-	0, // 1: protos.MachineService.GetMachine:output_type -> protos.GetMachineResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: protos.SyncMachinesResponse.rtcConfig:type_name -> protos.RtcConfig
+	3, // 1: protos.SyncMachinesResponse.remotePeers:type_name -> protos.RemotePeer
+	5, // 2: protos.RtcConfig.turnHost:type_name -> protos.TurnHost
+	4, // 3: protos.RtcConfig.stunHost:type_name -> protos.StunHost
+	7, // 4: protos.MachineService.GetMachine:input_type -> google.protobuf.Empty
+	1, // 5: protos.MachineService.SyncMachines:input_type -> protos.SyncMachinesRequest
+	0, // 6: protos.MachineService.GetMachine:output_type -> protos.GetMachineResponse
+	2, // 7: protos.MachineService.SyncMachines:output_type -> protos.SyncMachinesResponse
+	6, // [6:8] is the sub-list for method output_type
+	4, // [4:6] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_notch_dotshake_v1_machine_proto_init() }
@@ -181,6 +612,78 @@ func file_notch_dotshake_v1_machine_proto_init() {
 				return nil
 			}
 		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SyncMachinesRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SyncMachinesResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemotePeer); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StunHost); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*TurnHost); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_notch_dotshake_v1_machine_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RtcConfig); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -188,7 +691,7 @@ func file_notch_dotshake_v1_machine_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_notch_dotshake_v1_machine_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   1,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
