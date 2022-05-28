@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
 	GetMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachineResponse, error)
-	SyncMachines(ctx context.Context, in *SyncMachinesRequest, opts ...grpc.CallOption) (MachineService_SyncMachinesClient, error)
+	SyncMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_SyncMachinesClient, error)
 }
 
 type machineServiceClient struct {
@@ -44,7 +44,7 @@ func (c *machineServiceClient) GetMachine(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
-func (c *machineServiceClient) SyncMachines(ctx context.Context, in *SyncMachinesRequest, opts ...grpc.CallOption) (MachineService_SyncMachinesClient, error) {
+func (c *machineServiceClient) SyncMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_SyncMachinesClient, error) {
 	stream, err := c.cc.NewStream(ctx, &MachineService_ServiceDesc.Streams[0], "/protos.MachineService/SyncMachines", opts...)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (x *machineServiceSyncMachinesClient) Recv() (*SyncMachinesResponse, error)
 // for forward compatibility
 type MachineServiceServer interface {
 	GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error)
-	SyncMachines(*SyncMachinesRequest, MachineService_SyncMachinesServer) error
+	SyncMachines(*emptypb.Empty, MachineService_SyncMachinesServer) error
 }
 
 // UnimplementedMachineServiceServer should be embedded to have forward compatible implementations.
@@ -91,7 +91,7 @@ type UnimplementedMachineServiceServer struct {
 func (UnimplementedMachineServiceServer) GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMachine not implemented")
 }
-func (UnimplementedMachineServiceServer) SyncMachines(*SyncMachinesRequest, MachineService_SyncMachinesServer) error {
+func (UnimplementedMachineServiceServer) SyncMachines(*emptypb.Empty, MachineService_SyncMachinesServer) error {
 	return status.Errorf(codes.Unimplemented, "method SyncMachines not implemented")
 }
 
@@ -125,7 +125,7 @@ func _MachineService_GetMachine_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _MachineService_SyncMachines_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(SyncMachinesRequest)
+	m := new(emptypb.Empty)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
