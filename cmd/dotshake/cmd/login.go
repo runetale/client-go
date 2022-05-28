@@ -30,8 +30,6 @@ var loginArgs struct {
 	clientPath string
 	serverHost string
 	serverPort int64
-	signalHost string
-	signalPort int64
 	logFile    string
 	logLevel   string
 	dev        bool
@@ -46,8 +44,6 @@ var loginCmd = &ffcli.Command{
 		fs.StringVar(&loginArgs.clientPath, "path", paths.DefaultClientConfigFile(), "client default config file")
 		fs.StringVar(&loginArgs.serverHost, "server-host", "http://127.0.0.1", "grpc server host url")
 		fs.Int64Var(&loginArgs.serverPort, "server-port", flagtype.DefaultGrpcServerPort, "grpc server host port")
-		fs.StringVar(&loginArgs.signalHost, "signal-host", "http://127.0.0.1", "signaling server host url")
-		fs.Int64Var(&loginArgs.signalPort, "signal-port", flagtype.DefaultSignalingServerPort, "signaling server host port")
 		fs.StringVar(&loginArgs.logFile, "logfile", paths.DefaultClientLogFile(), "set logfile path")
 		fs.StringVar(&loginArgs.logLevel, "loglevel", dotlog.DebugLevelStr, "set log level")
 		fs.BoolVar(&loginArgs.dev, "dev", true, "is dev")
@@ -88,7 +84,7 @@ func execLogin(ctx context.Context, args []string) error {
 	clientConf, err := conf.NewClientConf(
 		loginArgs.clientPath,
 		loginArgs.serverHost, int(loginArgs.serverPort),
-		loginArgs.signalHost, int(loginArgs.signalPort),
+		// loginArgs.signalHost, int(loginArgs.signalPort),
 		dotlog,
 	)
 	if err != nil {

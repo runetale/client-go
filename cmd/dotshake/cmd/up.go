@@ -1,5 +1,7 @@
 package cmd
 
+// upする前は必ずdotshakerデーモンが立ち上がっています
+
 // import (
 // 	"context"
 // 	"flag"
