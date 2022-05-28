@@ -3,18 +3,19 @@ package polymer
 import (
 	"context"
 	"errors"
+	"sync"
 
 	"github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
+	"github.com/Notch-Technologies/dotshake/polymer/dotmachine"
 	"github.com/Notch-Technologies/dotshake/polymer/dotsignal"
 	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
 
 type Polymer struct {
-	serverClient grpc.ServerClientImpl
-	dotlog       *dotlog.DotLog
+	dotlog *dotlog.DotLog
 
 	mk        string
 	tunName   string
@@ -25,9 +26,12 @@ type Polymer struct {
 	blackList []string
 
 	ds *dotsignal.DotSignal
+	dm *dotmachine.DotMachine
 
 	ctx    context.Context
 	cancel context.CancelFunc
+
+	mu *sync.Mutex
 
 	rootch chan struct{}
 }
@@ -51,10 +55,10 @@ func NewPolymer(
 	}
 
 	rootch := make(chan struct{})
+	mu := &sync.Mutex{}
 
 	return &Polymer{
-		serverClient: serverClient,
-		dotlog:       dotlog,
+		dotlog: dotlog,
 
 		mk:        mk,
 		tunName:   tunName,
@@ -64,10 +68,13 @@ func NewPolymer(
 		wgPort:    wireguard.WgPort,
 		blackList: blackList,
 
-		ds: dotsignal.NewDotSignal(signalClient, mk, rootch),
+		ds: dotsignal.NewDotSignal(signalClient, mk, rootch, mu, dotlog),
+		dm: dotmachine.NewDotMachine(serverClient, mk, rootch, mu, dotlog),
 
 		ctx:    ctx,
 		cancel: cancel,
+
+		mu: mu,
 
 		rootch: rootch,
 	}, nil
@@ -79,10 +86,16 @@ func (p *Polymer) createIface() error {
 }
 
 func (p *Polymer) Start() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
 	err := p.createIface()
 	if err != nil {
 		return err
 	}
+
+	p.ds.ConnectDotSignal()
+	p.dm.Up()
 
 	go func() {
 		// do somethings

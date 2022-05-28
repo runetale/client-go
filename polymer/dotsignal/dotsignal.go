@@ -1,11 +1,11 @@
 package dotsignal
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/negotiation"
 	"github.com/Notch-Technologies/dotshake/client/grpc"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 )
 
 type DotSignal struct {
@@ -15,20 +15,26 @@ type DotSignal struct {
 
 	mu *sync.Mutex
 	ch chan struct{}
+
+	dotlog *dotlog.DotLog
 }
 
 func NewDotSignal(
 	signalClient grpc.SignalClientImpl,
 	mk string,
 	ch chan struct{},
+	mu *sync.Mutex,
+	dotlog *dotlog.DotLog,
 ) *DotSignal {
 	return &DotSignal{
 		signalClient: signalClient,
 
 		mk: mk,
 
-		mu: &sync.Mutex{},
+		mu: mu,
 		ch: ch,
+
+		dotlog: dotlog,
 	}
 }
 
@@ -37,8 +43,6 @@ func (s *DotSignal) ConnectDotSignal() {
 		err := s.signalClient.StartConnect(s.mk, func(msg *negotiation.NegotiationResponse) error {
 			s.mu.Lock()
 			defer s.mu.Unlock()
-
-			fmt.Println(msg)
 
 			return nil
 		})
