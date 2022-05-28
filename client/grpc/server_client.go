@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/login_session"
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/machine"
@@ -15,7 +16,8 @@ import (
 
 type ServerClientImpl interface {
 	GetMachine(mk string) (*machine.GetMachineResponse, error)
-	ConnectStreamPeerLoginSession(ctx context.Context, mk string) (*login_session.PeerLoginSessionResponse, error)
+	ConnectStreamPeerLoginSession(mk string) (*login_session.PeerLoginSessionResponse, error)
+	SyncMachines(mk string, handler func(msg *machine.SyncMachinesResponse) error) error
 }
 
 type ServerClient struct {
@@ -53,14 +55,14 @@ func (c *ServerClient) GetMachine(mk string) (*machine.GetMachineResponse, error
 	}, nil
 }
 
-func (c *ServerClient) ConnectStreamPeerLoginSession(ctx context.Context, mk string) (*login_session.PeerLoginSessionResponse, error) {
+func (c *ServerClient) ConnectStreamPeerLoginSession(mk string) (*login_session.PeerLoginSessionResponse, error) {
 	var (
 		msg = &login_session.PeerLoginSessionResponse{}
 	)
 
 	sys := system.NewSysInfo()
 	md := metadata.New(map[string]string{utils.MachineKey: mk, utils.HostName: sys.Hostname, utils.OS: sys.OS})
-	newctx := metadata.NewOutgoingContext(ctx, md)
+	newctx := metadata.NewOutgoingContext(c.ctx, md)
 
 	stream, err := c.loginSessionClient.StreamPeerLoginSession(newctx, grpc.WaitForReady(true))
 	if err != nil {
@@ -89,4 +91,30 @@ func (c *ServerClient) ConnectStreamPeerLoginSession(ctx context.Context, mk str
 	}
 
 	return msg, nil
+}
+
+func (c *ServerClient) SyncMachines(mk string, handler func(msg *machine.SyncMachinesResponse) error) error {
+	md := metadata.New(map[string]string{utils.MachineKey: mk})
+	newctx := metadata.NewOutgoingContext(c.ctx, md)
+
+	stream, err := c.machineClient.SyncMachines(newctx, &emptypb.Empty{})
+	if err != nil {
+		return err
+	}
+
+	for {
+		syncRes, err := stream.Recv()
+		if err == io.EOF {
+			return err
+		}
+
+		if err != nil {
+			return err
+		}
+
+		err = handler(syncRes)
+		if err != nil {
+			return err
+		}
+	}
 }
