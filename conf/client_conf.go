@@ -18,7 +18,6 @@ import (
 type ClientConf struct {
 	WgPrivateKey string
 	ServerHost   *url.URL
-	SignalHost   *url.URL
 	TunName      string
 	PreSharedKey string
 	BlackList    []string
@@ -31,11 +30,9 @@ type ClientConf struct {
 func NewClientConf(
 	path string,
 	serverHost string, serverPort int,
-	signalHost string, signalPort int,
 	dl *dotlog.DotLog,
 ) (*ClientConf, error) {
 	var serverHostURL *url.URL
-	var signalHostURL *url.URL
 	var err error
 
 	if serverHost != "" {
@@ -46,17 +43,8 @@ func NewClientConf(
 		}
 	}
 
-	if signalHost != "" {
-		signalURL := signalHost + ":" + strconv.Itoa(signalPort)
-		signalHostURL, err = url.Parse(signalURL)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	return &ClientConf{
 		ServerHost: serverHostURL,
-		SignalHost: signalHostURL,
 
 		path: path,
 
@@ -66,7 +54,7 @@ func NewClientConf(
 
 func (c *ClientConf) writeClientConf(
 	wgPrivateKey, tunName string,
-	serverHost, signalHost *url.URL,
+	serverHost *url.URL,
 	blackList []string,
 ) *ClientConf {
 	if err := os.MkdirAll(filepath.Dir(c.path), 0777); err != nil {
@@ -76,7 +64,6 @@ func (c *ClientConf) writeClientConf(
 	c.WgPrivateKey = wgPrivateKey
 	c.TunName = tunName
 	c.ServerHost = serverHost
-	c.SignalHost = signalHost
 	c.BlackList = blackList
 
 	b, err := json.MarshalIndent(*c, "", "\t")
@@ -100,7 +87,7 @@ func (c *ClientConf) GetClientConf() *ClientConf {
 			c.dotlog.Logger.Error("failed to generate key for wireguard")
 			panic(err)
 		}
-		return c.writeClientConf(privKey, tun.TunName(), c.ServerHost, c.SignalHost, []string{tun.TunName(), "tun0"})
+		return c.writeClientConf(privKey, tun.TunName(), c.ServerHost, []string{tun.TunName(), "tun0"})
 	case err != nil:
 		c.dotlog.Logger.Errorf("%s could not be read. exception error: %s", c.path, err.Error())
 		panic(err)
@@ -109,6 +96,6 @@ func (c *ClientConf) GetClientConf() *ClientConf {
 		if err := json.Unmarshal(b, &core); err != nil {
 			c.dotlog.Logger.Fatalf("can not read client config file. because %v", err)
 		}
-		return c.writeClientConf(core.WgPrivateKey, core.TunName, c.ServerHost, c.SignalHost, core.BlackList)
+		return c.writeClientConf(core.WgPrivateKey, core.TunName, c.ServerHost, core.BlackList)
 	}
 }
