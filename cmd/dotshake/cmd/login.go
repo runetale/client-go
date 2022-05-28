@@ -126,7 +126,7 @@ func execLogin(ctx context.Context, args []string) error {
 
 	if !res.IsRegistered {
 		fmt.Printf("please log in via this link => %s\n", res.LoginUrl)
-		msg, err := serverClient.ConnectStreamPeerLoginSession(ctx, cs.GetPublicKey())
+		msg, err := serverClient.ConnectStreamPeerLoginSession(cs.GetPublicKey())
 		if err != nil {
 			return err
 		}
