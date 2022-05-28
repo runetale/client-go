@@ -1,7 +1,7 @@
 package daemon
 
 var SystemConfig = `[Unit]
-Description=Wissy Daemon
+Description=dotshaker daemon
 Requires=NetworkManager.service
 After=network-online.target
 Wants=network-online.target systemd-networkd-wait-online.service
@@ -9,7 +9,7 @@ Wants=network-online.target systemd-networkd-wait-online.service
 [Service]
 User=root
 Type=simple
-ExecStart=/bin/dotshake up
+ExecStart=/bin/dotshaker
 Restart=on-failure
 RestartSec=15s
 
@@ -17,6 +17,6 @@ RestartSec=15s
 WantedBy=multi-user.target
 `
 
-const DaemonFilePath = "/etc/systemd/system/dotshake.service"
-const BinPath = "/bin/dotshake"
-const ServiceName = "dotshake"
+const DaemonFilePath = "/etc/systemd/system/dotshaker.service"
+const BinPath = "/bin/dotshaker"
+const ServiceName = "dotshaker"

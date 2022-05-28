@@ -1,21 +1,12 @@
 package daemon
 
-import "github.com/Notch-Technologies/dotshake/dotlog"
+import (
+	"github.com/Notch-Technologies/dotshake/dotlog"
+)
 
 type Daemon interface {
 	Install() error
 	Uninstall() error
-
-	Load() error
-	Unload() error
-
-	Start() error
-	Stop() error
-
-	Status() error
-
-	IsInstalled() bool
-	IsRunnning() (string, bool)
 }
 
 func NewDaemon(
