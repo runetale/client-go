@@ -1,103 +1,137 @@
 package polymer
 
 import (
-	"context"
-	"errors"
 	"sync"
 
+	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/negotiation"
 	"github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/dotlog"
-	"github.com/Notch-Technologies/dotshake/iface"
-	"github.com/Notch-Technologies/dotshake/polymer/dotmachine"
-	"github.com/Notch-Technologies/dotshake/wireguard"
-	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+	"github.com/Notch-Technologies/dotshake/polymer/puncher"
+	"github.com/Notch-Technologies/dotshake/unixsock"
+	"github.com/pion/ice/v2"
 )
 
 type Polymer struct {
-	dotlog *dotlog.DotLog
+	signalClient grpc.SignalClientImpl
 
-	mk        string
-	tunName   string
-	ip        string
-	cidr      string
-	wgPrivKey string
-	wgPort    int
-	blackList []string
+	mk string
 
-	dm *dotmachine.DotMachine
-
-	ctx    context.Context
-	cancel context.CancelFunc
+	stconf *puncher.StunTurnConfig
 
 	mu *sync.Mutex
+	ch chan struct{}
 
-	rootch chan struct{}
+	dotlog *dotlog.DotLog
 }
 
 func NewPolymer(
 	signalClient grpc.SignalClientImpl,
-	serverClient grpc.ServerClientImpl,
-	dotlog *dotlog.DotLog,
-	tunName string,
 	mk string,
-	ip string,
-	cidr string,
-	wgPrivKey string,
-	blackList []string,
-	ctx context.Context,
-	cancel context.CancelFunc,
-) (*Polymer, error) {
-	_, err := wgtypes.ParseKey(wgPrivKey)
+	ch chan struct{},
+	mu *sync.Mutex,
+	dotlog *dotlog.DotLog,
+) *Polymer {
+	return &Polymer{
+		signalClient: signalClient,
+
+		mk: mk,
+
+		mu: mu,
+		ch: ch,
+
+		dotlog: dotlog,
+	}
+}
+
+func (p *Polymer) parseStun(url string) (*ice.URL, error) {
+	stun, err := ice.ParseURL(url)
 	if err != nil {
 		return nil, err
 	}
 
-	rootch := make(chan struct{})
-	mu := &sync.Mutex{}
-
-	return &Polymer{
-		dotlog: dotlog,
-
-		mk:        mk,
-		tunName:   tunName,
-		ip:        ip,
-		cidr:      cidr,
-		wgPrivKey: wgPrivKey,
-		wgPort:    wireguard.WgPort,
-		blackList: blackList,
-
-		dm: dotmachine.NewDotMachine(serverClient, mk, rootch, mu, dotlog),
-
-		ctx:    ctx,
-		cancel: cancel,
-
-		mu: mu,
-
-		rootch: rootch,
-	}, nil
+	return stun, err
 }
 
-func (p *Polymer) createIface() error {
-	i := iface.NewIface(p.tunName, p.wgPrivKey, p.ip, p.cidr, p.dotlog)
-	return iface.CreateIface(i, p.ip, p.cidr, p.dotlog)
+func (p *Polymer) parseTurn(url, uname, pw string) (*ice.URL, error) {
+	turn, err := ice.ParseURL(url)
+	if err != nil {
+		return nil, err
+	}
+	turn.Username = uname
+	turn.Password = pw
+
+	return turn, err
 }
 
-func (p *Polymer) Start() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
+// configure webrtc
+// (shinta) be sure to call this function before using the polymer structure.
+//
+func (p *Polymer) configurePuncher() error {
+	conf, err := p.signalClient.GetStunTurnConfig()
+	if err != nil {
+		// TOOD: (shintard) retry
+		return err
+	}
 
-	err := p.createIface()
+	stun, err := p.parseStun(conf.RtcConfig.StunHost.Url)
 	if err != nil {
 		return err
 	}
 
-	p.dm.Up()
+	turn, err := p.parseTurn(
+		conf.RtcConfig.TurnHost.Url,
+		conf.RtcConfig.TurnHost.Username,
+		conf.RtcConfig.TurnHost.Password,
+	)
+	if err != nil {
+		return err
+	}
 
+	stcof := puncher.NewStunTurnConfig(stun, turn)
+
+	p.stconf = stcof
+
+	return nil
+}
+
+// connecting signal server
+// must be connected
+//
+func (p *Polymer) startConnDotSignal() {
 	go func() {
-		// do somethings
-		// system resouce check?
-	}()
-	<-p.rootch
+		err := p.signalClient.StartConnect(p.mk, func(msg *negotiation.NegotiationResponse) error {
+			p.dotlog.Logger.Debugf("connect to signal server")
+			p.mu.Lock()
+			defer p.mu.Unlock()
 
-	return errors.New("stop the polymer")
+			return nil
+		})
+		if err != nil {
+			close(p.ch)
+			return
+		}
+	}()
+	p.signalClient.WaitStartConnect()
+}
+
+func (p *Polymer) connectSock() {
+	sock := unixsock.NewPolyerSock(p.dotlog, p.ch)
+	go func() {
+		err := sock.Connect()
+		if err != nil {
+			p.dotlog.Logger.Errorf("failed to connect polymer sock. %s", err.Error())
+		}
+		p.dotlog.Logger.Debugf("connection with sock connect has been disconnected")
+	}()
+}
+
+func (p *Polymer) Start() {
+	err := p.configurePuncher()
+	if err != nil {
+		p.dotlog.Logger.Errorf("failed to set up puncher. %s", err.Error())
+	}
+
+	p.connectSock()
+
+	p.startConnDotSignal()
 }
