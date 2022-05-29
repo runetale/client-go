@@ -33,9 +33,6 @@ var daemonCmd = &ffcli.Command{
 	Subcommands: []*ffcli.Command{
 		installDaemonCmd,
 		uninstallDaemonCmd,
-		statusCmd,
-		startDaemonCmd,
-		stopDaemonCmd,
 	},
 }
 
@@ -77,72 +74,6 @@ func uninstallDaemon(ctx context.Context, args []string) error {
 
 	d := daemon.NewDaemon(dd.BinPath, dd.ServiceName, dd.DaemonFilePath, dd.SystemConfig, dotlog)
 	err = d.Uninstall()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-var startDaemonCmd = &ffcli.Command{
-	Name:       "start",
-	ShortUsage: "start",
-	ShortHelp:  "start the daemon",
-	Exec:       startDaemon,
-}
-
-func startDaemon(ctx context.Context, args []string) error {
-	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
-	if err != nil {
-		log.Fatalf("failed to initialize logger: %v", err)
-	}
-	dotlog := dotlog.NewDotLog("daemon")
-
-	d := daemon.NewDaemon(dd.BinPath, dd.ServiceName, dd.DaemonFilePath, dd.SystemConfig, dotlog)
-	err = d.Start()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-var stopDaemonCmd = &ffcli.Command{
-	Name:       "stop",
-	ShortUsage: "stop",
-	ShortHelp:  "stop the daemon",
-	Exec:       stopDaemon,
-}
-
-func stopDaemon(ctx context.Context, args []string) error {
-	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
-	if err != nil {
-		log.Fatalf("failed to initialize logger: %v", err)
-	}
-	dotlog := dotlog.NewDotLog("daemon")
-
-	d := daemon.NewDaemon(dd.BinPath, dd.ServiceName, dd.DaemonFilePath, dd.SystemConfig, dotlog)
-	err = d.Stop()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-var statusCmd = &ffcli.Command{
-	Name:       "status",
-	ShortUsage: "status",
-	ShortHelp:  "status the daemon",
-	Exec:       statusDaemon,
-}
-
-func statusDaemon(ctx context.Context, args []string) error {
-	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
-	if err != nil {
-		log.Fatalf("failed to initialize logger: %v", err)
-	}
-	dotlog := dotlog.NewDotLog("daemon")
-
-	d := daemon.NewDaemon(dd.BinPath, dd.ServiceName, dd.DaemonFilePath, dd.SystemConfig, dotlog)
-	err = d.Status()
 	if err != nil {
 		return err
 	}
