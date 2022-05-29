@@ -68,7 +68,7 @@ func execUp(ctx context.Context, args []string) error {
 		dotlog.Logger.Fatalf("failed to create clietnt state. because %v", err)
 	}
 
-	// initialize client store
+	// configure client store
 	//
 	cs := store.NewClientStore(cfs, dotlog)
 	err = cs.WritePrivateKey()
@@ -86,8 +86,8 @@ func execUp(ctx context.Context, args []string) error {
 	}
 
 	clientCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	option := grpc.WithTransportCredentials(insecure.NewCredentials())
 	defer cancel()
+	option := grpc.WithTransportCredentials(insecure.NewCredentials())
 
 	gconn, err := grpc.DialContext(
 		clientCtx,
@@ -120,7 +120,7 @@ func execUp(ctx context.Context, args []string) error {
 			dotlog.Logger.Errorf("failed to install dotshaker. %v", err)
 			return err
 		}
-		dotlog.Logger.Debugf("started dotshaker daemon.\n")
+		dotlog.Logger.Debugf("start dotshaker daemon.\n")
 		return nil
 	}
 
