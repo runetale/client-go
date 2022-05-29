@@ -18,16 +18,13 @@ const SystemConfig = `
   <key>RunAtLoad</key>
   <true/>
 
-  <key>KeepAlive</key>
-  <true/>
-
-  <key>LimitLoadToSessionType</key>
-  <array>
-    <string>System</string>
-  </array>
-
   <key>StartInterval</key>
-    <integer>15</integer>
+    <integer>5</integer>
+
+  <key>StandardErrorPath</key>
+  <string>/usr/local/var/log/dotshaker.err</string>
+  <key>StandardOutPath</key>
+  <string>/usr/local/var/log/dotshaker.log</string>
 
 </dict>
 </plist>

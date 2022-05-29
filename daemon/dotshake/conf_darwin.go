@@ -16,10 +16,13 @@ const SystemConfig = `
   </array>
 
   <key>RunAtLoad</key><true/>
-  <key>AbandonProcessGroup</key><true/>
   <key>StartInterval</key>
-    <integer>15</integer>
+  <integer>5</integer>
 
+  <key>StandardErrorPath</key>
+  <string>/usr/local/var/log/dotshake.err</string>
+  <key>StandardOutPath</key>
+  <string>/usr/local/var/log/dotshake.log</string>
 </dict>
 </plist>
 `

@@ -1,12 +1,16 @@
 package daemon
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
 
 	"github.com/Notch-Technologies/dotshake/dotlog"
 )
@@ -26,7 +30,7 @@ type daemon struct {
 
 func newDaemon(
 	binPath, serviceName, daemonFilePath, systemConfig string,
-	dl *dotlog.DotLog,
+	wl *dotlog.DotLog,
 ) Daemon {
 	return &daemon{
 		binPath:        binPath,
@@ -34,7 +38,7 @@ func newDaemon(
 		daemonFilePath: daemonFilePath,
 		systemConfig:   systemConfig,
 
-		dotlog: dl,
+		dotlog: wl,
 	}
 }
 
@@ -48,17 +52,18 @@ func (d *daemon) Install() (err error) {
 
 	err = d.Uninstall()
 	if err != nil {
+		d.dotlog.Logger.Errorf("uninstallation of %s failed. plist file is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
 		return err
 	}
 
 	// seriously copy the binary
-	// - create binary path => "/usr/local/bin/dotshake"
+	// - create binary path => "/usr/local/bin/<binary-name>"
 	// - execution path at build time => exeFile
-	// - create tmp file => "/usr/local/bin/dotshake.tmp"
+	// - create tmp file => "/usr/local/bin/<binary-name>.tmp"
 	// - copy exeFile to tmp file
 	// - setting permisiion to tmpBin
 	// - tmpBin to a real executable file
-	//
+
 	if err := os.MkdirAll(filepath.Dir(d.binPath), 0755); err != nil {
 		d.dotlog.Logger.Errorf("failed to create %s. because %s\n", d.binPath, err.Error())
 		return err
@@ -107,55 +112,179 @@ func (d *daemon) Install() (err error) {
 		return err
 	}
 
-	if err := ioutil.WriteFile(d.daemonFilePath, []byte(d.systemConfig), 0700); err != nil {
+	if err := ioutil.WriteFile(d.daemonFilePath, []byte(d.systemConfig), 0755); err != nil {
+		d.dotlog.Logger.Errorf("failed to write %s to %s. because %s\n", d.daemonFilePath, d.systemConfig, err.Error())
 		return err
 	}
 
-	if out, err := exec.Command("launchctl", "load", d.daemonFilePath).CombinedOutput(); err != nil {
-		return fmt.Errorf("error running launchctl load %s: %v, %s", d.daemonFilePath, err, out)
-	}
-
-	if out, err := exec.Command("launchctl", "start", d.serviceName).CombinedOutput(); err != nil {
-		return fmt.Errorf("error running launchctl start %s: %v, %s", d.serviceName, err, out)
+	err = d.load()
+	if err != nil {
+		d.dotlog.Logger.Errorf("failed to load %s. plist path is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
+		return err
 	}
 
 	return nil
 }
 
-func (d *daemon) Uninstall() (ret error) {
-	plist, err := exec.Command("launchctl", "list", d.serviceName).Output()
-	_ = plist
-	running := err == nil
+func (d *daemon) Uninstall() (err error) {
+	err = d.checkPrivileges()
+	if err != nil {
+		return err
+	}
 
-	if running {
-		out, err := exec.Command("launchctl", "stop", d.serviceName).CombinedOutput()
+	_, isRunnning := d.isRunnning()
+	if isRunnning {
+		err := d.Stop()
 		if err != nil {
-			fmt.Printf("launchctl stop %s: %v, %s\n", d.serviceName, err, out)
-			ret = err
+			d.dotlog.Logger.Errorf("failed to stop %s. plist path is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
+			return err
 		}
-		out, err = exec.Command("launchctl", "unload", d.daemonFilePath).CombinedOutput()
+		err = d.unload()
 		if err != nil {
-			fmt.Printf("launchctl unload %s: %v, %s\n", d.daemonFilePath, err, out)
-			if ret == nil {
-				ret = err
-			}
+			d.dotlog.Logger.Errorf("failed to unload %s. plist path is here %s. because %s\n", d.serviceName, d.daemonFilePath, err.Error())
+			return err
 		}
 	}
 
 	err = os.Remove(d.daemonFilePath)
 	if os.IsNotExist(err) {
-		err = nil
-		if ret == nil {
-			ret = err
-		}
+		return nil
 	}
 
 	err = os.Remove(d.binPath)
 	if os.IsNotExist(err) {
-		err = nil
-		if ret == nil {
-			ret = err
+		return nil
+	}
+
+	return err
+}
+
+func (d *daemon) load() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if out, err := exec.Command("launchctl", "load", d.daemonFilePath).CombinedOutput(); err != nil {
+		fmt.Printf("failed to running launchctl load %s, because %s\n %s\n", d.daemonFilePath, err.Error(), out)
+		return err
+	}
+
+	return nil
+}
+
+func (d *daemon) unload() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if !d.isInstalled() {
+		return errors.New("not installed")
+	}
+
+	if mes, isRunning := d.isRunnning(); !isRunning {
+		return errors.New(mes)
+	}
+
+	out, err := exec.Command("launchctl", "unload", d.daemonFilePath).CombinedOutput()
+	if err != nil {
+		fmt.Printf("failed to launchctl unload %s, because %v.\n %s\n", d.daemonFilePath, err.Error(), out)
+		return err
+	}
+
+	return nil
+}
+
+// func (d *daemon) Start() error {
+// 	err := d.checkPrivileges()
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	if status, isRunning := d.isRunnning(); isRunning {
+// 		return errors.New(status)
+// 	}
+
+// 	if out, err := exec.Command("launchctl", "start", d.serviceName).CombinedOutput(); err != nil {
+// 		fmt.Printf("failed to running launchctl start %s, because %s.\n %s\n", d.serviceName, err.Error(), out)
+// 		return err
+// 	}
+
+// 	return nil
+// }
+
+func (d *daemon) Stop() error {
+	err := d.checkPrivileges()
+	if err != nil {
+		return err
+	}
+
+	if !d.isInstalled() {
+		return errors.New("not installed")
+	}
+
+	if mes, isRunning := d.isRunnning(); !isRunning {
+		return errors.New(mes)
+	}
+
+	out, err := exec.Command("launchctl", "stop", d.serviceName).CombinedOutput()
+	if err != nil {
+		fmt.Printf("failed to launchctl stop %s, because %v.\n %s\n", d.serviceName, err.Error(), out)
+		return err
+	}
+	return nil
+}
+
+func (d *daemon) Status() string {
+	err := d.checkPrivileges()
+	if err != nil {
+		return "run with root privileges" + failed
+	}
+
+	if !d.isInstalled() {
+		return "not installed" + notinstalled
+	}
+
+	_, isRunnning := d.isRunnning()
+	if !isRunnning {
+		return "not running" + notrunning
+	}
+
+	return "running" + success
+}
+
+func (d *daemon) isInstalled() bool {
+	if _, err := os.Stat(d.daemonFilePath); err == nil {
+		return true
+	}
+	return false
+}
+
+func (d *daemon) isRunnning() (string, bool) {
+	out, err := exec.Command("launchctl", "list", d.serviceName).CombinedOutput()
+	if err == nil {
+		if matched, err := regexp.MatchString(d.serviceName, string(out)); err == nil && matched {
+			reg := regexp.MustCompile("PID\" = ([0-9]+);")
+			data := reg.FindStringSubmatch(string(out))
+			if len(data) > 1 {
+				return fmt.Sprintf("%s is running on pid: %s", d.serviceName, data[1]), true
+			}
+			return fmt.Sprintf("%s is running. but cannot get pid. please report it", d.serviceName), true
 		}
 	}
-	return ret
+
+	return fmt.Sprintf("%s is stopped", d.serviceName), false
+}
+
+func (d *daemon) checkPrivileges() error {
+	if out, err := exec.Command("id", "-g").CombinedOutput(); err == nil {
+		if gid, parseErr := strconv.ParseUint(strings.TrimSpace(string(out)), 10, 32); parseErr == nil {
+			if gid == 0 {
+				return nil
+			}
+			return errors.New("run with root privileges")
+		}
+	}
+	return errors.New("unsupport system")
 }
