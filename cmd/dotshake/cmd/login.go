@@ -5,19 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/url"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
 	grpc_client "github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/conf"
+	"github.com/Notch-Technologies/dotshake/dotengine"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/paths"
-	"github.com/Notch-Technologies/dotshake/polymer"
-	"github.com/Notch-Technologies/dotshake/polymer/conn"
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
 	"github.com/peterbourgon/ff/v2/ffcli"
@@ -77,7 +74,7 @@ func execLogin(ctx context.Context, args []string) error {
 		dotlog.Logger.Fatalf("failed to write client state private key. because %v", err)
 	}
 
-	fmt.Printf("client machine key: %s\n", cs.GetPublicKey())
+	dotlog.Logger.Debugf("client machine key: %s", cs.GetPublicKey())
 
 	// initialize client conf
 	//
@@ -110,7 +107,7 @@ func execLogin(ctx context.Context, args []string) error {
 			Timeout: 10 * time.Second,
 		}))
 
-	serverClient := grpc_client.NewServerClient(ctx, gconn)
+	serverClient := grpc_client.NewServerClient(ctx, gconn, dotlog)
 	if err != nil {
 		dotlog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
@@ -130,37 +127,9 @@ func execLogin(ctx context.Context, args []string) error {
 		res.Cidr = msg.Cidr
 	}
 
-	// ログインの処理はここまで
-	// upに後で移行する
-
-	// initialize polymer
-	signalURL := res.SignalHost + ":" + strconv.Itoa(int(res.SignalPort))
-	signalHostURL, err := url.Parse(signalURL)
-	if err != nil {
-		dotlog.Logger.Fatalf("failed to parsing signal host => [%s:%d]. because %v", res.SignalHost, res.SignalPort, err)
-		return err
-	}
-
-	siconn, err := grpc.DialContext(
-		clientCtx,
-		signalHostURL.Host,
-		option,
-		grpc.WithBlock(),
-		grpc.WithKeepaliveParams(keepalive.ClientParameters{
-			Time:    10 * time.Second,
-			Timeout: 10 * time.Second,
-		}))
-	if err != nil {
-		dotlog.Logger.Fatalf("failed to connect server client. because %v", err)
-	}
-
-	connState := conn.NewConnectedState()
-	signalClient := grpc_client.NewSignalClient(ctx, siconn, connState)
-
 	pctx, cancel := context.WithCancel(ctx)
 
-	polymer, err := polymer.NewPolymer(
-		signalClient,
+	engine, err := dotengine.NewDotEngine(
 		serverClient,
 		dotlog,
 		clientConf.TunName,
@@ -177,8 +146,8 @@ func execLogin(ctx context.Context, args []string) error {
 		return err
 	}
 
-	// start polymer
-	err = polymer.Start()
+	// start engine
+	err = engine.Start()
 	if err != nil {
 		dotlog.Logger.Fatalf("failed to start polymer. because %v", err)
 		return err
