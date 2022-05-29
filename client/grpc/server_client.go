@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/login_session"
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/machine"
+	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/system"
 	"github.com/Notch-Technologies/dotshake/utils"
 	"google.golang.org/grpc"
@@ -25,14 +25,20 @@ type ServerClient struct {
 	loginSessionClient login_session.LoginSessionServiceClient
 	conn               *grpc.ClientConn
 	ctx                context.Context
+	dotlog             *dotlog.DotLog
 }
 
-func NewServerClient(ctx context.Context, conn *grpc.ClientConn) ServerClientImpl {
+func NewServerClient(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+	dotlog *dotlog.DotLog,
+) ServerClientImpl {
 	return &ServerClient{
 		machineClient:      machine.NewMachineServiceClient(conn),
 		loginSessionClient: login_session.NewLoginSessionServiceClient(conn),
 		conn:               conn,
 		ctx:                ctx,
+		dotlog:             dotlog,
 	}
 }
 
@@ -75,7 +81,7 @@ func (c *ServerClient) ConnectStreamPeerLoginSession(mk string) (*login_session.
 	}
 
 	sessionid := getLoginSessionID(header)
-	fmt.Printf("sessionid: [%s]\n", sessionid)
+	c.dotlog.Logger.Debugf("sessionid: [%s]", sessionid)
 
 	for {
 		msg, err = stream.Recv()
