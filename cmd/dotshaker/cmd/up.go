@@ -11,12 +11,12 @@ import (
 	"time"
 
 	grpc_client "github.com/Notch-Technologies/dotshake/client/grpc"
+	"github.com/Notch-Technologies/dotshake/conn"
 	"github.com/Notch-Technologies/dotshake/daemon"
 	dd "github.com/Notch-Technologies/dotshake/daemon/dotshaker"
 	"github.com/Notch-Technologies/dotshake/dotlog"
-	"github.com/Notch-Technologies/dotshake/dotsignal"
 	"github.com/Notch-Technologies/dotshake/paths"
-	"github.com/Notch-Technologies/dotshake/polymer/conn"
+	"github.com/Notch-Technologies/dotshake/polymer"
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
 	"github.com/peterbourgon/ff/v2/ffcli"
@@ -76,7 +76,7 @@ func execUp(ctx context.Context, args []string) error {
 		dotlog.Logger.Fatalf("failed to write client state private key. because %v", err)
 	}
 
-	dotlog.Logger.Debugf("client machine key: %s\n", cs.GetPublicKey())
+	dotlog.Logger.Debugf("client machine key: %s", cs.GetPublicKey())
 
 	signalURL := startArgs.signalHost + ":" + strconv.Itoa(int(startArgs.signalPort))
 	signalHostURL, err := url.Parse(signalURL)
@@ -105,12 +105,12 @@ func execUp(ctx context.Context, args []string) error {
 
 	connState := conn.NewConnectedState()
 
-	signalClient := grpc_client.NewSignalClient(ctx, gconn, connState)
+	signalClient := grpc_client.NewSignalClient(ctx, gconn, connState, dotlog)
 
 	ch := make(chan struct{})
 	mu := &sync.Mutex{}
 
-	ds := dotsignal.NewDotSignal(signalClient, cs.GetPublicKey(), ch, mu, dotlog)
+	polymer := polymer.NewPolymer(signalClient, cs.GetPublicKey(), ch, mu, dotlog)
 
 	if startArgs.daemon {
 		dotlog.Logger.Debugf("starting dotshaker daemon...\n")
@@ -124,7 +124,7 @@ func execUp(ctx context.Context, args []string) error {
 		return nil
 	}
 
-	ds.ConnectDotSignal()
+	polymer.Start()
 
 	select {
 	case <-ch:
