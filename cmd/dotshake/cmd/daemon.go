@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
 
 	"github.com/Notch-Technologies/dotshake/daemon"
@@ -33,6 +34,7 @@ var daemonCmd = &ffcli.Command{
 	Subcommands: []*ffcli.Command{
 		installDaemonCmd,
 		uninstallDaemonCmd,
+		statusCmd,
 	},
 }
 
@@ -55,6 +57,7 @@ func installDaemon(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
+	fmt.Println("success in install")
 	return nil
 }
 
@@ -77,5 +80,27 @@ func uninstallDaemon(ctx context.Context, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("success in uninstall")
+	return nil
+}
+
+var statusCmd = &ffcli.Command{
+	Name:       "status",
+	ShortUsage: "status",
+	ShortHelp:  "status the daemon",
+	Exec:       statusDaemon,
+}
+
+func statusDaemon(ctx context.Context, args []string) error {
+	err := dotlog.InitDotLog(daemonArgs.logLevel, daemonArgs.logFile, daemonArgs.dev)
+	if err != nil {
+		log.Fatalf("failed to initialize logger: %v", err)
+	}
+	dotlog := dotlog.NewDotLog("daemon")
+
+	d := daemon.NewDaemon(dd.BinPath, dd.ServiceName, dd.DaemonFilePath, dd.SystemConfig, dotlog)
+	status := d.Status()
+	fmt.Println(status)
 	return nil
 }
