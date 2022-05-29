@@ -1,1 +1,0 @@
-{"buildTargets":["build-dotshake","build-server","build-signaling","down-server","down-signaling","store","up-dotshake","up-server","up-signaling"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
