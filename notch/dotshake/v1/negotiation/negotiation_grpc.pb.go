@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -22,9 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NegotiationServiceClient interface {
-	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
-	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
-	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*NegotiationResponse, error)
+	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	StartConnect(ctx context.Context, opts ...grpc.CallOption) (NegotiationService_StartConnectClient, error)
 }
 
@@ -36,8 +37,8 @@ func NewNegotiationServiceClient(cc grpc.ClientConnInterface) NegotiationService
 	return &negotiationServiceClient{cc}
 }
 
-func (c *negotiationServiceClient) Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
-	out := new(NegotiationResponse)
+func (c *negotiationServiceClient) Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/protos.NegotiationService/Offer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -45,8 +46,8 @@ func (c *negotiationServiceClient) Offer(ctx context.Context, in *HandshakeReque
 	return out, nil
 }
 
-func (c *negotiationServiceClient) Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
-	out := new(NegotiationResponse)
+func (c *negotiationServiceClient) Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/protos.NegotiationService/Answer", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -54,8 +55,8 @@ func (c *negotiationServiceClient) Answer(ctx context.Context, in *HandshakeRequ
 	return out, nil
 }
 
-func (c *negotiationServiceClient) Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*NegotiationResponse, error) {
-	out := new(NegotiationResponse)
+func (c *negotiationServiceClient) Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/protos.NegotiationService/Candidate", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -98,9 +99,9 @@ func (x *negotiationServiceStartConnectClient) Recv() (*NegotiationResponse, err
 // All implementations should embed UnimplementedNegotiationServiceServer
 // for forward compatibility
 type NegotiationServiceServer interface {
-	Offer(context.Context, *HandshakeRequest) (*NegotiationResponse, error)
-	Answer(context.Context, *HandshakeRequest) (*NegotiationResponse, error)
-	Candidate(context.Context, *CandidateRequest) (*NegotiationResponse, error)
+	Offer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
+	Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
+	Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error)
 	StartConnect(NegotiationService_StartConnectServer) error
 }
 
@@ -108,13 +109,13 @@ type NegotiationServiceServer interface {
 type UnimplementedNegotiationServiceServer struct {
 }
 
-func (UnimplementedNegotiationServiceServer) Offer(context.Context, *HandshakeRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServiceServer) Offer(context.Context, *HandshakeRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Offer not implemented")
 }
-func (UnimplementedNegotiationServiceServer) Answer(context.Context, *HandshakeRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServiceServer) Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Answer not implemented")
 }
-func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *CandidateRequest) (*NegotiationResponse, error) {
+func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Candidate not implemented")
 }
 func (UnimplementedNegotiationServiceServer) StartConnect(NegotiationService_StartConnectServer) error {
