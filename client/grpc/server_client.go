@@ -15,7 +15,7 @@ import (
 )
 
 type ServerClientImpl interface {
-	GetMachine(mk string) (*machine.GetMachineResponse, error)
+	GetMachine(mk, wgPubKey string) (*machine.GetMachineResponse, error)
 	ConnectStreamPeerLoginSession(mk string) (*login_session.PeerLoginSessionResponse, error)
 	SyncMachines(mk string, handler func(msg *machine.SyncMachinesResponse) error) error
 }
@@ -42,8 +42,8 @@ func NewServerClient(
 	}
 }
 
-func (c *ServerClient) GetMachine(mk string) (*machine.GetMachineResponse, error) {
-	md := metadata.New(map[string]string{utils.MachineKey: mk})
+func (c *ServerClient) GetMachine(mk, wgPubKey string) (*machine.GetMachineResponse, error) {
+	md := metadata.New(map[string]string{utils.MachineKey: mk, utils.WgPubKey: wgPubKey})
 	ctx := metadata.NewOutgoingContext(c.ctx, md)
 
 	res, err := c.machineClient.GetMachine(ctx, &emptypb.Empty{})

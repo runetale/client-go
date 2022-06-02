@@ -18,7 +18,7 @@ import (
 
 type Iface struct {
 	// your wireguard interface name
-	Name string
+	Tun string
 	// your wireguard private key
 	WgPrivateKey string
 	// your ip
@@ -34,7 +34,7 @@ func NewIface(
 	cidr string, dotlog *dotlog.DotLog,
 ) *Iface {
 	return &Iface{
-		Name:         tunName,
+		Tun:          tunName,
 		WgPrivateKey: wgPrivateKey,
 		IP:           ip,
 		CIDR:         cidr,
@@ -43,27 +43,37 @@ func NewIface(
 	}
 }
 
-func (i *Iface) UpdatePeer(
-	remotePeerPubKey string, allowedIps string,
-	keepAlive time.Duration, endpoint string,
-	preSharedKey *wgtypes.Key) error {
+func (i *Iface) ConfigureToRemotePeer(
+	remotePeerPubKey, remoteip, endpoint string,
+	keepAlive time.Duration,
+	preSharedKey string,
+) error {
+	i.dotlog.Logger.Debugf("configuring %s to remote peer [%s], your endpoint [%s]", i.Tun, remotePeerPubKey, endpoint)
 
-	fmt.Printf("updating interface %s peer %s: endpoint %s\n", i.Name, remotePeerPubKey, endpoint)
-	_, ipNet, err := net.ParseCIDR(allowedIps)
+	_, ipNet, err := net.ParseCIDR(remoteip)
 	if err != nil {
 		return err
 	}
 
-	peerKeyParsed, err := wgtypes.ParseKey(remotePeerPubKey)
+	parsedRemotePeerPubKey, err := wgtypes.ParseKey(remotePeerPubKey)
 	if err != nil {
 		return err
 	}
+
+	var parsedPreSharedkey wgtypes.Key
+	if preSharedKey != "" {
+		parsedPreSharedkey, err = wgtypes.ParseKey(preSharedKey)
+		if err != nil {
+			return err
+		}
+	}
+
 	peer := wgtypes.PeerConfig{
-		PublicKey:                   peerKeyParsed,
+		PublicKey:                   parsedRemotePeerPubKey,
 		ReplaceAllowedIPs:           true,
 		AllowedIPs:                  []net.IPNet{*ipNet},
 		PersistentKeepaliveInterval: &keepAlive,
-		PresharedKey:                preSharedKey,
+		PresharedKey:                &parsedPreSharedkey,
 	}
 
 	config := wgtypes.Config{
@@ -76,23 +86,23 @@ func (i *Iface) UpdatePeer(
 	}
 
 	if endpoint != "" {
-		return i.updatePeerEndpoint(remotePeerPubKey, endpoint)
+		return i.updatePeerEndpoint(remotePeerPubKey, remoteip, endpoint)
 	}
 
 	return nil
 }
 
-func (i *Iface) updatePeerEndpoint(remotePeerPubKey string,
-	newEndpoint string) error {
-
-	fmt.Printf("updating peer [%s] endpoint [%s]\n", remotePeerPubKey, newEndpoint)
+func (i *Iface) updatePeerEndpoint(
+	remotePeerPubKey string,
+	remoteip string,
+	newEndpoint string,
+) error {
+	i.dotlog.Logger.Debugf("updating your ip [%s], here is remote ip and remote wg pub key => [%s:%s]", newEndpoint, remoteip, remotePeerPubKey)
 
 	peerAddr, err := net.ResolveUDPAddr("udp4", newEndpoint)
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("parsed peer endpoint [%s]\n", peerAddr.String())
 
 	pubKey, err := wgtypes.ParseKey(remotePeerPubKey)
 	if err != nil {
@@ -113,27 +123,6 @@ func (i *Iface) updatePeerEndpoint(remotePeerPubKey string,
 	return i.configureDevice(config)
 }
 
-// RemovePeer removes a Wireguard Peer from the interface iface
-func (i *Iface) RemovePeer(iface string, peerKey string) error {
-	fmt.Printf("Removing peer %s from interface %s ", peerKey, iface)
-
-	peerKeyParsed, err := wgtypes.ParseKey(peerKey)
-	if err != nil {
-		return err
-	}
-
-	peer := wgtypes.PeerConfig{
-		PublicKey: peerKeyParsed,
-		Remove:    true,
-	}
-
-	config := wgtypes.Config{
-		Peers: []wgtypes.PeerConfig{peer},
-	}
-
-	return i.configureDevice(config)
-}
-
 func (i *Iface) configureDevice(config wgtypes.Config) error {
 	wg, err := wgctrl.New()
 	if err != nil {
@@ -141,18 +130,18 @@ func (i *Iface) configureDevice(config wgtypes.Config) error {
 	}
 	defer wg.Close()
 
-	_, err = wg.Device(i.Name)
+	_, err = wg.Device(i.Tun)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("create wg device %s\n", i.Name)
+	fmt.Printf("create wg device %s\n", i.Tun)
 
-	return wg.ConfigureDevice(i.Name, config)
+	return wg.ConfigureDevice(i.Tun, config)
 }
 
 func (i *Iface) addRoute(ipNet *net.IPNet) error {
-	cmd := exec.Command("route", "add", "-net", ipNet.String(), "-interface", i.Name)
+	cmd := exec.Command("route", "add", "-net", ipNet.String(), "-interface", i.Tun)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Printf("Command: %v failed with output %s and error: %v", cmd.String(), out, err)
 		return err
@@ -163,7 +152,7 @@ func (i *Iface) addRoute(ipNet *net.IPNet) error {
 
 func (i *Iface) assignAddr(address string) error {
 	ip := strings.Split(address, "/")
-	cmd := exec.Command("ifconfig", i.Name, "inet", address, ip[0])
+	cmd := exec.Command("ifconfig", i.Tun, "inet", address, ip[0])
 	if out, err := cmd.CombinedOutput(); err != nil {
 		fmt.Printf("Command: %v failed with output %s and error: %v", cmd.String(), out, err)
 		return err
@@ -183,7 +172,7 @@ func (i *Iface) assignAddr(address string) error {
 }
 
 func (i *Iface) CreateWithUserSpace(address string) error {
-	tunIface, err := tun.CreateTUN(i.Name, wireguard.DefaultMTU)
+	tunIface, err := tun.CreateTUN(i.Tun, wireguard.DefaultMTU)
 	if err != nil {
 		return err
 	}
@@ -194,7 +183,7 @@ func (i *Iface) CreateWithUserSpace(address string) error {
 		return err
 	}
 
-	uapi, err := getUAPI(i.Name)
+	uapi, err := getUAPI(i.Tun)
 	if err != nil {
 		return err
 	}
@@ -216,4 +205,24 @@ func (i *Iface) CreateWithUserSpace(address string) error {
 	}
 
 	return nil
+}
+
+func (i *Iface) RemoveRemotePeer(iface string, remoteip, remotePeerPubKey string) error {
+	i.dotlog.Logger.Debugf("delete %s on this %s", remotePeerPubKey, i.Tun)
+
+	peerKeyParsed, err := wgtypes.ParseKey(remotePeerPubKey)
+	if err != nil {
+		return err
+	}
+
+	peer := wgtypes.PeerConfig{
+		Remove:    true,
+		PublicKey: peerKeyParsed,
+	}
+
+	config := wgtypes.Config{
+		Peers: []wgtypes.PeerConfig{peer},
+	}
+
+	return i.configureDevice(config)
 }

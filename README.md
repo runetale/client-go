@@ -2,10 +2,10 @@
 
 
 ## env
-TODO: (shintard) preparing enviroment variables
+TODO: (shinta) preparing enviroment variables
 
 ## for install
-TODO: (shintard) preparing how install for dotshake command
+TODO: (shinta) preparing how install for dotshake command
 ### linux
 
 ### darwin
@@ -15,7 +15,7 @@ TODO: (shintard) preparing how install for dotshake command
 ### windows
 
 ## for build without docker
-TODO: (shintard) preparing arguments for each commands
+TODO: (shinta) preparing arguments for each commands
 check the command line arguments carefully!
 
 ### server

@@ -18,6 +18,7 @@ import (
 	"github.com/Notch-Technologies/dotshake/store"
 	"github.com/Notch-Technologies/dotshake/types/flagtype"
 	"github.com/peterbourgon/ff/v2/ffcli"
+	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
@@ -80,8 +81,7 @@ func execUp(ctx context.Context, args []string) error {
 	//
 	clientConf, err := conf.NewClientConf(
 		upArgs.clientPath,
-		upArgs.serverHost, int(upArgs.serverPort),
-		// upArgs.signalHost, int(upArgs.signalPort),
+		upArgs.serverHost, uint(upArgs.serverPort),
 		dotlog,
 	)
 	if err != nil {
@@ -99,7 +99,7 @@ func execUp(ctx context.Context, args []string) error {
 	option := grpc.WithTransportCredentials(insecure.NewCredentials())
 	gconn, err := grpc.DialContext(
 		clientCtx,
-		clientConf.ServerHost.Host,
+		clientConf.GetServerHost(),
 		option,
 		grpc.WithBlock(),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
@@ -112,7 +112,13 @@ func execUp(ctx context.Context, args []string) error {
 		dotlog.Logger.Fatalf("failed to connect server client. because %v", err)
 	}
 
-	res, err := serverClient.GetMachine(cs.GetPublicKey())
+	// parse wireguard private key
+	wgPrivateKey, err := wgtypes.ParseKey(clientConf.WgPrivateKey)
+	if err != nil {
+		dotlog.Logger.Fatalf("failed to parse wg private key. because %v", err)
+	}
+
+	res, err := serverClient.GetMachine(cs.GetPublicKey(), wgPrivateKey.PublicKey().String())
 	if err != nil {
 		return err
 	}
@@ -149,7 +155,7 @@ func execUp(ctx context.Context, args []string) error {
 	// start engine
 	err = engine.Start()
 	if err != nil {
-		dotlog.Logger.Fatalf("failed to start polymer. because %v", err)
+		dotlog.Logger.Fatalf("failed to start dotengine. because %v", err)
 		return err
 	}
 

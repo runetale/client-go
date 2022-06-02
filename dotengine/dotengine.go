@@ -6,10 +6,10 @@ import (
 	"sync"
 
 	"github.com/Notch-Technologies/dotshake/client/grpc"
-	"github.com/Notch-Technologies/dotshake/dotengine/dotmachine"
+	"github.com/Notch-Technologies/dotshake/dotengine/peer"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
-	"github.com/Notch-Technologies/dotshake/unixsock"
+	"github.com/Notch-Technologies/dotshake/rcn/unixsock"
 	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -25,7 +25,7 @@ type DotEngine struct {
 	wgPort    int
 	blackList []string
 
-	dm *dotmachine.DotMachine
+	peer *peer.Peer
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -33,6 +33,8 @@ type DotEngine struct {
 	mu *sync.Mutex
 
 	rootch chan struct{}
+
+	sock *unixsock.PolymerSock
 }
 
 func NewDotEngine(
@@ -52,8 +54,10 @@ func NewDotEngine(
 		return nil, err
 	}
 
-	rootch := make(chan struct{})
+	ch := make(chan struct{})
 	mu := &sync.Mutex{}
+
+	sock := unixsock.NewPolymerSock(dotlog, ch, nil)
 
 	return &DotEngine{
 		dotlog: dotlog,
@@ -66,14 +70,16 @@ func NewDotEngine(
 		wgPort:    wireguard.WgPort,
 		blackList: blackList,
 
-		dm: dotmachine.NewDotMachine(serverClient, mk, rootch, mu, dotlog),
+		peer: peer.NewPeer(serverClient, mk, dotlog, sock),
 
 		ctx:    ctx,
 		cancel: cancel,
 
 		mu: mu,
 
-		rootch: rootch,
+		rootch: ch,
+
+		sock: sock,
 	}, nil
 }
 
@@ -83,8 +89,7 @@ func (p *DotEngine) createIface() error {
 }
 
 func (p *DotEngine) test() error {
-	sock := unixsock.NewPolyerSock(p.dotlog, p.rootch)
-	return sock.Dial()
+	return p.sock.DialPuncherSignal(&unixsock.SignalSock{Commands: 1})
 }
 
 func (p *DotEngine) Start() error {
@@ -96,7 +101,7 @@ func (p *DotEngine) Start() error {
 		return err
 	}
 
-	p.dm.Up()
+	p.peer.Up()
 
 	err = p.test()
 	if err != nil {
@@ -109,5 +114,5 @@ func (p *DotEngine) Start() error {
 	}()
 	<-p.rootch
 
-	return errors.New("stop the polymer")
+	return errors.New("stop the dotengine")
 }

@@ -6,9 +6,10 @@ import (
 
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/negotiation"
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/rtc"
-	"github.com/Notch-Technologies/dotshake/conn"
 	"github.com/Notch-Technologies/dotshake/dotlog"
+	"github.com/Notch-Technologies/dotshake/rcn/conn"
 	"github.com/Notch-Technologies/dotshake/utils"
+	"github.com/pion/ice/v2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/metadata"
@@ -16,11 +17,19 @@ import (
 )
 
 type SignalClientImpl interface {
-	// TODO: (shintard) Offer, Answer, Candidate
+	Candidate(dstmk, srcmk string, candidate ice.Candidate) error
+	Offer(dstmk, srcmk string, uFlag string, pwd string) error
+	Answer(dstmk, srcmk string, uFlag string, pwd string) error
+
 	StartConnect(mk string, handler func(msg *negotiation.NegotiationResponse) error) error
+
 	WaitStartConnect()
 	IsReady() bool
 	GetStunTurnConfig() (*rtc.GetStunTurnConfigResponse, error)
+
+	// Status
+	DisConnected() error
+	Connected() error
 }
 
 type SignalClient struct {
@@ -57,6 +66,61 @@ func NewSignalClient(
 	}
 }
 
+func (c *SignalClient) Candidate(dstmk, srcmk string, candidate ice.Candidate) error {
+	msg := &negotiation.CandidateRequest{
+		DstPeerMachineKey: dstmk,
+		SrcPeerMachineKey: srcmk,
+		Candidate:         candidate.Marshal(),
+	}
+
+	_, err := c.negClient.Candidate(c.ctx, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *SignalClient) Offer(
+	dstmk, srcmk string,
+	uFlag string,
+	pwd string,
+) error {
+	msg := &negotiation.HandshakeRequest{
+		DstPeerMachineKey: dstmk,
+		SrcPeerMachineKey: srcmk,
+		UFlag:             uFlag,
+		Pwd:               pwd,
+	}
+
+	_, err := c.negClient.Offer(c.ctx, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *SignalClient) Answer(
+	dstmk, srcmk string,
+	uFlag string,
+	pwd string,
+) error {
+	msg := &negotiation.HandshakeRequest{
+		DstPeerMachineKey: dstmk,
+		SrcPeerMachineKey: srcmk,
+		UFlag:             uFlag,
+		Pwd:               pwd,
+	}
+
+	_, err := c.negClient.Answer(c.ctx, msg)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // actually connected to grpc stream
 func (c *SignalClient) connectStream(ctx context.Context) (negotiation.NegotiationService_StartConnectClient, error) {
 	stream, err := c.negClient.StartConnect(ctx, grpc.WaitForReady(true))
@@ -82,13 +146,13 @@ func (c *SignalClient) StartConnect(mk string, handler func(msg *negotiation.Neg
 	for {
 		msg, err := stream.Recv()
 		if err != nil {
-			c.dotlog.Logger.Errorf("failed to get grpc client stream for machinek key: %s", msg.SrcPeerMachineKey)
+			c.dotlog.Logger.Errorf("failed to get grpc client stream for machinek key: %s", msg.DstPeerMachineKey)
 			return err
 		}
 
 		err = handler(msg)
 		if err != nil {
-			c.dotlog.Logger.Errorf("failed to handle grpc client stream stream in machine key: %s", msg.SrcPeerMachineKey)
+			c.dotlog.Logger.Errorf("failed to handle grpc client stream stream in machine key: %s", msg.DstPeerMachineKey)
 			return err
 		}
 	}
@@ -100,7 +164,7 @@ func (c *SignalClient) WaitStartConnect() {
 		return
 	}
 
-	ch := c.connState.GetConnStatus()
+	ch := c.connState.GetConnChan()
 	select {
 	case <-c.ctx.Done():
 	case <-ch:
@@ -118,4 +182,16 @@ func (c *SignalClient) GetStunTurnConfig() (*rtc.GetStunTurnConfigResponse, erro
 	}
 
 	return conf, nil
+}
+
+func (c *SignalClient) DisConnected() error {
+	c.connState.DisConnected()
+	c.connState.GetConnStatus()
+	return nil
+}
+
+func (c *SignalClient) Connected() error {
+	c.connState.Connected()
+	c.connState.GetConnStatus()
+	return nil
 }

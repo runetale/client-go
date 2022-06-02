@@ -26,7 +26,7 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          # TOOD: (shintard) allow the dotshake command to be built
+          # TOOD: (shinta) allow the dotshake command to be built
           dotshake = pkgs.buildGoModule {
             pname = "dotshake";
             inherit version;

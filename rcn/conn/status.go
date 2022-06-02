@@ -1,6 +1,7 @@
 package conn
 
-// dotshake connection status global
+// dotshake connection status
+// signaling/client/service/negotiation.goの代わり
 
 import "sync"
 
@@ -52,7 +53,7 @@ func (c *ConnectState) IsConnected() bool {
 	return false
 }
 
-func (c *ConnectState) GetConnStatus() <-chan struct{} {
+func (c *ConnectState) GetConnChan() <-chan struct{} {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -80,4 +81,11 @@ func (c *ConnectState) DisConnected() {
 	defer c.mu.Unlock()
 
 	c.State = DisConnect
+}
+
+func (c *ConnectState) GetConnStatus() ConnStatus {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	return c.State
 }

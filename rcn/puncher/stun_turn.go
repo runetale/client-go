@@ -16,3 +16,10 @@ func NewStunTurnConfig(
 		Turn: turn,
 	}
 }
+
+func (s *StunTurnConfig) GetStunTurnsURL() []*ice.URL {
+	var urls []*ice.URL
+	urls = append(urls, s.Stun)
+	urls = append(urls, s.Turn)
+	return urls
+}

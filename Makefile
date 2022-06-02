@@ -1,6 +1,6 @@
 BINDIR:=bin
 
-# TODO: (shintard) it will disappear once flake is supported
+# TODO: (shinta) it will disappear once flake is supported
 .PHONY: store
 store:
 	go build -o $(BINDIR)/dotshake cmd/dotshake/main.go
@@ -33,3 +33,6 @@ build-dotshake:
 
 up-dotshake:
 	docker-compose -f docker-compose.yml up -d
+
+update-submodule:
+	go get github.com/Notch-Technologies/client-go 
