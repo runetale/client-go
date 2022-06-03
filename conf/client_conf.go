@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/tun"
@@ -114,5 +115,6 @@ func (c *ClientConf) GetClientConf() *ClientConf {
 //
 func (c *ClientConf) GetServerHost() string {
 	port := strconv.Itoa(int(c.ServerPort))
-	return c.ServerHost + port
+	host := strings.Replace(c.ServerHost, "http://", "", -1)
+	return host + ":" + port
 }

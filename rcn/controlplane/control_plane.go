@@ -7,7 +7,6 @@ package controlplane
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 	"sync"
 
@@ -118,21 +117,24 @@ func (c *ControlPlane) receiveSignalingProcess(
 ) error {
 	switch msgType {
 	case negotiation.NegotiationType_ANSWER.Enum():
-		peer.RemoteAnswer(uname, pwd)
+		peer.SendRemoteAnswerCh(uname, pwd)
 	case negotiation.NegotiationType_OFFER.Enum():
-		peer.RemoteOffer(uname, pwd)
+		peer.SendRemoteOfferCh(uname, pwd)
 	case negotiation.NegotiationType_CANDIDATE.Enum():
 		candidate, err := ice.UnmarshalCandidate(candidate)
 		if err != nil {
 			c.dotlog.Logger.Errorf("can not unmarshal candidate => [%s]", candidate)
 			return err
 		}
-		peer.OnRemoteCandidate(candidate)
+		peer.SendRemoteCandidate(candidate)
 	}
 
 	return nil
 }
 
+// through StartConnect, the results of the execution of functions such as
+// candidate required for udp hole punching are received from the dotengine side
+//
 func (c *ControlPlane) ConnectSignalServer() {
 	go func() {
 		err := c.signalClient.StartConnect(c.mk, func(res *negotiation.NegotiationResponse) error {
@@ -166,10 +168,17 @@ func (c *ControlPlane) ConnectSignalServer() {
 	c.signalClient.WaitStartConnect()
 }
 
-func (c *ControlPlane) Delete(newRemotePeerMap map[string]struct{}) error {
+// keep the latest state of Peers received from the server
+//
+func (c *ControlPlane) SyncRemotePeerConnecting(remotePeers []*machine.RemotePeer) error {
+	remotePeerMap := make(map[string]struct{})
+	for _, p := range remotePeers {
+		remotePeerMap[p.GetRemoteClientMachineKey()] = struct{}{}
+	}
+
 	unnecessary := []string{}
 	for p := range c.peerConns {
-		if _, ok := newRemotePeerMap[p]; !ok {
+		if _, ok := remotePeerMap[p]; !ok {
 			unnecessary = append(unnecessary, p)
 		}
 	}
@@ -178,14 +187,13 @@ func (c *ControlPlane) Delete(newRemotePeerMap map[string]struct{}) error {
 		conn, exists := c.peerConns[p]
 		if exists {
 			delete(c.peerConns, p)
-			// conn.Clonse()
-			fmt.Println(conn)
+			conn.Close()
 		}
 		c.dotlog.Logger.Errorf("there are no peers, even though there should be. machine key => [%s]", p)
 	}
 
 	if len(unnecessary) == 0 {
-		c.dotlog.Logger.Debugf("completed peer delete in signal control plane, but it was nil")
+		c.dotlog.Logger.Debugf("completed peer delete in control plane, but it was nil")
 		return nil
 	}
 
@@ -258,6 +266,8 @@ func (c *ControlPlane) isExistPeer(remoteMachineKey string) bool {
 	return exist
 }
 
+// function to wait until the channel is sent from SetupRemotePeerConn to waitForRemoteConnCh
+//
 func (c *ControlPlane) WaitForRemoteConn() {
 	for {
 		select {

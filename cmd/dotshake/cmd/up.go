@@ -58,7 +58,7 @@ func execUp(ctx context.Context, args []string) error {
 		log.Fatalf("failed to initialize logger. because %v", err)
 	}
 
-	dotlog := dotlog.NewDotLog("login")
+	dotlog := dotlog.NewDotLog("dotshake up")
 
 	// initialize file store
 	//

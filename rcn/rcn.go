@@ -11,14 +11,15 @@ import (
 	"github.com/Notch-Technologies/dotshake/conf"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/rcn/controlplane"
-	"github.com/Notch-Technologies/dotshake/rcn/unixsock"
+	"github.com/Notch-Technologies/dotshake/rcn/rcnsock"
 )
 
 type Rcn struct {
-	scp *controlplane.ControlPlane
-	mk  string
-	mu  *sync.Mutex
-	ch  chan struct{}
+	cp   *controlplane.ControlPlane
+	sock *rcnsock.RcnSock
+
+	mk string
+	mu *sync.Mutex
 
 	dotlog *dotlog.DotLog
 }
@@ -31,38 +32,40 @@ func NewRcn(
 	mu *sync.Mutex,
 	dotlog *dotlog.DotLog,
 ) *Rcn {
+	cp := controlplane.NewControlPlane(signalClient, mk, clientConf, ch, dotlog)
 	return &Rcn{
-		scp: controlplane.NewControlPlane(signalClient, mk, clientConf, ch, dotlog),
+		cp:   cp,
+		sock: rcnsock.NewRcnSock(dotlog, ch, cp),
 
 		mk: mk,
 
 		mu: mu,
-		ch: ch,
 
 		dotlog: dotlog,
 	}
 }
 
-func (p *Rcn) connectSock() {
-	sock := unixsock.NewPolymerSock(p.dotlog, p.ch, p.scp)
+// listen to rcn sock
+//
+func (p *Rcn) connectRcnSock() {
 	go func() {
-		err := sock.Connect()
+		err := p.sock.Connect()
 		if err != nil {
 			p.dotlog.Logger.Errorf("failed to connect rcn sock. %s", err.Error())
 		}
-		p.dotlog.Logger.Debugf("connection with sock connect has been disconnected")
+		p.dotlog.Logger.Debugf("connection with rcn sock connect has been disconnected")
 	}()
 }
 
 func (p *Rcn) Start() {
-	err := p.scp.ConfigureStunTurnConf()
+	err := p.cp.ConfigureStunTurnConf()
 	if err != nil {
 		p.dotlog.Logger.Errorf("failed to set up puncher. %s", err.Error())
 	}
 
-	p.scp.WaitForRemoteConn()
+	go p.cp.WaitForRemoteConn()
 
-	p.connectSock()
+	p.connectRcnSock()
 
-	p.scp.ConnectSignalServer()
+	p.cp.ConnectSignalServer()
 }

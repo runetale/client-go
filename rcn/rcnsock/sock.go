@@ -1,4 +1,4 @@
-package unixsock
+package rcnsock
 
 // a package that communicates using rcn and unix sockets
 //
@@ -13,7 +13,7 @@ import (
 	"github.com/Notch-Technologies/dotshake/rcn/controlplane"
 )
 
-type PolymerSock struct {
+type RcnSock struct {
 	scp *controlplane.ControlPlane
 
 	dotlog *dotlog.DotLog
@@ -21,12 +21,14 @@ type PolymerSock struct {
 	ch chan struct{}
 }
 
-func NewPolymerSock(
+// if scp is nil when making this function call, just listen
+//
+func NewRcnSock(
 	dotlog *dotlog.DotLog,
 	ch chan struct{},
 	scp *controlplane.ControlPlane,
-) *PolymerSock {
-	return &PolymerSock{
+) *RcnSock {
+	return &RcnSock{
 		scp: scp,
 
 		dotlog: dotlog,
@@ -35,7 +37,7 @@ func NewPolymerSock(
 	}
 }
 
-func (s *PolymerSock) cleanup() error {
+func (s *RcnSock) cleanup() error {
 	if _, err := os.Stat(sockaddr); err == nil {
 		if err := os.RemoveAll(sockaddr); err != nil {
 			return err
@@ -44,14 +46,14 @@ func (s *PolymerSock) cleanup() error {
 	return nil
 }
 
-func (s *PolymerSock) listen(conn net.Conn) {
+func (s *RcnSock) listen(conn net.Conn) {
 	defer conn.Close()
 
 	decoder := gob.NewDecoder(conn)
 	encoder := gob.NewEncoder(conn)
 
 	for {
-		m := &RecvSocketMesage{}
+		m := &RcnDialSock{}
 		err := decoder.Decode(m)
 		if err != nil {
 			if err == io.EOF {
@@ -65,25 +67,25 @@ func (s *PolymerSock) listen(conn net.Conn) {
 		case Peer:
 			s.dotlog.Logger.Debugf("read from peer message => %d", m.PeerSock.Commands)
 			switch m.PeerSock.Commands {
-			case RemovePeers:
-				if m.PeerSock.RemovePeers == nil {
+			case SyncRemotePeerConnecting:
+				if m.PeerSock.RemotePeers == nil {
 					s.dotlog.Logger.Debugf("received remove peers in peer unix sock, but remove peers is nil. => %d", m.PeerSock.Commands)
 					break
 				}
 
-				err := s.scp.Delete(m.PeerSock.RemovePeers)
+				err := s.scp.SyncRemotePeerConnecting(m.PeerSock.RemotePeers)
 				if err != nil {
 					// TODO: retry or do somethings
 					s.dotlog.Logger.Errorf("failed to delete remote peer", m.PeerSock.Commands)
 					break
 				}
-			case ConnPeers:
-				if m.PeerSock.ConnPeers == nil {
+			case SetupRemotePeersConn:
+				if m.PeerSock.RemotePeers == nil {
 					s.dotlog.Logger.Debugf("received conn peers in peer unix sock, but conn peers is nil. => %d", m.PeerSock.Commands)
 					break
 				}
 
-				err := s.scp.SetupRemotePeerConn(m.PeerSock.ConnPeers, m.PeerSock.Ip, m.PeerSock.Cidr)
+				err := s.scp.SetupRemotePeerConn(m.PeerSock.RemotePeers, m.PeerSock.Ip, m.PeerSock.Cidr)
 				if err != nil {
 					// TODO: retry
 					s.dotlog.Logger.Errorf("failed to connection remote peer", m.PeerSock.Commands)
@@ -91,9 +93,6 @@ func (s *PolymerSock) listen(conn net.Conn) {
 				}
 				break
 			}
-			break
-		case Signal:
-			s.dotlog.Logger.Debugf("read from signal message => %d", m.SignalSock.Commands)
 			break
 		}
 
@@ -105,8 +104,8 @@ func (s *PolymerSock) listen(conn net.Conn) {
 	}
 }
 
-func (s *PolymerSock) DialPuncherSignal(signal *SignalSock) error {
-	conn, err := net.Dial(protocol, sockaddr)
+func (s *RcnSock) DialPeerSock(peers *PeerSock) error {
+	conn, err := net.Dial("unix", sockaddr)
 	defer conn.Close()
 	if err != nil {
 		return err
@@ -115,39 +114,7 @@ func (s *PolymerSock) DialPuncherSignal(signal *SignalSock) error {
 	decoder := gob.NewDecoder(conn)
 	encoder := gob.NewEncoder(conn)
 
-	m := &RecvSocketMesage{
-		MessageType: Signal,
-		SignalSock:  signal,
-	}
-
-	err = encoder.Encode(m)
-	if err != nil {
-		return err
-	}
-
-	s.dotlog.Logger.Debugf("write purchase signal => %s", m.MessageType)
-
-	err = decoder.Decode(m)
-	if err != nil {
-		return err
-	}
-
-	s.dotlog.Logger.Debugf("read purchase signal from server  => %d", signal.Commands)
-
-	return nil
-}
-
-func (s *PolymerSock) DialPeerSock(peers *PeerSock) error {
-	conn, err := net.Dial(protocol, sockaddr)
-	defer conn.Close()
-	if err != nil {
-		return err
-	}
-
-	decoder := gob.NewDecoder(conn)
-	encoder := gob.NewEncoder(conn)
-
-	m := &RecvSocketMesage{
+	m := &RcnDialSock{
 		MessageType: Peer,
 		PeerSock:    peers,
 	}
@@ -157,25 +124,25 @@ func (s *PolymerSock) DialPeerSock(peers *PeerSock) error {
 		return err
 	}
 
-	s.dotlog.Logger.Debugf("write remote peer => %s", m.MessageType)
+	s.dotlog.Logger.Debugf("write dial peersock, called for [%s/%s]", m.PeerSock.Ip, m.PeerSock.Cidr)
 
 	err = decoder.Decode(m)
 	if err != nil {
 		return err
 	}
 
-	s.dotlog.Logger.Debugf("read remote peer from server => %d", peers.Commands)
+	s.dotlog.Logger.Debugf("read dial peersock, called for [%s/%s]", m.PeerSock.Ip, m.PeerSock.Cidr)
 
 	return nil
 }
 
-func (s *PolymerSock) Connect() error {
+func (s *RcnSock) Connect() error {
 	err := s.cleanup()
 	if err != nil {
 		return err
 	}
 
-	listener, err := net.Listen(protocol, sockaddr)
+	listener, err := net.Listen("unix", sockaddr)
 	if err != nil {
 		return err
 	}

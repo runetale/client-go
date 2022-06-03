@@ -10,9 +10,10 @@ import (
 	"time"
 
 	"github.com/Notch-Technologies/dotshake/client/grpc"
+	"github.com/Notch-Technologies/dotshake/dotengine/proxy"
+	"github.com/Notch-Technologies/dotshake/dotengine/wonderwall"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
-	"github.com/Notch-Technologies/dotshake/rcn/conn"
 	"github.com/Notch-Technologies/dotshake/rcn/puncher"
 	"github.com/pion/ice/v2"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
@@ -23,12 +24,14 @@ type Ice struct {
 
 	sigexec *SigExecuter
 
-	conn *conn.Conn
-
 	iface *iface.Iface
 
+	wireproxy *proxy.WireProxy
+
+	wonderwallsock *wonderwall.WonderWallSock
+
 	// channel to use when making a peer connection
-	remoteOffersCh chan Credentials
+	remoteOfferCh  chan Credentials
 	remoteAnswerCh chan Credentials
 
 	agent *ice.Agent
@@ -95,7 +98,7 @@ func NewIce(
 	return &Ice{
 		signalClient: signalClient,
 
-		remoteOffersCh: make(chan Credentials),
+		remoteOfferCh:  make(chan Credentials),
 		remoteAnswerCh: make(chan Credentials),
 
 		stunTurn: stunTurn,
@@ -171,7 +174,7 @@ func (i *Ice) setup() (err error) {
 	iface := iface.NewIface(i.tun, i.wgPrivKey.String(), i.ip, i.cidr, i.dotlog)
 
 	// configure wire proxy
-	wireproxy := conn.NewWireProxy(
+	wireproxy := proxy.NewWireProxy(
 		iface,
 		i.remoteWgPubKey,
 		i.remoteIp,
@@ -181,7 +184,9 @@ func (i *Ice) setup() (err error) {
 		i.dotlog,
 	)
 
-	i.conn = conn.NewConn(i.agent, i.remoteWgPubKey, wireproxy, i.wgPubKey, i.closeCh, i.disconnectFunc, i.connectFunc, i.dotlog)
+	i.wireproxy = wireproxy
+
+	i.wonderwallsock = wonderwall.NewWonderWallSock(nil, i.dotlog)
 
 	return nil
 }
@@ -271,11 +276,6 @@ func (i *Ice) clean() error {
 	i.agent.Close()
 	i.agent = nil
 
-	err := i.conn.Close()
-	if err != nil {
-		return err
-	}
-
 	i.disconnectFunc()
 
 	return nil
@@ -286,6 +286,7 @@ func (i *Ice) getLocalUserIceAgentCredentials() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
+
 	return uname, pwd, nil
 }
 
@@ -322,13 +323,29 @@ func (i *Ice) waitForSignalingProcess() error {
 	for {
 		var credentials Credentials
 		select {
-		case credentials = <-i.remoteOffersCh:
+		case credentials = <-i.remoteAnswerCh:
 			i.dotlog.Logger.Debugf("receive a channel for a remote offer")
-			err := i.conn.Start(credentials.UserName, credentials.Pwd)
+
+			err := i.wonderwallsock.DialStartWonderWall(&wonderwall.StartWonderWallSock{
+				Uname: credentials.UserName,
+				Pwd:   credentials.Pwd,
+
+				Agent:     i.agent,
+				WireProxy: i.wireproxy,
+
+				RemoteWgPubKey: i.remoteWgPubKey,
+				WgPubKey:       i.wgPubKey,
+
+				DisconnectFunc: i.disconnectFunc,
+				ConnectFunc:    i.connectFunc,
+
+				Dotlog: i.dotlog,
+			})
 			if err != nil {
+				i.dotlog.Logger.Errorf("can not dial start wonderwall")
 				return err
 			}
-		case credentials = <-i.remoteAnswerCh:
+		case credentials = <-i.remoteOfferCh:
 			i.dotlog.Logger.Debugf("receive a channel for a remote answer")
 			err := i.signalAnswer()
 			if err != nil {
@@ -336,6 +353,17 @@ func (i *Ice) waitForSignalingProcess() error {
 			}
 		case <-i.closeCh:
 			i.dotlog.Logger.Debugf("abort signal process wait, will called clean function called")
+
+			// it is necessary to stop the wonderwall connection running on the dotengine
+			// side when ice's closech is called
+			//
+			err := i.wonderwallsock.DialStopWonderWall(&wonderwall.CloseWonderWallSock{
+				CloseCh: i.closeCh,
+			})
+			if err != nil {
+				i.dotlog.Logger.Errorf("can not dial start wonderwall")
+				return err
+			}
 			return errors.New("abort waitForSignalingProcess")
 		}
 	}
@@ -379,21 +407,21 @@ func (i *Ice) signalOffer() error {
 	return nil
 }
 
-func (i *Ice) RemoteOffer(uname, pwd string) {
+func (i *Ice) SendRemoteOfferCh(uname, pwd string) {
 	select {
-	case i.remoteOffersCh <- *NewCredentials(uname, pwd):
+	case i.remoteOfferCh <- *NewCredentials(uname, pwd):
 	default:
 	}
 }
 
-func (i *Ice) RemoteAnswer(uname, pwd string) {
+func (i *Ice) SendRemoteAnswerCh(uname, pwd string) {
 	select {
 	case i.remoteAnswerCh <- *NewCredentials(uname, pwd):
 	default:
 	}
 }
 
-func (i *Ice) OnRemoteCandidate(candidate ice.Candidate) {
+func (i *Ice) SendRemoteCandidate(candidate ice.Candidate) {
 	go func() {
 		i.mu.Lock()
 		defer i.mu.Unlock()

@@ -6,7 +6,7 @@ import (
 	"github.com/Notch-Technologies/client-go/notch/dotshake/v1/machine"
 	"github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/dotlog"
-	"github.com/Notch-Technologies/dotshake/rcn/unixsock"
+	"github.com/Notch-Technologies/dotshake/rcn/rcnsock"
 )
 
 type Peer struct {
@@ -21,14 +21,14 @@ type Peer struct {
 
 	dotlog *dotlog.DotLog
 
-	sock *unixsock.PolymerSock
+	sock *rcnsock.RcnSock
 }
 
 func NewPeer(
 	serverClient grpc.ServerClientImpl,
 	mk string,
 	dotlog *dotlog.DotLog,
-	sock *unixsock.PolymerSock,
+	sock *rcnsock.RcnSock,
 ) *Peer {
 	ch := make(chan struct{})
 
@@ -36,8 +36,6 @@ func NewPeer(
 		serverClient: serverClient,
 
 		mk: mk,
-
-		// conn: conn.NewConn(dotlog, sock),
 
 		mu: &sync.Mutex{},
 		ch: ch,
@@ -56,12 +54,29 @@ func (p *Peer) Up() {
 
 			p.dotlog.Logger.Debugf("connected sync machine")
 
-			err := p.conn.Start(res.GetRemotePeers(), res.GetIp(), res.GetCidr())
+			if res.GetRemotePeers() != nil {
+				err := p.sock.DialPeerSock(&rcnsock.PeerSock{
+					Commands:    rcnsock.SyncRemotePeerConnecting,
+					RemotePeers: res.GetRemotePeers(),
+				})
+				if err != nil {
+					p.dotlog.Logger.Debugf("failed to sync remote peer connectiong")
+					return err
+				}
+			}
+
+			err := p.sock.DialPeerSock(&rcnsock.PeerSock{
+				Commands:    rcnsock.SetupRemotePeersConn,
+				RemotePeers: res.GetRemotePeers(),
+				Ip:          res.GetIp(),
+				Cidr:        res.GetCidr(),
+			})
 			if err != nil {
+				p.dotlog.Logger.Debugf("failed to setup remote peer conn")
 				return err
 			}
 
-			p.dotlog.Logger.Debugf("connected peer connection")
+			p.dotlog.Logger.Debugf("connected sync machine")
 
 			return nil
 		})

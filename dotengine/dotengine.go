@@ -7,9 +7,10 @@ import (
 
 	"github.com/Notch-Technologies/dotshake/client/grpc"
 	"github.com/Notch-Technologies/dotshake/dotengine/peer"
+	"github.com/Notch-Technologies/dotshake/dotengine/wonderwall"
 	"github.com/Notch-Technologies/dotshake/dotlog"
 	"github.com/Notch-Technologies/dotshake/iface"
-	"github.com/Notch-Technologies/dotshake/rcn/unixsock"
+	"github.com/Notch-Technologies/dotshake/rcn/rcnsock"
 	"github.com/Notch-Technologies/dotshake/wireguard"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 )
@@ -33,8 +34,6 @@ type DotEngine struct {
 	mu *sync.Mutex
 
 	rootch chan struct{}
-
-	sock *unixsock.PolymerSock
 }
 
 func NewDotEngine(
@@ -57,7 +56,7 @@ func NewDotEngine(
 	ch := make(chan struct{})
 	mu := &sync.Mutex{}
 
-	sock := unixsock.NewPolymerSock(dotlog, ch, nil)
+	sock := rcnsock.NewRcnSock(dotlog, ch, nil)
 
 	return &DotEngine{
 		dotlog: dotlog,
@@ -78,8 +77,6 @@ func NewDotEngine(
 		mu: mu,
 
 		rootch: ch,
-
-		sock: sock,
 	}, nil
 }
 
@@ -88,8 +85,16 @@ func (p *DotEngine) createIface() error {
 	return iface.CreateIface(i, p.ip, p.cidr, p.dotlog)
 }
 
-func (p *DotEngine) test() error {
-	return p.sock.DialPuncherSignal(&unixsock.SignalSock{Commands: 1})
+func (p *DotEngine) startWonderWall() {
+	ww := wonderwall.NewWonderWall(p.dotlog)
+	wws := wonderwall.NewWonderWallSock(ww, p.dotlog)
+	go func() {
+		err := wws.Connect()
+		if err != nil {
+			p.dotlog.Logger.Errorf("failed connect wonderwall sock, %s", err.Error())
+		}
+		p.dotlog.Logger.Debugf("connection with wonderwall sock connect has been disconnected")
+	}()
 }
 
 func (p *DotEngine) Start() error {
@@ -101,12 +106,13 @@ func (p *DotEngine) Start() error {
 		return err
 	}
 
-	p.peer.Up()
+	// TODO: pixsysのserver/usecase/session.goのSendUpdateの処理を専用の
+	// rpcを用意して叩く
+	// 自分以外のPeerに自分が接続したことを知らせる
+	// 違うPeerのSyncMachineしてるところに通知がいく
 
-	err = p.test()
-	if err != nil {
-		return err
-	}
+	p.startWonderWall()
+	p.peer.Up()
 
 	go func() {
 		// do somethings
