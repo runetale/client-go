@@ -76,7 +76,7 @@ func (p *Peer) Up() {
 				return err
 			}
 
-			p.dotlog.Logger.Debugf("connected sync machine")
+			p.dotlog.Logger.Debugf("the dial peer sock sequence has been completed")
 
 			return nil
 		})
