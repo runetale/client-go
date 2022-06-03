@@ -3,7 +3,6 @@ module github.com/Notch-Technologies/dotshake
 go 1.17
 
 require (
-	github.com/Notch-Technologies/client-go v0.0.0-20220531084420-222e615135c5
 	github.com/coreos/go-oidc v2.2.1+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.3.0
@@ -20,6 +19,7 @@ require (
 )
 
 require (
+	github.com/Notch-Technologies/client-go v0.0.0-20220531084904-7ffa150f6d0f // indirect
 	github.com/gin-contrib/sessions v0.0.5 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.7.7 // indirect
