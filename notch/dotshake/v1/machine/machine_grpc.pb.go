@@ -24,7 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
 	GetMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachineResponse, error)
-	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_SyncRemoteMachinesConfigClient, error)
+	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
 	ConnectToHangoutMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_ConnectToHangoutMachinesClient, error)
 	JoinHangOutMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*JoinHangOutMachinesResponse, error)
 }
@@ -46,40 +46,17 @@ func (c *machineServiceClient) GetMachine(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
-func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_SyncRemoteMachinesConfigClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MachineService_ServiceDesc.Streams[0], "/protos.MachineService/SyncRemoteMachinesConfig", opts...)
+func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error) {
+	out := new(SyncMachinesResponse)
+	err := c.cc.Invoke(ctx, "/protos.MachineService/SyncRemoteMachinesConfig", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &machineServiceSyncRemoteMachinesConfigClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type MachineService_SyncRemoteMachinesConfigClient interface {
-	Recv() (*SyncMachinesResponse, error)
-	grpc.ClientStream
-}
-
-type machineServiceSyncRemoteMachinesConfigClient struct {
-	grpc.ClientStream
-}
-
-func (x *machineServiceSyncRemoteMachinesConfigClient) Recv() (*SyncMachinesResponse, error) {
-	m := new(SyncMachinesResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *machineServiceClient) ConnectToHangoutMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (MachineService_ConnectToHangoutMachinesClient, error) {
-	stream, err := c.cc.NewStream(ctx, &MachineService_ServiceDesc.Streams[1], "/protos.MachineService/ConnectToHangoutMachines", opts...)
+	stream, err := c.cc.NewStream(ctx, &MachineService_ServiceDesc.Streams[0], "/protos.MachineService/ConnectToHangoutMachines", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +101,7 @@ func (c *machineServiceClient) JoinHangOutMachines(ctx context.Context, in *empt
 // for forward compatibility
 type MachineServiceServer interface {
 	GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error)
-	SyncRemoteMachinesConfig(*emptypb.Empty, MachineService_SyncRemoteMachinesConfigServer) error
+	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
 	ConnectToHangoutMachines(*emptypb.Empty, MachineService_ConnectToHangoutMachinesServer) error
 	JoinHangOutMachines(context.Context, *emptypb.Empty) (*JoinHangOutMachinesResponse, error)
 }
@@ -136,8 +113,8 @@ type UnimplementedMachineServiceServer struct {
 func (UnimplementedMachineServiceServer) GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMachine not implemented")
 }
-func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(*emptypb.Empty, MachineService_SyncRemoteMachinesConfigServer) error {
-	return status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
+func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
 }
 func (UnimplementedMachineServiceServer) ConnectToHangoutMachines(*emptypb.Empty, MachineService_ConnectToHangoutMachinesServer) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectToHangoutMachines not implemented")
@@ -175,25 +152,22 @@ func _MachineService_GetMachine_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MachineService_SyncRemoteMachinesConfig_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(emptypb.Empty)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _MachineService_SyncRemoteMachinesConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(MachineServiceServer).SyncRemoteMachinesConfig(m, &machineServiceSyncRemoteMachinesConfigServer{stream})
-}
-
-type MachineService_SyncRemoteMachinesConfigServer interface {
-	Send(*SyncMachinesResponse) error
-	grpc.ServerStream
-}
-
-type machineServiceSyncRemoteMachinesConfigServer struct {
-	grpc.ServerStream
-}
-
-func (x *machineServiceSyncRemoteMachinesConfigServer) Send(m *SyncMachinesResponse) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(MachineServiceServer).SyncRemoteMachinesConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.MachineService/SyncRemoteMachinesConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MachineServiceServer).SyncRemoteMachinesConfig(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _MachineService_ConnectToHangoutMachines_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -247,16 +221,15 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MachineService_GetMachine_Handler,
 		},
 		{
+			MethodName: "SyncRemoteMachinesConfig",
+			Handler:    _MachineService_SyncRemoteMachinesConfig_Handler,
+		},
+		{
 			MethodName: "JoinHangOutMachines",
 			Handler:    _MachineService_JoinHangOutMachines_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "SyncRemoteMachinesConfig",
-			Handler:       _MachineService_SyncRemoteMachinesConfig_Handler,
-			ServerStreams: true,
-		},
 		{
 			StreamName:    "ConnectToHangoutMachines",
 			Handler:       _MachineService_ConnectToHangoutMachines_Handler,
