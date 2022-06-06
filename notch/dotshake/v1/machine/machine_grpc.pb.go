@@ -71,7 +71,7 @@ func (c *machineServiceClient) ConnectToHangoutMachines(ctx context.Context, in 
 }
 
 type MachineService_ConnectToHangoutMachinesClient interface {
-	Recv() (*ConnectToHangoutMachineResponse, error)
+	Recv() (*JoinHangOutMachinesResponse, error)
 	grpc.ClientStream
 }
 
@@ -79,8 +79,8 @@ type machineServiceConnectToHangoutMachinesClient struct {
 	grpc.ClientStream
 }
 
-func (x *machineServiceConnectToHangoutMachinesClient) Recv() (*ConnectToHangoutMachineResponse, error) {
-	m := new(ConnectToHangoutMachineResponse)
+func (x *machineServiceConnectToHangoutMachinesClient) Recv() (*JoinHangOutMachinesResponse, error) {
+	m := new(JoinHangOutMachinesResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func _MachineService_ConnectToHangoutMachines_Handler(srv interface{}, stream gr
 }
 
 type MachineService_ConnectToHangoutMachinesServer interface {
-	Send(*ConnectToHangoutMachineResponse) error
+	Send(*JoinHangOutMachinesResponse) error
 	grpc.ServerStream
 }
 
@@ -187,7 +187,7 @@ type machineServiceConnectToHangoutMachinesServer struct {
 	grpc.ServerStream
 }
 
-func (x *machineServiceConnectToHangoutMachinesServer) Send(m *ConnectToHangoutMachineResponse) error {
+func (x *machineServiceConnectToHangoutMachinesServer) Send(m *JoinHangOutMachinesResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
