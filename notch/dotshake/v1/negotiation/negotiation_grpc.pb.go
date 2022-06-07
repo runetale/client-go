@@ -75,7 +75,7 @@ func (c *negotiationServiceClient) StartConnect(ctx context.Context, opts ...grp
 
 type NegotiationService_StartConnectClient interface {
 	Send(*NegotiationRequest) error
-	Recv() (*NegotiationResponse, error)
+	Recv() (*NegotiationRequest, error)
 	grpc.ClientStream
 }
 
@@ -87,8 +87,8 @@ func (x *negotiationServiceStartConnectClient) Send(m *NegotiationRequest) error
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *negotiationServiceStartConnectClient) Recv() (*NegotiationResponse, error) {
-	m := new(NegotiationResponse)
+func (x *negotiationServiceStartConnectClient) Recv() (*NegotiationRequest, error) {
+	m := new(NegotiationRequest)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func _NegotiationService_StartConnect_Handler(srv interface{}, stream grpc.Serve
 }
 
 type NegotiationService_StartConnectServer interface {
-	Send(*NegotiationResponse) error
+	Send(*NegotiationRequest) error
 	Recv() (*NegotiationRequest, error)
 	grpc.ServerStream
 }
@@ -201,7 +201,7 @@ type negotiationServiceStartConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *negotiationServiceStartConnectServer) Send(m *NegotiationResponse) error {
+func (x *negotiationServiceStartConnectServer) Send(m *NegotiationRequest) error {
 	return x.ServerStream.SendMsg(m)
 }
 
