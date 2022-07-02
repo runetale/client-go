@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdminServiceClient interface {
 	GetMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachinesResponse, error)
+	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
 }
 
 type adminServiceClient struct {
@@ -43,11 +44,21 @@ func (c *adminServiceClient) GetMachines(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
+func (c *adminServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error) {
+	out := new(GetMeResponse)
+	err := c.cc.Invoke(ctx, "/protos.AdminService/GetMe", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations should embed UnimplementedAdminServiceServer
 // for forward compatibility
 type AdminServiceServer interface {
 	GetMachines(context.Context, *emptypb.Empty) (*GetMachinesResponse, error)
+	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -56,6 +67,9 @@ type UnimplementedAdminServiceServer struct {
 
 func (UnimplementedAdminServiceServer) GetMachines(context.Context, *emptypb.Empty) (*GetMachinesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMachines not implemented")
+}
+func (UnimplementedAdminServiceServer) GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
 }
 
 // UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -87,6 +101,24 @@ func _AdminService_GetMachines_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetMe(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.AdminService/GetMe",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetMe(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -97,6 +129,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMachines",
 			Handler:    _AdminService_GetMachines_Handler,
+		},
+		{
+			MethodName: "GetMe",
+			Handler:    _AdminService_GetMe_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -26,13 +26,13 @@ type PeerLoginSessionResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// 使用するwireguardのIPアドレス
+	// host ip
 	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	// 使用するwireguardのIP CIDR
+	// host wireguard cidr
 	Cidr string `protobuf:"bytes,2,opt,name=cidr,proto3" json:"cidr,omitempty"`
-	// 端末の名前
+	// host name
 	Host string `protobuf:"bytes,3,opt,name=host,proto3" json:"host,omitempty"`
-	// 端末のOS
+	// host os
 	Os               string `protobuf:"bytes,4,opt,name=os,proto3" json:"os,omitempty"`
 	SignalServerHost string `protobuf:"bytes,5,opt,name=signalServerHost,proto3" json:"signalServerHost,omitempty"`
 	SignalServerPort uint64 `protobuf:"varint,6,opt,name=signalServerPort,proto3" json:"signalServerPort,omitempty"`

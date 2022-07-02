@@ -23,7 +23,6 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginSessionServiceClient interface {
-	// dotshakeクライアントからStream接続を行い立ち上げ完了を受け取る
 	StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginSessionService_StreamPeerLoginSessionClient, error)
 }
 
@@ -70,7 +69,6 @@ func (x *loginSessionServiceStreamPeerLoginSessionClient) Recv() (*PeerLoginSess
 // All implementations should embed UnimplementedLoginSessionServiceServer
 // for forward compatibility
 type LoginSessionServiceServer interface {
-	// dotshakeクライアントからStream接続を行い立ち上げ完了を受け取る
 	StreamPeerLoginSession(LoginSessionService_StreamPeerLoginSessionServer) error
 }
 

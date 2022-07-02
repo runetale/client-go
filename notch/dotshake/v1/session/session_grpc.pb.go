@@ -22,13 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionServiceClient interface {
-	// Auth0ログイン後、/adminにリダイレクトした時に叩かれる
 	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
-	// /adminにリダイレクトし、SignInのRPCを叩いた後にdotshake側で叩くRPC
-	// Webからログインせずにdotshakeから直接叩く場合(ユーザーがまだ作られていない場合)はユーザーの作成、つまりSignInを行う
 	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
-	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
-	// クライアント側でTokenの検証を行った後に叩く
 	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error)
 }
 
@@ -71,13 +66,8 @@ func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *V
 // All implementations should embed UnimplementedSessionServiceServer
 // for forward compatibility
 type SessionServiceServer interface {
-	// Auth0ログイン後、/adminにリダイレクトした時に叩かれる
 	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
-	// /adminにリダイレクトし、SignInのRPCを叩いた後にdotshake側で叩くRPC
-	// Webからログインせずにdotshakeから直接叩く場合(ユーザーがまだ作られていない場合)はユーザーの作成、つまりSignInを行う
 	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
-	// dotshakeのクライアントからログインするときに発行されたURLを踏んだ時に叩かれるRPC
-	// クライアント側でTokenの検証を行った後に叩く
 	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error)
 }
 
