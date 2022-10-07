@@ -25,7 +25,7 @@ const _ = grpc.SupportPackageIsVersion7
 type DaemonServiceClient interface {
 	// connections
 	//
-	Connect(ctx context.Context, opts ...grpc.CallOption) (DaemonService_ConnectClient, error)
+	Connect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
 	Disconnect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
 	GetConnectionStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
 }
@@ -38,35 +38,13 @@ func NewDaemonServiceClient(cc grpc.ClientConnInterface) DaemonServiceClient {
 	return &daemonServiceClient{cc}
 }
 
-func (c *daemonServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (DaemonService_ConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &DaemonService_ServiceDesc.Streams[0], "/protos.DaemonService/Connect", opts...)
+func (c *daemonServiceClient) Connect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error) {
+	out := new(GetConnectionStatusResponse)
+	err := c.cc.Invoke(ctx, "/protos.DaemonService/Connect", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &daemonServiceConnectClient{stream}
-	return x, nil
-}
-
-type DaemonService_ConnectClient interface {
-	Send(*emptypb.Empty) error
-	Recv() (*GetConnectionStatusResponse, error)
-	grpc.ClientStream
-}
-
-type daemonServiceConnectClient struct {
-	grpc.ClientStream
-}
-
-func (x *daemonServiceConnectClient) Send(m *emptypb.Empty) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *daemonServiceConnectClient) Recv() (*GetConnectionStatusResponse, error) {
-	m := new(GetConnectionStatusResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *daemonServiceClient) Disconnect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error) {
@@ -93,7 +71,7 @@ func (c *daemonServiceClient) GetConnectionStatus(ctx context.Context, in *empty
 type DaemonServiceServer interface {
 	// connections
 	//
-	Connect(DaemonService_ConnectServer) error
+	Connect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
 	Disconnect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
 	GetConnectionStatus(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
 }
@@ -102,8 +80,8 @@ type DaemonServiceServer interface {
 type UnimplementedDaemonServiceServer struct {
 }
 
-func (UnimplementedDaemonServiceServer) Connect(DaemonService_ConnectServer) error {
-	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedDaemonServiceServer) Connect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 func (UnimplementedDaemonServiceServer) Disconnect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
@@ -123,30 +101,22 @@ func RegisterDaemonServiceServer(s grpc.ServiceRegistrar, srv DaemonServiceServe
 	s.RegisterService(&DaemonService_ServiceDesc, srv)
 }
 
-func _DaemonService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(DaemonServiceServer).Connect(&daemonServiceConnectServer{stream})
-}
-
-type DaemonService_ConnectServer interface {
-	Send(*GetConnectionStatusResponse) error
-	Recv() (*emptypb.Empty, error)
-	grpc.ServerStream
-}
-
-type daemonServiceConnectServer struct {
-	grpc.ServerStream
-}
-
-func (x *daemonServiceConnectServer) Send(m *GetConnectionStatusResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *daemonServiceConnectServer) Recv() (*emptypb.Empty, error) {
-	m := new(emptypb.Empty)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _DaemonService_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(DaemonServiceServer).Connect(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/protos.DaemonService/Connect",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DaemonServiceServer).Connect(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _DaemonService_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -193,6 +163,10 @@ var DaemonService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DaemonServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Connect",
+			Handler:    _DaemonService_Connect_Handler,
+		},
+		{
 			MethodName: "Disconnect",
 			Handler:    _DaemonService_Disconnect_Handler,
 		},
@@ -201,13 +175,6 @@ var DaemonService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DaemonService_GetConnectionStatus_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "Connect",
-			Handler:       _DaemonService_Connect_Handler,
-			ServerStreams: true,
-			ClientStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "notch/dotshake/v1/daemon.proto",
 }
