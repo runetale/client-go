@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
-	GetMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachineResponse, error)
+	Login(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginResponse, error)
 	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
 }
 
@@ -35,9 +35,9 @@ func NewMachineServiceClient(cc grpc.ClientConnInterface) MachineServiceClient {
 	return &machineServiceClient{cc}
 }
 
-func (c *machineServiceClient) GetMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachineResponse, error) {
-	out := new(GetMachineResponse)
-	err := c.cc.Invoke(ctx, "/protos.MachineService/GetMachine", in, out, opts...)
+func (c *machineServiceClient) Login(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginResponse, error) {
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, "/protos.MachineService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in 
 // All implementations should embed UnimplementedMachineServiceServer
 // for forward compatibility
 type MachineServiceServer interface {
-	GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error)
+	Login(context.Context, *emptypb.Empty) (*LoginResponse, error)
 	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
 }
 
@@ -65,8 +65,8 @@ type MachineServiceServer interface {
 type UnimplementedMachineServiceServer struct {
 }
 
-func (UnimplementedMachineServiceServer) GetMachine(context.Context, *emptypb.Empty) (*GetMachineResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMachine not implemented")
+func (UnimplementedMachineServiceServer) Login(context.Context, *emptypb.Empty) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
@@ -83,20 +83,20 @@ func RegisterMachineServiceServer(s grpc.ServiceRegistrar, srv MachineServiceSer
 	s.RegisterService(&MachineService_ServiceDesc, srv)
 }
 
-func _MachineService_GetMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MachineService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MachineServiceServer).GetMachine(ctx, in)
+		return srv.(MachineServiceServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/protos.MachineService/GetMachine",
+		FullMethod: "/protos.MachineService/Login",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MachineServiceServer).GetMachine(ctx, req.(*emptypb.Empty))
+		return srv.(MachineServiceServer).Login(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -127,8 +127,8 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MachineServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetMachine",
-			Handler:    _MachineService_GetMachine_Handler,
+			MethodName: "Login",
+			Handler:    _MachineService_Login_Handler,
 		},
 		{
 			MethodName: "SyncRemoteMachinesConfig",
