@@ -23,6 +23,9 @@ const (
 	AdminService_GetMachines_FullMethodName = "/protos.AdminService/GetMachines"
 	AdminService_GetMe_FullMethodName       = "/protos.AdminService/GetMe"
 	AdminService_GetUsers_FullMethodName    = "/protos.AdminService/GetUsers"
+	AdminService_CreateGroup_FullMethodName = "/protos.AdminService/CreateGroup"
+	AdminService_DeleteGroup_FullMethodName = "/protos.AdminService/DeleteGroup"
+	AdminService_GetGroup_FullMethodName    = "/protos.AdminService/GetGroup"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -32,6 +35,9 @@ type AdminServiceClient interface {
 	GetMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachinesResponse, error)
 	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
 	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	CreateGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateGroupResponse, error)
+	DeleteGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteGroupResponse, error)
+	GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupResponse, error)
 }
 
 type adminServiceClient struct {
@@ -69,6 +75,33 @@ func (c *adminServiceClient) GetUsers(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
+func (c *adminServiceClient) CreateGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateGroupResponse, error) {
+	out := new(CreateGroupResponse)
+	err := c.cc.Invoke(ctx, AdminService_CreateGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) DeleteGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteGroupResponse, error) {
+	out := new(DeleteGroupResponse)
+	err := c.cc.Invoke(ctx, AdminService_DeleteGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupResponse, error) {
+	out := new(GetGroupResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations should embed UnimplementedAdminServiceServer
 // for forward compatibility
@@ -76,6 +109,9 @@ type AdminServiceServer interface {
 	GetMachines(context.Context, *emptypb.Empty) (*GetMachinesResponse, error)
 	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
 	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
+	CreateGroup(context.Context, *emptypb.Empty) (*CreateGroupResponse, error)
+	DeleteGroup(context.Context, *emptypb.Empty) (*DeleteGroupResponse, error)
+	GetGroup(context.Context, *emptypb.Empty) (*GetGroupResponse, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -90,6 +126,15 @@ func (UnimplementedAdminServiceServer) GetMe(context.Context, *emptypb.Empty) (*
 }
 func (UnimplementedAdminServiceServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateGroup(context.Context, *emptypb.Empty) (*CreateGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) DeleteGroup(context.Context, *emptypb.Empty) (*DeleteGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) GetGroup(context.Context, *emptypb.Empty) (*GetGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
 }
 
 // UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -157,6 +202,60 @@ func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).CreateGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_CreateGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).CreateGroup(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).DeleteGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_DeleteGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).DeleteGroup(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetGroup(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -175,6 +274,18 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUsers",
 			Handler:    _AdminService_GetUsers_Handler,
+		},
+		{
+			MethodName: "CreateGroup",
+			Handler:    _AdminService_CreateGroup_Handler,
+		},
+		{
+			MethodName: "DeleteGroup",
+			Handler:    _AdminService_DeleteGroup_Handler,
+		},
+		{
+			MethodName: "GetGroup",
+			Handler:    _AdminService_GetGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
