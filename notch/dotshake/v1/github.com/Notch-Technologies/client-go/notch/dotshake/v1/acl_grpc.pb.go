@@ -4,7 +4,7 @@
 // - protoc             v3.20.3
 // source: notch/dotshake/v1/acl.proto
 
-package acl
+package v1
 
 import (
 	context "context"
