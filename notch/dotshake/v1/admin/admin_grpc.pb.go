@@ -23,9 +23,14 @@ const (
 	AdminService_GetMachines_FullMethodName = "/protos.AdminService/GetMachines"
 	AdminService_GetMe_FullMethodName       = "/protos.AdminService/GetMe"
 	AdminService_GetUsers_FullMethodName    = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName   = "/protos.AdminService/CreateAcl"
+	AdminService_DeleteAcl_FullMethodName   = "/protos.AdminService/DeleteAcl"
+	AdminService_GetAcl_FullMethodName      = "/protos.AdminService/GetAcl"
+	AdminService_PatchAcl_FullMethodName    = "/protos.AdminService/PatchAcl"
 	AdminService_CreateGroup_FullMethodName = "/protos.AdminService/CreateGroup"
 	AdminService_DeleteGroup_FullMethodName = "/protos.AdminService/DeleteGroup"
 	AdminService_GetGroup_FullMethodName    = "/protos.AdminService/GetGroup"
+	AdminService_PatchGroup_FullMethodName  = "/protos.AdminService/PatchGroup"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -35,9 +40,14 @@ type AdminServiceClient interface {
 	GetMachines(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMachinesResponse, error)
 	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
 	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
-	CreateGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateGroupResponse, error)
-	DeleteGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteGroupResponse, error)
-	GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupResponse, error)
+	CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
+	DeleteAcl(ctx context.Context, in *DeleteAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
+	GetAcl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AclsResponse, error)
+	PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
+	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error)
+	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 }
 
 type adminServiceClient struct {
@@ -75,8 +85,44 @@ func (c *adminServiceClient) GetUsers(ctx context.Context, in *emptypb.Empty, op
 	return out, nil
 }
 
-func (c *adminServiceClient) CreateGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateGroupResponse, error) {
-	out := new(CreateGroupResponse)
+func (c *adminServiceClient) CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_CreateAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) DeleteAcl(ctx context.Context, in *DeleteAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_DeleteAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetAcl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AclsResponse, error) {
+	out := new(AclsResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_PatchAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
 	err := c.cc.Invoke(ctx, AdminService_CreateGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,8 +130,8 @@ func (c *adminServiceClient) CreateGroup(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *adminServiceClient) DeleteGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*DeleteGroupResponse, error) {
-	out := new(DeleteGroupResponse)
+func (c *adminServiceClient) DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
 	err := c.cc.Invoke(ctx, AdminService_DeleteGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -93,9 +139,18 @@ func (c *adminServiceClient) DeleteGroup(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *adminServiceClient) GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupResponse, error) {
-	out := new(GetGroupResponse)
+func (c *adminServiceClient) GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error) {
+	out := new(GroupsResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
+	out := new(GroupResponse)
+	err := c.cc.Invoke(ctx, AdminService_PatchGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -109,9 +164,14 @@ type AdminServiceServer interface {
 	GetMachines(context.Context, *emptypb.Empty) (*GetMachinesResponse, error)
 	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
 	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
-	CreateGroup(context.Context, *emptypb.Empty) (*CreateGroupResponse, error)
-	DeleteGroup(context.Context, *emptypb.Empty) (*DeleteGroupResponse, error)
-	GetGroup(context.Context, *emptypb.Empty) (*GetGroupResponse, error)
+	CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error)
+	DeleteAcl(context.Context, *DeleteAclRequest) (*AclResponse, error)
+	GetAcl(context.Context, *emptypb.Empty) (*AclsResponse, error)
+	PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error)
+	CreateGroup(context.Context, *CreateGroupRequest) (*GroupResponse, error)
+	DeleteGroup(context.Context, *DeleteGroupRequest) (*GroupResponse, error)
+	GetGroup(context.Context, *emptypb.Empty) (*GroupsResponse, error)
+	PatchGroup(context.Context, *PatchGroupRequest) (*GroupResponse, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -127,14 +187,29 @@ func (UnimplementedAdminServiceServer) GetMe(context.Context, *emptypb.Empty) (*
 func (UnimplementedAdminServiceServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
-func (UnimplementedAdminServiceServer) CreateGroup(context.Context, *emptypb.Empty) (*CreateGroupResponse, error) {
+func (UnimplementedAdminServiceServer) CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) DeleteAcl(context.Context, *DeleteAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) GetAcl(context.Context, *emptypb.Empty) (*AclsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*GroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
 }
-func (UnimplementedAdminServiceServer) DeleteGroup(context.Context, *emptypb.Empty) (*DeleteGroupResponse, error) {
+func (UnimplementedAdminServiceServer) DeleteGroup(context.Context, *DeleteGroupRequest) (*GroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
 }
-func (UnimplementedAdminServiceServer) GetGroup(context.Context, *emptypb.Empty) (*GetGroupResponse, error) {
+func (UnimplementedAdminServiceServer) GetGroup(context.Context, *emptypb.Empty) (*GroupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*GroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
 }
 
 // UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -202,8 +277,80 @@ func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_CreateAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAclRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).CreateAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_CreateAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).CreateAcl(ctx, req.(*CreateAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_DeleteAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAclRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).DeleteAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_DeleteAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).DeleteAcl(ctx, req.(*DeleteAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_GetAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetAcl(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_PatchAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchAclRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).PatchAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_PatchAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).PatchAcl(ctx, req.(*PatchAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -215,13 +362,13 @@ func _AdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: AdminService_CreateGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).CreateGroup(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _AdminService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(DeleteGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -233,7 +380,7 @@ func _AdminService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: AdminService_DeleteGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).DeleteGroup(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).DeleteGroup(ctx, req.(*DeleteGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -252,6 +399,24 @@ func _AdminService_GetGroup_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdminServiceServer).GetGroup(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).PatchGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_PatchGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).PatchGroup(ctx, req.(*PatchGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -276,6 +441,22 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_GetUsers_Handler,
 		},
 		{
+			MethodName: "CreateAcl",
+			Handler:    _AdminService_CreateAcl_Handler,
+		},
+		{
+			MethodName: "DeleteAcl",
+			Handler:    _AdminService_DeleteAcl_Handler,
+		},
+		{
+			MethodName: "GetAcl",
+			Handler:    _AdminService_GetAcl_Handler,
+		},
+		{
+			MethodName: "PatchAcl",
+			Handler:    _AdminService_PatchAcl_Handler,
+		},
+		{
 			MethodName: "CreateGroup",
 			Handler:    _AdminService_CreateGroup_Handler,
 		},
@@ -286,6 +467,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGroup",
 			Handler:    _AdminService_GetGroup_Handler,
+		},
+		{
+			MethodName: "PatchGroup",
+			Handler:    _AdminService_PatchGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
