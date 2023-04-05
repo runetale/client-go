@@ -20,17 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdminService_GetMachines_FullMethodName = "/protos.AdminService/GetMachines"
-	AdminService_GetMe_FullMethodName       = "/protos.AdminService/GetMe"
-	AdminService_GetUsers_FullMethodName    = "/protos.AdminService/GetUsers"
-	AdminService_CreateAcl_FullMethodName   = "/protos.AdminService/CreateAcl"
-	AdminService_DeleteAcl_FullMethodName   = "/protos.AdminService/DeleteAcl"
-	AdminService_GetAcl_FullMethodName      = "/protos.AdminService/GetAcl"
-	AdminService_PatchAcl_FullMethodName    = "/protos.AdminService/PatchAcl"
-	AdminService_CreateGroup_FullMethodName = "/protos.AdminService/CreateGroup"
-	AdminService_DeleteGroup_FullMethodName = "/protos.AdminService/DeleteGroup"
-	AdminService_GetGroup_FullMethodName    = "/protos.AdminService/GetGroup"
-	AdminService_PatchGroup_FullMethodName  = "/protos.AdminService/PatchGroup"
+	AdminService_GetMachines_FullMethodName      = "/protos.AdminService/GetMachines"
+	AdminService_GetMe_FullMethodName            = "/protos.AdminService/GetMe"
+	AdminService_GetUsers_FullMethodName         = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName        = "/protos.AdminService/CreateAcl"
+	AdminService_DeleteAcl_FullMethodName        = "/protos.AdminService/DeleteAcl"
+	AdminService_GetAcl_FullMethodName           = "/protos.AdminService/GetAcl"
+	AdminService_PatchAcl_FullMethodName         = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName      = "/protos.AdminService/CreateGroup"
+	AdminService_DeleteGroup_FullMethodName      = "/protos.AdminService/DeleteGroup"
+	AdminService_GetGroupAndUsers_FullMethodName = "/protos.AdminService/GetGroupAndUsers"
+	AdminService_GetGroup_FullMethodName         = "/protos.AdminService/GetGroup"
+	AdminService_PatchGroup_FullMethodName       = "/protos.AdminService/PatchGroup"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -46,6 +47,7 @@ type AdminServiceClient interface {
 	PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
+	GetGroupAndUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error)
 	GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error)
 	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
 }
@@ -139,6 +141,15 @@ func (c *adminServiceClient) DeleteGroup(ctx context.Context, in *DeleteGroupReq
 	return out, nil
 }
 
+func (c *adminServiceClient) GetGroupAndUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error) {
+	out := new(GroupsResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetGroupAndUsers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *adminServiceClient) GetGroup(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GroupsResponse, error) {
 	out := new(GroupsResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetGroup_FullMethodName, in, out, opts...)
@@ -170,6 +181,7 @@ type AdminServiceServer interface {
 	PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error)
 	CreateGroup(context.Context, *CreateGroupRequest) (*GroupResponse, error)
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*GroupResponse, error)
+	GetGroupAndUsers(context.Context, *emptypb.Empty) (*GroupsResponse, error)
 	GetGroup(context.Context, *emptypb.Empty) (*GroupsResponse, error)
 	PatchGroup(context.Context, *PatchGroupRequest) (*GroupResponse, error)
 }
@@ -204,6 +216,9 @@ func (UnimplementedAdminServiceServer) CreateGroup(context.Context, *CreateGroup
 }
 func (UnimplementedAdminServiceServer) DeleteGroup(context.Context, *DeleteGroupRequest) (*GroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) GetGroupAndUsers(context.Context, *emptypb.Empty) (*GroupsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroupAndUsers not implemented")
 }
 func (UnimplementedAdminServiceServer) GetGroup(context.Context, *emptypb.Empty) (*GroupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
@@ -385,6 +400,24 @@ func _AdminService_DeleteGroup_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetGroupAndUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetGroupAndUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetGroupAndUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetGroupAndUsers(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdminService_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -463,6 +496,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteGroup",
 			Handler:    _AdminService_DeleteGroup_Handler,
+		},
+		{
+			MethodName: "GetGroupAndUsers",
+			Handler:    _AdminService_GetGroupAndUsers_Handler,
 		},
 		{
 			MethodName: "GetGroup",
