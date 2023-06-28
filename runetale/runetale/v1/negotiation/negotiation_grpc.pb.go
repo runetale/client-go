@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: notch/dotshake/v1/negotiation.proto
+// source: runetale/runetale/v1/negotiation.proto
 
 package negotiation
 
@@ -248,5 +248,5 @@ var NegotiationService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "notch/dotshake/v1/negotiation.proto",
+	Metadata: "runetale/runetale/v1/negotiation.proto",
 }

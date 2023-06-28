@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: notch/dotshake/v1/login_session.proto
+// source: runetale/runetale/v1/login_session.proto
 
 package login_session
 
@@ -136,5 +136,5 @@ var LoginSessionService_ServiceDesc = grpc.ServiceDesc{
 			ClientStreams: true,
 		},
 	},
-	Metadata: "notch/dotshake/v1/login_session.proto",
+	Metadata: "runetale/runetale/v1/login_session.proto",
 }

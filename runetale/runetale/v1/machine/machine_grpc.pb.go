@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: notch/dotshake/v1/machine.proto
+// source: runetale/runetale/v1/machine.proto
 
 package machine
 
@@ -141,5 +141,5 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "notch/dotshake/v1/machine.proto",
+	Metadata: "runetale/runetale/v1/machine.proto",
 }

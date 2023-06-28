@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: notch/dotshake/v1/rtc.proto
+// source: runetale/runetale/v1/rtc.proto
 
 package rtc
 
@@ -104,5 +104,5 @@ var RtcService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "notch/dotshake/v1/rtc.proto",
+	Metadata: "runetale/runetale/v1/rtc.proto",
 }

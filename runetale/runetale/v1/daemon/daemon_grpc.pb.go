@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.20.3
-// source: notch/dotshake/v1/daemon.proto
+// source: runetale/runetale/v1/daemon.proto
 
 package daemon
 
@@ -180,5 +180,5 @@ var DaemonService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "notch/dotshake/v1/daemon.proto",
+	Metadata: "runetale/runetale/v1/daemon.proto",
 }
