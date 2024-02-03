@@ -19,87 +19,87 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	LoginService_Login_FullMethodName = "/protos.LoginService/Login"
+	OIDCService_Login_FullMethodName = "/protos.OIDCService/Login"
 )
 
-// LoginServiceClient is the client API for LoginService service.
+// OIDCServiceClient is the client API for OIDCService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type LoginServiceClient interface {
+type OIDCServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 }
 
-type loginServiceClient struct {
+type oIDCServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewLoginServiceClient(cc grpc.ClientConnInterface) LoginServiceClient {
-	return &loginServiceClient{cc}
+func NewOIDCServiceClient(cc grpc.ClientConnInterface) OIDCServiceClient {
+	return &oIDCServiceClient{cc}
 }
 
-func (c *loginServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+func (c *oIDCServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
 	out := new(LoginResponse)
-	err := c.cc.Invoke(ctx, LoginService_Login_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, OIDCService_Login_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// LoginServiceServer is the server API for LoginService service.
-// All implementations should embed UnimplementedLoginServiceServer
+// OIDCServiceServer is the server API for OIDCService service.
+// All implementations should embed UnimplementedOIDCServiceServer
 // for forward compatibility
-type LoginServiceServer interface {
+type OIDCServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 }
 
-// UnimplementedLoginServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedLoginServiceServer struct {
+// UnimplementedOIDCServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedOIDCServiceServer struct {
 }
 
-func (UnimplementedLoginServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+func (UnimplementedOIDCServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 
-// UnsafeLoginServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to LoginServiceServer will
+// UnsafeOIDCServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OIDCServiceServer will
 // result in compilation errors.
-type UnsafeLoginServiceServer interface {
-	mustEmbedUnimplementedLoginServiceServer()
+type UnsafeOIDCServiceServer interface {
+	mustEmbedUnimplementedOIDCServiceServer()
 }
 
-func RegisterLoginServiceServer(s grpc.ServiceRegistrar, srv LoginServiceServer) {
-	s.RegisterService(&LoginService_ServiceDesc, srv)
+func RegisterOIDCServiceServer(s grpc.ServiceRegistrar, srv OIDCServiceServer) {
+	s.RegisterService(&OIDCService_ServiceDesc, srv)
 }
 
-func _LoginService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _OIDCService_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(LoginRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LoginServiceServer).Login(ctx, in)
+		return srv.(OIDCServiceServer).Login(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: LoginService_Login_FullMethodName,
+		FullMethod: OIDCService_Login_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LoginServiceServer).Login(ctx, req.(*LoginRequest))
+		return srv.(OIDCServiceServer).Login(ctx, req.(*LoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
+// OIDCService_ServiceDesc is the grpc.ServiceDesc for OIDCService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var LoginService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.LoginService",
-	HandlerType: (*LoginServiceServer)(nil),
+var OIDCService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.OIDCService",
+	HandlerType: (*OIDCServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Login",
-			Handler:    _LoginService_Login_Handler,
+			Handler:    _OIDCService_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
