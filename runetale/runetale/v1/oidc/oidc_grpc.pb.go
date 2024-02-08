@@ -29,7 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OIDCServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	Authenticate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	Authenticate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AuthenticateResponse, error)
 }
 
 type oIDCServiceClient struct {
@@ -49,8 +49,8 @@ func (c *oIDCServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *oIDCServiceClient) Authenticate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *oIDCServiceClient) Authenticate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AuthenticateResponse, error) {
+	out := new(AuthenticateResponse)
 	err := c.cc.Invoke(ctx, OIDCService_Authenticate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func (c *oIDCServiceClient) Authenticate(ctx context.Context, in *emptypb.Empty,
 // for forward compatibility
 type OIDCServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	Authenticate(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	Authenticate(context.Context, *emptypb.Empty) (*AuthenticateResponse, error)
 }
 
 // UnimplementedOIDCServiceServer should be embedded to have forward compatible implementations.
@@ -73,7 +73,7 @@ type UnimplementedOIDCServiceServer struct {
 func (UnimplementedOIDCServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedOIDCServiceServer) Authenticate(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedOIDCServiceServer) Authenticate(context.Context, *emptypb.Empty) (*AuthenticateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
 }
 
