@@ -20,7 +20,6 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MachineService_Join_FullMethodName                     = "/protos.MachineService/Join"
 	MachineService_SyncRemoteMachinesConfig_FullMethodName = "/protos.MachineService/SyncRemoteMachinesConfig"
 )
 
@@ -28,7 +27,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
-	Join(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*JoinResponse, error)
 	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
 }
 
@@ -38,15 +36,6 @@ type machineServiceClient struct {
 
 func NewMachineServiceClient(cc grpc.ClientConnInterface) MachineServiceClient {
 	return &machineServiceClient{cc}
-}
-
-func (c *machineServiceClient) Join(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*JoinResponse, error) {
-	out := new(JoinResponse)
-	err := c.cc.Invoke(ctx, MachineService_Join_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error) {
@@ -62,7 +51,6 @@ func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in 
 // All implementations should embed UnimplementedMachineServiceServer
 // for forward compatibility
 type MachineServiceServer interface {
-	Join(context.Context, *emptypb.Empty) (*JoinResponse, error)
 	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
 }
 
@@ -70,9 +58,6 @@ type MachineServiceServer interface {
 type UnimplementedMachineServiceServer struct {
 }
 
-func (UnimplementedMachineServiceServer) Join(context.Context, *emptypb.Empty) (*JoinResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
-}
 func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
 }
@@ -86,24 +71,6 @@ type UnsafeMachineServiceServer interface {
 
 func RegisterMachineServiceServer(s grpc.ServiceRegistrar, srv MachineServiceServer) {
 	s.RegisterService(&MachineService_ServiceDesc, srv)
-}
-
-func _MachineService_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MachineServiceServer).Join(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: MachineService_Join_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MachineServiceServer).Join(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _MachineService_SyncRemoteMachinesConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -131,10 +98,6 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.MachineService",
 	HandlerType: (*MachineServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "Join",
-			Handler:    _MachineService_Join_Handler,
-		},
 		{
 			MethodName: "SyncRemoteMachinesConfig",
 			Handler:    _MachineService_SyncRemoteMachinesConfig_Handler,

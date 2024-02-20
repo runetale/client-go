@@ -20,6 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	LoginSessionService_Join_FullMethodName                   = "/protos.LoginSessionService/Join"
 	LoginSessionService_StreamPeerLoginSession_FullMethodName = "/protos.LoginSessionService/StreamPeerLoginSession"
 )
 
@@ -27,6 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginSessionServiceClient interface {
+	Join(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*JoinResponse, error)
 	StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginSessionService_StreamPeerLoginSessionClient, error)
 }
 
@@ -36,6 +38,15 @@ type loginSessionServiceClient struct {
 
 func NewLoginSessionServiceClient(cc grpc.ClientConnInterface) LoginSessionServiceClient {
 	return &loginSessionServiceClient{cc}
+}
+
+func (c *loginSessionServiceClient) Join(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*JoinResponse, error) {
+	out := new(JoinResponse)
+	err := c.cc.Invoke(ctx, LoginSessionService_Join_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *loginSessionServiceClient) StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginSessionService_StreamPeerLoginSessionClient, error) {
@@ -73,6 +84,7 @@ func (x *loginSessionServiceStreamPeerLoginSessionClient) Recv() (*PeerLoginSess
 // All implementations should embed UnimplementedLoginSessionServiceServer
 // for forward compatibility
 type LoginSessionServiceServer interface {
+	Join(context.Context, *emptypb.Empty) (*JoinResponse, error)
 	StreamPeerLoginSession(LoginSessionService_StreamPeerLoginSessionServer) error
 }
 
@@ -80,6 +92,9 @@ type LoginSessionServiceServer interface {
 type UnimplementedLoginSessionServiceServer struct {
 }
 
+func (UnimplementedLoginSessionServiceServer) Join(context.Context, *emptypb.Empty) (*JoinResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
+}
 func (UnimplementedLoginSessionServiceServer) StreamPeerLoginSession(LoginSessionService_StreamPeerLoginSessionServer) error {
 	return status.Errorf(codes.Unimplemented, "method StreamPeerLoginSession not implemented")
 }
@@ -93,6 +108,24 @@ type UnsafeLoginSessionServiceServer interface {
 
 func RegisterLoginSessionServiceServer(s grpc.ServiceRegistrar, srv LoginSessionServiceServer) {
 	s.RegisterService(&LoginSessionService_ServiceDesc, srv)
+}
+
+func _LoginSessionService_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginSessionServiceServer).Join(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginSessionService_Join_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginSessionServiceServer).Join(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _LoginSessionService_StreamPeerLoginSession_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -127,7 +160,12 @@ func (x *loginSessionServiceStreamPeerLoginSessionServer) Recv() (*emptypb.Empty
 var LoginSessionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.LoginSessionService",
 	HandlerType: (*LoginSessionServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Join",
+			Handler:    _LoginSessionService_Join_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StreamPeerLoginSession",
