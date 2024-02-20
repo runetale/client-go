@@ -19,8 +19,6 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SessionService_SignIn_FullMethodName                 = "/protos.SessionService/SignIn"
-	SessionService_SignUp_FullMethodName                 = "/protos.SessionService/SignUp"
 	SessionService_VerifyPeerLoginSession_FullMethodName = "/protos.SessionService/VerifyPeerLoginSession"
 )
 
@@ -28,8 +26,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionServiceClient interface {
-	SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error)
-	SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error)
 	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error)
 }
 
@@ -39,24 +35,6 @@ type sessionServiceClient struct {
 
 func NewSessionServiceClient(cc grpc.ClientConnInterface) SessionServiceClient {
 	return &sessionServiceClient{cc}
-}
-
-func (c *sessionServiceClient) SignIn(ctx context.Context, in *SignInRequest, opts ...grpc.CallOption) (*SignInResponse, error) {
-	out := new(SignInResponse)
-	err := c.cc.Invoke(ctx, SessionService_SignIn_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *sessionServiceClient) SignUp(ctx context.Context, in *SignUpRequest, opts ...grpc.CallOption) (*SignUpResponse, error) {
-	out := new(SignUpResponse)
-	err := c.cc.Invoke(ctx, SessionService_SignUp_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error) {
@@ -72,8 +50,6 @@ func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *V
 // All implementations should embed UnimplementedSessionServiceServer
 // for forward compatibility
 type SessionServiceServer interface {
-	SignIn(context.Context, *SignInRequest) (*SignInResponse, error)
-	SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error)
 	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error)
 }
 
@@ -81,12 +57,6 @@ type SessionServiceServer interface {
 type UnimplementedSessionServiceServer struct {
 }
 
-func (UnimplementedSessionServiceServer) SignIn(context.Context, *SignInRequest) (*SignInResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
-}
-func (UnimplementedSessionServiceServer) SignUp(context.Context, *SignUpRequest) (*SignUpResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
-}
 func (UnimplementedSessionServiceServer) VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method VerifyPeerLoginSession not implemented")
 }
@@ -100,42 +70,6 @@ type UnsafeSessionServiceServer interface {
 
 func RegisterSessionServiceServer(s grpc.ServiceRegistrar, srv SessionServiceServer) {
 	s.RegisterService(&SessionService_ServiceDesc, srv)
-}
-
-func _SessionService_SignIn_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignInRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).SignIn(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_SignIn_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).SignIn(ctx, req.(*SignInRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SessionService_SignUp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignUpRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SessionServiceServer).SignUp(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SessionService_SignUp_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).SignUp(ctx, req.(*SignUpRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _SessionService_VerifyPeerLoginSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -163,14 +97,6 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "protos.SessionService",
 	HandlerType: (*SessionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "SignIn",
-			Handler:    _SessionService_SignIn_Handler,
-		},
-		{
-			MethodName: "SignUp",
-			Handler:    _SessionService_SignUp_Handler,
-		},
 		{
 			MethodName: "VerifyPeerLoginSession",
 			Handler:    _SessionService_VerifyPeerLoginSession_Handler,
