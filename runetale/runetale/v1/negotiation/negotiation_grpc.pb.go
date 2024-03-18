@@ -20,10 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NegotiationService_Offer_FullMethodName        = "/protos.NegotiationService/Offer"
-	NegotiationService_Answer_FullMethodName       = "/protos.NegotiationService/Answer"
-	NegotiationService_Candidate_FullMethodName    = "/protos.NegotiationService/Candidate"
-	NegotiationService_StartConnect_FullMethodName = "/protos.NegotiationService/StartConnect"
+	NegotiationService_Offer_FullMethodName     = "/protos.NegotiationService/Offer"
+	NegotiationService_Answer_FullMethodName    = "/protos.NegotiationService/Answer"
+	NegotiationService_Candidate_FullMethodName = "/protos.NegotiationService/Candidate"
+	NegotiationService_Connect_FullMethodName   = "/protos.NegotiationService/Connect"
 )
 
 // NegotiationServiceClient is the client API for NegotiationService service.
@@ -33,7 +33,7 @@ type NegotiationServiceClient interface {
 	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	StartConnect(ctx context.Context, opts ...grpc.CallOption) (NegotiationService_StartConnectClient, error)
+	Connect(ctx context.Context, opts ...grpc.CallOption) (NegotiationService_ConnectClient, error)
 }
 
 type negotiationServiceClient struct {
@@ -71,30 +71,30 @@ func (c *negotiationServiceClient) Candidate(ctx context.Context, in *CandidateR
 	return out, nil
 }
 
-func (c *negotiationServiceClient) StartConnect(ctx context.Context, opts ...grpc.CallOption) (NegotiationService_StartConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &NegotiationService_ServiceDesc.Streams[0], NegotiationService_StartConnect_FullMethodName, opts...)
+func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (NegotiationService_ConnectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &NegotiationService_ServiceDesc.Streams[0], NegotiationService_Connect_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &negotiationServiceStartConnectClient{stream}
+	x := &negotiationServiceConnectClient{stream}
 	return x, nil
 }
 
-type NegotiationService_StartConnectClient interface {
+type NegotiationService_ConnectClient interface {
 	Send(*NegotiationRequest) error
 	Recv() (*NegotiationRequest, error)
 	grpc.ClientStream
 }
 
-type negotiationServiceStartConnectClient struct {
+type negotiationServiceConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *negotiationServiceStartConnectClient) Send(m *NegotiationRequest) error {
+func (x *negotiationServiceConnectClient) Send(m *NegotiationRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *negotiationServiceStartConnectClient) Recv() (*NegotiationRequest, error) {
+func (x *negotiationServiceConnectClient) Recv() (*NegotiationRequest, error) {
 	m := new(NegotiationRequest)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ type NegotiationServiceServer interface {
 	Offer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error)
-	StartConnect(NegotiationService_StartConnectServer) error
+	Connect(NegotiationService_ConnectServer) error
 }
 
 // UnimplementedNegotiationServiceServer should be embedded to have forward compatible implementations.
@@ -125,8 +125,8 @@ func (UnimplementedNegotiationServiceServer) Answer(context.Context, *HandshakeR
 func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Candidate not implemented")
 }
-func (UnimplementedNegotiationServiceServer) StartConnect(NegotiationService_StartConnectServer) error {
-	return status.Errorf(codes.Unimplemented, "method StartConnect not implemented")
+func (UnimplementedNegotiationServiceServer) Connect(NegotiationService_ConnectServer) error {
+	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 
 // UnsafeNegotiationServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -194,25 +194,25 @@ func _NegotiationService_Candidate_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NegotiationService_StartConnect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NegotiationServiceServer).StartConnect(&negotiationServiceStartConnectServer{stream})
+func _NegotiationService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NegotiationServiceServer).Connect(&negotiationServiceConnectServer{stream})
 }
 
-type NegotiationService_StartConnectServer interface {
+type NegotiationService_ConnectServer interface {
 	Send(*NegotiationRequest) error
 	Recv() (*NegotiationRequest, error)
 	grpc.ServerStream
 }
 
-type negotiationServiceStartConnectServer struct {
+type negotiationServiceConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *negotiationServiceStartConnectServer) Send(m *NegotiationRequest) error {
+func (x *negotiationServiceConnectServer) Send(m *NegotiationRequest) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *negotiationServiceStartConnectServer) Recv() (*NegotiationRequest, error) {
+func (x *negotiationServiceConnectServer) Recv() (*NegotiationRequest, error) {
 	m := new(NegotiationRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -242,8 +242,8 @@ var NegotiationService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StartConnect",
-			Handler:       _NegotiationService_StartConnect_Handler,
+			StreamName:    "Connect",
+			Handler:       _NegotiationService_Connect_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
