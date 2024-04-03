@@ -220,7 +220,6 @@ var FleetService_ServiceDesc = grpc.ServiceDesc{
 
 const (
 	FleetDetailService_AddNewSourcesForFleet_FullMethodName = "/protos.FleetDetailService/AddNewSourcesForFleet"
-	FleetDetailService_AddResources_FullMethodName          = "/protos.FleetDetailService/AddResources"
 )
 
 // FleetDetailServiceClient is the client API for FleetDetailService service.
@@ -228,7 +227,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FleetDetailServiceClient interface {
 	AddNewSourcesForFleet(ctx context.Context, in *AddNewSourcesForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddResources(ctx context.Context, in *AddResourcesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type fleetDetailServiceClient struct {
@@ -248,21 +246,11 @@ func (c *fleetDetailServiceClient) AddNewSourcesForFleet(ctx context.Context, in
 	return out, nil
 }
 
-func (c *fleetDetailServiceClient) AddResources(ctx context.Context, in *AddResourcesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, FleetDetailService_AddResources_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // FleetDetailServiceServer is the server API for FleetDetailService service.
 // All implementations should embed UnimplementedFleetDetailServiceServer
 // for forward compatibility
 type FleetDetailServiceServer interface {
 	AddNewSourcesForFleet(context.Context, *AddNewSourcesForFleetRequest) (*emptypb.Empty, error)
-	AddResources(context.Context, *AddResourcesRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedFleetDetailServiceServer should be embedded to have forward compatible implementations.
@@ -271,9 +259,6 @@ type UnimplementedFleetDetailServiceServer struct {
 
 func (UnimplementedFleetDetailServiceServer) AddNewSourcesForFleet(context.Context, *AddNewSourcesForFleetRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNewSourcesForFleet not implemented")
-}
-func (UnimplementedFleetDetailServiceServer) AddResources(context.Context, *AddResourcesRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddResources not implemented")
 }
 
 // UnsafeFleetDetailServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -305,24 +290,6 @@ func _FleetDetailService_AddNewSourcesForFleet_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _FleetDetailService_AddResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddResourcesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FleetDetailServiceServer).AddResources(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: FleetDetailService_AddResources_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetDetailServiceServer).AddResources(ctx, req.(*AddResourcesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // FleetDetailService_ServiceDesc is the grpc.ServiceDesc for FleetDetailService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -333,10 +300,6 @@ var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddNewSourcesForFleet",
 			Handler:    _FleetDetailService_AddNewSourcesForFleet_Handler,
-		},
-		{
-			MethodName: "AddResources",
-			Handler:    _FleetDetailService_AddResources_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

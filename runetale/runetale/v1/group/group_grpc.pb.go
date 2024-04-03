@@ -217,3 +217,91 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "runetale/runetale/v1/group.proto",
 }
+
+const (
+	GroupDetailService_AddNewDstForGroup_FullMethodName = "/protos.GroupDetailService/AddNewDstForGroup"
+)
+
+// GroupDetailServiceClient is the client API for GroupDetailService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type GroupDetailServiceClient interface {
+	AddNewDstForGroup(ctx context.Context, in *AddNewDstForGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+}
+
+type groupDetailServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewGroupDetailServiceClient(cc grpc.ClientConnInterface) GroupDetailServiceClient {
+	return &groupDetailServiceClient{cc}
+}
+
+func (c *groupDetailServiceClient) AddNewDstForGroup(ctx context.Context, in *AddNewDstForGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, GroupDetailService_AddNewDstForGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// GroupDetailServiceServer is the server API for GroupDetailService service.
+// All implementations should embed UnimplementedGroupDetailServiceServer
+// for forward compatibility
+type GroupDetailServiceServer interface {
+	AddNewDstForGroup(context.Context, *AddNewDstForGroupRequest) (*emptypb.Empty, error)
+}
+
+// UnimplementedGroupDetailServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedGroupDetailServiceServer struct {
+}
+
+func (UnimplementedGroupDetailServiceServer) AddNewDstForGroup(context.Context, *AddNewDstForGroupRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewDstForGroup not implemented")
+}
+
+// UnsafeGroupDetailServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to GroupDetailServiceServer will
+// result in compilation errors.
+type UnsafeGroupDetailServiceServer interface {
+	mustEmbedUnimplementedGroupDetailServiceServer()
+}
+
+func RegisterGroupDetailServiceServer(s grpc.ServiceRegistrar, srv GroupDetailServiceServer) {
+	s.RegisterService(&GroupDetailService_ServiceDesc, srv)
+}
+
+func _GroupDetailService_AddNewDstForGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNewDstForGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupDetailServiceServer).AddNewDstForGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GroupDetailService_AddNewDstForGroup_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupDetailServiceServer).AddNewDstForGroup(ctx, req.(*AddNewDstForGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// GroupDetailService_ServiceDesc is the grpc.ServiceDesc for GroupDetailService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var GroupDetailService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.GroupDetailService",
+	HandlerType: (*GroupDetailServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddNewDstForGroup",
+			Handler:    _GroupDetailService_AddNewDstForGroup_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "runetale/runetale/v1/group.proto",
+}
