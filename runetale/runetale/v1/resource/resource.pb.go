@@ -82,7 +82,7 @@ type AddNewSourcesForResourceRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id       uint64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id       uint64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // resource id
 	UserIds  []uint64 `protobuf:"varint,2,rep,packed,name=userIds,proto3" json:"userIds,omitempty"`
 	GroupIds []uint64 `protobuf:"varint,3,rep,packed,name=groupIds,proto3" json:"groupIds,omitempty"`
 }
@@ -145,7 +145,7 @@ type AddFleetsRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id       uint64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id       uint64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"` // resource id
 	FleetIds []uint64 `protobuf:"varint,3,rep,packed,name=fleetIds,proto3" json:"fleetIds,omitempty"`
 }
 
