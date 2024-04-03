@@ -7,6 +7,7 @@
 package group
 
 import (
+	common "./common"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -30,10 +31,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GroupServiceClient interface {
-	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
-	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
-	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error)
-	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupsResponse, error)
+	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*common.Group, error)
+	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*common.Group, error)
+	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*common.Group, error)
+	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error)
 }
 
 type groupServiceClient struct {
@@ -44,8 +45,8 @@ func NewGroupServiceClient(cc grpc.ClientConnInterface) GroupServiceClient {
 	return &groupServiceClient{cc}
 }
 
-func (c *groupServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
-	out := new(GroupResponse)
+func (c *groupServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*common.Group, error) {
+	out := new(common.Group)
 	err := c.cc.Invoke(ctx, GroupService_CreateGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,8 +54,8 @@ func (c *groupServiceClient) CreateGroup(ctx context.Context, in *CreateGroupReq
 	return out, nil
 }
 
-func (c *groupServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
-	out := new(GroupResponse)
+func (c *groupServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*common.Group, error) {
+	out := new(common.Group)
 	err := c.cc.Invoke(ctx, GroupService_PatchGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,8 +63,8 @@ func (c *groupServiceClient) PatchGroup(ctx context.Context, in *PatchGroupReque
 	return out, nil
 }
 
-func (c *groupServiceClient) GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*GroupResponse, error) {
-	out := new(GroupResponse)
+func (c *groupServiceClient) GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*common.Group, error) {
+	out := new(common.Group)
 	err := c.cc.Invoke(ctx, GroupService_GetGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -71,8 +72,8 @@ func (c *groupServiceClient) GetGroup(ctx context.Context, in *GetGroupRequest, 
 	return out, nil
 }
 
-func (c *groupServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetGroupsResponse, error) {
-	out := new(GetGroupsResponse)
+func (c *groupServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error) {
+	out := new(Groups)
 	err := c.cc.Invoke(ctx, GroupService_GetGroups_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,26 +85,26 @@ func (c *groupServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, o
 // All implementations should embed UnimplementedGroupServiceServer
 // for forward compatibility
 type GroupServiceServer interface {
-	CreateGroup(context.Context, *CreateGroupRequest) (*GroupResponse, error)
-	PatchGroup(context.Context, *PatchGroupRequest) (*GroupResponse, error)
-	GetGroup(context.Context, *GetGroupRequest) (*GroupResponse, error)
-	GetGroups(context.Context, *emptypb.Empty) (*GetGroupsResponse, error)
+	CreateGroup(context.Context, *CreateGroupRequest) (*common.Group, error)
+	PatchGroup(context.Context, *PatchGroupRequest) (*common.Group, error)
+	GetGroup(context.Context, *GetGroupRequest) (*common.Group, error)
+	GetGroups(context.Context, *emptypb.Empty) (*Groups, error)
 }
 
 // UnimplementedGroupServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedGroupServiceServer struct {
 }
 
-func (UnimplementedGroupServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*GroupResponse, error) {
+func (UnimplementedGroupServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*common.Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
 }
-func (UnimplementedGroupServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*GroupResponse, error) {
+func (UnimplementedGroupServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*common.Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
 }
-func (UnimplementedGroupServiceServer) GetGroup(context.Context, *GetGroupRequest) (*GroupResponse, error) {
+func (UnimplementedGroupServiceServer) GetGroup(context.Context, *GetGroupRequest) (*common.Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
 }
-func (UnimplementedGroupServiceServer) GetGroups(context.Context, *emptypb.Empty) (*GetGroupsResponse, error) {
+func (UnimplementedGroupServiceServer) GetGroups(context.Context, *emptypb.Empty) (*Groups, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroups not implemented")
 }
 

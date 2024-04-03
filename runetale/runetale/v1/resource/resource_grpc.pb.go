@@ -7,6 +7,7 @@
 package resource
 
 import (
+	common "./common"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -33,9 +34,9 @@ const (
 type ResourceServiceClient interface {
 	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
 	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
-	PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error)
-	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error)
-	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetResourcesResponse, error)
+	PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*common.Resource, error)
+	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*common.Resource, error)
+	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 }
 
 type resourceServiceClient struct {
@@ -64,8 +65,8 @@ func (c *resourceServiceClient) GenerateToken(ctx context.Context, in *GenerateT
 	return out, nil
 }
 
-func (c *resourceServiceClient) PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error) {
-	out := new(ResourceResponse)
+func (c *resourceServiceClient) PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*common.Resource, error) {
+	out := new(common.Resource)
 	err := c.cc.Invoke(ctx, ResourceService_PatchResource_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -73,8 +74,8 @@ func (c *resourceServiceClient) PatchResource(ctx context.Context, in *PatchReso
 	return out, nil
 }
 
-func (c *resourceServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error) {
-	out := new(ResourceResponse)
+func (c *resourceServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*common.Resource, error) {
+	out := new(common.Resource)
 	err := c.cc.Invoke(ctx, ResourceService_GetResource_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -82,8 +83,8 @@ func (c *resourceServiceClient) GetResource(ctx context.Context, in *GetResource
 	return out, nil
 }
 
-func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetResourcesResponse, error) {
-	out := new(GetResourcesResponse)
+func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error) {
+	out := new(Resources)
 	err := c.cc.Invoke(ctx, ResourceService_GetResources_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -97,9 +98,9 @@ func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Em
 type ResourceServiceServer interface {
 	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
 	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
-	PatchResource(context.Context, *PatchResourceRequest) (*ResourceResponse, error)
-	GetResource(context.Context, *GetResourceRequest) (*ResourceResponse, error)
-	GetResources(context.Context, *emptypb.Empty) (*GetResourcesResponse, error)
+	PatchResource(context.Context, *PatchResourceRequest) (*common.Resource, error)
+	GetResource(context.Context, *GetResourceRequest) (*common.Resource, error)
+	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 }
 
 // UnimplementedResourceServiceServer should be embedded to have forward compatible implementations.
@@ -112,13 +113,13 @@ func (UnimplementedResourceServiceServer) CreateResource(context.Context, *Creat
 func (UnimplementedResourceServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
 }
-func (UnimplementedResourceServiceServer) PatchResource(context.Context, *PatchResourceRequest) (*ResourceResponse, error) {
+func (UnimplementedResourceServiceServer) PatchResource(context.Context, *PatchResourceRequest) (*common.Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchResource not implemented")
 }
-func (UnimplementedResourceServiceServer) GetResource(context.Context, *GetResourceRequest) (*ResourceResponse, error) {
+func (UnimplementedResourceServiceServer) GetResource(context.Context, *GetResourceRequest) (*common.Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
 }
-func (UnimplementedResourceServiceServer) GetResources(context.Context, *emptypb.Empty) (*GetResourcesResponse, error) {
+func (UnimplementedResourceServiceServer) GetResources(context.Context, *emptypb.Empty) (*Resources, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
 }
 
@@ -256,15 +257,15 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ResourceDetailService_AddNewSourcesForResource_FullMethodName = "/protos.ResourceDetailService/AddNewSourcesForResource"
-	ResourceDetailService_AddFleets_FullMethodName                = "/protos.ResourceDetailService/AddFleets"
+	ResourceDetailService_AddNewSrcsForResource_FullMethodName = "/protos.ResourceDetailService/AddNewSrcsForResource"
+	ResourceDetailService_AddFleets_FullMethodName             = "/protos.ResourceDetailService/AddFleets"
 )
 
 // ResourceDetailServiceClient is the client API for ResourceDetailService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ResourceDetailServiceClient interface {
-	AddNewSourcesForResource(ctx context.Context, in *AddNewSourcesForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddNewSrcsForResource(ctx context.Context, in *AddNewSrcsForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	AddFleets(ctx context.Context, in *AddFleetsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -276,9 +277,9 @@ func NewResourceDetailServiceClient(cc grpc.ClientConnInterface) ResourceDetailS
 	return &resourceDetailServiceClient{cc}
 }
 
-func (c *resourceDetailServiceClient) AddNewSourcesForResource(ctx context.Context, in *AddNewSourcesForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *resourceDetailServiceClient) AddNewSrcsForResource(ctx context.Context, in *AddNewSrcsForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ResourceDetailService_AddNewSourcesForResource_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ResourceDetailService_AddNewSrcsForResource_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -298,7 +299,7 @@ func (c *resourceDetailServiceClient) AddFleets(ctx context.Context, in *AddFlee
 // All implementations should embed UnimplementedResourceDetailServiceServer
 // for forward compatibility
 type ResourceDetailServiceServer interface {
-	AddNewSourcesForResource(context.Context, *AddNewSourcesForResourceRequest) (*emptypb.Empty, error)
+	AddNewSrcsForResource(context.Context, *AddNewSrcsForResourceRequest) (*emptypb.Empty, error)
 	AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error)
 }
 
@@ -306,8 +307,8 @@ type ResourceDetailServiceServer interface {
 type UnimplementedResourceDetailServiceServer struct {
 }
 
-func (UnimplementedResourceDetailServiceServer) AddNewSourcesForResource(context.Context, *AddNewSourcesForResourceRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewSourcesForResource not implemented")
+func (UnimplementedResourceDetailServiceServer) AddNewSrcsForResource(context.Context, *AddNewSrcsForResourceRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewSrcsForResource not implemented")
 }
 func (UnimplementedResourceDetailServiceServer) AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddFleets not implemented")
@@ -324,20 +325,20 @@ func RegisterResourceDetailServiceServer(s grpc.ServiceRegistrar, srv ResourceDe
 	s.RegisterService(&ResourceDetailService_ServiceDesc, srv)
 }
 
-func _ResourceDetailService_AddNewSourcesForResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewSourcesForResourceRequest)
+func _ResourceDetailService_AddNewSrcsForResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNewSrcsForResourceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceDetailServiceServer).AddNewSourcesForResource(ctx, in)
+		return srv.(ResourceDetailServiceServer).AddNewSrcsForResource(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceDetailService_AddNewSourcesForResource_FullMethodName,
+		FullMethod: ResourceDetailService_AddNewSrcsForResource_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceDetailServiceServer).AddNewSourcesForResource(ctx, req.(*AddNewSourcesForResourceRequest))
+		return srv.(ResourceDetailServiceServer).AddNewSrcsForResource(ctx, req.(*AddNewSrcsForResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -368,8 +369,8 @@ var ResourceDetailService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ResourceDetailServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddNewSourcesForResource",
-			Handler:    _ResourceDetailService_AddNewSourcesForResource_Handler,
+			MethodName: "AddNewSrcsForResource",
+			Handler:    _ResourceDetailService_AddNewSrcsForResource_Handler,
 		},
 		{
 			MethodName: "AddFleets",

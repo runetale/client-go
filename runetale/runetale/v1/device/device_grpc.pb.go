@@ -7,6 +7,7 @@
 package device
 
 import (
+	common "./common"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -28,8 +29,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DeviceServiceClient interface {
-	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*DeviceResponse, error)
-	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetDevicesResponse, error)
+	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*common.Device, error)
+	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
 }
 
 type deviceServiceClient struct {
@@ -40,8 +41,8 @@ func NewDeviceServiceClient(cc grpc.ClientConnInterface) DeviceServiceClient {
 	return &deviceServiceClient{cc}
 }
 
-func (c *deviceServiceClient) GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*DeviceResponse, error) {
-	out := new(DeviceResponse)
+func (c *deviceServiceClient) GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*common.Device, error) {
+	out := new(common.Device)
 	err := c.cc.Invoke(ctx, DeviceService_GetDevice_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -49,8 +50,8 @@ func (c *deviceServiceClient) GetDevice(ctx context.Context, in *GetDevicesReque
 	return out, nil
 }
 
-func (c *deviceServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetDevicesResponse, error) {
-	out := new(GetDevicesResponse)
+func (c *deviceServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error) {
+	out := new(Devices)
 	err := c.cc.Invoke(ctx, DeviceService_GetDevices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,18 +63,18 @@ func (c *deviceServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty,
 // All implementations should embed UnimplementedDeviceServiceServer
 // for forward compatibility
 type DeviceServiceServer interface {
-	GetDevice(context.Context, *GetDevicesRequest) (*DeviceResponse, error)
-	GetDevices(context.Context, *emptypb.Empty) (*GetDevicesResponse, error)
+	GetDevice(context.Context, *GetDevicesRequest) (*common.Device, error)
+	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
 }
 
 // UnimplementedDeviceServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedDeviceServiceServer struct {
 }
 
-func (UnimplementedDeviceServiceServer) GetDevice(context.Context, *GetDevicesRequest) (*DeviceResponse, error) {
+func (UnimplementedDeviceServiceServer) GetDevice(context.Context, *GetDevicesRequest) (*common.Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
 }
-func (UnimplementedDeviceServiceServer) GetDevices(context.Context, *emptypb.Empty) (*GetDevicesResponse, error) {
+func (UnimplementedDeviceServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
 }
 

@@ -7,6 +7,7 @@
 package fleet
 
 import (
+	common "./common"
 	context "context"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -30,10 +31,10 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FleetServiceClient interface {
-	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error)
-	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error)
-	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error)
-	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFleetsResponse, error)
+	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error)
+	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error)
+	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error)
+	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
 }
 
 type fleetServiceClient struct {
@@ -44,8 +45,8 @@ func NewFleetServiceClient(cc grpc.ClientConnInterface) FleetServiceClient {
 	return &fleetServiceClient{cc}
 }
 
-func (c *fleetServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error) {
-	out := new(FleetResponse)
+func (c *fleetServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error) {
+	out := new(common.Fleet)
 	err := c.cc.Invoke(ctx, FleetService_CreateFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,8 +54,8 @@ func (c *fleetServiceClient) CreateFleet(ctx context.Context, in *CreateFleetReq
 	return out, nil
 }
 
-func (c *fleetServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error) {
-	out := new(FleetResponse)
+func (c *fleetServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error) {
+	out := new(common.Fleet)
 	err := c.cc.Invoke(ctx, FleetService_PatchFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,8 +63,8 @@ func (c *fleetServiceClient) PatchFleet(ctx context.Context, in *PatchFleetReque
 	return out, nil
 }
 
-func (c *fleetServiceClient) GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*FleetResponse, error) {
-	out := new(FleetResponse)
+func (c *fleetServiceClient) GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*common.Fleet, error) {
+	out := new(common.Fleet)
 	err := c.cc.Invoke(ctx, FleetService_GetFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -71,8 +72,8 @@ func (c *fleetServiceClient) GetFleet(ctx context.Context, in *GetFleetRequest, 
 	return out, nil
 }
 
-func (c *fleetServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetFleetsResponse, error) {
-	out := new(GetFleetsResponse)
+func (c *fleetServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error) {
+	out := new(Fleets)
 	err := c.cc.Invoke(ctx, FleetService_GetFleets_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,26 +85,26 @@ func (c *fleetServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, o
 // All implementations should embed UnimplementedFleetServiceServer
 // for forward compatibility
 type FleetServiceServer interface {
-	CreateFleet(context.Context, *CreateFleetRequest) (*FleetResponse, error)
-	PatchFleet(context.Context, *PatchFleetRequest) (*FleetResponse, error)
-	GetFleet(context.Context, *GetFleetRequest) (*FleetResponse, error)
-	GetFleets(context.Context, *emptypb.Empty) (*GetFleetsResponse, error)
+	CreateFleet(context.Context, *CreateFleetRequest) (*common.Fleet, error)
+	PatchFleet(context.Context, *PatchFleetRequest) (*common.Fleet, error)
+	GetFleet(context.Context, *GetFleetRequest) (*common.Fleet, error)
+	GetFleets(context.Context, *emptypb.Empty) (*Fleets, error)
 }
 
 // UnimplementedFleetServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedFleetServiceServer struct {
 }
 
-func (UnimplementedFleetServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*FleetResponse, error) {
+func (UnimplementedFleetServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*common.Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
 }
-func (UnimplementedFleetServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*FleetResponse, error) {
+func (UnimplementedFleetServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*common.Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
 }
-func (UnimplementedFleetServiceServer) GetFleet(context.Context, *GetFleetRequest) (*FleetResponse, error) {
+func (UnimplementedFleetServiceServer) GetFleet(context.Context, *GetFleetRequest) (*common.Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFleet not implemented")
 }
-func (UnimplementedFleetServiceServer) GetFleets(context.Context, *emptypb.Empty) (*GetFleetsResponse, error) {
+func (UnimplementedFleetServiceServer) GetFleets(context.Context, *emptypb.Empty) (*Fleets, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFleets not implemented")
 }
 
@@ -219,14 +220,14 @@ var FleetService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	FleetDetailService_AddNewSourcesForFleet_FullMethodName = "/protos.FleetDetailService/AddNewSourcesForFleet"
+	FleetDetailService_AddNewSrcsForFleet_FullMethodName = "/protos.FleetDetailService/AddNewSrcsForFleet"
 )
 
 // FleetDetailServiceClient is the client API for FleetDetailService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FleetDetailServiceClient interface {
-	AddNewSourcesForFleet(ctx context.Context, in *AddNewSourcesForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddNewSrcsForFleet(ctx context.Context, in *AddNewSrcsForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type fleetDetailServiceClient struct {
@@ -237,9 +238,9 @@ func NewFleetDetailServiceClient(cc grpc.ClientConnInterface) FleetDetailService
 	return &fleetDetailServiceClient{cc}
 }
 
-func (c *fleetDetailServiceClient) AddNewSourcesForFleet(ctx context.Context, in *AddNewSourcesForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *fleetDetailServiceClient) AddNewSrcsForFleet(ctx context.Context, in *AddNewSrcsForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, FleetDetailService_AddNewSourcesForFleet_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, FleetDetailService_AddNewSrcsForFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -250,15 +251,15 @@ func (c *fleetDetailServiceClient) AddNewSourcesForFleet(ctx context.Context, in
 // All implementations should embed UnimplementedFleetDetailServiceServer
 // for forward compatibility
 type FleetDetailServiceServer interface {
-	AddNewSourcesForFleet(context.Context, *AddNewSourcesForFleetRequest) (*emptypb.Empty, error)
+	AddNewSrcsForFleet(context.Context, *AddNewSrcsForFleetRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedFleetDetailServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedFleetDetailServiceServer struct {
 }
 
-func (UnimplementedFleetDetailServiceServer) AddNewSourcesForFleet(context.Context, *AddNewSourcesForFleetRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewSourcesForFleet not implemented")
+func (UnimplementedFleetDetailServiceServer) AddNewSrcsForFleet(context.Context, *AddNewSrcsForFleetRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewSrcsForFleet not implemented")
 }
 
 // UnsafeFleetDetailServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -272,20 +273,20 @@ func RegisterFleetDetailServiceServer(s grpc.ServiceRegistrar, srv FleetDetailSe
 	s.RegisterService(&FleetDetailService_ServiceDesc, srv)
 }
 
-func _FleetDetailService_AddNewSourcesForFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewSourcesForFleetRequest)
+func _FleetDetailService_AddNewSrcsForFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNewSrcsForFleetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetDetailServiceServer).AddNewSourcesForFleet(ctx, in)
+		return srv.(FleetDetailServiceServer).AddNewSrcsForFleet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetDetailService_AddNewSourcesForFleet_FullMethodName,
+		FullMethod: FleetDetailService_AddNewSrcsForFleet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetDetailServiceServer).AddNewSourcesForFleet(ctx, req.(*AddNewSourcesForFleetRequest))
+		return srv.(FleetDetailServiceServer).AddNewSrcsForFleet(ctx, req.(*AddNewSrcsForFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -298,8 +299,8 @@ var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FleetDetailServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddNewSourcesForFleet",
-			Handler:    _FleetDetailService_AddNewSourcesForFleet_Handler,
+			MethodName: "AddNewSrcsForFleet",
+			Handler:    _FleetDetailService_AddNewSrcsForFleet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
