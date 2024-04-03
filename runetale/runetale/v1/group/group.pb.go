@@ -233,23 +233,85 @@ func (x *GetGroupsResponse) GetGroups() []*GroupResponse {
 	return nil
 }
 
+type UserWithPicture struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id      string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`           // user id
+	Name    string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`       // user name
+	Picture string `protobuf:"bytes,3,opt,name=picture,proto3" json:"picture,omitempty"` // picture url
+}
+
+func (x *UserWithPicture) Reset() {
+	*x = UserWithPicture{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_group_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UserWithPicture) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserWithPicture) ProtoMessage() {}
+
+func (x *UserWithPicture) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_group_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserWithPicture.ProtoReflect.Descriptor instead.
+func (*UserWithPicture) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_group_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UserWithPicture) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UserWithPicture) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *UserWithPicture) GetPicture() string {
+	if x != nil {
+		return x.Picture
+	}
+	return ""
+}
+
 type GroupResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id        uint64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name      string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Users     []string `protobuf:"bytes,3,rep,name=users,proto3" json:"users,omitempty"`
-	Resources uint64   `protobuf:"varint,4,opt,name=resources,proto3" json:"resources,omitempty"`
-	Linkers   uint64   `protobuf:"varint,5,opt,name=linkers,proto3" json:"linkers,omitempty"`
-	Age       string   `protobuf:"bytes,6,opt,name=age,proto3" json:"age,omitempty"`
+	Id        uint64             `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name      string             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Users     []*UserWithPicture `protobuf:"bytes,3,rep,name=users,proto3" json:"users,omitempty"`
+	Resources uint64             `protobuf:"varint,4,opt,name=resources,proto3" json:"resources,omitempty"` // count of resources accessible
+	Age       string             `protobuf:"bytes,5,opt,name=age,proto3" json:"age,omitempty"`
 }
 
 func (x *GroupResponse) Reset() {
 	*x = GroupResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_runetale_runetale_v1_group_proto_msgTypes[4]
+		mi := &file_runetale_runetale_v1_group_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -262,7 +324,7 @@ func (x *GroupResponse) String() string {
 func (*GroupResponse) ProtoMessage() {}
 
 func (x *GroupResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_runetale_runetale_v1_group_proto_msgTypes[4]
+	mi := &file_runetale_runetale_v1_group_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -275,7 +337,7 @@ func (x *GroupResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GroupResponse.ProtoReflect.Descriptor instead.
 func (*GroupResponse) Descriptor() ([]byte, []int) {
-	return file_runetale_runetale_v1_group_proto_rawDescGZIP(), []int{4}
+	return file_runetale_runetale_v1_group_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GroupResponse) GetId() uint64 {
@@ -292,7 +354,7 @@ func (x *GroupResponse) GetName() string {
 	return ""
 }
 
-func (x *GroupResponse) GetUsers() []string {
+func (x *GroupResponse) GetUsers() []*UserWithPicture {
 	if x != nil {
 		return x.Users
 	}
@@ -302,13 +364,6 @@ func (x *GroupResponse) GetUsers() []string {
 func (x *GroupResponse) GetResources() uint64 {
 	if x != nil {
 		return x.Resources
-	}
-	return 0
-}
-
-func (x *GroupResponse) GetLinkers() uint64 {
-	if x != nil {
-		return x.Linkers
 	}
 	return 0
 }
@@ -343,16 +398,21 @@ var file_runetale_runetale_v1_group_proto_rawDesc = []byte{
 	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2d, 0x0a, 0x06, 0x67, 0x72, 0x6f, 0x75,
 	0x70, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x73, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52,
-	0x06, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x73, 0x22, 0x93, 0x01, 0x0a, 0x0d, 0x47, 0x72, 0x6f, 0x75,
-	0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61, 0x6d,
-	0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x14, 0x0a,
-	0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x09, 0x52, 0x05, 0x75, 0x73,
-	0x65, 0x72, 0x73, 0x12, 0x1c, 0x0a, 0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73,
-	0x18, 0x04, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65,
-	0x73, 0x12, 0x18, 0x0a, 0x07, 0x6c, 0x69, 0x6e, 0x6b, 0x65, 0x72, 0x73, 0x18, 0x05, 0x20, 0x01,
-	0x28, 0x04, 0x52, 0x07, 0x6c, 0x69, 0x6e, 0x6b, 0x65, 0x72, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x61,
-	0x67, 0x65, 0x18, 0x06, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x67, 0x65, 0x32, 0x94, 0x02,
+	0x06, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x73, 0x22, 0x4f, 0x0a, 0x0f, 0x55, 0x73, 0x65, 0x72, 0x57,
+	0x69, 0x74, 0x68, 0x50, 0x69, 0x63, 0x74, 0x75, 0x72, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x70, 0x69, 0x63, 0x74, 0x75, 0x72, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x70, 0x69, 0x63, 0x74, 0x75, 0x72, 0x65, 0x22, 0x92, 0x01, 0x0a, 0x0d, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x02, 0x69, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x6e, 0x61,
+	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x12, 0x2d,
+	0x0a, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x57, 0x69, 0x74, 0x68, 0x50,
+	0x69, 0x63, 0x74, 0x75, 0x72, 0x65, 0x52, 0x05, 0x75, 0x73, 0x65, 0x72, 0x73, 0x12, 0x1c, 0x0a,
+	0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x04,
+	0x52, 0x09, 0x72, 0x65, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x73, 0x12, 0x10, 0x0a, 0x03, 0x61,
+	0x67, 0x65, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x67, 0x65, 0x32, 0x94, 0x02,
 	0x0a, 0x0c, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x42,
 	0x0a, 0x0b, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x1a, 0x2e,
 	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x73, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x47, 0x72, 0x6f,
@@ -386,30 +446,32 @@ func file_runetale_runetale_v1_group_proto_rawDescGZIP() []byte {
 	return file_runetale_runetale_v1_group_proto_rawDescData
 }
 
-var file_runetale_runetale_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_runetale_runetale_v1_group_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_runetale_runetale_v1_group_proto_goTypes = []interface{}{
 	(*CreateGroupRequest)(nil), // 0: protos.CreateGroupRequest
 	(*PatchGroupRequest)(nil),  // 1: protos.PatchGroupRequest
 	(*GetGroupRequest)(nil),    // 2: protos.GetGroupRequest
 	(*GetGroupsResponse)(nil),  // 3: protos.GetGroupsResponse
-	(*GroupResponse)(nil),      // 4: protos.GroupResponse
-	(*emptypb.Empty)(nil),      // 5: google.protobuf.Empty
+	(*UserWithPicture)(nil),    // 4: protos.UserWithPicture
+	(*GroupResponse)(nil),      // 5: protos.GroupResponse
+	(*emptypb.Empty)(nil),      // 6: google.protobuf.Empty
 }
 var file_runetale_runetale_v1_group_proto_depIdxs = []int32{
-	4, // 0: protos.GetGroupsResponse.groups:type_name -> protos.GroupResponse
-	0, // 1: protos.GroupService.CreateGroup:input_type -> protos.CreateGroupRequest
-	1, // 2: protos.GroupService.PatchGroup:input_type -> protos.PatchGroupRequest
-	2, // 3: protos.GroupService.GetGroup:input_type -> protos.GetGroupRequest
-	5, // 4: protos.GroupService.GetGroups:input_type -> google.protobuf.Empty
-	4, // 5: protos.GroupService.CreateGroup:output_type -> protos.GroupResponse
-	4, // 6: protos.GroupService.PatchGroup:output_type -> protos.GroupResponse
-	4, // 7: protos.GroupService.GetGroup:output_type -> protos.GroupResponse
-	3, // 8: protos.GroupService.GetGroups:output_type -> protos.GetGroupsResponse
-	5, // [5:9] is the sub-list for method output_type
-	1, // [1:5] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 0: protos.GetGroupsResponse.groups:type_name -> protos.GroupResponse
+	4, // 1: protos.GroupResponse.users:type_name -> protos.UserWithPicture
+	0, // 2: protos.GroupService.CreateGroup:input_type -> protos.CreateGroupRequest
+	1, // 3: protos.GroupService.PatchGroup:input_type -> protos.PatchGroupRequest
+	2, // 4: protos.GroupService.GetGroup:input_type -> protos.GetGroupRequest
+	6, // 5: protos.GroupService.GetGroups:input_type -> google.protobuf.Empty
+	5, // 6: protos.GroupService.CreateGroup:output_type -> protos.GroupResponse
+	5, // 7: protos.GroupService.PatchGroup:output_type -> protos.GroupResponse
+	5, // 8: protos.GroupService.GetGroup:output_type -> protos.GroupResponse
+	3, // 9: protos.GroupService.GetGroups:output_type -> protos.GetGroupsResponse
+	6, // [6:10] is the sub-list for method output_type
+	2, // [2:6] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_runetale_runetale_v1_group_proto_init() }
@@ -467,6 +529,18 @@ func file_runetale_runetale_v1_group_proto_init() {
 			}
 		}
 		file_runetale_runetale_v1_group_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UserWithPicture); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_runetale_runetale_v1_group_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*GroupResponse); i {
 			case 0:
 				return &v.state
@@ -485,7 +559,7 @@ func file_runetale_runetale_v1_group_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_runetale_runetale_v1_group_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
