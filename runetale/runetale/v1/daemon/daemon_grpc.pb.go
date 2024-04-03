@@ -29,7 +29,6 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DaemonServiceClient interface {
-	// connections
 	Connect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
 	Disconnect(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
 	GetConnectionStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetConnectionStatusResponse, error)
@@ -74,7 +73,6 @@ func (c *daemonServiceClient) GetConnectionStatus(ctx context.Context, in *empty
 // All implementations should embed UnimplementedDaemonServiceServer
 // for forward compatibility
 type DaemonServiceServer interface {
-	// connections
 	Connect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
 	Disconnect(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
 	GetConnectionStatus(context.Context, *emptypb.Empty) (*GetConnectionStatusResponse, error)
