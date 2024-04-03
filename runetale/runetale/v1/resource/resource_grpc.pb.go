@@ -31,7 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ResourceServiceClient interface {
-	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error)
+	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
 	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
 	PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error)
@@ -46,8 +46,8 @@ func NewResourceServiceClient(cc grpc.ClientConnInterface) ResourceServiceClient
 	return &resourceServiceClient{cc}
 }
 
-func (c *resourceServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*ResourceResponse, error) {
-	out := new(ResourceResponse)
+func (c *resourceServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error) {
+	out := new(CreateResourceResponse)
 	err := c.cc.Invoke(ctx, ResourceService_CreateResource_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Em
 // All implementations should embed UnimplementedResourceServiceServer
 // for forward compatibility
 type ResourceServiceServer interface {
-	CreateResource(context.Context, *CreateResourceRequest) (*ResourceResponse, error)
+	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
 	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
 	PatchResource(context.Context, *PatchResourceRequest) (*ResourceResponse, error)
 	GetResource(context.Context, *GetResourceRequest) (*ResourceResponse, error)
@@ -106,7 +106,7 @@ type ResourceServiceServer interface {
 type UnimplementedResourceServiceServer struct {
 }
 
-func (UnimplementedResourceServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*ResourceResponse, error) {
+func (UnimplementedResourceServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateResource not implemented")
 }
 func (UnimplementedResourceServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
@@ -249,6 +249,131 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetResources",
 			Handler:    _ResourceService_GetResources_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "runetale/runetale/v1/resource.proto",
+}
+
+const (
+	ResourceDetailService_AddNewSourcesForResource_FullMethodName = "/protos.ResourceDetailService/AddNewSourcesForResource"
+	ResourceDetailService_AddFleets_FullMethodName                = "/protos.ResourceDetailService/AddFleets"
+)
+
+// ResourceDetailServiceClient is the client API for ResourceDetailService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type ResourceDetailServiceClient interface {
+	AddNewSourcesForResource(ctx context.Context, in *AddNewSourcesForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	AddFleets(ctx context.Context, in *AddFleetsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+}
+
+type resourceDetailServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewResourceDetailServiceClient(cc grpc.ClientConnInterface) ResourceDetailServiceClient {
+	return &resourceDetailServiceClient{cc}
+}
+
+func (c *resourceDetailServiceClient) AddNewSourcesForResource(ctx context.Context, in *AddNewSourcesForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ResourceDetailService_AddNewSourcesForResource_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *resourceDetailServiceClient) AddFleets(ctx context.Context, in *AddFleetsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, ResourceDetailService_AddFleets_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ResourceDetailServiceServer is the server API for ResourceDetailService service.
+// All implementations should embed UnimplementedResourceDetailServiceServer
+// for forward compatibility
+type ResourceDetailServiceServer interface {
+	AddNewSourcesForResource(context.Context, *AddNewSourcesForResourceRequest) (*emptypb.Empty, error)
+	AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error)
+}
+
+// UnimplementedResourceDetailServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedResourceDetailServiceServer struct {
+}
+
+func (UnimplementedResourceDetailServiceServer) AddNewSourcesForResource(context.Context, *AddNewSourcesForResourceRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewSourcesForResource not implemented")
+}
+func (UnimplementedResourceDetailServiceServer) AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddFleets not implemented")
+}
+
+// UnsafeResourceDetailServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ResourceDetailServiceServer will
+// result in compilation errors.
+type UnsafeResourceDetailServiceServer interface {
+	mustEmbedUnimplementedResourceDetailServiceServer()
+}
+
+func RegisterResourceDetailServiceServer(s grpc.ServiceRegistrar, srv ResourceDetailServiceServer) {
+	s.RegisterService(&ResourceDetailService_ServiceDesc, srv)
+}
+
+func _ResourceDetailService_AddNewSourcesForResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNewSourcesForResourceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourceDetailServiceServer).AddNewSourcesForResource(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ResourceDetailService_AddNewSourcesForResource_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourceDetailServiceServer).AddNewSourcesForResource(ctx, req.(*AddNewSourcesForResourceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ResourceDetailService_AddFleets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddFleetsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ResourceDetailServiceServer).AddFleets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ResourceDetailService_AddFleets_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ResourceDetailServiceServer).AddFleets(ctx, req.(*AddFleetsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// ResourceDetailService_ServiceDesc is the grpc.ServiceDesc for ResourceDetailService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var ResourceDetailService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.ResourceDetailService",
+	HandlerType: (*ResourceDetailServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddNewSourcesForResource",
+			Handler:    _ResourceDetailService_AddNewSourcesForResource_Handler,
+		},
+		{
+			MethodName: "AddFleets",
+			Handler:    _ResourceDetailService_AddFleets_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
