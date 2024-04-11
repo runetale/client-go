@@ -2179,9 +2179,8 @@ type Group struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Id   uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// 参照できるようにする
+	Id        uint64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name      string      `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Users     []*User     `protobuf:"bytes,3,rep,name=users,proto3" json:"users,omitempty"`
 	Fleets    []*Fleet    `protobuf:"bytes,4,rep,name=fleets,proto3" json:"fleets,omitempty"`
 	Resources []*Resource `protobuf:"bytes,5,rep,name=resources,proto3" json:"resources,omitempty"`
