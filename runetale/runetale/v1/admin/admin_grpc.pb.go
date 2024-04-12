@@ -381,133 +381,7 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	UserDetailService_AddNewDstsForUser_FullMethodName = "/protos.UserDetailService/AddNewDstsForUser"
-	UserDetailService_AddGroups_FullMethodName         = "/protos.UserDetailService/AddGroups"
-)
-
-// UserDetailServiceClient is the client API for UserDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserDetailServiceClient interface {
-	AddNewDstsForUser(ctx context.Context, in *AddNewDstsForUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddGroups(ctx context.Context, in *AddGroupsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-}
-
-type userDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewUserDetailServiceClient(cc grpc.ClientConnInterface) UserDetailServiceClient {
-	return &userDetailServiceClient{cc}
-}
-
-func (c *userDetailServiceClient) AddNewDstsForUser(ctx context.Context, in *AddNewDstsForUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserDetailService_AddNewDstsForUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userDetailServiceClient) AddGroups(ctx context.Context, in *AddGroupsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, UserDetailService_AddGroups_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// UserDetailServiceServer is the server API for UserDetailService service.
-// All implementations should embed UnimplementedUserDetailServiceServer
-// for forward compatibility
-type UserDetailServiceServer interface {
-	AddNewDstsForUser(context.Context, *AddNewDstsForUserRequest) (*emptypb.Empty, error)
-	AddGroups(context.Context, *AddGroupsRequest) (*emptypb.Empty, error)
-}
-
-// UnimplementedUserDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedUserDetailServiceServer struct {
-}
-
-func (UnimplementedUserDetailServiceServer) AddNewDstsForUser(context.Context, *AddNewDstsForUserRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewDstsForUser not implemented")
-}
-func (UnimplementedUserDetailServiceServer) AddGroups(context.Context, *AddGroupsRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddGroups not implemented")
-}
-
-// UnsafeUserDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserDetailServiceServer will
-// result in compilation errors.
-type UnsafeUserDetailServiceServer interface {
-	mustEmbedUnimplementedUserDetailServiceServer()
-}
-
-func RegisterUserDetailServiceServer(s grpc.ServiceRegistrar, srv UserDetailServiceServer) {
-	s.RegisterService(&UserDetailService_ServiceDesc, srv)
-}
-
-func _UserDetailService_AddNewDstsForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewDstsForUserRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserDetailServiceServer).AddNewDstsForUser(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserDetailService_AddNewDstsForUser_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserDetailServiceServer).AddNewDstsForUser(ctx, req.(*AddNewDstsForUserRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _UserDetailService_AddGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddGroupsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserDetailServiceServer).AddGroups(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: UserDetailService_AddGroups_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserDetailServiceServer).AddGroups(ctx, req.(*AddGroupsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// UserDetailService_ServiceDesc is the grpc.ServiceDesc for UserDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var UserDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.UserDetailService",
-	HandlerType: (*UserDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "AddNewDstsForUser",
-			Handler:    _UserDetailService_AddNewDstsForUser_Handler,
-		},
-		{
-			MethodName: "AddGroups",
-			Handler:    _UserDetailService_AddGroups_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
 	GroupService_CreateGroup_FullMethodName = "/protos.GroupService/CreateGroup"
-	GroupService_PatchGroup_FullMethodName  = "/protos.GroupService/PatchGroup"
 	GroupService_GetGroup_FullMethodName    = "/protos.GroupService/GetGroup"
 	GroupService_GetGroups_FullMethodName   = "/protos.GroupService/GetGroups"
 )
@@ -517,7 +391,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GroupServiceClient interface {
 	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error)
 }
@@ -533,15 +406,6 @@ func NewGroupServiceClient(cc grpc.ClientConnInterface) GroupServiceClient {
 func (c *groupServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
 	out := new(Group)
 	err := c.cc.Invoke(ctx, GroupService_CreateGroup_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *groupServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, GroupService_PatchGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -571,7 +435,6 @@ func (c *groupServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, o
 // for forward compatibility
 type GroupServiceServer interface {
 	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
-	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
 	GetGroups(context.Context, *emptypb.Empty) (*Groups, error)
 }
@@ -582,9 +445,6 @@ type UnimplementedGroupServiceServer struct {
 
 func (UnimplementedGroupServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
-}
-func (UnimplementedGroupServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
 }
 func (UnimplementedGroupServiceServer) GetGroup(context.Context, *GetGroupRequest) (*Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
@@ -618,24 +478,6 @@ func _GroupService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GroupServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _GroupService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(GroupServiceServer).PatchGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: GroupService_PatchGroup_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupServiceServer).PatchGroup(ctx, req.(*PatchGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -688,10 +530,6 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GroupService_CreateGroup_Handler,
 		},
 		{
-			MethodName: "PatchGroup",
-			Handler:    _GroupService_PatchGroup_Handler,
-		},
-		{
 			MethodName: "GetGroup",
 			Handler:    _GroupService_GetGroup_Handler,
 		},
@@ -705,14 +543,14 @@ var GroupService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	GroupDetailService_AddNewDstForGroup_FullMethodName = "/protos.GroupDetailService/AddNewDstForGroup"
+	GroupDetailService_PatchGroup_FullMethodName = "/protos.GroupDetailService/PatchGroup"
 )
 
 // GroupDetailServiceClient is the client API for GroupDetailService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GroupDetailServiceClient interface {
-	AddNewDstForGroup(ctx context.Context, in *AddNewDstForGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
 }
 
 type groupDetailServiceClient struct {
@@ -723,9 +561,9 @@ func NewGroupDetailServiceClient(cc grpc.ClientConnInterface) GroupDetailService
 	return &groupDetailServiceClient{cc}
 }
 
-func (c *groupDetailServiceClient) AddNewDstForGroup(ctx context.Context, in *AddNewDstForGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, GroupDetailService_AddNewDstForGroup_FullMethodName, in, out, opts...)
+func (c *groupDetailServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, GroupDetailService_PatchGroup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -736,15 +574,15 @@ func (c *groupDetailServiceClient) AddNewDstForGroup(ctx context.Context, in *Ad
 // All implementations should embed UnimplementedGroupDetailServiceServer
 // for forward compatibility
 type GroupDetailServiceServer interface {
-	AddNewDstForGroup(context.Context, *AddNewDstForGroupRequest) (*emptypb.Empty, error)
+	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
 }
 
 // UnimplementedGroupDetailServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedGroupDetailServiceServer struct {
 }
 
-func (UnimplementedGroupDetailServiceServer) AddNewDstForGroup(context.Context, *AddNewDstForGroupRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewDstForGroup not implemented")
+func (UnimplementedGroupDetailServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
 }
 
 // UnsafeGroupDetailServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -758,20 +596,20 @@ func RegisterGroupDetailServiceServer(s grpc.ServiceRegistrar, srv GroupDetailSe
 	s.RegisterService(&GroupDetailService_ServiceDesc, srv)
 }
 
-func _GroupDetailService_AddNewDstForGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewDstForGroupRequest)
+func _GroupDetailService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupDetailServiceServer).AddNewDstForGroup(ctx, in)
+		return srv.(GroupDetailServiceServer).PatchGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GroupDetailService_AddNewDstForGroup_FullMethodName,
+		FullMethod: GroupDetailService_PatchGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupDetailServiceServer).AddNewDstForGroup(ctx, req.(*AddNewDstForGroupRequest))
+		return srv.(GroupDetailServiceServer).PatchGroup(ctx, req.(*PatchGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -784,8 +622,8 @@ var GroupDetailService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GroupDetailServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddNewDstForGroup",
-			Handler:    _GroupDetailService_AddNewDstForGroup_Handler,
+			MethodName: "PatchGroup",
+			Handler:    _GroupDetailService_PatchGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -920,7 +758,6 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 const (
 	ResourceService_CreateResource_FullMethodName = "/protos.ResourceService/CreateResource"
 	ResourceService_GenerateToken_FullMethodName  = "/protos.ResourceService/GenerateToken"
-	ResourceService_PatchResource_FullMethodName  = "/protos.ResourceService/PatchResource"
 	ResourceService_GetResource_FullMethodName    = "/protos.ResourceService/GetResource"
 	ResourceService_GetResources_FullMethodName   = "/protos.ResourceService/GetResources"
 )
@@ -931,7 +768,6 @@ const (
 type ResourceServiceClient interface {
 	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
 	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
-	PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 }
@@ -962,15 +798,6 @@ func (c *resourceServiceClient) GenerateToken(ctx context.Context, in *GenerateT
 	return out, nil
 }
 
-func (c *resourceServiceClient) PatchResource(ctx context.Context, in *PatchResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
-	out := new(Resource)
-	err := c.cc.Invoke(ctx, ResourceService_PatchResource_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *resourceServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
 	out := new(Resource)
 	err := c.cc.Invoke(ctx, ResourceService_GetResource_FullMethodName, in, out, opts...)
@@ -995,7 +822,6 @@ func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Em
 type ResourceServiceServer interface {
 	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
 	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
-	PatchResource(context.Context, *PatchResourceRequest) (*Resource, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 }
@@ -1009,9 +835,6 @@ func (UnimplementedResourceServiceServer) CreateResource(context.Context, *Creat
 }
 func (UnimplementedResourceServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
-}
-func (UnimplementedResourceServiceServer) PatchResource(context.Context, *PatchResourceRequest) (*Resource, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchResource not implemented")
 }
 func (UnimplementedResourceServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
@@ -1063,24 +886,6 @@ func _ResourceService_GenerateToken_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ResourceServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceService_PatchResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchResourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceServiceServer).PatchResource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceService_PatchResource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).PatchResource(ctx, req.(*PatchResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1137,10 +942,6 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ResourceService_GenerateToken_Handler,
 		},
 		{
-			MethodName: "PatchResource",
-			Handler:    _ResourceService_PatchResource_Handler,
-		},
-		{
 			MethodName: "GetResource",
 			Handler:    _ResourceService_GetResource_Handler,
 		},
@@ -1154,133 +955,7 @@ var ResourceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ResourceDetailService_AddNewSrcsForResource_FullMethodName = "/protos.ResourceDetailService/AddNewSrcsForResource"
-	ResourceDetailService_AddFleets_FullMethodName             = "/protos.ResourceDetailService/AddFleets"
-)
-
-// ResourceDetailServiceClient is the client API for ResourceDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ResourceDetailServiceClient interface {
-	AddNewSrcsForResource(ctx context.Context, in *AddNewSrcsForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	AddFleets(ctx context.Context, in *AddFleetsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-}
-
-type resourceDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewResourceDetailServiceClient(cc grpc.ClientConnInterface) ResourceDetailServiceClient {
-	return &resourceDetailServiceClient{cc}
-}
-
-func (c *resourceDetailServiceClient) AddNewSrcsForResource(ctx context.Context, in *AddNewSrcsForResourceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ResourceDetailService_AddNewSrcsForResource_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceDetailServiceClient) AddFleets(ctx context.Context, in *AddFleetsRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, ResourceDetailService_AddFleets_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// ResourceDetailServiceServer is the server API for ResourceDetailService service.
-// All implementations should embed UnimplementedResourceDetailServiceServer
-// for forward compatibility
-type ResourceDetailServiceServer interface {
-	AddNewSrcsForResource(context.Context, *AddNewSrcsForResourceRequest) (*emptypb.Empty, error)
-	AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error)
-}
-
-// UnimplementedResourceDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedResourceDetailServiceServer struct {
-}
-
-func (UnimplementedResourceDetailServiceServer) AddNewSrcsForResource(context.Context, *AddNewSrcsForResourceRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewSrcsForResource not implemented")
-}
-func (UnimplementedResourceDetailServiceServer) AddFleets(context.Context, *AddFleetsRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddFleets not implemented")
-}
-
-// UnsafeResourceDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ResourceDetailServiceServer will
-// result in compilation errors.
-type UnsafeResourceDetailServiceServer interface {
-	mustEmbedUnimplementedResourceDetailServiceServer()
-}
-
-func RegisterResourceDetailServiceServer(s grpc.ServiceRegistrar, srv ResourceDetailServiceServer) {
-	s.RegisterService(&ResourceDetailService_ServiceDesc, srv)
-}
-
-func _ResourceDetailService_AddNewSrcsForResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewSrcsForResourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceDetailServiceServer).AddNewSrcsForResource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceDetailService_AddNewSrcsForResource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceDetailServiceServer).AddNewSrcsForResource(ctx, req.(*AddNewSrcsForResourceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ResourceDetailService_AddFleets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddFleetsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ResourceDetailServiceServer).AddFleets(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ResourceDetailService_AddFleets_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceDetailServiceServer).AddFleets(ctx, req.(*AddFleetsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// ResourceDetailService_ServiceDesc is the grpc.ServiceDesc for ResourceDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var ResourceDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.ResourceDetailService",
-	HandlerType: (*ResourceDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "AddNewSrcsForResource",
-			Handler:    _ResourceDetailService_AddNewSrcsForResource_Handler,
-		},
-		{
-			MethodName: "AddFleets",
-			Handler:    _ResourceDetailService_AddFleets_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
 	FleetService_CreateFleet_FullMethodName = "/protos.FleetService/CreateFleet"
-	FleetService_PatchFleet_FullMethodName  = "/protos.FleetService/PatchFleet"
 	FleetService_GetFleet_FullMethodName    = "/protos.FleetService/GetFleet"
 	FleetService_GetFleets_FullMethodName   = "/protos.FleetService/GetFleets"
 )
@@ -1290,7 +965,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FleetServiceClient interface {
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
-	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
 }
@@ -1306,15 +980,6 @@ func NewFleetServiceClient(cc grpc.ClientConnInterface) FleetServiceClient {
 func (c *fleetServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
 	out := new(Fleet)
 	err := c.cc.Invoke(ctx, FleetService_CreateFleet_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *fleetServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
-	out := new(Fleet)
-	err := c.cc.Invoke(ctx, FleetService_PatchFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1344,7 +1009,6 @@ func (c *fleetServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, o
 // for forward compatibility
 type FleetServiceServer interface {
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
-	PatchFleet(context.Context, *PatchFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
 	GetFleets(context.Context, *emptypb.Empty) (*Fleets, error)
 }
@@ -1355,9 +1019,6 @@ type UnimplementedFleetServiceServer struct {
 
 func (UnimplementedFleetServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
-}
-func (UnimplementedFleetServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Fleet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
 }
 func (UnimplementedFleetServiceServer) GetFleet(context.Context, *GetFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFleet not implemented")
@@ -1391,24 +1052,6 @@ func _FleetService_CreateFleet_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(FleetServiceServer).CreateFleet(ctx, req.(*CreateFleetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _FleetService_PatchFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchFleetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(FleetServiceServer).PatchFleet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: FleetService_PatchFleet_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetServiceServer).PatchFleet(ctx, req.(*PatchFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1461,10 +1104,6 @@ var FleetService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _FleetService_CreateFleet_Handler,
 		},
 		{
-			MethodName: "PatchFleet",
-			Handler:    _FleetService_PatchFleet_Handler,
-		},
-		{
 			MethodName: "GetFleet",
 			Handler:    _FleetService_GetFleet_Handler,
 		},
@@ -1478,14 +1117,14 @@ var FleetService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	FleetDetailService_AddNewSrcsForFleet_FullMethodName = "/protos.FleetDetailService/AddNewSrcsForFleet"
+	FleetDetailService_PatchFleet_FullMethodName = "/protos.FleetDetailService/PatchFleet"
 )
 
 // FleetDetailServiceClient is the client API for FleetDetailService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FleetDetailServiceClient interface {
-	AddNewSrcsForFleet(ctx context.Context, in *AddNewSrcsForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error)
 }
 
 type fleetDetailServiceClient struct {
@@ -1496,9 +1135,9 @@ func NewFleetDetailServiceClient(cc grpc.ClientConnInterface) FleetDetailService
 	return &fleetDetailServiceClient{cc}
 }
 
-func (c *fleetDetailServiceClient) AddNewSrcsForFleet(ctx context.Context, in *AddNewSrcsForFleetRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, FleetDetailService_AddNewSrcsForFleet_FullMethodName, in, out, opts...)
+func (c *fleetDetailServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, FleetDetailService_PatchFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1509,15 +1148,15 @@ func (c *fleetDetailServiceClient) AddNewSrcsForFleet(ctx context.Context, in *A
 // All implementations should embed UnimplementedFleetDetailServiceServer
 // for forward compatibility
 type FleetDetailServiceServer interface {
-	AddNewSrcsForFleet(context.Context, *AddNewSrcsForFleetRequest) (*emptypb.Empty, error)
+	PatchFleet(context.Context, *PatchFleetRequest) (*Group, error)
 }
 
 // UnimplementedFleetDetailServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedFleetDetailServiceServer struct {
 }
 
-func (UnimplementedFleetDetailServiceServer) AddNewSrcsForFleet(context.Context, *AddNewSrcsForFleetRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewSrcsForFleet not implemented")
+func (UnimplementedFleetDetailServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
 }
 
 // UnsafeFleetDetailServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -1531,20 +1170,20 @@ func RegisterFleetDetailServiceServer(s grpc.ServiceRegistrar, srv FleetDetailSe
 	s.RegisterService(&FleetDetailService_ServiceDesc, srv)
 }
 
-func _FleetDetailService_AddNewSrcsForFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewSrcsForFleetRequest)
+func _FleetDetailService_PatchFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchFleetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetDetailServiceServer).AddNewSrcsForFleet(ctx, in)
+		return srv.(FleetDetailServiceServer).PatchFleet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetDetailService_AddNewSrcsForFleet_FullMethodName,
+		FullMethod: FleetDetailService_PatchFleet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetDetailServiceServer).AddNewSrcsForFleet(ctx, req.(*AddNewSrcsForFleetRequest))
+		return srv.(FleetDetailServiceServer).PatchFleet(ctx, req.(*PatchFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1557,8 +1196,8 @@ var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FleetDetailServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddNewSrcsForFleet",
-			Handler:    _FleetDetailService_AddNewSrcsForFleet_Handler,
+			MethodName: "PatchFleet",
+			Handler:    _FleetDetailService_PatchFleet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
