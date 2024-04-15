@@ -756,6 +756,256 @@ var DeviceService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
+	InkService_CreateInk_FullMethodName = "/protos.InkService/CreateInk"
+	InkService_GetInk_FullMethodName    = "/protos.InkService/GetInk"
+	InkService_GetInks_FullMethodName   = "/protos.InkService/GetInks"
+)
+
+// InkServiceClient is the client API for InkService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type InkServiceClient interface {
+	CreateInk(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Ink, error)
+	GetInk(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Ink, error)
+	GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error)
+}
+
+type inkServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewInkServiceClient(cc grpc.ClientConnInterface) InkServiceClient {
+	return &inkServiceClient{cc}
+}
+
+func (c *inkServiceClient) CreateInk(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, InkService_CreateInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inkServiceClient) GetInk(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, InkService_GetInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *inkServiceClient) GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error) {
+	out := new(Inks)
+	err := c.cc.Invoke(ctx, InkService_GetInks_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// InkServiceServer is the server API for InkService service.
+// All implementations should embed UnimplementedInkServiceServer
+// for forward compatibility
+type InkServiceServer interface {
+	CreateInk(context.Context, *CreateFleetRequest) (*Ink, error)
+	GetInk(context.Context, *GetFleetRequest) (*Ink, error)
+	GetInks(context.Context, *emptypb.Empty) (*Inks, error)
+}
+
+// UnimplementedInkServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedInkServiceServer struct {
+}
+
+func (UnimplementedInkServiceServer) CreateInk(context.Context, *CreateFleetRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateInk not implemented")
+}
+func (UnimplementedInkServiceServer) GetInk(context.Context, *GetFleetRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInk not implemented")
+}
+func (UnimplementedInkServiceServer) GetInks(context.Context, *emptypb.Empty) (*Inks, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInks not implemented")
+}
+
+// UnsafeInkServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to InkServiceServer will
+// result in compilation errors.
+type UnsafeInkServiceServer interface {
+	mustEmbedUnimplementedInkServiceServer()
+}
+
+func RegisterInkServiceServer(s grpc.ServiceRegistrar, srv InkServiceServer) {
+	s.RegisterService(&InkService_ServiceDesc, srv)
+}
+
+func _InkService_CreateInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFleetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InkServiceServer).CreateInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InkService_CreateInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InkServiceServer).CreateInk(ctx, req.(*CreateFleetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InkService_GetInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFleetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InkServiceServer).GetInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InkService_GetInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InkServiceServer).GetInk(ctx, req.(*GetFleetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _InkService_GetInks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InkServiceServer).GetInks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InkService_GetInks_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InkServiceServer).GetInks(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// InkService_ServiceDesc is the grpc.ServiceDesc for InkService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var InkService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.InkService",
+	HandlerType: (*InkServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateInk",
+			Handler:    _InkService_CreateInk_Handler,
+		},
+		{
+			MethodName: "GetInk",
+			Handler:    _InkService_GetInk_Handler,
+		},
+		{
+			MethodName: "GetInks",
+			Handler:    _InkService_GetInks_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "runetale/runetale/v1/admin.proto",
+}
+
+const (
+	InkDetailService_PatchInk_FullMethodName = "/protos.InkDetailService/PatchInk"
+)
+
+// InkDetailServiceClient is the client API for InkDetailService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type InkDetailServiceClient interface {
+	PatchInk(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Ink, error)
+}
+
+type inkDetailServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewInkDetailServiceClient(cc grpc.ClientConnInterface) InkDetailServiceClient {
+	return &inkDetailServiceClient{cc}
+}
+
+func (c *inkDetailServiceClient) PatchInk(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, InkDetailService_PatchInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// InkDetailServiceServer is the server API for InkDetailService service.
+// All implementations should embed UnimplementedInkDetailServiceServer
+// for forward compatibility
+type InkDetailServiceServer interface {
+	PatchInk(context.Context, *PatchFleetRequest) (*Ink, error)
+}
+
+// UnimplementedInkDetailServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedInkDetailServiceServer struct {
+}
+
+func (UnimplementedInkDetailServiceServer) PatchInk(context.Context, *PatchFleetRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchInk not implemented")
+}
+
+// UnsafeInkDetailServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to InkDetailServiceServer will
+// result in compilation errors.
+type UnsafeInkDetailServiceServer interface {
+	mustEmbedUnimplementedInkDetailServiceServer()
+}
+
+func RegisterInkDetailServiceServer(s grpc.ServiceRegistrar, srv InkDetailServiceServer) {
+	s.RegisterService(&InkDetailService_ServiceDesc, srv)
+}
+
+func _InkDetailService_PatchInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchFleetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(InkDetailServiceServer).PatchInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: InkDetailService_PatchInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(InkDetailServiceServer).PatchInk(ctx, req.(*PatchFleetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// InkDetailService_ServiceDesc is the grpc.ServiceDesc for InkDetailService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var InkDetailService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.InkDetailService",
+	HandlerType: (*InkDetailServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PatchInk",
+			Handler:    _InkDetailService_PatchInk_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "runetale/runetale/v1/admin.proto",
+}
+
+const (
 	ResourceService_CreateResource_FullMethodName = "/protos.ResourceService/CreateResource"
 	ResourceService_GenerateToken_FullMethodName  = "/protos.ResourceService/GenerateToken"
 	ResourceService_GetResource_FullMethodName    = "/protos.ResourceService/GetResource"
@@ -1198,256 +1448,6 @@ var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PatchFleet",
 			Handler:    _FleetDetailService_PatchFleet_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	InkService_CreateInk_FullMethodName = "/protos.InkService/CreateInk"
-	InkService_GetInk_FullMethodName    = "/protos.InkService/GetInk"
-	InkService_GetInks_FullMethodName   = "/protos.InkService/GetInks"
-)
-
-// InkServiceClient is the client API for InkService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type InkServiceClient interface {
-	CreateInk(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
-	GetInk(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
-	GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
-}
-
-type inkServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewInkServiceClient(cc grpc.ClientConnInterface) InkServiceClient {
-	return &inkServiceClient{cc}
-}
-
-func (c *inkServiceClient) CreateInk(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
-	out := new(Fleet)
-	err := c.cc.Invoke(ctx, InkService_CreateInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *inkServiceClient) GetInk(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
-	out := new(Fleet)
-	err := c.cc.Invoke(ctx, InkService_GetInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *inkServiceClient) GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error) {
-	out := new(Fleets)
-	err := c.cc.Invoke(ctx, InkService_GetInks_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// InkServiceServer is the server API for InkService service.
-// All implementations should embed UnimplementedInkServiceServer
-// for forward compatibility
-type InkServiceServer interface {
-	CreateInk(context.Context, *CreateFleetRequest) (*Fleet, error)
-	GetInk(context.Context, *GetFleetRequest) (*Fleet, error)
-	GetInks(context.Context, *emptypb.Empty) (*Fleets, error)
-}
-
-// UnimplementedInkServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedInkServiceServer struct {
-}
-
-func (UnimplementedInkServiceServer) CreateInk(context.Context, *CreateFleetRequest) (*Fleet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateInk not implemented")
-}
-func (UnimplementedInkServiceServer) GetInk(context.Context, *GetFleetRequest) (*Fleet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInk not implemented")
-}
-func (UnimplementedInkServiceServer) GetInks(context.Context, *emptypb.Empty) (*Fleets, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInks not implemented")
-}
-
-// UnsafeInkServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to InkServiceServer will
-// result in compilation errors.
-type UnsafeInkServiceServer interface {
-	mustEmbedUnimplementedInkServiceServer()
-}
-
-func RegisterInkServiceServer(s grpc.ServiceRegistrar, srv InkServiceServer) {
-	s.RegisterService(&InkService_ServiceDesc, srv)
-}
-
-func _InkService_CreateInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateFleetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).CreateInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_CreateInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).CreateInk(ctx, req.(*CreateFleetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InkService_GetInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetFleetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).GetInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_GetInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).GetInk(ctx, req.(*GetFleetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InkService_GetInks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).GetInks(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_GetInks_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).GetInks(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// InkService_ServiceDesc is the grpc.ServiceDesc for InkService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var InkService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.InkService",
-	HandlerType: (*InkServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateInk",
-			Handler:    _InkService_CreateInk_Handler,
-		},
-		{
-			MethodName: "GetInk",
-			Handler:    _InkService_GetInk_Handler,
-		},
-		{
-			MethodName: "GetInks",
-			Handler:    _InkService_GetInks_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	InkDetailService_PatchInk_FullMethodName = "/protos.InkDetailService/PatchInk"
-)
-
-// InkDetailServiceClient is the client API for InkDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type InkDetailServiceClient interface {
-	PatchInk(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error)
-}
-
-type inkDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewInkDetailServiceClient(cc grpc.ClientConnInterface) InkDetailServiceClient {
-	return &inkDetailServiceClient{cc}
-}
-
-func (c *inkDetailServiceClient) PatchInk(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, InkDetailService_PatchInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// InkDetailServiceServer is the server API for InkDetailService service.
-// All implementations should embed UnimplementedInkDetailServiceServer
-// for forward compatibility
-type InkDetailServiceServer interface {
-	PatchInk(context.Context, *PatchFleetRequest) (*Group, error)
-}
-
-// UnimplementedInkDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedInkDetailServiceServer struct {
-}
-
-func (UnimplementedInkDetailServiceServer) PatchInk(context.Context, *PatchFleetRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchInk not implemented")
-}
-
-// UnsafeInkDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to InkDetailServiceServer will
-// result in compilation errors.
-type UnsafeInkDetailServiceServer interface {
-	mustEmbedUnimplementedInkDetailServiceServer()
-}
-
-func RegisterInkDetailServiceServer(s grpc.ServiceRegistrar, srv InkDetailServiceServer) {
-	s.RegisterService(&InkDetailService_ServiceDesc, srv)
-}
-
-func _InkDetailService_PatchInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchFleetRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkDetailServiceServer).PatchInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkDetailService_PatchInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkDetailServiceServer).PatchInk(ctx, req.(*PatchFleetRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// InkDetailService_ServiceDesc is the grpc.ServiceDesc for InkDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var InkDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.InkDetailService",
-	HandlerType: (*InkDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "PatchInk",
-			Handler:    _InkDetailService_PatchInk_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
