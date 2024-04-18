@@ -24,12 +24,12 @@ const (
 type AclResourceType int32
 
 const (
-	AclResourceType_FLEET    AclResourceType = 0
-	AclResourceType_RESOURCE AclResourceType = 1
-	AclResourceType_GROUP    AclResourceType = 2
-	AclResourceType_USER     AclResourceType = 3
-	AclResourceType_INK      AclResourceType = 4
-	AclResourceType_DEVICE   AclResourceType = 5
+	AclResourceType_FLEET    AclResourceType = 0 // servers
+	AclResourceType_RESOURCE AclResourceType = 1 // server
+	AclResourceType_GROUP    AclResourceType = 2 // users
+	AclResourceType_USER     AclResourceType = 3 // user
+	AclResourceType_INK      AclResourceType = 4 // devices
+	AclResourceType_DEVICE   AclResourceType = 5 // device
 )
 
 // Enum value maps for AclResourceType.
