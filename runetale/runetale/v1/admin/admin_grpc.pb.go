@@ -20,9 +20,10 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AclService_CreateAcl_FullMethodName = "/protos.AclService/CreateAcl"
-	AclService_GetAcl_FullMethodName    = "/protos.AclService/GetAcl"
-	AclService_GetAcls_FullMethodName   = "/protos.AclService/GetAcls"
+	AclService_CreateAcl_FullMethodName   = "/protos.AclService/CreateAcl"
+	AclService_GetAcl_FullMethodName      = "/protos.AclService/GetAcl"
+	AclService_GetAcls_FullMethodName     = "/protos.AclService/GetAcls"
+	AclService_GetAclsJson_FullMethodName = "/protos.AclService/GetAclsJson"
 )
 
 // AclServiceClient is the client API for AclService service.
@@ -32,6 +33,7 @@ type AclServiceClient interface {
 	CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcls(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsResponse, error)
+	GetAclsJson(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsJsonResponse, error)
 }
 
 type aclServiceClient struct {
@@ -69,6 +71,15 @@ func (c *aclServiceClient) GetAcls(ctx context.Context, in *emptypb.Empty, opts 
 	return out, nil
 }
 
+func (c *aclServiceClient) GetAclsJson(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsJsonResponse, error) {
+	out := new(GetAclsJsonResponse)
+	err := c.cc.Invoke(ctx, AclService_GetAclsJson_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AclServiceServer is the server API for AclService service.
 // All implementations should embed UnimplementedAclServiceServer
 // for forward compatibility
@@ -76,6 +87,7 @@ type AclServiceServer interface {
 	CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error)
 	GetAcl(context.Context, *GetAclRequest) (*AclResponse, error)
 	GetAcls(context.Context, *emptypb.Empty) (*GetAclsResponse, error)
+	GetAclsJson(context.Context, *emptypb.Empty) (*GetAclsJsonResponse, error)
 }
 
 // UnimplementedAclServiceServer should be embedded to have forward compatible implementations.
@@ -90,6 +102,9 @@ func (UnimplementedAclServiceServer) GetAcl(context.Context, *GetAclRequest) (*A
 }
 func (UnimplementedAclServiceServer) GetAcls(context.Context, *emptypb.Empty) (*GetAclsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAcls not implemented")
+}
+func (UnimplementedAclServiceServer) GetAclsJson(context.Context, *emptypb.Empty) (*GetAclsJsonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAclsJson not implemented")
 }
 
 // UnsafeAclServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -157,6 +172,24 @@ func _AclService_GetAcls_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AclService_GetAclsJson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AclServiceServer).GetAclsJson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AclService_GetAclsJson_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AclServiceServer).GetAclsJson(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AclService_ServiceDesc is the grpc.ServiceDesc for AclService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -175,6 +208,10 @@ var AclService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAcls",
 			Handler:    _AclService_GetAcls_Handler,
+		},
+		{
+			MethodName: "GetAclsJson",
+			Handler:    _AclService_GetAclsJson_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
