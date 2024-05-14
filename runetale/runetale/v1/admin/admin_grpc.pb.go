@@ -1541,3 +1541,91 @@ var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "runetale/runetale/v1/admin.proto",
 }
+
+const (
+	OverviewService_GetOverview_FullMethodName = "/protos.OverviewService/GetOverview"
+)
+
+// OverviewServiceClient is the client API for OverviewService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type OverviewServiceClient interface {
+	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
+}
+
+type overviewServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewOverviewServiceClient(cc grpc.ClientConnInterface) OverviewServiceClient {
+	return &overviewServiceClient{cc}
+}
+
+func (c *overviewServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error) {
+	out := new(Overview)
+	err := c.cc.Invoke(ctx, OverviewService_GetOverview_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// OverviewServiceServer is the server API for OverviewService service.
+// All implementations should embed UnimplementedOverviewServiceServer
+// for forward compatibility
+type OverviewServiceServer interface {
+	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
+}
+
+// UnimplementedOverviewServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedOverviewServiceServer struct {
+}
+
+func (UnimplementedOverviewServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
+}
+
+// UnsafeOverviewServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to OverviewServiceServer will
+// result in compilation errors.
+type UnsafeOverviewServiceServer interface {
+	mustEmbedUnimplementedOverviewServiceServer()
+}
+
+func RegisterOverviewServiceServer(s grpc.ServiceRegistrar, srv OverviewServiceServer) {
+	s.RegisterService(&OverviewService_ServiceDesc, srv)
+}
+
+func _OverviewService_GetOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OverviewServiceServer).GetOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OverviewService_GetOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OverviewServiceServer).GetOverview(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// OverviewService_ServiceDesc is the grpc.ServiceDesc for OverviewService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var OverviewService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.OverviewService",
+	HandlerType: (*OverviewServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetOverview",
+			Handler:    _OverviewService_GetOverview_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "runetale/runetale/v1/admin.proto",
+}
