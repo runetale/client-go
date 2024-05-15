@@ -88,7 +88,7 @@ type AdminServiceClient interface {
 	PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error)
 	// overview
 	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
-	GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onbording, error)
+	GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onboarding, error)
 }
 
 type adminServiceClient struct {
@@ -342,8 +342,8 @@ func (c *adminServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *adminServiceClient) GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onbording, error) {
-	out := new(Onbording)
+func (c *adminServiceClient) GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onboarding, error) {
+	out := new(Onboarding)
 	err := c.cc.Invoke(ctx, AdminService_GetOnbording_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -389,7 +389,7 @@ type AdminServiceServer interface {
 	PatchInk(context.Context, *PatchInkRequest) (*Ink, error)
 	// overview
 	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
-	GetOnbording(context.Context, *emptypb.Empty) (*Onbording, error)
+	GetOnbording(context.Context, *emptypb.Empty) (*Onboarding, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -477,7 +477,7 @@ func (UnimplementedAdminServiceServer) PatchInk(context.Context, *PatchInkReques
 func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
 }
-func (UnimplementedAdminServiceServer) GetOnbording(context.Context, *emptypb.Empty) (*Onbording, error) {
+func (UnimplementedAdminServiceServer) GetOnbording(context.Context, *emptypb.Empty) (*Onboarding, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOnbording not implemented")
 }
 
