@@ -20,1610 +20,1063 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AclService_CreateAcl_FullMethodName   = "/protos.AclService/CreateAcl"
-	AclService_GetAcl_FullMethodName      = "/protos.AclService/GetAcl"
-	AclService_GetAcls_FullMethodName     = "/protos.AclService/GetAcls"
-	AclService_GetAclsJson_FullMethodName = "/protos.AclService/GetAclsJson"
+	AdminService_GetMe_FullMethodName          = "/protos.AdminService/GetMe"
+	AdminService_GetUser_FullMethodName        = "/protos.AdminService/GetUser"
+	AdminService_GetUsers_FullMethodName       = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName      = "/protos.AdminService/CreateAcl"
+	AdminService_GetAcl_FullMethodName         = "/protos.AdminService/GetAcl"
+	AdminService_GetAcls_FullMethodName        = "/protos.AdminService/GetAcls"
+	AdminService_GetAclsJson_FullMethodName    = "/protos.AdminService/GetAclsJson"
+	AdminService_PatchAcl_FullMethodName       = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName    = "/protos.AdminService/CreateGroup"
+	AdminService_GetGroup_FullMethodName       = "/protos.AdminService/GetGroup"
+	AdminService_GetGroups_FullMethodName      = "/protos.AdminService/GetGroups"
+	AdminService_PatchGroup_FullMethodName     = "/protos.AdminService/PatchGroup"
+	AdminService_GetDevice_FullMethodName      = "/protos.AdminService/GetDevice"
+	AdminService_GetDevices_FullMethodName     = "/protos.AdminService/GetDevices"
+	AdminService_CreateResource_FullMethodName = "/protos.AdminService/CreateResource"
+	AdminService_GenerateToken_FullMethodName  = "/protos.AdminService/GenerateToken"
+	AdminService_GetResource_FullMethodName    = "/protos.AdminService/GetResource"
+	AdminService_GetResources_FullMethodName   = "/protos.AdminService/GetResources"
+	AdminService_CreateFleet_FullMethodName    = "/protos.AdminService/CreateFleet"
+	AdminService_GetFleet_FullMethodName       = "/protos.AdminService/GetFleet"
+	AdminService_GetFleets_FullMethodName      = "/protos.AdminService/GetFleets"
+	AdminService_PatchFleet_FullMethodName     = "/protos.AdminService/PatchFleet"
+	AdminService_CreateInk_FullMethodName      = "/protos.AdminService/CreateInk"
+	AdminService_GetInk_FullMethodName         = "/protos.AdminService/GetInk"
+	AdminService_GetInks_FullMethodName        = "/protos.AdminService/GetInks"
+	AdminService_PatchInk_FullMethodName       = "/protos.AdminService/PatchInk"
+	AdminService_GetOverview_FullMethodName    = "/protos.AdminService/GetOverview"
 )
 
-// AclServiceClient is the client API for AclService service.
+// AdminServiceClient is the client API for AdminService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AclServiceClient interface {
+type AdminServiceClient interface {
+	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
+	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error)
+	// acls
 	CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcls(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsResponse, error)
 	GetAclsJson(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsJsonResponse, error)
+	PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
+	// groups
+	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
+	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
+	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error)
+	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
+	// devices
+	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error)
+	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
+	// resources
+	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
+	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
+	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
+	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
+	// fleets
+	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
+	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
+	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
+	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error)
+	// inks
+	CreateInk(ctx context.Context, in *CreateInkRequest, opts ...grpc.CallOption) (*Ink, error)
+	GetInk(ctx context.Context, in *GetInkRequest, opts ...grpc.CallOption) (*Ink, error)
+	GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error)
+	PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error)
+	// overview
+	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
 }
 
-type aclServiceClient struct {
+type adminServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAclServiceClient(cc grpc.ClientConnInterface) AclServiceClient {
-	return &aclServiceClient{cc}
+func NewAdminServiceClient(cc grpc.ClientConnInterface) AdminServiceClient {
+	return &adminServiceClient{cc}
 }
 
-func (c *aclServiceClient) CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
-	out := new(AclResponse)
-	err := c.cc.Invoke(ctx, AclService_CreateAcl_FullMethodName, in, out, opts...)
+func (c *adminServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error) {
+	out := new(GetMeResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetMe_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
-	out := new(AclResponse)
-	err := c.cc.Invoke(ctx, AclService_GetAcl_FullMethodName, in, out, opts...)
+func (c *adminServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error) {
+	out := new(User)
+	err := c.cc.Invoke(ctx, AdminService_GetUser_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) GetAcls(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsResponse, error) {
+func (c *adminServiceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error) {
+	out := new(Users)
+	err := c.cc.Invoke(ctx, AdminService_GetUsers_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_CreateAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetAcls(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsResponse, error) {
 	out := new(GetAclsResponse)
-	err := c.cc.Invoke(ctx, AclService_GetAcls_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdminService_GetAcls_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aclServiceClient) GetAclsJson(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsJsonResponse, error) {
+func (c *adminServiceClient) GetAclsJson(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAclsJsonResponse, error) {
 	out := new(GetAclsJsonResponse)
-	err := c.cc.Invoke(ctx, AclService_GetAclsJson_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdminService_GetAclsJson_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AclServiceServer is the server API for AclService service.
-// All implementations should embed UnimplementedAclServiceServer
+func (c *adminServiceClient) PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
+	out := new(AclResponse)
+	err := c.cc.Invoke(ctx, AdminService_PatchAcl_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, AdminService_CreateGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, AdminService_GetGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error) {
+	out := new(Groups)
+	err := c.cc.Invoke(ctx, AdminService_GetGroups_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, AdminService_PatchGroup_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error) {
+	out := new(Device)
+	err := c.cc.Invoke(ctx, AdminService_GetDevice_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error) {
+	out := new(Devices)
+	err := c.cc.Invoke(ctx, AdminService_GetDevices_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error) {
+	out := new(CreateResourceResponse)
+	err := c.cc.Invoke(ctx, AdminService_CreateResource_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error) {
+	out := new(GenerateTokenResponse)
+	err := c.cc.Invoke(ctx, AdminService_GenerateToken_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
+	out := new(Resource)
+	err := c.cc.Invoke(ctx, AdminService_GetResource_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error) {
+	out := new(Resources)
+	err := c.cc.Invoke(ctx, AdminService_GetResources_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
+	out := new(Fleet)
+	err := c.cc.Invoke(ctx, AdminService_CreateFleet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
+	out := new(Fleet)
+	err := c.cc.Invoke(ctx, AdminService_GetFleet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error) {
+	out := new(Fleets)
+	err := c.cc.Invoke(ctx, AdminService_GetFleets_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error) {
+	out := new(Group)
+	err := c.cc.Invoke(ctx, AdminService_PatchFleet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) CreateInk(ctx context.Context, in *CreateInkRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, AdminService_CreateInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetInk(ctx context.Context, in *GetInkRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, AdminService_GetInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error) {
+	out := new(Inks)
+	err := c.cc.Invoke(ctx, AdminService_GetInks_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error) {
+	out := new(Ink)
+	err := c.cc.Invoke(ctx, AdminService_PatchInk_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error) {
+	out := new(Overview)
+	err := c.cc.Invoke(ctx, AdminService_GetOverview_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AdminServiceServer is the server API for AdminService service.
+// All implementations should embed UnimplementedAdminServiceServer
 // for forward compatibility
-type AclServiceServer interface {
+type AdminServiceServer interface {
+	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
+	GetUser(context.Context, *GetUserRequest) (*User, error)
+	GetUsers(context.Context, *emptypb.Empty) (*Users, error)
+	// acls
 	CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error)
 	GetAcl(context.Context, *GetAclRequest) (*AclResponse, error)
 	GetAcls(context.Context, *emptypb.Empty) (*GetAclsResponse, error)
 	GetAclsJson(context.Context, *emptypb.Empty) (*GetAclsJsonResponse, error)
-}
-
-// UnimplementedAclServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedAclServiceServer struct {
-}
-
-func (UnimplementedAclServiceServer) CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateAcl not implemented")
-}
-func (UnimplementedAclServiceServer) GetAcl(context.Context, *GetAclRequest) (*AclResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAcl not implemented")
-}
-func (UnimplementedAclServiceServer) GetAcls(context.Context, *emptypb.Empty) (*GetAclsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAcls not implemented")
-}
-func (UnimplementedAclServiceServer) GetAclsJson(context.Context, *emptypb.Empty) (*GetAclsJsonResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetAclsJson not implemented")
-}
-
-// UnsafeAclServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AclServiceServer will
-// result in compilation errors.
-type UnsafeAclServiceServer interface {
-	mustEmbedUnimplementedAclServiceServer()
-}
-
-func RegisterAclServiceServer(s grpc.ServiceRegistrar, srv AclServiceServer) {
-	s.RegisterService(&AclService_ServiceDesc, srv)
-}
-
-func _AclService_CreateAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateAclRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).CreateAcl(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_CreateAcl_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).CreateAcl(ctx, req.(*CreateAclRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_GetAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAclRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).GetAcl(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_GetAcl_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).GetAcl(ctx, req.(*GetAclRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_GetAcls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).GetAcls(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_GetAcls_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).GetAcls(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AclService_GetAclsJson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclServiceServer).GetAclsJson(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclService_GetAclsJson_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclServiceServer).GetAclsJson(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AclService_ServiceDesc is the grpc.ServiceDesc for AclService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AclService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.AclService",
-	HandlerType: (*AclServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateAcl",
-			Handler:    _AclService_CreateAcl_Handler,
-		},
-		{
-			MethodName: "GetAcl",
-			Handler:    _AclService_GetAcl_Handler,
-		},
-		{
-			MethodName: "GetAcls",
-			Handler:    _AclService_GetAcls_Handler,
-		},
-		{
-			MethodName: "GetAclsJson",
-			Handler:    _AclService_GetAclsJson_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	AclDetailService_PatchAcl_FullMethodName = "/protos.AclDetailService/PatchAcl"
-)
-
-// AclDetailServiceClient is the client API for AclDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AclDetailServiceClient interface {
-	PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
-}
-
-type aclDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewAclDetailServiceClient(cc grpc.ClientConnInterface) AclDetailServiceClient {
-	return &aclDetailServiceClient{cc}
-}
-
-func (c *aclDetailServiceClient) PatchAcl(ctx context.Context, in *PatchAclRequest, opts ...grpc.CallOption) (*AclResponse, error) {
-	out := new(AclResponse)
-	err := c.cc.Invoke(ctx, AclDetailService_PatchAcl_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// AclDetailServiceServer is the server API for AclDetailService service.
-// All implementations should embed UnimplementedAclDetailServiceServer
-// for forward compatibility
-type AclDetailServiceServer interface {
 	PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error)
+	// groups
+	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
+	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
+	GetGroups(context.Context, *emptypb.Empty) (*Groups, error)
+	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
+	// devices
+	GetDevice(context.Context, *GetDevicesRequest) (*Device, error)
+	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
+	// resources
+	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
+	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
+	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
+	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
+	// fleets
+	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
+	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
+	GetFleets(context.Context, *emptypb.Empty) (*Fleets, error)
+	PatchFleet(context.Context, *PatchFleetRequest) (*Group, error)
+	// inks
+	CreateInk(context.Context, *CreateInkRequest) (*Ink, error)
+	GetInk(context.Context, *GetInkRequest) (*Ink, error)
+	GetInks(context.Context, *emptypb.Empty) (*Inks, error)
+	PatchInk(context.Context, *PatchInkRequest) (*Ink, error)
+	// overview
+	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
 }
 
-// UnimplementedAclDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedAclDetailServiceServer struct {
+// UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedAdminServiceServer struct {
 }
 
-func (UnimplementedAclDetailServiceServer) PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchAcl not implemented")
-}
-
-// UnsafeAclDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AclDetailServiceServer will
-// result in compilation errors.
-type UnsafeAclDetailServiceServer interface {
-	mustEmbedUnimplementedAclDetailServiceServer()
-}
-
-func RegisterAclDetailServiceServer(s grpc.ServiceRegistrar, srv AclDetailServiceServer) {
-	s.RegisterService(&AclDetailService_ServiceDesc, srv)
-}
-
-func _AclDetailService_PatchAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchAclRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AclDetailServiceServer).PatchAcl(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AclDetailService_PatchAcl_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AclDetailServiceServer).PatchAcl(ctx, req.(*PatchAclRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// AclDetailService_ServiceDesc is the grpc.ServiceDesc for AclDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var AclDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.AclDetailService",
-	HandlerType: (*AclDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "PatchAcl",
-			Handler:    _AclDetailService_PatchAcl_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	UserService_GetMe_FullMethodName    = "/protos.UserService/GetMe"
-	UserService_GetUser_FullMethodName  = "/protos.UserService/GetUser"
-	UserService_GetUsers_FullMethodName = "/protos.UserService/GetUsers"
-)
-
-// UserServiceClient is the client API for UserService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type UserServiceClient interface {
-	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
-	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error)
-}
-
-type userServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
-	return &userServiceClient{cc}
-}
-
-func (c *userServiceClient) GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error) {
-	out := new(GetMeResponse)
-	err := c.cc.Invoke(ctx, UserService_GetMe_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error) {
-	out := new(User)
-	err := c.cc.Invoke(ctx, UserService_GetUser_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *userServiceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error) {
-	out := new(Users)
-	err := c.cc.Invoke(ctx, UserService_GetUsers_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// UserServiceServer is the server API for UserService service.
-// All implementations should embed UnimplementedUserServiceServer
-// for forward compatibility
-type UserServiceServer interface {
-	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
-	GetUser(context.Context, *GetUserRequest) (*User, error)
-	GetUsers(context.Context, *emptypb.Empty) (*Users, error)
-}
-
-// UnimplementedUserServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedUserServiceServer struct {
-}
-
-func (UnimplementedUserServiceServer) GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error) {
+func (UnimplementedAdminServiceServer) GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMe not implemented")
 }
-func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*User, error) {
+func (UnimplementedAdminServiceServer) GetUser(context.Context, *GetUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUsers(context.Context, *emptypb.Empty) (*Users, error) {
+func (UnimplementedAdminServiceServer) GetUsers(context.Context, *emptypb.Empty) (*Users, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
+func (UnimplementedAdminServiceServer) CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) GetAcl(context.Context, *GetAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) GetAcls(context.Context, *emptypb.Empty) (*GetAclsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAcls not implemented")
+}
+func (UnimplementedAdminServiceServer) GetAclsJson(context.Context, *emptypb.Empty) (*GetAclsJsonResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAclsJson not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchAcl(context.Context, *PatchAclRequest) (*AclResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchAcl not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) GetGroup(context.Context, *GetGroupRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) GetGroups(context.Context, *emptypb.Empty) (*Groups, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroups not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
+}
+func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDevicesRequest) (*Device, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
+}
+func (UnimplementedAdminServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateResource not implemented")
+}
+func (UnimplementedAdminServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
+}
+func (UnimplementedAdminServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
+}
+func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Empty) (*Resources, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
+}
+func (UnimplementedAdminServiceServer) GetFleet(context.Context, *GetFleetRequest) (*Fleet, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFleet not implemented")
+}
+func (UnimplementedAdminServiceServer) GetFleets(context.Context, *emptypb.Empty) (*Fleets, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFleets not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Group, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
+}
+func (UnimplementedAdminServiceServer) CreateInk(context.Context, *CreateInkRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateInk not implemented")
+}
+func (UnimplementedAdminServiceServer) GetInk(context.Context, *GetInkRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInk not implemented")
+}
+func (UnimplementedAdminServiceServer) GetInks(context.Context, *emptypb.Empty) (*Inks, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInks not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchInk(context.Context, *PatchInkRequest) (*Ink, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchInk not implemented")
+}
+func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
+}
 
-// UnsafeUserServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to UserServiceServer will
+// UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AdminServiceServer will
 // result in compilation errors.
-type UnsafeUserServiceServer interface {
-	mustEmbedUnimplementedUserServiceServer()
+type UnsafeAdminServiceServer interface {
+	mustEmbedUnimplementedAdminServiceServer()
 }
 
-func RegisterUserServiceServer(s grpc.ServiceRegistrar, srv UserServiceServer) {
-	s.RegisterService(&UserService_ServiceDesc, srv)
+func RegisterAdminServiceServer(s grpc.ServiceRegistrar, srv AdminServiceServer) {
+	s.RegisterService(&AdminService_ServiceDesc, srv)
 }
 
-func _UserService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetMe_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetMe(ctx, in)
+		return srv.(AdminServiceServer).GetMe(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetMe_FullMethodName,
+		FullMethod: AdminService_GetMe_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetMe(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetMe(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUser(ctx, in)
+		return srv.(AdminServiceServer).GetUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetUser_FullMethodName,
+		FullMethod: AdminService_GetUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUser(ctx, req.(*GetUserRequest))
+		return srv.(AdminServiceServer).GetUser(ctx, req.(*GetUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserService_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceServer).GetUsers(ctx, in)
+		return srv.(AdminServiceServer).GetUsers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserService_GetUsers_FullMethodName,
+		FullMethod: AdminService_GetUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceServer).GetUsers(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetUsers(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// UserService_ServiceDesc is the grpc.ServiceDesc for UserService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var UserService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.UserService",
-	HandlerType: (*UserServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetMe",
-			Handler:    _UserService_GetMe_Handler,
-		},
-		{
-			MethodName: "GetUser",
-			Handler:    _UserService_GetUser_Handler,
-		},
-		{
-			MethodName: "GetUsers",
-			Handler:    _UserService_GetUsers_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	GroupService_CreateGroup_FullMethodName = "/protos.GroupService/CreateGroup"
-	GroupService_GetGroup_FullMethodName    = "/protos.GroupService/GetGroup"
-	GroupService_GetGroups_FullMethodName   = "/protos.GroupService/GetGroups"
-)
-
-// GroupServiceClient is the client API for GroupService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GroupServiceClient interface {
-	CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error)
-}
-
-type groupServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewGroupServiceClient(cc grpc.ClientConnInterface) GroupServiceClient {
-	return &groupServiceClient{cc}
-}
-
-func (c *groupServiceClient) CreateGroup(ctx context.Context, in *CreateGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, GroupService_CreateGroup_FullMethodName, in, out, opts...)
-	if err != nil {
+func _AdminService_CreateAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateAclRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return out, nil
+	if interceptor == nil {
+		return srv.(AdminServiceServer).CreateAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_CreateAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).CreateAcl(ctx, req.(*CreateAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (c *groupServiceClient) GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, GroupService_GetGroup_FullMethodName, in, out, opts...)
-	if err != nil {
+func _AdminService_GetAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAclRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return out, nil
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetAcl(ctx, req.(*GetAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (c *groupServiceClient) GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error) {
-	out := new(Groups)
-	err := c.cc.Invoke(ctx, GroupService_GetGroups_FullMethodName, in, out, opts...)
-	if err != nil {
+func _AdminService_GetAcls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return out, nil
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetAcls(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetAcls_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetAcls(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// GroupServiceServer is the server API for GroupService service.
-// All implementations should embed UnimplementedGroupServiceServer
-// for forward compatibility
-type GroupServiceServer interface {
-	CreateGroup(context.Context, *CreateGroupRequest) (*Group, error)
-	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
-	GetGroups(context.Context, *emptypb.Empty) (*Groups, error)
+func _AdminService_GetAclsJson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetAclsJson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetAclsJson_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetAclsJson(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// UnimplementedGroupServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedGroupServiceServer struct {
+func _AdminService_PatchAcl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchAclRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).PatchAcl(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_PatchAcl_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).PatchAcl(ctx, req.(*PatchAclRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-func (UnimplementedGroupServiceServer) CreateGroup(context.Context, *CreateGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateGroup not implemented")
-}
-func (UnimplementedGroupServiceServer) GetGroup(context.Context, *GetGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetGroup not implemented")
-}
-func (UnimplementedGroupServiceServer) GetGroups(context.Context, *emptypb.Empty) (*Groups, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetGroups not implemented")
-}
-
-// UnsafeGroupServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GroupServiceServer will
-// result in compilation errors.
-type UnsafeGroupServiceServer interface {
-	mustEmbedUnimplementedGroupServiceServer()
-}
-
-func RegisterGroupServiceServer(s grpc.ServiceRegistrar, srv GroupServiceServer) {
-	s.RegisterService(&GroupService_ServiceDesc, srv)
-}
-
-func _GroupService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_CreateGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupServiceServer).CreateGroup(ctx, in)
+		return srv.(AdminServiceServer).CreateGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GroupService_CreateGroup_FullMethodName,
+		FullMethod: AdminService_CreateGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
+		return srv.(AdminServiceServer).CreateGroup(ctx, req.(*CreateGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GroupService_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupServiceServer).GetGroup(ctx, in)
+		return srv.(AdminServiceServer).GetGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GroupService_GetGroup_FullMethodName,
+		FullMethod: AdminService_GetGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupServiceServer).GetGroup(ctx, req.(*GetGroupRequest))
+		return srv.(AdminServiceServer).GetGroup(ctx, req.(*GetGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GroupService_GetGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetGroups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupServiceServer).GetGroups(ctx, in)
+		return srv.(AdminServiceServer).GetGroups(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GroupService_GetGroups_FullMethodName,
+		FullMethod: AdminService_GetGroups_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupServiceServer).GetGroups(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetGroups(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GroupService_ServiceDesc is the grpc.ServiceDesc for GroupService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var GroupService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.GroupService",
-	HandlerType: (*GroupServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateGroup",
-			Handler:    _GroupService_CreateGroup_Handler,
-		},
-		{
-			MethodName: "GetGroup",
-			Handler:    _GroupService_GetGroup_Handler,
-		},
-		{
-			MethodName: "GetGroups",
-			Handler:    _GroupService_GetGroups_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	GroupDetailService_PatchGroup_FullMethodName = "/protos.GroupDetailService/PatchGroup"
-)
-
-// GroupDetailServiceClient is the client API for GroupDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type GroupDetailServiceClient interface {
-	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
-}
-
-type groupDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewGroupDetailServiceClient(cc grpc.ClientConnInterface) GroupDetailServiceClient {
-	return &groupDetailServiceClient{cc}
-}
-
-func (c *groupDetailServiceClient) PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, GroupDetailService_PatchGroup_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// GroupDetailServiceServer is the server API for GroupDetailService service.
-// All implementations should embed UnimplementedGroupDetailServiceServer
-// for forward compatibility
-type GroupDetailServiceServer interface {
-	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
-}
-
-// UnimplementedGroupDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedGroupDetailServiceServer struct {
-}
-
-func (UnimplementedGroupDetailServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
-}
-
-// UnsafeGroupDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to GroupDetailServiceServer will
-// result in compilation errors.
-type UnsafeGroupDetailServiceServer interface {
-	mustEmbedUnimplementedGroupDetailServiceServer()
-}
-
-func RegisterGroupDetailServiceServer(s grpc.ServiceRegistrar, srv GroupDetailServiceServer) {
-	s.RegisterService(&GroupDetailService_ServiceDesc, srv)
-}
-
-func _GroupDetailService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PatchGroupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GroupDetailServiceServer).PatchGroup(ctx, in)
+		return srv.(AdminServiceServer).PatchGroup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: GroupDetailService_PatchGroup_FullMethodName,
+		FullMethod: AdminService_PatchGroup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GroupDetailServiceServer).PatchGroup(ctx, req.(*PatchGroupRequest))
+		return srv.(AdminServiceServer).PatchGroup(ctx, req.(*PatchGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// GroupDetailService_ServiceDesc is the grpc.ServiceDesc for GroupDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var GroupDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.GroupDetailService",
-	HandlerType: (*GroupDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "PatchGroup",
-			Handler:    _GroupDetailService_PatchGroup_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	DeviceService_GetDevice_FullMethodName  = "/protos.DeviceService/GetDevice"
-	DeviceService_GetDevices_FullMethodName = "/protos.DeviceService/GetDevices"
-)
-
-// DeviceServiceClient is the client API for DeviceService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type DeviceServiceClient interface {
-	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error)
-	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
-}
-
-type deviceServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewDeviceServiceClient(cc grpc.ClientConnInterface) DeviceServiceClient {
-	return &deviceServiceClient{cc}
-}
-
-func (c *deviceServiceClient) GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error) {
-	out := new(Device)
-	err := c.cc.Invoke(ctx, DeviceService_GetDevice_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *deviceServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error) {
-	out := new(Devices)
-	err := c.cc.Invoke(ctx, DeviceService_GetDevices_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// DeviceServiceServer is the server API for DeviceService service.
-// All implementations should embed UnimplementedDeviceServiceServer
-// for forward compatibility
-type DeviceServiceServer interface {
-	GetDevice(context.Context, *GetDevicesRequest) (*Device, error)
-	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
-}
-
-// UnimplementedDeviceServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedDeviceServiceServer struct {
-}
-
-func (UnimplementedDeviceServiceServer) GetDevice(context.Context, *GetDevicesRequest) (*Device, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
-}
-func (UnimplementedDeviceServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
-}
-
-// UnsafeDeviceServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to DeviceServiceServer will
-// result in compilation errors.
-type UnsafeDeviceServiceServer interface {
-	mustEmbedUnimplementedDeviceServiceServer()
-}
-
-func RegisterDeviceServiceServer(s grpc.ServiceRegistrar, srv DeviceServiceServer) {
-	s.RegisterService(&DeviceService_ServiceDesc, srv)
-}
-
-func _DeviceService_GetDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeviceServiceServer).GetDevice(ctx, in)
+		return srv.(AdminServiceServer).GetDevice(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DeviceService_GetDevice_FullMethodName,
+		FullMethod: AdminService_GetDevice_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).GetDevice(ctx, req.(*GetDevicesRequest))
+		return srv.(AdminServiceServer).GetDevice(ctx, req.(*GetDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DeviceService_GetDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DeviceServiceServer).GetDevices(ctx, in)
+		return srv.(AdminServiceServer).GetDevices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DeviceService_GetDevices_FullMethodName,
+		FullMethod: AdminService_GetDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DeviceServiceServer).GetDevices(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetDevices(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// DeviceService_ServiceDesc is the grpc.ServiceDesc for DeviceService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var DeviceService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.DeviceService",
-	HandlerType: (*DeviceServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetDevice",
-			Handler:    _DeviceService_GetDevice_Handler,
-		},
-		{
-			MethodName: "GetDevices",
-			Handler:    _DeviceService_GetDevices_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	InkService_CreateInk_FullMethodName = "/protos.InkService/CreateInk"
-	InkService_GetInk_FullMethodName    = "/protos.InkService/GetInk"
-	InkService_GetInks_FullMethodName   = "/protos.InkService/GetInks"
-)
-
-// InkServiceClient is the client API for InkService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type InkServiceClient interface {
-	CreateInk(ctx context.Context, in *CreateInkRequest, opts ...grpc.CallOption) (*Ink, error)
-	GetInk(ctx context.Context, in *GetInkRequest, opts ...grpc.CallOption) (*Ink, error)
-	GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error)
-}
-
-type inkServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewInkServiceClient(cc grpc.ClientConnInterface) InkServiceClient {
-	return &inkServiceClient{cc}
-}
-
-func (c *inkServiceClient) CreateInk(ctx context.Context, in *CreateInkRequest, opts ...grpc.CallOption) (*Ink, error) {
-	out := new(Ink)
-	err := c.cc.Invoke(ctx, InkService_CreateInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *inkServiceClient) GetInk(ctx context.Context, in *GetInkRequest, opts ...grpc.CallOption) (*Ink, error) {
-	out := new(Ink)
-	err := c.cc.Invoke(ctx, InkService_GetInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *inkServiceClient) GetInks(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Inks, error) {
-	out := new(Inks)
-	err := c.cc.Invoke(ctx, InkService_GetInks_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// InkServiceServer is the server API for InkService service.
-// All implementations should embed UnimplementedInkServiceServer
-// for forward compatibility
-type InkServiceServer interface {
-	CreateInk(context.Context, *CreateInkRequest) (*Ink, error)
-	GetInk(context.Context, *GetInkRequest) (*Ink, error)
-	GetInks(context.Context, *emptypb.Empty) (*Inks, error)
-}
-
-// UnimplementedInkServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedInkServiceServer struct {
-}
-
-func (UnimplementedInkServiceServer) CreateInk(context.Context, *CreateInkRequest) (*Ink, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateInk not implemented")
-}
-func (UnimplementedInkServiceServer) GetInk(context.Context, *GetInkRequest) (*Ink, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInk not implemented")
-}
-func (UnimplementedInkServiceServer) GetInks(context.Context, *emptypb.Empty) (*Inks, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetInks not implemented")
-}
-
-// UnsafeInkServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to InkServiceServer will
-// result in compilation errors.
-type UnsafeInkServiceServer interface {
-	mustEmbedUnimplementedInkServiceServer()
-}
-
-func RegisterInkServiceServer(s grpc.ServiceRegistrar, srv InkServiceServer) {
-	s.RegisterService(&InkService_ServiceDesc, srv)
-}
-
-func _InkService_CreateInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateInkRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).CreateInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_CreateInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).CreateInk(ctx, req.(*CreateInkRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InkService_GetInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetInkRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).GetInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_GetInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).GetInk(ctx, req.(*GetInkRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _InkService_GetInks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkServiceServer).GetInks(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkService_GetInks_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkServiceServer).GetInks(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// InkService_ServiceDesc is the grpc.ServiceDesc for InkService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var InkService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.InkService",
-	HandlerType: (*InkServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateInk",
-			Handler:    _InkService_CreateInk_Handler,
-		},
-		{
-			MethodName: "GetInk",
-			Handler:    _InkService_GetInk_Handler,
-		},
-		{
-			MethodName: "GetInks",
-			Handler:    _InkService_GetInks_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	InkDetailService_PatchInk_FullMethodName = "/protos.InkDetailService/PatchInk"
-)
-
-// InkDetailServiceClient is the client API for InkDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type InkDetailServiceClient interface {
-	PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error)
-}
-
-type inkDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewInkDetailServiceClient(cc grpc.ClientConnInterface) InkDetailServiceClient {
-	return &inkDetailServiceClient{cc}
-}
-
-func (c *inkDetailServiceClient) PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error) {
-	out := new(Ink)
-	err := c.cc.Invoke(ctx, InkDetailService_PatchInk_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// InkDetailServiceServer is the server API for InkDetailService service.
-// All implementations should embed UnimplementedInkDetailServiceServer
-// for forward compatibility
-type InkDetailServiceServer interface {
-	PatchInk(context.Context, *PatchInkRequest) (*Ink, error)
-}
-
-// UnimplementedInkDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedInkDetailServiceServer struct {
-}
-
-func (UnimplementedInkDetailServiceServer) PatchInk(context.Context, *PatchInkRequest) (*Ink, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchInk not implemented")
-}
-
-// UnsafeInkDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to InkDetailServiceServer will
-// result in compilation errors.
-type UnsafeInkDetailServiceServer interface {
-	mustEmbedUnimplementedInkDetailServiceServer()
-}
-
-func RegisterInkDetailServiceServer(s grpc.ServiceRegistrar, srv InkDetailServiceServer) {
-	s.RegisterService(&InkDetailService_ServiceDesc, srv)
-}
-
-func _InkDetailService_PatchInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PatchInkRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(InkDetailServiceServer).PatchInk(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: InkDetailService_PatchInk_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(InkDetailServiceServer).PatchInk(ctx, req.(*PatchInkRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// InkDetailService_ServiceDesc is the grpc.ServiceDesc for InkDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var InkDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.InkDetailService",
-	HandlerType: (*InkDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "PatchInk",
-			Handler:    _InkDetailService_PatchInk_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	ResourceService_CreateResource_FullMethodName = "/protos.ResourceService/CreateResource"
-	ResourceService_GenerateToken_FullMethodName  = "/protos.ResourceService/GenerateToken"
-	ResourceService_GetResource_FullMethodName    = "/protos.ResourceService/GetResource"
-	ResourceService_GetResources_FullMethodName   = "/protos.ResourceService/GetResources"
-)
-
-// ResourceServiceClient is the client API for ResourceService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ResourceServiceClient interface {
-	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
-	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
-	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
-	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
-}
-
-type resourceServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewResourceServiceClient(cc grpc.ClientConnInterface) ResourceServiceClient {
-	return &resourceServiceClient{cc}
-}
-
-func (c *resourceServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error) {
-	out := new(CreateResourceResponse)
-	err := c.cc.Invoke(ctx, ResourceService_CreateResource_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceServiceClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error) {
-	out := new(GenerateTokenResponse)
-	err := c.cc.Invoke(ctx, ResourceService_GenerateToken_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
-	out := new(Resource)
-	err := c.cc.Invoke(ctx, ResourceService_GetResource_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *resourceServiceClient) GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error) {
-	out := new(Resources)
-	err := c.cc.Invoke(ctx, ResourceService_GetResources_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// ResourceServiceServer is the server API for ResourceService service.
-// All implementations should embed UnimplementedResourceServiceServer
-// for forward compatibility
-type ResourceServiceServer interface {
-	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
-	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
-	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
-	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
-}
-
-// UnimplementedResourceServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedResourceServiceServer struct {
-}
-
-func (UnimplementedResourceServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateResource not implemented")
-}
-func (UnimplementedResourceServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
-}
-func (UnimplementedResourceServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
-}
-func (UnimplementedResourceServiceServer) GetResources(context.Context, *emptypb.Empty) (*Resources, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
-}
-
-// UnsafeResourceServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ResourceServiceServer will
-// result in compilation errors.
-type UnsafeResourceServiceServer interface {
-	mustEmbedUnimplementedResourceServiceServer()
-}
-
-func RegisterResourceServiceServer(s grpc.ServiceRegistrar, srv ResourceServiceServer) {
-	s.RegisterService(&ResourceService_ServiceDesc, srv)
-}
-
-func _ResourceService_CreateResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_CreateResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateResourceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceServiceServer).CreateResource(ctx, in)
+		return srv.(AdminServiceServer).CreateResource(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceService_CreateResource_FullMethodName,
+		FullMethod: AdminService_CreateResource_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).CreateResource(ctx, req.(*CreateResourceRequest))
+		return srv.(AdminServiceServer).CreateResource(ctx, req.(*CreateResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceService_GenerateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GenerateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GenerateTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceServiceServer).GenerateToken(ctx, in)
+		return srv.(AdminServiceServer).GenerateToken(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceService_GenerateToken_FullMethodName,
+		FullMethod: AdminService_GenerateToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
+		return srv.(AdminServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceService_GetResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetResourceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceServiceServer).GetResource(ctx, in)
+		return srv.(AdminServiceServer).GetResource(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceService_GetResource_FullMethodName,
+		FullMethod: AdminService_GetResource_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).GetResource(ctx, req.(*GetResourceRequest))
+		return srv.(AdminServiceServer).GetResource(ctx, req.(*GetResourceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ResourceService_GetResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ResourceServiceServer).GetResources(ctx, in)
+		return srv.(AdminServiceServer).GetResources(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ResourceService_GetResources_FullMethodName,
+		FullMethod: AdminService_GetResources_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ResourceServiceServer).GetResources(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetResources(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ResourceService_ServiceDesc is the grpc.ServiceDesc for ResourceService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var ResourceService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.ResourceService",
-	HandlerType: (*ResourceServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateResource",
-			Handler:    _ResourceService_CreateResource_Handler,
-		},
-		{
-			MethodName: "GenerateToken",
-			Handler:    _ResourceService_GenerateToken_Handler,
-		},
-		{
-			MethodName: "GetResource",
-			Handler:    _ResourceService_GetResource_Handler,
-		},
-		{
-			MethodName: "GetResources",
-			Handler:    _ResourceService_GetResources_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	FleetService_CreateFleet_FullMethodName = "/protos.FleetService/CreateFleet"
-	FleetService_GetFleet_FullMethodName    = "/protos.FleetService/GetFleet"
-	FleetService_GetFleets_FullMethodName   = "/protos.FleetService/GetFleets"
-)
-
-// FleetServiceClient is the client API for FleetService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type FleetServiceClient interface {
-	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
-	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
-	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
-}
-
-type fleetServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewFleetServiceClient(cc grpc.ClientConnInterface) FleetServiceClient {
-	return &fleetServiceClient{cc}
-}
-
-func (c *fleetServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
-	out := new(Fleet)
-	err := c.cc.Invoke(ctx, FleetService_CreateFleet_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *fleetServiceClient) GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
-	out := new(Fleet)
-	err := c.cc.Invoke(ctx, FleetService_GetFleet_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *fleetServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error) {
-	out := new(Fleets)
-	err := c.cc.Invoke(ctx, FleetService_GetFleets_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// FleetServiceServer is the server API for FleetService service.
-// All implementations should embed UnimplementedFleetServiceServer
-// for forward compatibility
-type FleetServiceServer interface {
-	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
-	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
-	GetFleets(context.Context, *emptypb.Empty) (*Fleets, error)
-}
-
-// UnimplementedFleetServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedFleetServiceServer struct {
-}
-
-func (UnimplementedFleetServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
-}
-func (UnimplementedFleetServiceServer) GetFleet(context.Context, *GetFleetRequest) (*Fleet, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFleet not implemented")
-}
-func (UnimplementedFleetServiceServer) GetFleets(context.Context, *emptypb.Empty) (*Fleets, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetFleets not implemented")
-}
-
-// UnsafeFleetServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to FleetServiceServer will
-// result in compilation errors.
-type UnsafeFleetServiceServer interface {
-	mustEmbedUnimplementedFleetServiceServer()
-}
-
-func RegisterFleetServiceServer(s grpc.ServiceRegistrar, srv FleetServiceServer) {
-	s.RegisterService(&FleetService_ServiceDesc, srv)
-}
-
-func _FleetService_CreateFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_CreateFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateFleetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetServiceServer).CreateFleet(ctx, in)
+		return srv.(AdminServiceServer).CreateFleet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetService_CreateFleet_FullMethodName,
+		FullMethod: AdminService_CreateFleet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetServiceServer).CreateFleet(ctx, req.(*CreateFleetRequest))
+		return srv.(AdminServiceServer).CreateFleet(ctx, req.(*CreateFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _FleetService_GetFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetFleetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetServiceServer).GetFleet(ctx, in)
+		return srv.(AdminServiceServer).GetFleet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetService_GetFleet_FullMethodName,
+		FullMethod: AdminService_GetFleet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetServiceServer).GetFleet(ctx, req.(*GetFleetRequest))
+		return srv.(AdminServiceServer).GetFleet(ctx, req.(*GetFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _FleetService_GetFleets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetFleets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetServiceServer).GetFleets(ctx, in)
+		return srv.(AdminServiceServer).GetFleets(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetService_GetFleets_FullMethodName,
+		FullMethod: AdminService_GetFleets_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetServiceServer).GetFleets(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetFleets(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// FleetService_ServiceDesc is the grpc.ServiceDesc for FleetService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var FleetService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.FleetService",
-	HandlerType: (*FleetServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "CreateFleet",
-			Handler:    _FleetService_CreateFleet_Handler,
-		},
-		{
-			MethodName: "GetFleet",
-			Handler:    _FleetService_GetFleet_Handler,
-		},
-		{
-			MethodName: "GetFleets",
-			Handler:    _FleetService_GetFleets_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	FleetDetailService_PatchFleet_FullMethodName = "/protos.FleetDetailService/PatchFleet"
-)
-
-// FleetDetailServiceClient is the client API for FleetDetailService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type FleetDetailServiceClient interface {
-	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error)
-}
-
-type fleetDetailServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewFleetDetailServiceClient(cc grpc.ClientConnInterface) FleetDetailServiceClient {
-	return &fleetDetailServiceClient{cc}
-}
-
-func (c *fleetDetailServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
-	err := c.cc.Invoke(ctx, FleetDetailService_PatchFleet_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// FleetDetailServiceServer is the server API for FleetDetailService service.
-// All implementations should embed UnimplementedFleetDetailServiceServer
-// for forward compatibility
-type FleetDetailServiceServer interface {
-	PatchFleet(context.Context, *PatchFleetRequest) (*Group, error)
-}
-
-// UnimplementedFleetDetailServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedFleetDetailServiceServer struct {
-}
-
-func (UnimplementedFleetDetailServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Group, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
-}
-
-// UnsafeFleetDetailServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to FleetDetailServiceServer will
-// result in compilation errors.
-type UnsafeFleetDetailServiceServer interface {
-	mustEmbedUnimplementedFleetDetailServiceServer()
-}
-
-func RegisterFleetDetailServiceServer(s grpc.ServiceRegistrar, srv FleetDetailServiceServer) {
-	s.RegisterService(&FleetDetailService_ServiceDesc, srv)
-}
-
-func _FleetDetailService_PatchFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_PatchFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PatchFleetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FleetDetailServiceServer).PatchFleet(ctx, in)
+		return srv.(AdminServiceServer).PatchFleet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FleetDetailService_PatchFleet_FullMethodName,
+		FullMethod: AdminService_PatchFleet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FleetDetailServiceServer).PatchFleet(ctx, req.(*PatchFleetRequest))
+		return srv.(AdminServiceServer).PatchFleet(ctx, req.(*PatchFleetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// FleetDetailService_ServiceDesc is the grpc.ServiceDesc for FleetDetailService service.
-// It's only intended for direct use with grpc.RegisterService,
-// and not to be introspected or modified (even as a copy)
-var FleetDetailService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.FleetDetailService",
-	HandlerType: (*FleetDetailServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "PatchFleet",
-			Handler:    _FleetDetailService_PatchFleet_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "runetale/runetale/v1/admin.proto",
-}
-
-const (
-	OverviewService_GetOverview_FullMethodName = "/protos.OverviewService/GetOverview"
-)
-
-// OverviewServiceClient is the client API for OverviewService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OverviewServiceClient interface {
-	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
-}
-
-type overviewServiceClient struct {
-	cc grpc.ClientConnInterface
-}
-
-func NewOverviewServiceClient(cc grpc.ClientConnInterface) OverviewServiceClient {
-	return &overviewServiceClient{cc}
-}
-
-func (c *overviewServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error) {
-	out := new(Overview)
-	err := c.cc.Invoke(ctx, OverviewService_GetOverview_FullMethodName, in, out, opts...)
-	if err != nil {
+func _AdminService_CreateInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateInkRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return out, nil
+	if interceptor == nil {
+		return srv.(AdminServiceServer).CreateInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_CreateInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).CreateInk(ctx, req.(*CreateInkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// OverviewServiceServer is the server API for OverviewService service.
-// All implementations should embed UnimplementedOverviewServiceServer
-// for forward compatibility
-type OverviewServiceServer interface {
-	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
+func _AdminService_GetInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetInk(ctx, req.(*GetInkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-// UnimplementedOverviewServiceServer should be embedded to have forward compatible implementations.
-type UnimplementedOverviewServiceServer struct {
-}
-
-func (UnimplementedOverviewServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
-}
-
-// UnsafeOverviewServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OverviewServiceServer will
-// result in compilation errors.
-type UnsafeOverviewServiceServer interface {
-	mustEmbedUnimplementedOverviewServiceServer()
-}
-
-func RegisterOverviewServiceServer(s grpc.ServiceRegistrar, srv OverviewServiceServer) {
-	s.RegisterService(&OverviewService_ServiceDesc, srv)
-}
-
-func _OverviewService_GetOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetInks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OverviewServiceServer).GetOverview(ctx, in)
+		return srv.(AdminServiceServer).GetInks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: OverviewService_GetOverview_FullMethodName,
+		FullMethod: AdminService_GetInks_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OverviewServiceServer).GetOverview(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetInks(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// OverviewService_ServiceDesc is the grpc.ServiceDesc for OverviewService service.
+func _AdminService_PatchInk_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchInkRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).PatchInk(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_PatchInk_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).PatchInk(ctx, req.(*PatchInkRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_GetOverview_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetOverview(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetOverview_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetOverview(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var OverviewService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "protos.OverviewService",
-	HandlerType: (*OverviewServiceServer)(nil),
+var AdminService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "protos.AdminService",
+	HandlerType: (*AdminServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetMe",
+			Handler:    _AdminService_GetMe_Handler,
+		},
+		{
+			MethodName: "GetUser",
+			Handler:    _AdminService_GetUser_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _AdminService_GetUsers_Handler,
+		},
+		{
+			MethodName: "CreateAcl",
+			Handler:    _AdminService_CreateAcl_Handler,
+		},
+		{
+			MethodName: "GetAcl",
+			Handler:    _AdminService_GetAcl_Handler,
+		},
+		{
+			MethodName: "GetAcls",
+			Handler:    _AdminService_GetAcls_Handler,
+		},
+		{
+			MethodName: "GetAclsJson",
+			Handler:    _AdminService_GetAclsJson_Handler,
+		},
+		{
+			MethodName: "PatchAcl",
+			Handler:    _AdminService_PatchAcl_Handler,
+		},
+		{
+			MethodName: "CreateGroup",
+			Handler:    _AdminService_CreateGroup_Handler,
+		},
+		{
+			MethodName: "GetGroup",
+			Handler:    _AdminService_GetGroup_Handler,
+		},
+		{
+			MethodName: "GetGroups",
+			Handler:    _AdminService_GetGroups_Handler,
+		},
+		{
+			MethodName: "PatchGroup",
+			Handler:    _AdminService_PatchGroup_Handler,
+		},
+		{
+			MethodName: "GetDevice",
+			Handler:    _AdminService_GetDevice_Handler,
+		},
+		{
+			MethodName: "GetDevices",
+			Handler:    _AdminService_GetDevices_Handler,
+		},
+		{
+			MethodName: "CreateResource",
+			Handler:    _AdminService_CreateResource_Handler,
+		},
+		{
+			MethodName: "GenerateToken",
+			Handler:    _AdminService_GenerateToken_Handler,
+		},
+		{
+			MethodName: "GetResource",
+			Handler:    _AdminService_GetResource_Handler,
+		},
+		{
+			MethodName: "GetResources",
+			Handler:    _AdminService_GetResources_Handler,
+		},
+		{
+			MethodName: "CreateFleet",
+			Handler:    _AdminService_CreateFleet_Handler,
+		},
+		{
+			MethodName: "GetFleet",
+			Handler:    _AdminService_GetFleet_Handler,
+		},
+		{
+			MethodName: "GetFleets",
+			Handler:    _AdminService_GetFleets_Handler,
+		},
+		{
+			MethodName: "PatchFleet",
+			Handler:    _AdminService_PatchFleet_Handler,
+		},
+		{
+			MethodName: "CreateInk",
+			Handler:    _AdminService_CreateInk_Handler,
+		},
+		{
+			MethodName: "GetInk",
+			Handler:    _AdminService_GetInk_Handler,
+		},
+		{
+			MethodName: "GetInks",
+			Handler:    _AdminService_GetInks_Handler,
+		},
+		{
+			MethodName: "PatchInk",
+			Handler:    _AdminService_PatchInk_Handler,
+		},
+		{
 			MethodName: "GetOverview",
-			Handler:    _OverviewService_GetOverview_Handler,
+			Handler:    _AdminService_GetOverview_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
