@@ -47,6 +47,7 @@ const (
 	AdminService_GetInks_FullMethodName        = "/protos.AdminService/GetInks"
 	AdminService_PatchInk_FullMethodName       = "/protos.AdminService/PatchInk"
 	AdminService_GetOverview_FullMethodName    = "/protos.AdminService/GetOverview"
+	AdminService_GetOnbording_FullMethodName   = "/protos.AdminService/GetOnbording"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -87,6 +88,7 @@ type AdminServiceClient interface {
 	PatchInk(ctx context.Context, in *PatchInkRequest, opts ...grpc.CallOption) (*Ink, error)
 	// overview
 	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
+	GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onbording, error)
 }
 
 type adminServiceClient struct {
@@ -340,6 +342,15 @@ func (c *adminServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
+func (c *adminServiceClient) GetOnbording(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Onbording, error) {
+	out := new(Onbording)
+	err := c.cc.Invoke(ctx, AdminService_GetOnbording_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdminServiceServer is the server API for AdminService service.
 // All implementations should embed UnimplementedAdminServiceServer
 // for forward compatibility
@@ -378,6 +389,7 @@ type AdminServiceServer interface {
 	PatchInk(context.Context, *PatchInkRequest) (*Ink, error)
 	// overview
 	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
+	GetOnbording(context.Context, *emptypb.Empty) (*Onbording, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -464,6 +476,9 @@ func (UnimplementedAdminServiceServer) PatchInk(context.Context, *PatchInkReques
 }
 func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
+}
+func (UnimplementedAdminServiceServer) GetOnbording(context.Context, *emptypb.Empty) (*Onbording, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOnbording not implemented")
 }
 
 // UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -963,6 +978,24 @@ func _AdminService_GetOverview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetOnbording_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetOnbording(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetOnbording_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetOnbording(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdminService_ServiceDesc is the grpc.ServiceDesc for AdminService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1077,6 +1110,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetOverview",
 			Handler:    _AdminService_GetOverview_Handler,
+		},
+		{
+			MethodName: "GetOnbording",
+			Handler:    _AdminService_GetOnbording_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
