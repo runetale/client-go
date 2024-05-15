@@ -79,7 +79,7 @@ type AdminServiceClient interface {
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleets(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Fleets, error)
-	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error)
+	PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	// inks
 	CreateInk(ctx context.Context, in *CreateInkRequest, opts ...grpc.CallOption) (*Ink, error)
 	GetInk(ctx context.Context, in *GetInkRequest, opts ...grpc.CallOption) (*Ink, error)
@@ -286,8 +286,8 @@ func (c *adminServiceClient) GetFleets(ctx context.Context, in *emptypb.Empty, o
 	return out, nil
 }
 
-func (c *adminServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Group, error) {
-	out := new(Group)
+func (c *adminServiceClient) PatchFleet(ctx context.Context, in *PatchFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
+	out := new(Fleet)
 	err := c.cc.Invoke(ctx, AdminService_PatchFleet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -370,7 +370,7 @@ type AdminServiceServer interface {
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
 	GetFleets(context.Context, *emptypb.Empty) (*Fleets, error)
-	PatchFleet(context.Context, *PatchFleetRequest) (*Group, error)
+	PatchFleet(context.Context, *PatchFleetRequest) (*Fleet, error)
 	// inks
 	CreateInk(context.Context, *CreateInkRequest) (*Ink, error)
 	GetInk(context.Context, *GetInkRequest) (*Ink, error)
@@ -447,7 +447,7 @@ func (UnimplementedAdminServiceServer) GetFleet(context.Context, *GetFleetReques
 func (UnimplementedAdminServiceServer) GetFleets(context.Context, *emptypb.Empty) (*Fleets, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFleets not implemented")
 }
-func (UnimplementedAdminServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Group, error) {
+func (UnimplementedAdminServiceServer) PatchFleet(context.Context, *PatchFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchFleet not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateInk(context.Context, *CreateInkRequest) (*Ink, error) {
