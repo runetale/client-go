@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	MachineService_SyncRemoteMachinesConfig_FullMethodName = "/protos.MachineService/SyncRemoteMachinesConfig"
+	MachineService_CreateMachine_FullMethodName            = "/protos.MachineService/CreateMachine"
 )
 
 // MachineServiceClient is the client API for MachineService service.
@@ -28,6 +29,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
 	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
+	// this rpc is needed to launch the peer using the access token
+	CreateMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateMachineResponse, error)
 }
 
 type machineServiceClient struct {
@@ -47,11 +50,22 @@ func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *machineServiceClient) CreateMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateMachineResponse, error) {
+	out := new(CreateMachineResponse)
+	err := c.cc.Invoke(ctx, MachineService_CreateMachine_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MachineServiceServer is the server API for MachineService service.
 // All implementations should embed UnimplementedMachineServiceServer
 // for forward compatibility
 type MachineServiceServer interface {
 	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
+	// this rpc is needed to launch the peer using the access token
+	CreateMachine(context.Context, *emptypb.Empty) (*CreateMachineResponse, error)
 }
 
 // UnimplementedMachineServiceServer should be embedded to have forward compatible implementations.
@@ -60,6 +74,9 @@ type UnimplementedMachineServiceServer struct {
 
 func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
+}
+func (UnimplementedMachineServiceServer) CreateMachine(context.Context, *emptypb.Empty) (*CreateMachineResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMachine not implemented")
 }
 
 // UnsafeMachineServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -91,6 +108,24 @@ func _MachineService_SyncRemoteMachinesConfig_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MachineService_CreateMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MachineServiceServer).CreateMachine(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MachineService_CreateMachine_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MachineServiceServer).CreateMachine(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MachineService_ServiceDesc is the grpc.ServiceDesc for MachineService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -101,6 +136,10 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SyncRemoteMachinesConfig",
 			Handler:    _MachineService_SyncRemoteMachinesConfig_Handler,
+		},
+		{
+			MethodName: "CreateMachine",
+			Handler:    _MachineService_CreateMachine_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
