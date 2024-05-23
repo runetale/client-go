@@ -38,6 +38,7 @@ const (
 	AdminService_GetResource_FullMethodName    = "/protos.AdminService/GetResource"
 	AdminService_GetResources_FullMethodName   = "/protos.AdminService/GetResources"
 	AdminService_GenerateToken_FullMethodName  = "/protos.AdminService/GenerateToken"
+	AdminService_GetTokens_FullMethodName      = "/protos.AdminService/GetTokens"
 	AdminService_CreateFleet_FullMethodName    = "/protos.AdminService/CreateFleet"
 	AdminService_GetFleet_FullMethodName       = "/protos.AdminService/GetFleet"
 	AdminService_GetFleets_FullMethodName      = "/protos.AdminService/GetFleets"
@@ -74,7 +75,9 @@ type AdminServiceClient interface {
 	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
+	// tokens
 	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
+	GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTokensResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -259,6 +262,15 @@ func (c *adminServiceClient) GenerateToken(ctx context.Context, in *GenerateToke
 	return out, nil
 }
 
+func (c *adminServiceClient) GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTokensResponse, error) {
+	out := new(GetTokensResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetTokens_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *adminServiceClient) CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error) {
 	out := new(Fleet)
 	err := c.cc.Invoke(ctx, AdminService_CreateFleet_FullMethodName, in, out, opts...)
@@ -365,7 +377,9 @@ type AdminServiceServer interface {
 	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
+	// tokens
 	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
+	GetTokens(context.Context, *emptypb.Empty) (*GetTokensResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -437,6 +451,9 @@ func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Em
 }
 func (UnimplementedAdminServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
+}
+func (UnimplementedAdminServiceServer) GetTokens(context.Context, *emptypb.Empty) (*GetTokensResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTokens not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
@@ -801,6 +818,24 @@ func _AdminService_GenerateToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetTokens(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetTokens_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetTokens(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdminService_CreateFleet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateFleetRequest)
 	if err := dec(in); err != nil {
@@ -1041,6 +1076,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateToken",
 			Handler:    _AdminService_GenerateToken_Handler,
+		},
+		{
+			MethodName: "GetTokens",
+			Handler:    _AdminService_GetTokens_Handler,
 		},
 		{
 			MethodName: "CreateFleet",
