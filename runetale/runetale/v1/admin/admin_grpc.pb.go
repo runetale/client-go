@@ -72,7 +72,7 @@ type AdminServiceClient interface {
 	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error)
 	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
 	// resources
-	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error)
+	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 	// tokens
@@ -226,8 +226,8 @@ func (c *adminServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *adminServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*CreateResourceResponse, error) {
-	out := new(CreateResourceResponse)
+func (c *adminServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
+	out := new(Resource)
 	err := c.cc.Invoke(ctx, AdminService_CreateResource_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -374,7 +374,7 @@ type AdminServiceServer interface {
 	GetDevice(context.Context, *GetDevicesRequest) (*Device, error)
 	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
 	// resources
-	CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error)
+	CreateResource(context.Context, *CreateResourceRequest) (*Resource, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 	// tokens
@@ -440,7 +440,7 @@ func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDevicesReq
 func (UnimplementedAdminServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
 }
-func (UnimplementedAdminServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*CreateResourceResponse, error) {
+func (UnimplementedAdminServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateResource not implemented")
 }
 func (UnimplementedAdminServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
