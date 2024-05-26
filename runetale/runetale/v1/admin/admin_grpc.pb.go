@@ -20,34 +20,33 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdminService_GetMe_FullMethodName          = "/protos.AdminService/GetMe"
-	AdminService_GetUser_FullMethodName        = "/protos.AdminService/GetUser"
-	AdminService_GetUsers_FullMethodName       = "/protos.AdminService/GetUsers"
-	AdminService_CreateAcl_FullMethodName      = "/protos.AdminService/CreateAcl"
-	AdminService_GetAcl_FullMethodName         = "/protos.AdminService/GetAcl"
-	AdminService_GetAcls_FullMethodName        = "/protos.AdminService/GetAcls"
-	AdminService_GetAclsJson_FullMethodName    = "/protos.AdminService/GetAclsJson"
-	AdminService_PatchAcl_FullMethodName       = "/protos.AdminService/PatchAcl"
-	AdminService_CreateGroup_FullMethodName    = "/protos.AdminService/CreateGroup"
-	AdminService_GetGroup_FullMethodName       = "/protos.AdminService/GetGroup"
-	AdminService_GetGroups_FullMethodName      = "/protos.AdminService/GetGroups"
-	AdminService_PatchGroup_FullMethodName     = "/protos.AdminService/PatchGroup"
-	AdminService_GetDevice_FullMethodName      = "/protos.AdminService/GetDevice"
-	AdminService_GetDevices_FullMethodName     = "/protos.AdminService/GetDevices"
-	AdminService_CreateResource_FullMethodName = "/protos.AdminService/CreateResource"
-	AdminService_GetResource_FullMethodName    = "/protos.AdminService/GetResource"
-	AdminService_GetResources_FullMethodName   = "/protos.AdminService/GetResources"
-	AdminService_GenerateToken_FullMethodName  = "/protos.AdminService/GenerateToken"
-	AdminService_GetTokens_FullMethodName      = "/protos.AdminService/GetTokens"
-	AdminService_CreateFleet_FullMethodName    = "/protos.AdminService/CreateFleet"
-	AdminService_GetFleet_FullMethodName       = "/protos.AdminService/GetFleet"
-	AdminService_GetFleets_FullMethodName      = "/protos.AdminService/GetFleets"
-	AdminService_PatchFleet_FullMethodName     = "/protos.AdminService/PatchFleet"
-	AdminService_CreateInk_FullMethodName      = "/protos.AdminService/CreateInk"
-	AdminService_GetInk_FullMethodName         = "/protos.AdminService/GetInk"
-	AdminService_GetInks_FullMethodName        = "/protos.AdminService/GetInks"
-	AdminService_PatchInk_FullMethodName       = "/protos.AdminService/PatchInk"
-	AdminService_GetOverview_FullMethodName    = "/protos.AdminService/GetOverview"
+	AdminService_GetMe_FullMethodName         = "/protos.AdminService/GetMe"
+	AdminService_GetUser_FullMethodName       = "/protos.AdminService/GetUser"
+	AdminService_GetUsers_FullMethodName      = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName     = "/protos.AdminService/CreateAcl"
+	AdminService_GetAcl_FullMethodName        = "/protos.AdminService/GetAcl"
+	AdminService_GetAcls_FullMethodName       = "/protos.AdminService/GetAcls"
+	AdminService_GetAclsJson_FullMethodName   = "/protos.AdminService/GetAclsJson"
+	AdminService_PatchAcl_FullMethodName      = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName   = "/protos.AdminService/CreateGroup"
+	AdminService_GetGroup_FullMethodName      = "/protos.AdminService/GetGroup"
+	AdminService_GetGroups_FullMethodName     = "/protos.AdminService/GetGroups"
+	AdminService_PatchGroup_FullMethodName    = "/protos.AdminService/PatchGroup"
+	AdminService_GetDevice_FullMethodName     = "/protos.AdminService/GetDevice"
+	AdminService_GetDevices_FullMethodName    = "/protos.AdminService/GetDevices"
+	AdminService_GetResource_FullMethodName   = "/protos.AdminService/GetResource"
+	AdminService_GetResources_FullMethodName  = "/protos.AdminService/GetResources"
+	AdminService_GenerateToken_FullMethodName = "/protos.AdminService/GenerateToken"
+	AdminService_GetTokens_FullMethodName     = "/protos.AdminService/GetTokens"
+	AdminService_CreateFleet_FullMethodName   = "/protos.AdminService/CreateFleet"
+	AdminService_GetFleet_FullMethodName      = "/protos.AdminService/GetFleet"
+	AdminService_GetFleets_FullMethodName     = "/protos.AdminService/GetFleets"
+	AdminService_PatchFleet_FullMethodName    = "/protos.AdminService/PatchFleet"
+	AdminService_CreateInk_FullMethodName     = "/protos.AdminService/CreateInk"
+	AdminService_GetInk_FullMethodName        = "/protos.AdminService/GetInk"
+	AdminService_GetInks_FullMethodName       = "/protos.AdminService/GetInks"
+	AdminService_PatchInk_FullMethodName      = "/protos.AdminService/PatchInk"
+	AdminService_GetOverview_FullMethodName   = "/protos.AdminService/GetOverview"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -72,7 +71,6 @@ type AdminServiceClient interface {
 	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error)
 	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
 	// resources
-	CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 	// tokens
@@ -226,15 +224,6 @@ func (c *adminServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *adminServiceClient) CreateResource(ctx context.Context, in *CreateResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
-	out := new(Resource)
-	err := c.cc.Invoke(ctx, AdminService_CreateResource_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *adminServiceClient) GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error) {
 	out := new(Resource)
 	err := c.cc.Invoke(ctx, AdminService_GetResource_FullMethodName, in, out, opts...)
@@ -374,7 +363,6 @@ type AdminServiceServer interface {
 	GetDevice(context.Context, *GetDevicesRequest) (*Device, error)
 	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
 	// resources
-	CreateResource(context.Context, *CreateResourceRequest) (*Resource, error)
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 	// tokens
@@ -439,9 +427,6 @@ func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDevicesReq
 }
 func (UnimplementedAdminServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
-}
-func (UnimplementedAdminServiceServer) CreateResource(context.Context, *CreateResourceRequest) (*Resource, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateResource not implemented")
 }
 func (UnimplementedAdminServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
@@ -746,24 +731,6 @@ func _AdminService_GetDevices_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_CreateResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateResourceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AdminServiceServer).CreateResource(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AdminService_CreateResource_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).CreateResource(ctx, req.(*CreateResourceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AdminService_GetResource_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetResourceRequest)
 	if err := dec(in); err != nil {
@@ -1060,10 +1027,6 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDevices",
 			Handler:    _AdminService_GetDevices_Handler,
-		},
-		{
-			MethodName: "CreateResource",
-			Handler:    _AdminService_CreateResource_Handler,
 		},
 		{
 			MethodName: "GetResource",
