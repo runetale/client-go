@@ -29,7 +29,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MachineServiceClient interface {
 	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
-	// this rpc is needed to launch the peer using the access token
 	ComposeMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeMachineResponse, error)
 }
 
@@ -64,7 +63,6 @@ func (c *machineServiceClient) ComposeMachine(ctx context.Context, in *emptypb.E
 // for forward compatibility
 type MachineServiceServer interface {
 	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
-	// this rpc is needed to launch the peer using the access token
 	ComposeMachine(context.Context, *emptypb.Empty) (*ComposeMachineResponse, error)
 }
 
