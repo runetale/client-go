@@ -37,7 +37,7 @@ const (
 	AdminService_GetResource_FullMethodName        = "/protos.AdminService/GetResource"
 	AdminService_GetResources_FullMethodName       = "/protos.AdminService/GetResources"
 	AdminService_GenerateComposeKey_FullMethodName = "/protos.AdminService/GenerateComposeKey"
-	AdminService_GetTokens_FullMethodName          = "/protos.AdminService/GetTokens"
+	AdminService_GetComposeKeys_FullMethodName     = "/protos.AdminService/GetComposeKeys"
 	AdminService_CreateFleet_FullMethodName        = "/protos.AdminService/CreateFleet"
 	AdminService_GetFleet_FullMethodName           = "/protos.AdminService/GetFleet"
 	AdminService_GetFleets_FullMethodName          = "/protos.AdminService/GetFleets"
@@ -75,7 +75,7 @@ type AdminServiceClient interface {
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 	// tokens
 	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
-	GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
+	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -251,9 +251,9 @@ func (c *adminServiceClient) GenerateComposeKey(ctx context.Context, in *Generat
 	return out, nil
 }
 
-func (c *adminServiceClient) GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error) {
+func (c *adminServiceClient) GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error) {
 	out := new(GenerateComposeKeyResponse)
-	err := c.cc.Invoke(ctx, AdminService_GetTokens_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AdminService_GetComposeKeys_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -367,7 +367,7 @@ type AdminServiceServer interface {
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 	// tokens
 	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
-	GetTokens(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error)
+	GetComposeKeys(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -437,8 +437,8 @@ func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Em
 func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateComposeKey not implemented")
 }
-func (UnimplementedAdminServiceServer) GetTokens(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTokens not implemented")
+func (UnimplementedAdminServiceServer) GetComposeKeys(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComposeKeys not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
@@ -785,20 +785,20 @@ func _AdminService_GenerateComposeKey_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_GetTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetComposeKeys_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).GetTokens(ctx, in)
+		return srv.(AdminServiceServer).GetComposeKeys(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_GetTokens_FullMethodName,
+		FullMethod: AdminService_GetComposeKeys_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetTokens(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetComposeKeys(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1041,8 +1041,8 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_GenerateComposeKey_Handler,
 		},
 		{
-			MethodName: "GetTokens",
-			Handler:    _AdminService_GetTokens_Handler,
+			MethodName: "GetComposeKeys",
+			Handler:    _AdminService_GetComposeKeys_Handler,
 		},
 		{
 			MethodName: "CreateFleet",
