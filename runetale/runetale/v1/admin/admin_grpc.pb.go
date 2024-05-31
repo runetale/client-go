@@ -75,7 +75,7 @@ type AdminServiceClient interface {
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 	// tokens
 	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
-	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
+	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeKeysResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -251,8 +251,8 @@ func (c *adminServiceClient) GenerateComposeKey(ctx context.Context, in *Generat
 	return out, nil
 }
 
-func (c *adminServiceClient) GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error) {
-	out := new(GenerateComposeKeyResponse)
+func (c *adminServiceClient) GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeKeysResponse, error) {
+	out := new(GetComposeKeysResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetComposeKeys_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -367,7 +367,7 @@ type AdminServiceServer interface {
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 	// tokens
 	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
-	GetComposeKeys(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error)
+	GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -437,7 +437,7 @@ func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Em
 func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateComposeKey not implemented")
 }
-func (UnimplementedAdminServiceServer) GetComposeKeys(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error) {
+func (UnimplementedAdminServiceServer) GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComposeKeys not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
