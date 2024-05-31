@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MachineService_SyncRemoteMachinesConfig_FullMethodName     = "/protos.MachineService/SyncRemoteMachinesConfig"
-	MachineService_CreateMachineWithAccessToken_FullMethodName = "/protos.MachineService/CreateMachineWithAccessToken"
+	MachineService_SyncRemoteMachinesConfig_FullMethodName = "/protos.MachineService/SyncRemoteMachinesConfig"
+	MachineService_ComposeMachine_FullMethodName           = "/protos.MachineService/ComposeMachine"
 )
 
 // MachineServiceClient is the client API for MachineService service.
@@ -30,7 +30,7 @@ const (
 type MachineServiceClient interface {
 	SyncRemoteMachinesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncMachinesResponse, error)
 	// this rpc is needed to launch the peer using the access token
-	CreateMachineWithAccessToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateMachineResponse, error)
+	ComposeMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeMachineResponse, error)
 }
 
 type machineServiceClient struct {
@@ -50,9 +50,9 @@ func (c *machineServiceClient) SyncRemoteMachinesConfig(ctx context.Context, in 
 	return out, nil
 }
 
-func (c *machineServiceClient) CreateMachineWithAccessToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CreateMachineResponse, error) {
-	out := new(CreateMachineResponse)
-	err := c.cc.Invoke(ctx, MachineService_CreateMachineWithAccessToken_FullMethodName, in, out, opts...)
+func (c *machineServiceClient) ComposeMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeMachineResponse, error) {
+	out := new(ComposeMachineResponse)
+	err := c.cc.Invoke(ctx, MachineService_ComposeMachine_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (c *machineServiceClient) CreateMachineWithAccessToken(ctx context.Context,
 type MachineServiceServer interface {
 	SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error)
 	// this rpc is needed to launch the peer using the access token
-	CreateMachineWithAccessToken(context.Context, *emptypb.Empty) (*CreateMachineResponse, error)
+	ComposeMachine(context.Context, *emptypb.Empty) (*ComposeMachineResponse, error)
 }
 
 // UnimplementedMachineServiceServer should be embedded to have forward compatible implementations.
@@ -75,8 +75,8 @@ type UnimplementedMachineServiceServer struct {
 func (UnimplementedMachineServiceServer) SyncRemoteMachinesConfig(context.Context, *emptypb.Empty) (*SyncMachinesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteMachinesConfig not implemented")
 }
-func (UnimplementedMachineServiceServer) CreateMachineWithAccessToken(context.Context, *emptypb.Empty) (*CreateMachineResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateMachineWithAccessToken not implemented")
+func (UnimplementedMachineServiceServer) ComposeMachine(context.Context, *emptypb.Empty) (*ComposeMachineResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ComposeMachine not implemented")
 }
 
 // UnsafeMachineServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -108,20 +108,20 @@ func _MachineService_SyncRemoteMachinesConfig_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MachineService_CreateMachineWithAccessToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MachineService_ComposeMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MachineServiceServer).CreateMachineWithAccessToken(ctx, in)
+		return srv.(MachineServiceServer).ComposeMachine(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MachineService_CreateMachineWithAccessToken_FullMethodName,
+		FullMethod: MachineService_ComposeMachine_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MachineServiceServer).CreateMachineWithAccessToken(ctx, req.(*emptypb.Empty))
+		return srv.(MachineServiceServer).ComposeMachine(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -138,8 +138,8 @@ var MachineService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _MachineService_SyncRemoteMachinesConfig_Handler,
 		},
 		{
-			MethodName: "CreateMachineWithAccessToken",
-			Handler:    _MachineService_CreateMachineWithAccessToken_Handler,
+			MethodName: "ComposeMachine",
+			Handler:    _MachineService_ComposeMachine_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

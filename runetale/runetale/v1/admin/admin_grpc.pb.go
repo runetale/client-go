@@ -20,33 +20,33 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdminService_GetMe_FullMethodName         = "/protos.AdminService/GetMe"
-	AdminService_GetUser_FullMethodName       = "/protos.AdminService/GetUser"
-	AdminService_GetUsers_FullMethodName      = "/protos.AdminService/GetUsers"
-	AdminService_CreateAcl_FullMethodName     = "/protos.AdminService/CreateAcl"
-	AdminService_GetAcl_FullMethodName        = "/protos.AdminService/GetAcl"
-	AdminService_GetAcls_FullMethodName       = "/protos.AdminService/GetAcls"
-	AdminService_GetAclsJson_FullMethodName   = "/protos.AdminService/GetAclsJson"
-	AdminService_PatchAcl_FullMethodName      = "/protos.AdminService/PatchAcl"
-	AdminService_CreateGroup_FullMethodName   = "/protos.AdminService/CreateGroup"
-	AdminService_GetGroup_FullMethodName      = "/protos.AdminService/GetGroup"
-	AdminService_GetGroups_FullMethodName     = "/protos.AdminService/GetGroups"
-	AdminService_PatchGroup_FullMethodName    = "/protos.AdminService/PatchGroup"
-	AdminService_GetDevice_FullMethodName     = "/protos.AdminService/GetDevice"
-	AdminService_GetDevices_FullMethodName    = "/protos.AdminService/GetDevices"
-	AdminService_GetResource_FullMethodName   = "/protos.AdminService/GetResource"
-	AdminService_GetResources_FullMethodName  = "/protos.AdminService/GetResources"
-	AdminService_GenerateToken_FullMethodName = "/protos.AdminService/GenerateToken"
-	AdminService_GetTokens_FullMethodName     = "/protos.AdminService/GetTokens"
-	AdminService_CreateFleet_FullMethodName   = "/protos.AdminService/CreateFleet"
-	AdminService_GetFleet_FullMethodName      = "/protos.AdminService/GetFleet"
-	AdminService_GetFleets_FullMethodName     = "/protos.AdminService/GetFleets"
-	AdminService_PatchFleet_FullMethodName    = "/protos.AdminService/PatchFleet"
-	AdminService_CreateInk_FullMethodName     = "/protos.AdminService/CreateInk"
-	AdminService_GetInk_FullMethodName        = "/protos.AdminService/GetInk"
-	AdminService_GetInks_FullMethodName       = "/protos.AdminService/GetInks"
-	AdminService_PatchInk_FullMethodName      = "/protos.AdminService/PatchInk"
-	AdminService_GetOverview_FullMethodName   = "/protos.AdminService/GetOverview"
+	AdminService_GetMe_FullMethodName              = "/protos.AdminService/GetMe"
+	AdminService_GetUser_FullMethodName            = "/protos.AdminService/GetUser"
+	AdminService_GetUsers_FullMethodName           = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName          = "/protos.AdminService/CreateAcl"
+	AdminService_GetAcl_FullMethodName             = "/protos.AdminService/GetAcl"
+	AdminService_GetAcls_FullMethodName            = "/protos.AdminService/GetAcls"
+	AdminService_GetAclsJson_FullMethodName        = "/protos.AdminService/GetAclsJson"
+	AdminService_PatchAcl_FullMethodName           = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName        = "/protos.AdminService/CreateGroup"
+	AdminService_GetGroup_FullMethodName           = "/protos.AdminService/GetGroup"
+	AdminService_GetGroups_FullMethodName          = "/protos.AdminService/GetGroups"
+	AdminService_PatchGroup_FullMethodName         = "/protos.AdminService/PatchGroup"
+	AdminService_GetDevice_FullMethodName          = "/protos.AdminService/GetDevice"
+	AdminService_GetDevices_FullMethodName         = "/protos.AdminService/GetDevices"
+	AdminService_GetResource_FullMethodName        = "/protos.AdminService/GetResource"
+	AdminService_GetResources_FullMethodName       = "/protos.AdminService/GetResources"
+	AdminService_GenerateComposeKey_FullMethodName = "/protos.AdminService/GenerateComposeKey"
+	AdminService_GetTokens_FullMethodName          = "/protos.AdminService/GetTokens"
+	AdminService_CreateFleet_FullMethodName        = "/protos.AdminService/CreateFleet"
+	AdminService_GetFleet_FullMethodName           = "/protos.AdminService/GetFleet"
+	AdminService_GetFleets_FullMethodName          = "/protos.AdminService/GetFleets"
+	AdminService_PatchFleet_FullMethodName         = "/protos.AdminService/PatchFleet"
+	AdminService_CreateInk_FullMethodName          = "/protos.AdminService/CreateInk"
+	AdminService_GetInk_FullMethodName             = "/protos.AdminService/GetInk"
+	AdminService_GetInks_FullMethodName            = "/protos.AdminService/GetInks"
+	AdminService_PatchInk_FullMethodName           = "/protos.AdminService/PatchInk"
+	AdminService_GetOverview_FullMethodName        = "/protos.AdminService/GetOverview"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -74,8 +74,8 @@ type AdminServiceClient interface {
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
 	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
 	// tokens
-	GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error)
-	GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTokensResponse, error)
+	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
+	GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -242,17 +242,17 @@ func (c *adminServiceClient) GetResources(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
-func (c *adminServiceClient) GenerateToken(ctx context.Context, in *GenerateTokenRequest, opts ...grpc.CallOption) (*GenerateTokenResponse, error) {
-	out := new(GenerateTokenResponse)
-	err := c.cc.Invoke(ctx, AdminService_GenerateToken_FullMethodName, in, out, opts...)
+func (c *adminServiceClient) GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error) {
+	out := new(GenerateComposeKeyResponse)
+	err := c.cc.Invoke(ctx, AdminService_GenerateComposeKey_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *adminServiceClient) GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetTokensResponse, error) {
-	out := new(GetTokensResponse)
+func (c *adminServiceClient) GetTokens(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error) {
+	out := new(GenerateComposeKeyResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetTokens_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -366,8 +366,8 @@ type AdminServiceServer interface {
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
 	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
 	// tokens
-	GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error)
-	GetTokens(context.Context, *emptypb.Empty) (*GetTokensResponse, error)
+	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
+	GetTokens(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -434,10 +434,10 @@ func (UnimplementedAdminServiceServer) GetResource(context.Context, *GetResource
 func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Empty) (*Resources, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
 }
-func (UnimplementedAdminServiceServer) GenerateToken(context.Context, *GenerateTokenRequest) (*GenerateTokenResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GenerateToken not implemented")
+func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateComposeKey not implemented")
 }
-func (UnimplementedAdminServiceServer) GetTokens(context.Context, *emptypb.Empty) (*GetTokensResponse, error) {
+func (UnimplementedAdminServiceServer) GetTokens(context.Context, *emptypb.Empty) (*GenerateComposeKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTokens not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
@@ -767,20 +767,20 @@ func _AdminService_GetResources_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_GenerateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GenerateTokenRequest)
+func _AdminService_GenerateComposeKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateComposeKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).GenerateToken(ctx, in)
+		return srv.(AdminServiceServer).GenerateComposeKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_GenerateToken_FullMethodName,
+		FullMethod: AdminService_GenerateComposeKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GenerateToken(ctx, req.(*GenerateTokenRequest))
+		return srv.(AdminServiceServer).GenerateComposeKey(ctx, req.(*GenerateComposeKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1037,8 +1037,8 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_GetResources_Handler,
 		},
 		{
-			MethodName: "GenerateToken",
-			Handler:    _AdminService_GenerateToken_Handler,
+			MethodName: "GenerateComposeKey",
+			Handler:    _AdminService_GenerateComposeKey_Handler,
 		},
 		{
 			MethodName: "GetTokens",
