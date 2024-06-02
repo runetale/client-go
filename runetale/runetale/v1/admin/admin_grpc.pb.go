@@ -77,7 +77,7 @@ type AdminServiceClient interface {
 	// compose keys
 	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeKeysResponse, error)
-	GetComposeMachineStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error)
+	GetComposeMachineStatus(ctx context.Context, in *GetComposeMachineStatusRequest, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -280,7 +280,7 @@ func (c *adminServiceClient) GetComposeKeys(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *adminServiceClient) GetComposeMachineStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error) {
+func (c *adminServiceClient) GetComposeMachineStatus(ctx context.Context, in *GetComposeMachineStatusRequest, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetComposeMachineStatusResponse)
 	err := c.cc.Invoke(ctx, AdminService_GetComposeMachineStatus_FullMethodName, in, out, cOpts...)
@@ -407,7 +407,7 @@ type AdminServiceServer interface {
 	// compose keys
 	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error)
-	GetComposeMachineStatus(context.Context, *emptypb.Empty) (*GetComposeMachineStatusResponse, error)
+	GetComposeMachineStatus(context.Context, *GetComposeMachineStatusRequest) (*GetComposeMachineStatusResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -480,7 +480,7 @@ func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *Gene
 func (UnimplementedAdminServiceServer) GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComposeKeys not implemented")
 }
-func (UnimplementedAdminServiceServer) GetComposeMachineStatus(context.Context, *emptypb.Empty) (*GetComposeMachineStatusResponse, error) {
+func (UnimplementedAdminServiceServer) GetComposeMachineStatus(context.Context, *GetComposeMachineStatusRequest) (*GetComposeMachineStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComposeMachineStatus not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
@@ -847,7 +847,7 @@ func _AdminService_GetComposeKeys_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _AdminService_GetComposeMachineStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetComposeMachineStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -859,7 +859,7 @@ func _AdminService_GetComposeMachineStatus_Handler(srv interface{}, ctx context.
 		FullMethod: AdminService_GetComposeMachineStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetComposeMachineStatus(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetComposeMachineStatus(ctx, req.(*GetComposeMachineStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
