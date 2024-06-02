@@ -20,34 +20,34 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	AdminService_GetMe_FullMethodName                   = "/protos.AdminService/GetMe"
-	AdminService_GetUser_FullMethodName                 = "/protos.AdminService/GetUser"
-	AdminService_GetUsers_FullMethodName                = "/protos.AdminService/GetUsers"
-	AdminService_CreateAcl_FullMethodName               = "/protos.AdminService/CreateAcl"
-	AdminService_GetAcl_FullMethodName                  = "/protos.AdminService/GetAcl"
-	AdminService_GetAcls_FullMethodName                 = "/protos.AdminService/GetAcls"
-	AdminService_GetAclsJson_FullMethodName             = "/protos.AdminService/GetAclsJson"
-	AdminService_PatchAcl_FullMethodName                = "/protos.AdminService/PatchAcl"
-	AdminService_CreateGroup_FullMethodName             = "/protos.AdminService/CreateGroup"
-	AdminService_GetGroup_FullMethodName                = "/protos.AdminService/GetGroup"
-	AdminService_GetGroups_FullMethodName               = "/protos.AdminService/GetGroups"
-	AdminService_PatchGroup_FullMethodName              = "/protos.AdminService/PatchGroup"
-	AdminService_GetDevice_FullMethodName               = "/protos.AdminService/GetDevice"
-	AdminService_GetDevices_FullMethodName              = "/protos.AdminService/GetDevices"
-	AdminService_GetResource_FullMethodName             = "/protos.AdminService/GetResource"
-	AdminService_GetResources_FullMethodName            = "/protos.AdminService/GetResources"
-	AdminService_GenerateComposeKey_FullMethodName      = "/protos.AdminService/GenerateComposeKey"
-	AdminService_GetComposeKeys_FullMethodName          = "/protos.AdminService/GetComposeKeys"
-	AdminService_GetComposeMachineStatus_FullMethodName = "/protos.AdminService/GetComposeMachineStatus"
-	AdminService_CreateFleet_FullMethodName             = "/protos.AdminService/CreateFleet"
-	AdminService_GetFleet_FullMethodName                = "/protos.AdminService/GetFleet"
-	AdminService_GetFleets_FullMethodName               = "/protos.AdminService/GetFleets"
-	AdminService_PatchFleet_FullMethodName              = "/protos.AdminService/PatchFleet"
-	AdminService_CreateInk_FullMethodName               = "/protos.AdminService/CreateInk"
-	AdminService_GetInk_FullMethodName                  = "/protos.AdminService/GetInk"
-	AdminService_GetInks_FullMethodName                 = "/protos.AdminService/GetInks"
-	AdminService_PatchInk_FullMethodName                = "/protos.AdminService/PatchInk"
-	AdminService_GetOverview_FullMethodName             = "/protos.AdminService/GetOverview"
+	AdminService_GetMe_FullMethodName                = "/protos.AdminService/GetMe"
+	AdminService_GetUser_FullMethodName              = "/protos.AdminService/GetUser"
+	AdminService_GetUsers_FullMethodName             = "/protos.AdminService/GetUsers"
+	AdminService_CreateAcl_FullMethodName            = "/protos.AdminService/CreateAcl"
+	AdminService_GetAcl_FullMethodName               = "/protos.AdminService/GetAcl"
+	AdminService_GetAcls_FullMethodName              = "/protos.AdminService/GetAcls"
+	AdminService_GetAclsJson_FullMethodName          = "/protos.AdminService/GetAclsJson"
+	AdminService_PatchAcl_FullMethodName             = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName          = "/protos.AdminService/CreateGroup"
+	AdminService_GetGroup_FullMethodName             = "/protos.AdminService/GetGroup"
+	AdminService_GetGroups_FullMethodName            = "/protos.AdminService/GetGroups"
+	AdminService_PatchGroup_FullMethodName           = "/protos.AdminService/PatchGroup"
+	AdminService_GetDevice_FullMethodName            = "/protos.AdminService/GetDevice"
+	AdminService_GetDevices_FullMethodName           = "/protos.AdminService/GetDevices"
+	AdminService_GetResource_FullMethodName          = "/protos.AdminService/GetResource"
+	AdminService_GetResources_FullMethodName         = "/protos.AdminService/GetResources"
+	AdminService_GenerateComposeKey_FullMethodName   = "/protos.AdminService/GenerateComposeKey"
+	AdminService_GetComposeKeys_FullMethodName       = "/protos.AdminService/GetComposeKeys"
+	AdminService_GetComposeNodeStatus_FullMethodName = "/protos.AdminService/GetComposeNodeStatus"
+	AdminService_CreateFleet_FullMethodName          = "/protos.AdminService/CreateFleet"
+	AdminService_GetFleet_FullMethodName             = "/protos.AdminService/GetFleet"
+	AdminService_GetFleets_FullMethodName            = "/protos.AdminService/GetFleets"
+	AdminService_PatchFleet_FullMethodName           = "/protos.AdminService/PatchFleet"
+	AdminService_CreateInk_FullMethodName            = "/protos.AdminService/CreateInk"
+	AdminService_GetInk_FullMethodName               = "/protos.AdminService/GetInk"
+	AdminService_GetInks_FullMethodName              = "/protos.AdminService/GetInks"
+	AdminService_PatchInk_FullMethodName             = "/protos.AdminService/PatchInk"
+	AdminService_GetOverview_FullMethodName          = "/protos.AdminService/GetOverview"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -77,7 +77,7 @@ type AdminServiceClient interface {
 	// compose keys
 	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeKeysResponse, error)
-	GetComposeMachineStatus(ctx context.Context, in *GetComposeMachineStatusRequest, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error)
+	GetComposeNodeStatus(ctx context.Context, in *GetComposeNodeStatusRequest, opts ...grpc.CallOption) (*GetComposeNodeStatusResponse, error)
 	// fleets
 	CreateFleet(ctx context.Context, in *CreateFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
 	GetFleet(ctx context.Context, in *GetFleetRequest, opts ...grpc.CallOption) (*Fleet, error)
@@ -280,10 +280,10 @@ func (c *adminServiceClient) GetComposeKeys(ctx context.Context, in *emptypb.Emp
 	return out, nil
 }
 
-func (c *adminServiceClient) GetComposeMachineStatus(ctx context.Context, in *GetComposeMachineStatusRequest, opts ...grpc.CallOption) (*GetComposeMachineStatusResponse, error) {
+func (c *adminServiceClient) GetComposeNodeStatus(ctx context.Context, in *GetComposeNodeStatusRequest, opts ...grpc.CallOption) (*GetComposeNodeStatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetComposeMachineStatusResponse)
-	err := c.cc.Invoke(ctx, AdminService_GetComposeMachineStatus_FullMethodName, in, out, cOpts...)
+	out := new(GetComposeNodeStatusResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetComposeNodeStatus_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -407,7 +407,7 @@ type AdminServiceServer interface {
 	// compose keys
 	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error)
-	GetComposeMachineStatus(context.Context, *GetComposeMachineStatusRequest) (*GetComposeMachineStatusResponse, error)
+	GetComposeNodeStatus(context.Context, *GetComposeNodeStatusRequest) (*GetComposeNodeStatusResponse, error)
 	// fleets
 	CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error)
 	GetFleet(context.Context, *GetFleetRequest) (*Fleet, error)
@@ -480,8 +480,8 @@ func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *Gene
 func (UnimplementedAdminServiceServer) GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetComposeKeys not implemented")
 }
-func (UnimplementedAdminServiceServer) GetComposeMachineStatus(context.Context, *GetComposeMachineStatusRequest) (*GetComposeMachineStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetComposeMachineStatus not implemented")
+func (UnimplementedAdminServiceServer) GetComposeNodeStatus(context.Context, *GetComposeNodeStatusRequest) (*GetComposeNodeStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetComposeNodeStatus not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateFleet(context.Context, *CreateFleetRequest) (*Fleet, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFleet not implemented")
@@ -846,20 +846,20 @@ func _AdminService_GetComposeKeys_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_GetComposeMachineStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetComposeMachineStatusRequest)
+func _AdminService_GetComposeNodeStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetComposeNodeStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).GetComposeMachineStatus(ctx, in)
+		return srv.(AdminServiceServer).GetComposeNodeStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_GetComposeMachineStatus_FullMethodName,
+		FullMethod: AdminService_GetComposeNodeStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetComposeMachineStatus(ctx, req.(*GetComposeMachineStatusRequest))
+		return srv.(AdminServiceServer).GetComposeNodeStatus(ctx, req.(*GetComposeNodeStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1106,8 +1106,8 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_GetComposeKeys_Handler,
 		},
 		{
-			MethodName: "GetComposeMachineStatus",
-			Handler:    _AdminService_GetComposeMachineStatus_Handler,
+			MethodName: "GetComposeNodeStatus",
+			Handler:    _AdminService_GetComposeNodeStatus_Handler,
 		},
 		{
 			MethodName: "CreateFleet",

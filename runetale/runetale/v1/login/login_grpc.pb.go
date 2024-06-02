@@ -20,16 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	LoginService_LoginMachine_FullMethodName           = "/protos.LoginService/LoginMachine"
-	LoginService_StreamPeerLoginSession_FullMethodName = "/protos.LoginService/StreamPeerLoginSession"
+	LoginService_LoginNode_FullMethodName    = "/protos.LoginService/LoginNode"
+	LoginService_LoginSession_FullMethodName = "/protos.LoginService/LoginSession"
 )
 
 // LoginServiceClient is the client API for LoginService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginServiceClient interface {
-	LoginMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginMachineResponse, error)
-	StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginService_StreamPeerLoginSessionClient, error)
+	LoginNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginNodeResponse, error)
+	LoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginService_LoginSessionClient, error)
 }
 
 type loginServiceClient struct {
@@ -40,42 +40,42 @@ func NewLoginServiceClient(cc grpc.ClientConnInterface) LoginServiceClient {
 	return &loginServiceClient{cc}
 }
 
-func (c *loginServiceClient) LoginMachine(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginMachineResponse, error) {
+func (c *loginServiceClient) LoginNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginNodeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoginMachineResponse)
-	err := c.cc.Invoke(ctx, LoginService_LoginMachine_FullMethodName, in, out, cOpts...)
+	out := new(LoginNodeResponse)
+	err := c.cc.Invoke(ctx, LoginService_LoginNode_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *loginServiceClient) StreamPeerLoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginService_StreamPeerLoginSessionClient, error) {
+func (c *loginServiceClient) LoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginService_LoginSessionClient, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &LoginService_ServiceDesc.Streams[0], LoginService_StreamPeerLoginSession_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &LoginService_ServiceDesc.Streams[0], LoginService_LoginSession_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &loginServiceStreamPeerLoginSessionClient{ClientStream: stream}
+	x := &loginServiceLoginSessionClient{ClientStream: stream}
 	return x, nil
 }
 
-type LoginService_StreamPeerLoginSessionClient interface {
+type LoginService_LoginSessionClient interface {
 	Send(*emptypb.Empty) error
-	Recv() (*PeerLoginSessionResponse, error)
+	Recv() (*LoginSessionResponse, error)
 	grpc.ClientStream
 }
 
-type loginServiceStreamPeerLoginSessionClient struct {
+type loginServiceLoginSessionClient struct {
 	grpc.ClientStream
 }
 
-func (x *loginServiceStreamPeerLoginSessionClient) Send(m *emptypb.Empty) error {
+func (x *loginServiceLoginSessionClient) Send(m *emptypb.Empty) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *loginServiceStreamPeerLoginSessionClient) Recv() (*PeerLoginSessionResponse, error) {
-	m := new(PeerLoginSessionResponse)
+func (x *loginServiceLoginSessionClient) Recv() (*LoginSessionResponse, error) {
+	m := new(LoginSessionResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -86,19 +86,19 @@ func (x *loginServiceStreamPeerLoginSessionClient) Recv() (*PeerLoginSessionResp
 // All implementations should embed UnimplementedLoginServiceServer
 // for forward compatibility
 type LoginServiceServer interface {
-	LoginMachine(context.Context, *emptypb.Empty) (*LoginMachineResponse, error)
-	StreamPeerLoginSession(LoginService_StreamPeerLoginSessionServer) error
+	LoginNode(context.Context, *emptypb.Empty) (*LoginNodeResponse, error)
+	LoginSession(LoginService_LoginSessionServer) error
 }
 
 // UnimplementedLoginServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedLoginServiceServer struct {
 }
 
-func (UnimplementedLoginServiceServer) LoginMachine(context.Context, *emptypb.Empty) (*LoginMachineResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LoginMachine not implemented")
+func (UnimplementedLoginServiceServer) LoginNode(context.Context, *emptypb.Empty) (*LoginNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginNode not implemented")
 }
-func (UnimplementedLoginServiceServer) StreamPeerLoginSession(LoginService_StreamPeerLoginSessionServer) error {
-	return status.Errorf(codes.Unimplemented, "method StreamPeerLoginSession not implemented")
+func (UnimplementedLoginServiceServer) LoginSession(LoginService_LoginSessionServer) error {
+	return status.Errorf(codes.Unimplemented, "method LoginSession not implemented")
 }
 
 // UnsafeLoginServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -112,43 +112,43 @@ func RegisterLoginServiceServer(s grpc.ServiceRegistrar, srv LoginServiceServer)
 	s.RegisterService(&LoginService_ServiceDesc, srv)
 }
 
-func _LoginService_LoginMachine_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LoginService_LoginNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LoginServiceServer).LoginMachine(ctx, in)
+		return srv.(LoginServiceServer).LoginNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: LoginService_LoginMachine_FullMethodName,
+		FullMethod: LoginService_LoginNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LoginServiceServer).LoginMachine(ctx, req.(*emptypb.Empty))
+		return srv.(LoginServiceServer).LoginNode(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LoginService_StreamPeerLoginSession_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(LoginServiceServer).StreamPeerLoginSession(&loginServiceStreamPeerLoginSessionServer{ServerStream: stream})
+func _LoginService_LoginSession_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LoginServiceServer).LoginSession(&loginServiceLoginSessionServer{ServerStream: stream})
 }
 
-type LoginService_StreamPeerLoginSessionServer interface {
-	Send(*PeerLoginSessionResponse) error
+type LoginService_LoginSessionServer interface {
+	Send(*LoginSessionResponse) error
 	Recv() (*emptypb.Empty, error)
 	grpc.ServerStream
 }
 
-type loginServiceStreamPeerLoginSessionServer struct {
+type loginServiceLoginSessionServer struct {
 	grpc.ServerStream
 }
 
-func (x *loginServiceStreamPeerLoginSessionServer) Send(m *PeerLoginSessionResponse) error {
+func (x *loginServiceLoginSessionServer) Send(m *LoginSessionResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *loginServiceStreamPeerLoginSessionServer) Recv() (*emptypb.Empty, error) {
+func (x *loginServiceLoginSessionServer) Recv() (*emptypb.Empty, error) {
 	m := new(emptypb.Empty)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -164,14 +164,14 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*LoginServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "LoginMachine",
-			Handler:    _LoginService_LoginMachine_Handler,
+			MethodName: "LoginNode",
+			Handler:    _LoginService_LoginNode_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StreamPeerLoginSession",
-			Handler:       _LoginService_StreamPeerLoginSession_Handler,
+			StreamName:    "LoginSession",
+			Handler:       _LoginService_LoginSession_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
