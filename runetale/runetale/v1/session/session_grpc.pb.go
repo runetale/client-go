@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	SessionService_VerifyPeerLoginSession_FullMethodName = "/protos.SessionService/VerifyPeerLoginSession"
+	SessionService_VerifyLoginSession_FullMethodName = "/protos.SessionService/VerifyLoginSession"
 )
 
 // SessionServiceClient is the client API for SessionService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SessionServiceClient interface {
-	VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error)
+	VerifyLoginSession(ctx context.Context, in *VerifyLoginSessionRequest, opts ...grpc.CallOption) (*VerifyLoginSessionResponse, error)
 }
 
 type sessionServiceClient struct {
@@ -37,10 +37,10 @@ func NewSessionServiceClient(cc grpc.ClientConnInterface) SessionServiceClient {
 	return &sessionServiceClient{cc}
 }
 
-func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *VerifyPeerLoginSessionRequest, opts ...grpc.CallOption) (*VerifyPeerLoginSessionResponse, error) {
+func (c *sessionServiceClient) VerifyLoginSession(ctx context.Context, in *VerifyLoginSessionRequest, opts ...grpc.CallOption) (*VerifyLoginSessionResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(VerifyPeerLoginSessionResponse)
-	err := c.cc.Invoke(ctx, SessionService_VerifyPeerLoginSession_FullMethodName, in, out, cOpts...)
+	out := new(VerifyLoginSessionResponse)
+	err := c.cc.Invoke(ctx, SessionService_VerifyLoginSession_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,15 +51,15 @@ func (c *sessionServiceClient) VerifyPeerLoginSession(ctx context.Context, in *V
 // All implementations should embed UnimplementedSessionServiceServer
 // for forward compatibility
 type SessionServiceServer interface {
-	VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error)
+	VerifyLoginSession(context.Context, *VerifyLoginSessionRequest) (*VerifyLoginSessionResponse, error)
 }
 
 // UnimplementedSessionServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedSessionServiceServer struct {
 }
 
-func (UnimplementedSessionServiceServer) VerifyPeerLoginSession(context.Context, *VerifyPeerLoginSessionRequest) (*VerifyPeerLoginSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method VerifyPeerLoginSession not implemented")
+func (UnimplementedSessionServiceServer) VerifyLoginSession(context.Context, *VerifyLoginSessionRequest) (*VerifyLoginSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method VerifyLoginSession not implemented")
 }
 
 // UnsafeSessionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -73,20 +73,20 @@ func RegisterSessionServiceServer(s grpc.ServiceRegistrar, srv SessionServiceSer
 	s.RegisterService(&SessionService_ServiceDesc, srv)
 }
 
-func _SessionService_VerifyPeerLoginSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VerifyPeerLoginSessionRequest)
+func _SessionService_VerifyLoginSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(VerifyLoginSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(SessionServiceServer).VerifyPeerLoginSession(ctx, in)
+		return srv.(SessionServiceServer).VerifyLoginSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: SessionService_VerifyPeerLoginSession_FullMethodName,
+		FullMethod: SessionService_VerifyLoginSession_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SessionServiceServer).VerifyPeerLoginSession(ctx, req.(*VerifyPeerLoginSessionRequest))
+		return srv.(SessionServiceServer).VerifyLoginSession(ctx, req.(*VerifyLoginSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -99,8 +99,8 @@ var SessionService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*SessionServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "VerifyPeerLoginSession",
-			Handler:    _SessionService_VerifyPeerLoginSession_Handler,
+			MethodName: "VerifyLoginSession",
+			Handler:    _SessionService_VerifyLoginSession_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
