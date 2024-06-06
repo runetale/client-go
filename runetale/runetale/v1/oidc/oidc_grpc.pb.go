@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	OIDCService_Login_FullMethodName        = "/protos.OIDCService/Login"
-	OIDCService_Authenticate_FullMethodName = "/protos.OIDCService/Authenticate"
+	OIDCService_Login_FullMethodName             = "/protos.OIDCService/Login"
+	OIDCService_Authenticate_FullMethodName      = "/protos.OIDCService/Authenticate"
+	OIDCService_GetInvitationInfo_FullMethodName = "/protos.OIDCService/GetInvitationInfo"
 )
 
 // OIDCServiceClient is the client API for OIDCService service.
@@ -30,6 +31,7 @@ const (
 type OIDCServiceClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	Authenticate(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*AuthenticateResponse, error)
+	GetInvitationInfo(ctx context.Context, in *GetInvitationRequest, opts ...grpc.CallOption) (*GetInvitationResponse, error)
 }
 
 type oIDCServiceClient struct {
@@ -60,12 +62,23 @@ func (c *oIDCServiceClient) Authenticate(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
+func (c *oIDCServiceClient) GetInvitationInfo(ctx context.Context, in *GetInvitationRequest, opts ...grpc.CallOption) (*GetInvitationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInvitationResponse)
+	err := c.cc.Invoke(ctx, OIDCService_GetInvitationInfo_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OIDCServiceServer is the server API for OIDCService service.
 // All implementations should embed UnimplementedOIDCServiceServer
 // for forward compatibility
 type OIDCServiceServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	Authenticate(context.Context, *emptypb.Empty) (*AuthenticateResponse, error)
+	GetInvitationInfo(context.Context, *GetInvitationRequest) (*GetInvitationResponse, error)
 }
 
 // UnimplementedOIDCServiceServer should be embedded to have forward compatible implementations.
@@ -77,6 +90,9 @@ func (UnimplementedOIDCServiceServer) Login(context.Context, *LoginRequest) (*Lo
 }
 func (UnimplementedOIDCServiceServer) Authenticate(context.Context, *emptypb.Empty) (*AuthenticateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Authenticate not implemented")
+}
+func (UnimplementedOIDCServiceServer) GetInvitationInfo(context.Context, *GetInvitationRequest) (*GetInvitationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInvitationInfo not implemented")
 }
 
 // UnsafeOIDCServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -126,6 +142,24 @@ func _OIDCService_Authenticate_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OIDCService_GetInvitationInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInvitationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OIDCServiceServer).GetInvitationInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OIDCService_GetInvitationInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OIDCServiceServer).GetInvitationInfo(ctx, req.(*GetInvitationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OIDCService_ServiceDesc is the grpc.ServiceDesc for OIDCService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -140,6 +174,10 @@ var OIDCService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Authenticate",
 			Handler:    _OIDCService_Authenticate_Handler,
+		},
+		{
+			MethodName: "GetInvitationInfo",
+			Handler:    _OIDCService_GetInvitationInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
