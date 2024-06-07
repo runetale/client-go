@@ -48,7 +48,7 @@ const (
 	AdminService_GetInks_FullMethodName              = "/protos.AdminService/GetInks"
 	AdminService_PatchInk_FullMethodName             = "/protos.AdminService/PatchInk"
 	AdminService_GetOverview_FullMethodName          = "/protos.AdminService/GetOverview"
-	AdminService_CreateInviteCode_FullMethodName     = "/protos.AdminService/CreateInviteCode"
+	AdminService_CreateInviteUser_FullMethodName     = "/protos.AdminService/CreateInviteUser"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -92,7 +92,7 @@ type AdminServiceClient interface {
 	// overview
 	GetOverview(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Overview, error)
 	// invite
-	CreateInviteCode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteResponse, error)
+	CreateInviteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteUserResponse, error)
 }
 
 type adminServiceClient struct {
@@ -383,10 +383,10 @@ func (c *adminServiceClient) GetOverview(ctx context.Context, in *emptypb.Empty,
 	return out, nil
 }
 
-func (c *adminServiceClient) CreateInviteCode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteResponse, error) {
+func (c *adminServiceClient) CreateInviteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteUserResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(InviteResponse)
-	err := c.cc.Invoke(ctx, AdminService_CreateInviteCode_FullMethodName, in, out, cOpts...)
+	out := new(InviteUserResponse)
+	err := c.cc.Invoke(ctx, AdminService_CreateInviteUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -434,7 +434,7 @@ type AdminServiceServer interface {
 	// overview
 	GetOverview(context.Context, *emptypb.Empty) (*Overview, error)
 	// invite
-	CreateInviteCode(context.Context, *emptypb.Empty) (*InviteResponse, error)
+	CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have forward compatible implementations.
@@ -525,8 +525,8 @@ func (UnimplementedAdminServiceServer) PatchInk(context.Context, *PatchInkReques
 func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Empty) (*Overview, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOverview not implemented")
 }
-func (UnimplementedAdminServiceServer) CreateInviteCode(context.Context, *emptypb.Empty) (*InviteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateInviteCode not implemented")
+func (UnimplementedAdminServiceServer) CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateInviteUser not implemented")
 }
 
 // UnsafeAdminServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -1044,20 +1044,20 @@ func _AdminService_GetOverview_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_CreateInviteCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_CreateInviteUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).CreateInviteCode(ctx, in)
+		return srv.(AdminServiceServer).CreateInviteUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_CreateInviteCode_FullMethodName,
+		FullMethod: AdminService_CreateInviteUser_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).CreateInviteCode(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).CreateInviteUser(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1182,8 +1182,8 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_GetOverview_Handler,
 		},
 		{
-			MethodName: "CreateInviteCode",
-			Handler:    _AdminService_CreateInviteCode_Handler,
+			MethodName: "CreateInviteUser",
+			Handler:    _AdminService_CreateInviteUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
