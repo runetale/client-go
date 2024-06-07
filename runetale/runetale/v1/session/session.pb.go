@@ -7,7 +7,7 @@
 package session
 
 import (
-	admin "./admin"
+	admin "github.com/runetale/runetale/v1/admin"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
