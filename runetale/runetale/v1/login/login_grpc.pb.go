@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	LoginService_LoginNode_FullMethodName    = "/protos.LoginService/LoginNode"
-	LoginService_LoginSession_FullMethodName = "/protos.LoginService/LoginSession"
+	LoginService_LoginNode_FullMethodName     = "/protos.LoginService/LoginNode"
+	LoginService_LoginSession_FullMethodName  = "/protos.LoginService/LoginSession"
+	LoginService_GetInvitation_FullMethodName = "/protos.LoginService/GetInvitation"
 )
 
 // LoginServiceClient is the client API for LoginService service.
@@ -30,6 +31,7 @@ const (
 type LoginServiceClient interface {
 	LoginNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginNodeResponse, error)
 	LoginSession(ctx context.Context, opts ...grpc.CallOption) (LoginService_LoginSessionClient, error)
+	GetInvitation(ctx context.Context, in *GetInvitationRequest, opts ...grpc.CallOption) (*GetInvitationResponse, error)
 }
 
 type loginServiceClient struct {
@@ -82,12 +84,23 @@ func (x *loginServiceLoginSessionClient) Recv() (*LoginSessionResponse, error) {
 	return m, nil
 }
 
+func (c *loginServiceClient) GetInvitation(ctx context.Context, in *GetInvitationRequest, opts ...grpc.CallOption) (*GetInvitationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetInvitationResponse)
+	err := c.cc.Invoke(ctx, LoginService_GetInvitation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoginServiceServer is the server API for LoginService service.
 // All implementations should embed UnimplementedLoginServiceServer
 // for forward compatibility
 type LoginServiceServer interface {
 	LoginNode(context.Context, *emptypb.Empty) (*LoginNodeResponse, error)
 	LoginSession(LoginService_LoginSessionServer) error
+	GetInvitation(context.Context, *GetInvitationRequest) (*GetInvitationResponse, error)
 }
 
 // UnimplementedLoginServiceServer should be embedded to have forward compatible implementations.
@@ -99,6 +112,9 @@ func (UnimplementedLoginServiceServer) LoginNode(context.Context, *emptypb.Empty
 }
 func (UnimplementedLoginServiceServer) LoginSession(LoginService_LoginSessionServer) error {
 	return status.Errorf(codes.Unimplemented, "method LoginSession not implemented")
+}
+func (UnimplementedLoginServiceServer) GetInvitation(context.Context, *GetInvitationRequest) (*GetInvitationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInvitation not implemented")
 }
 
 // UnsafeLoginServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -156,6 +172,24 @@ func (x *loginServiceLoginSessionServer) Recv() (*emptypb.Empty, error) {
 	return m, nil
 }
 
+func _LoginService_GetInvitation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetInvitationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).GetInvitation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_GetInvitation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).GetInvitation(ctx, req.(*GetInvitationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -166,6 +200,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginNode",
 			Handler:    _LoginService_LoginNode_Handler,
+		},
+		{
+			MethodName: "GetInvitation",
+			Handler:    _LoginService_GetInvitation_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
