@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion8
 const (
 	NodeService_SyncRemoteNodesConfig_FullMethodName = "/protos.NodeService/SyncRemoteNodesConfig"
 	NodeService_ComposeNode_FullMethodName           = "/protos.NodeService/ComposeNode"
+	NodeService_GetNetworkMap_FullMethodName         = "/protos.NodeService/GetNetworkMap"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -30,6 +31,8 @@ const (
 type NodeServiceClient interface {
 	SyncRemoteNodesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncNodesResponse, error)
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
+	// todo:(snt) remove syncRemoteNodesConfig
+	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
 }
 
 type nodeServiceClient struct {
@@ -60,12 +63,24 @@ func (c *nodeServiceClient) ComposeNode(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
+func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(NetworkMapResponse)
+	err := c.cc.Invoke(ctx, NodeService_GetNetworkMap_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility
 type NodeServiceServer interface {
 	SyncRemoteNodesConfig(context.Context, *emptypb.Empty) (*SyncNodesResponse, error)
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
+	// todo:(snt) remove syncRemoteNodesConfig
+	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
 }
 
 // UnimplementedNodeServiceServer should be embedded to have forward compatible implementations.
@@ -77,6 +92,9 @@ func (UnimplementedNodeServiceServer) SyncRemoteNodesConfig(context.Context, *em
 }
 func (UnimplementedNodeServiceServer) ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ComposeNode not implemented")
+}
+func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNetworkMap not implemented")
 }
 
 // UnsafeNodeServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -126,6 +144,24 @@ func _NodeService_ComposeNode_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_GetNetworkMap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).GetNetworkMap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_GetNetworkMap_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).GetNetworkMap(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -140,6 +176,10 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ComposeNode",
 			Handler:    _NodeService_ComposeNode_Handler,
+		},
+		{
+			MethodName: "GetNetworkMap",
+			Handler:    _NodeService_GetNetworkMap_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
