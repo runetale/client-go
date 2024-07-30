@@ -99,7 +99,7 @@ type AdminServiceClient interface {
 	// linker
 	GetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error)
 	CreateSubnetLinker(ctx context.Context, in *CreateSubnetLinkerRequest, opts ...grpc.CallOption) (*CreateSubnetLinkerResponse, error)
-	DeleteSubnetLinker(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	DeleteSubnetLinker(ctx context.Context, in *DeleteSubnetLinkerRequest, opts ...grpc.CallOption) (*DeleteSubnetLinkerResponse, error)
 }
 
 type adminServiceClient struct {
@@ -420,9 +420,9 @@ func (c *adminServiceClient) CreateSubnetLinker(ctx context.Context, in *CreateS
 	return out, nil
 }
 
-func (c *adminServiceClient) DeleteSubnetLinker(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+func (c *adminServiceClient) DeleteSubnetLinker(ctx context.Context, in *DeleteSubnetLinkerRequest, opts ...grpc.CallOption) (*DeleteSubnetLinkerResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
+	out := new(DeleteSubnetLinkerResponse)
 	err := c.cc.Invoke(ctx, AdminService_DeleteSubnetLinker_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -475,7 +475,7 @@ type AdminServiceServer interface {
 	// linker
 	GetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error)
 	CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error)
-	DeleteSubnetLinker(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	DeleteSubnetLinker(context.Context, *DeleteSubnetLinkerRequest) (*DeleteSubnetLinkerResponse, error)
 }
 
 // UnimplementedAdminServiceServer should be embedded to have
@@ -578,7 +578,7 @@ func (UnimplementedAdminServiceServer) GetLinkers(context.Context, *emptypb.Empt
 func (UnimplementedAdminServiceServer) CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubnetLinker not implemented")
 }
-func (UnimplementedAdminServiceServer) DeleteSubnetLinker(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+func (UnimplementedAdminServiceServer) DeleteSubnetLinker(context.Context, *DeleteSubnetLinkerRequest) (*DeleteSubnetLinkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteSubnetLinker not implemented")
 }
 func (UnimplementedAdminServiceServer) testEmbeddedByValue() {}
@@ -1160,7 +1160,7 @@ func _AdminService_CreateSubnetLinker_Handler(srv interface{}, ctx context.Conte
 }
 
 func _AdminService_DeleteSubnetLinker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(DeleteSubnetLinkerRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1172,7 +1172,7 @@ func _AdminService_DeleteSubnetLinker_Handler(srv interface{}, ctx context.Conte
 		FullMethod: AdminService_DeleteSubnetLinker_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).DeleteSubnetLinker(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).DeleteSubnetLinker(ctx, req.(*DeleteSubnetLinkerRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
