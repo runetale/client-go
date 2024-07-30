@@ -97,7 +97,7 @@ type AdminServiceClient interface {
 	// invite
 	CreateInviteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteUserResponse, error)
 	// linker
-	GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error)
+	GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSubnetLinkersReponse, error)
 	CreateSubnetLinker(ctx context.Context, in *CreateSubnetLinkerRequest, opts ...grpc.CallOption) (*CreateSubnetLinkerResponse, error)
 	DeleteSubnetLinker(ctx context.Context, in *DeleteSubnetLinkerRequest, opts ...grpc.CallOption) (*DeleteSubnetLinkerResponse, error)
 }
@@ -400,9 +400,9 @@ func (c *adminServiceClient) CreateInviteUser(ctx context.Context, in *emptypb.E
 	return out, nil
 }
 
-func (c *adminServiceClient) GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error) {
+func (c *adminServiceClient) GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSubnetLinkersReponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetLinkersReponse)
+	out := new(GetSubnetLinkersReponse)
 	err := c.cc.Invoke(ctx, AdminService_GetSubnetLinkers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -473,7 +473,7 @@ type AdminServiceServer interface {
 	// invite
 	CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error)
 	// linker
-	GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error)
+	GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetSubnetLinkersReponse, error)
 	CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error)
 	DeleteSubnetLinker(context.Context, *DeleteSubnetLinkerRequest) (*DeleteSubnetLinkerResponse, error)
 }
@@ -572,7 +572,7 @@ func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Emp
 func (UnimplementedAdminServiceServer) CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateInviteUser not implemented")
 }
-func (UnimplementedAdminServiceServer) GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error) {
+func (UnimplementedAdminServiceServer) GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetSubnetLinkersReponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSubnetLinkers not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error) {
