@@ -49,7 +49,7 @@ const (
 	AdminService_PatchInk_FullMethodName             = "/protos.AdminService/PatchInk"
 	AdminService_GetOverview_FullMethodName          = "/protos.AdminService/GetOverview"
 	AdminService_CreateInviteUser_FullMethodName     = "/protos.AdminService/CreateInviteUser"
-	AdminService_GetLinkers_FullMethodName           = "/protos.AdminService/GetLinkers"
+	AdminService_GetSubnetLinkers_FullMethodName     = "/protos.AdminService/GetSubnetLinkers"
 	AdminService_CreateSubnetLinker_FullMethodName   = "/protos.AdminService/CreateSubnetLinker"
 	AdminService_DeleteSubnetLinker_FullMethodName   = "/protos.AdminService/DeleteSubnetLinker"
 )
@@ -97,7 +97,7 @@ type AdminServiceClient interface {
 	// invite
 	CreateInviteUser(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*InviteUserResponse, error)
 	// linker
-	GetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error)
+	GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error)
 	CreateSubnetLinker(ctx context.Context, in *CreateSubnetLinkerRequest, opts ...grpc.CallOption) (*CreateSubnetLinkerResponse, error)
 	DeleteSubnetLinker(ctx context.Context, in *DeleteSubnetLinkerRequest, opts ...grpc.CallOption) (*DeleteSubnetLinkerResponse, error)
 }
@@ -400,10 +400,10 @@ func (c *adminServiceClient) CreateInviteUser(ctx context.Context, in *emptypb.E
 	return out, nil
 }
 
-func (c *adminServiceClient) GetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error) {
+func (c *adminServiceClient) GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetLinkersReponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetLinkersReponse)
-	err := c.cc.Invoke(ctx, AdminService_GetLinkers_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AdminService_GetSubnetLinkers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -473,7 +473,7 @@ type AdminServiceServer interface {
 	// invite
 	CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error)
 	// linker
-	GetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error)
+	GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error)
 	CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error)
 	DeleteSubnetLinker(context.Context, *DeleteSubnetLinkerRequest) (*DeleteSubnetLinkerResponse, error)
 }
@@ -572,8 +572,8 @@ func (UnimplementedAdminServiceServer) GetOverview(context.Context, *emptypb.Emp
 func (UnimplementedAdminServiceServer) CreateInviteUser(context.Context, *emptypb.Empty) (*InviteUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateInviteUser not implemented")
 }
-func (UnimplementedAdminServiceServer) GetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetLinkers not implemented")
+func (UnimplementedAdminServiceServer) GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetLinkersReponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubnetLinkers not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubnetLinker not implemented")
@@ -1123,20 +1123,20 @@ func _AdminService_CreateInviteUser_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AdminService_GetLinkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AdminService_GetSubnetLinkers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AdminServiceServer).GetLinkers(ctx, in)
+		return srv.(AdminServiceServer).GetSubnetLinkers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AdminService_GetLinkers_FullMethodName,
+		FullMethod: AdminService_GetSubnetLinkers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetLinkers(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetSubnetLinkers(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1301,8 +1301,8 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AdminService_CreateInviteUser_Handler,
 		},
 		{
-			MethodName: "GetLinkers",
-			Handler:    _AdminService_GetLinkers_Handler,
+			MethodName: "GetSubnetLinkers",
+			Handler:    _AdminService_GetSubnetLinkers_Handler,
 		},
 		{
 			MethodName: "CreateSubnetLinker",
