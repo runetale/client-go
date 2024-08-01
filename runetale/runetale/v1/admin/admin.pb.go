@@ -406,7 +406,7 @@ type AclResources struct {
 	unknownFields protoimpl.UnknownFields
 
 	NodeIds  []uint64 `protobuf:"varint,1,rep,packed,name=nodeIds,proto3" json:"nodeIds,omitempty"`
-	PolicyId string   `protobuf:"bytes,2,opt,name=policyId,proto3" json:"policyId,omitempty"` // for fleet or group or ink
+	PolicyId string   `protobuf:"bytes,2,opt,name=policyId,proto3" json:"policyId,omitempty"` // for fleet or group or ink or linker
 	NodeType NodeType `protobuf:"varint,3,opt,name=nodeType,proto3,enum=protos.NodeType" json:"nodeType,omitempty"`
 }
 
