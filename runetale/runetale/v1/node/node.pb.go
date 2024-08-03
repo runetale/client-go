@@ -293,7 +293,6 @@ type FilterRule struct {
 	unknownFields protoimpl.UnknownFields
 
 	// source ips,
-	// - "*" は全て許可
 	// - "192.168.0.0/16" cidrが含まれたipの範囲
 	SrcIps []string `protobuf:"bytes,1,rep,name=srcIps,proto3" json:"srcIps,omitempty"`
 	// dstのpeerのリスト
