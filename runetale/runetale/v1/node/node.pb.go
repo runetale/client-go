@@ -231,7 +231,8 @@ type NetPortRange struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// srcIpsと同じフォーマット
+	// 以下のような形式
+	// - IPv4 or IPv6の単一のIPアドレス
 	// - "*" は全て許可
 	// - "192.168.0.0/16" cidrが含まれたipの範囲
 	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
