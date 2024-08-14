@@ -316,6 +316,11 @@ type FilterRule struct {
 	Dsts []*NetPortRange `protobuf:"bytes,2,rep,name=dsts,proto3" json:"dsts,omitempty"`
 	// 使用するプロトコル
 	// https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml
+	// 16進数で返ってくる
+	// ICMPv4  = 0x01
+	// ICMPv6  = 0x3a
+	// TCP     = 0x06
+	// UDP     = 0x11
 	IPProto []uint64 `protobuf:"varint,3,rep,packed,name=iPProto,proto3" json:"iPProto,omitempty"`
 }
 
