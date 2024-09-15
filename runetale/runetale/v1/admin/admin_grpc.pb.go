@@ -60,7 +60,7 @@ const (
 type AdminServiceClient interface {
 	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
-	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error)
+	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*Users, error)
 	// acls
 	CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
@@ -74,10 +74,10 @@ type AdminServiceClient interface {
 	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	// devices
 	GetDevice(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*Device, error)
-	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
+	GetDevices(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Devices, error)
 	// resources
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
-	GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error)
+	GetResources(ctx context.Context, in *GetResourcesRequest, opts ...grpc.CallOption) (*Resources, error)
 	// compose keys
 	GenerateComposeKey(ctx context.Context, in *GenerateComposeKeyRequest, opts ...grpc.CallOption) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetComposeKeysResponse, error)
@@ -130,7 +130,7 @@ func (c *adminServiceClient) GetUser(ctx context.Context, in *GetUserRequest, op
 	return out, nil
 }
 
-func (c *adminServiceClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Users, error) {
+func (c *adminServiceClient) GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*Users, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Users)
 	err := c.cc.Invoke(ctx, AdminService_GetUsers_FullMethodName, in, out, cOpts...)
@@ -240,7 +240,7 @@ func (c *adminServiceClient) GetDevice(ctx context.Context, in *GetDeviceRequest
 	return out, nil
 }
 
-func (c *adminServiceClient) GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error) {
+func (c *adminServiceClient) GetDevices(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Devices, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Devices)
 	err := c.cc.Invoke(ctx, AdminService_GetDevices_FullMethodName, in, out, cOpts...)
@@ -260,7 +260,7 @@ func (c *adminServiceClient) GetResource(ctx context.Context, in *GetResourceReq
 	return out, nil
 }
 
-func (c *adminServiceClient) GetResources(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Resources, error) {
+func (c *adminServiceClient) GetResources(ctx context.Context, in *GetResourcesRequest, opts ...grpc.CallOption) (*Resources, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Resources)
 	err := c.cc.Invoke(ctx, AdminService_GetResources_FullMethodName, in, out, cOpts...)
@@ -436,7 +436,7 @@ func (c *adminServiceClient) PatchSubnetLinker(ctx context.Context, in *PatchSub
 type AdminServiceServer interface {
 	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*User, error)
-	GetUsers(context.Context, *emptypb.Empty) (*Users, error)
+	GetUsers(context.Context, *GetUsersRequest) (*Users, error)
 	// acls
 	CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error)
 	GetAcl(context.Context, *GetAclRequest) (*AclResponse, error)
@@ -450,10 +450,10 @@ type AdminServiceServer interface {
 	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
 	// devices
 	GetDevice(context.Context, *GetDeviceRequest) (*Device, error)
-	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
+	GetDevices(context.Context, *GetDevicesRequest) (*Devices, error)
 	// resources
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
-	GetResources(context.Context, *emptypb.Empty) (*Resources, error)
+	GetResources(context.Context, *GetResourcesRequest) (*Resources, error)
 	// compose keys
 	GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error)
 	GetComposeKeys(context.Context, *emptypb.Empty) (*GetComposeKeysResponse, error)
@@ -491,7 +491,7 @@ func (UnimplementedAdminServiceServer) GetMe(context.Context, *emptypb.Empty) (*
 func (UnimplementedAdminServiceServer) GetUser(context.Context, *GetUserRequest) (*User, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
-func (UnimplementedAdminServiceServer) GetUsers(context.Context, *emptypb.Empty) (*Users, error) {
+func (UnimplementedAdminServiceServer) GetUsers(context.Context, *GetUsersRequest) (*Users, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error) {
@@ -524,13 +524,13 @@ func (UnimplementedAdminServiceServer) PatchGroup(context.Context, *PatchGroupRe
 func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDeviceRequest) (*Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
 }
-func (UnimplementedAdminServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
+func (UnimplementedAdminServiceServer) GetDevices(context.Context, *GetDevicesRequest) (*Devices, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevices not implemented")
 }
 func (UnimplementedAdminServiceServer) GetResource(context.Context, *GetResourceRequest) (*Resource, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResource not implemented")
 }
-func (UnimplementedAdminServiceServer) GetResources(context.Context, *emptypb.Empty) (*Resources, error) {
+func (UnimplementedAdminServiceServer) GetResources(context.Context, *GetResourcesRequest) (*Resources, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetResources not implemented")
 }
 func (UnimplementedAdminServiceServer) GenerateComposeKey(context.Context, *GenerateComposeKeyRequest) (*GenerateComposeKeyResponse, error) {
@@ -638,7 +638,7 @@ func _AdminService_GetUser_Handler(srv interface{}, ctx context.Context, dec fun
 }
 
 func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -650,7 +650,7 @@ func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: AdminService_GetUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetUsers(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetUsers(ctx, req.(*GetUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -836,7 +836,7 @@ func _AdminService_GetDevice_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _AdminService_GetDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetDevicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -848,7 +848,7 @@ func _AdminService_GetDevices_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: AdminService_GetDevices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetDevices(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetDevices(ctx, req.(*GetDevicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -872,7 +872,7 @@ func _AdminService_GetResource_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _AdminService_GetResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -884,7 +884,7 @@ func _AdminService_GetResources_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: AdminService_GetResources_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetResources(ctx, req.(*emptypb.Empty))
+		return srv.(AdminServiceServer).GetResources(ctx, req.(*GetResourcesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
