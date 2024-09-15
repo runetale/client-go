@@ -20,38 +20,40 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AdminService_GetMe_FullMethodName                = "/protos.AdminService/GetMe"
-	AdminService_GetUser_FullMethodName              = "/protos.AdminService/GetUser"
-	AdminService_GetUsers_FullMethodName             = "/protos.AdminService/GetUsers"
-	AdminService_CreateAcl_FullMethodName            = "/protos.AdminService/CreateAcl"
-	AdminService_GetAcl_FullMethodName               = "/protos.AdminService/GetAcl"
-	AdminService_GetAcls_FullMethodName              = "/protos.AdminService/GetAcls"
-	AdminService_GetAclsJson_FullMethodName          = "/protos.AdminService/GetAclsJson"
-	AdminService_PatchAcl_FullMethodName             = "/protos.AdminService/PatchAcl"
-	AdminService_CreateGroup_FullMethodName          = "/protos.AdminService/CreateGroup"
-	AdminService_GetGroup_FullMethodName             = "/protos.AdminService/GetGroup"
-	AdminService_GetGroups_FullMethodName            = "/protos.AdminService/GetGroups"
-	AdminService_PatchGroup_FullMethodName           = "/protos.AdminService/PatchGroup"
-	AdminService_GetDevice_FullMethodName            = "/protos.AdminService/GetDevice"
-	AdminService_GetDevices_FullMethodName           = "/protos.AdminService/GetDevices"
-	AdminService_GetResource_FullMethodName          = "/protos.AdminService/GetResource"
-	AdminService_GetResources_FullMethodName         = "/protos.AdminService/GetResources"
-	AdminService_GenerateComposeKey_FullMethodName   = "/protos.AdminService/GenerateComposeKey"
-	AdminService_GetComposeKeys_FullMethodName       = "/protos.AdminService/GetComposeKeys"
-	AdminService_GetComposeNodeStatus_FullMethodName = "/protos.AdminService/GetComposeNodeStatus"
-	AdminService_CreateFleet_FullMethodName          = "/protos.AdminService/CreateFleet"
-	AdminService_GetFleet_FullMethodName             = "/protos.AdminService/GetFleet"
-	AdminService_GetFleets_FullMethodName            = "/protos.AdminService/GetFleets"
-	AdminService_PatchFleet_FullMethodName           = "/protos.AdminService/PatchFleet"
-	AdminService_CreateInk_FullMethodName            = "/protos.AdminService/CreateInk"
-	AdminService_GetInk_FullMethodName               = "/protos.AdminService/GetInk"
-	AdminService_GetInks_FullMethodName              = "/protos.AdminService/GetInks"
-	AdminService_PatchInk_FullMethodName             = "/protos.AdminService/PatchInk"
-	AdminService_GetOverview_FullMethodName          = "/protos.AdminService/GetOverview"
-	AdminService_CreateInviteUser_FullMethodName     = "/protos.AdminService/CreateInviteUser"
-	AdminService_GetSubnetLinkers_FullMethodName     = "/protos.AdminService/GetSubnetLinkers"
-	AdminService_CreateSubnetLinker_FullMethodName   = "/protos.AdminService/CreateSubnetLinker"
-	AdminService_PatchSubnetLinker_FullMethodName    = "/protos.AdminService/PatchSubnetLinker"
+	AdminService_GetMe_FullMethodName                           = "/protos.AdminService/GetMe"
+	AdminService_GetUser_FullMethodName                         = "/protos.AdminService/GetUser"
+	AdminService_GetUsers_FullMethodName                        = "/protos.AdminService/GetUsers"
+	AdminService_PatchUser_FullMethodName                       = "/protos.AdminService/PatchUser"
+	AdminService_CreateAcl_FullMethodName                       = "/protos.AdminService/CreateAcl"
+	AdminService_GetAcl_FullMethodName                          = "/protos.AdminService/GetAcl"
+	AdminService_GetAcls_FullMethodName                         = "/protos.AdminService/GetAcls"
+	AdminService_GetAclsJson_FullMethodName                     = "/protos.AdminService/GetAclsJson"
+	AdminService_PatchAcl_FullMethodName                        = "/protos.AdminService/PatchAcl"
+	AdminService_CreateGroup_FullMethodName                     = "/protos.AdminService/CreateGroup"
+	AdminService_GetGroup_FullMethodName                        = "/protos.AdminService/GetGroup"
+	AdminService_GetGroups_FullMethodName                       = "/protos.AdminService/GetGroups"
+	AdminService_PatchGroup_FullMethodName                      = "/protos.AdminService/PatchGroup"
+	AdminService_GetDevice_FullMethodName                       = "/protos.AdminService/GetDevice"
+	AdminService_GetDevices_FullMethodName                      = "/protos.AdminService/GetDevices"
+	AdminService_GetResource_FullMethodName                     = "/protos.AdminService/GetResource"
+	AdminService_GetResources_FullMethodName                    = "/protos.AdminService/GetResources"
+	AdminService_GenerateComposeKey_FullMethodName              = "/protos.AdminService/GenerateComposeKey"
+	AdminService_GetComposeKeys_FullMethodName                  = "/protos.AdminService/GetComposeKeys"
+	AdminService_GetComposeNodeStatus_FullMethodName            = "/protos.AdminService/GetComposeNodeStatus"
+	AdminService_CreateFleet_FullMethodName                     = "/protos.AdminService/CreateFleet"
+	AdminService_GetFleet_FullMethodName                        = "/protos.AdminService/GetFleet"
+	AdminService_GetFleets_FullMethodName                       = "/protos.AdminService/GetFleets"
+	AdminService_PatchFleet_FullMethodName                      = "/protos.AdminService/PatchFleet"
+	AdminService_CreateInk_FullMethodName                       = "/protos.AdminService/CreateInk"
+	AdminService_GetInk_FullMethodName                          = "/protos.AdminService/GetInk"
+	AdminService_GetInks_FullMethodName                         = "/protos.AdminService/GetInks"
+	AdminService_PatchInk_FullMethodName                        = "/protos.AdminService/PatchInk"
+	AdminService_GetOverview_FullMethodName                     = "/protos.AdminService/GetOverview"
+	AdminService_CreateInviteUser_FullMethodName                = "/protos.AdminService/CreateInviteUser"
+	AdminService_GetSubnetLinkers_FullMethodName                = "/protos.AdminService/GetSubnetLinkers"
+	AdminService_CreateSubnetLinker_FullMethodName              = "/protos.AdminService/CreateSubnetLinker"
+	AdminService_GetSubnetLinkerConvertibleNodes_FullMethodName = "/protos.AdminService/GetSubnetLinkerConvertibleNodes"
+	AdminService_PatchSubnetLinker_FullMethodName               = "/protos.AdminService/PatchSubnetLinker"
 )
 
 // AdminServiceClient is the client API for AdminService service.
@@ -61,6 +63,7 @@ type AdminServiceClient interface {
 	GetMe(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMeResponse, error)
 	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*User, error)
 	GetUsers(ctx context.Context, in *GetUsersRequest, opts ...grpc.CallOption) (*Users, error)
+	PatchUser(ctx context.Context, in *PatchUserRequest, opts ...grpc.CallOption) (*User, error)
 	// acls
 	CreateAcl(ctx context.Context, in *CreateAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
 	GetAcl(ctx context.Context, in *GetAclRequest, opts ...grpc.CallOption) (*AclResponse, error)
@@ -99,6 +102,7 @@ type AdminServiceClient interface {
 	// linker
 	GetSubnetLinkers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSubnetLinkersReponse, error)
 	CreateSubnetLinker(ctx context.Context, in *CreateSubnetLinkerRequest, opts ...grpc.CallOption) (*CreateSubnetLinkerResponse, error)
+	GetSubnetLinkerConvertibleNodes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSubnetLinkerConvertibleNodesResponse, error)
 	PatchSubnetLinker(ctx context.Context, in *PatchSubnetLinkerRequest, opts ...grpc.CallOption) (*PatchSubnetLinkerResponse, error)
 }
 
@@ -134,6 +138,16 @@ func (c *adminServiceClient) GetUsers(ctx context.Context, in *GetUsersRequest, 
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Users)
 	err := c.cc.Invoke(ctx, AdminService_GetUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *adminServiceClient) PatchUser(ctx context.Context, in *PatchUserRequest, opts ...grpc.CallOption) (*User, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(User)
+	err := c.cc.Invoke(ctx, AdminService_PatchUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -420,6 +434,16 @@ func (c *adminServiceClient) CreateSubnetLinker(ctx context.Context, in *CreateS
 	return out, nil
 }
 
+func (c *adminServiceClient) GetSubnetLinkerConvertibleNodes(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSubnetLinkerConvertibleNodesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSubnetLinkerConvertibleNodesResponse)
+	err := c.cc.Invoke(ctx, AdminService_GetSubnetLinkerConvertibleNodes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *adminServiceClient) PatchSubnetLinker(ctx context.Context, in *PatchSubnetLinkerRequest, opts ...grpc.CallOption) (*PatchSubnetLinkerResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PatchSubnetLinkerResponse)
@@ -437,6 +461,7 @@ type AdminServiceServer interface {
 	GetMe(context.Context, *emptypb.Empty) (*GetMeResponse, error)
 	GetUser(context.Context, *GetUserRequest) (*User, error)
 	GetUsers(context.Context, *GetUsersRequest) (*Users, error)
+	PatchUser(context.Context, *PatchUserRequest) (*User, error)
 	// acls
 	CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error)
 	GetAcl(context.Context, *GetAclRequest) (*AclResponse, error)
@@ -475,6 +500,7 @@ type AdminServiceServer interface {
 	// linker
 	GetSubnetLinkers(context.Context, *emptypb.Empty) (*GetSubnetLinkersReponse, error)
 	CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error)
+	GetSubnetLinkerConvertibleNodes(context.Context, *emptypb.Empty) (*GetSubnetLinkerConvertibleNodesResponse, error)
 	PatchSubnetLinker(context.Context, *PatchSubnetLinkerRequest) (*PatchSubnetLinkerResponse, error)
 }
 
@@ -493,6 +519,9 @@ func (UnimplementedAdminServiceServer) GetUser(context.Context, *GetUserRequest)
 }
 func (UnimplementedAdminServiceServer) GetUsers(context.Context, *GetUsersRequest) (*Users, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
+func (UnimplementedAdminServiceServer) PatchUser(context.Context, *PatchUserRequest) (*User, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PatchUser not implemented")
 }
 func (UnimplementedAdminServiceServer) CreateAcl(context.Context, *CreateAclRequest) (*AclResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateAcl not implemented")
@@ -578,6 +607,9 @@ func (UnimplementedAdminServiceServer) GetSubnetLinkers(context.Context, *emptyp
 func (UnimplementedAdminServiceServer) CreateSubnetLinker(context.Context, *CreateSubnetLinkerRequest) (*CreateSubnetLinkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateSubnetLinker not implemented")
 }
+func (UnimplementedAdminServiceServer) GetSubnetLinkerConvertibleNodes(context.Context, *emptypb.Empty) (*GetSubnetLinkerConvertibleNodesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubnetLinkerConvertibleNodes not implemented")
+}
 func (UnimplementedAdminServiceServer) PatchSubnetLinker(context.Context, *PatchSubnetLinkerRequest) (*PatchSubnetLinkerResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchSubnetLinker not implemented")
 }
@@ -651,6 +683,24 @@ func _AdminService_GetUsers_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AdminServiceServer).GetUsers(ctx, req.(*GetUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdminService_PatchUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PatchUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).PatchUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_PatchUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).PatchUser(ctx, req.(*PatchUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1159,6 +1209,24 @@ func _AdminService_CreateSubnetLinker_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdminService_GetSubnetLinkerConvertibleNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdminServiceServer).GetSubnetLinkerConvertibleNodes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdminService_GetSubnetLinkerConvertibleNodes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdminServiceServer).GetSubnetLinkerConvertibleNodes(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdminService_PatchSubnetLinker_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PatchSubnetLinkerRequest)
 	if err := dec(in); err != nil {
@@ -1195,6 +1263,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetUsers",
 			Handler:    _AdminService_GetUsers_Handler,
+		},
+		{
+			MethodName: "PatchUser",
+			Handler:    _AdminService_PatchUser_Handler,
 		},
 		{
 			MethodName: "CreateAcl",
@@ -1307,6 +1379,10 @@ var AdminService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateSubnetLinker",
 			Handler:    _AdminService_CreateSubnetLinker_Handler,
+		},
+		{
+			MethodName: "GetSubnetLinkerConvertibleNodes",
+			Handler:    _AdminService_GetSubnetLinkerConvertibleNodes_Handler,
 		},
 		{
 			MethodName: "PatchSubnetLinker",
