@@ -73,7 +73,7 @@ type AdminServiceClient interface {
 	GetGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Groups, error)
 	PatchGroup(ctx context.Context, in *PatchGroupRequest, opts ...grpc.CallOption) (*Group, error)
 	// devices
-	GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error)
+	GetDevice(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*Device, error)
 	GetDevices(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Devices, error)
 	// resources
 	GetResource(ctx context.Context, in *GetResourceRequest, opts ...grpc.CallOption) (*Resource, error)
@@ -230,7 +230,7 @@ func (c *adminServiceClient) PatchGroup(ctx context.Context, in *PatchGroupReque
 	return out, nil
 }
 
-func (c *adminServiceClient) GetDevice(ctx context.Context, in *GetDevicesRequest, opts ...grpc.CallOption) (*Device, error) {
+func (c *adminServiceClient) GetDevice(ctx context.Context, in *GetDeviceRequest, opts ...grpc.CallOption) (*Device, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Device)
 	err := c.cc.Invoke(ctx, AdminService_GetDevice_FullMethodName, in, out, cOpts...)
@@ -449,7 +449,7 @@ type AdminServiceServer interface {
 	GetGroups(context.Context, *emptypb.Empty) (*Groups, error)
 	PatchGroup(context.Context, *PatchGroupRequest) (*Group, error)
 	// devices
-	GetDevice(context.Context, *GetDevicesRequest) (*Device, error)
+	GetDevice(context.Context, *GetDeviceRequest) (*Device, error)
 	GetDevices(context.Context, *emptypb.Empty) (*Devices, error)
 	// resources
 	GetResource(context.Context, *GetResourceRequest) (*Resource, error)
@@ -521,7 +521,7 @@ func (UnimplementedAdminServiceServer) GetGroups(context.Context, *emptypb.Empty
 func (UnimplementedAdminServiceServer) PatchGroup(context.Context, *PatchGroupRequest) (*Group, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchGroup not implemented")
 }
-func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDevicesRequest) (*Device, error) {
+func (UnimplementedAdminServiceServer) GetDevice(context.Context, *GetDeviceRequest) (*Device, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDevice not implemented")
 }
 func (UnimplementedAdminServiceServer) GetDevices(context.Context, *emptypb.Empty) (*Devices, error) {
@@ -818,7 +818,7 @@ func _AdminService_PatchGroup_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _AdminService_GetDevice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDevicesRequest)
+	in := new(GetDeviceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -830,7 +830,7 @@ func _AdminService_GetDevice_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: AdminService_GetDevice_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AdminServiceServer).GetDevice(ctx, req.(*GetDevicesRequest))
+		return srv.(AdminServiceServer).GetDevice(ctx, req.(*GetDeviceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
