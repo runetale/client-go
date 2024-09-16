@@ -3530,7 +3530,7 @@ type Resource struct {
 	LastSeen  string    `protobuf:"bytes,12,opt,name=lastSeen,proto3" json:"lastSeen,omitempty"`
 	IsLinker  bool      `protobuf:"varint,13,opt,name=isLinker,proto3" json:"isLinker,omitempty"`
 	Linker    *Linker   `protobuf:"bytes,14,opt,name=linker,proto3,oneof" json:"linker,omitempty"`
-	// 属しているfleetが変える
+	// 属しているfleetが返ってくる
 	Fleets []*Fleet `protobuf:"bytes,15,rep,name=fleets,proto3" json:"fleets,omitempty"`
 }
 
