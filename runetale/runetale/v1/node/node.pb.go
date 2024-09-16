@@ -253,8 +253,11 @@ type NetPortRange struct {
 	// - "192.168.0.0/16" cidrが含まれたipの範囲
 	Ip string `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
 	// portのフォーマットは
-	// - UDP or TCP portの番号を"0-65535"で指定する
-	// - "80" などの単一のportの場合はlastにも同じポート番号が入る
+	// - 全て指定の `*` か
+	// - 単一指定の `22` か
+	// - 複数指定の `80, 443` か `2つまで`
+	// - 範囲指定の `100-200“
+	// - 単一のportの場合はlastにも同じポート番号が入る
 	Ports           *NetPortRangePortRange `protobuf:"bytes,2,opt,name=ports,proto3" json:"ports,omitempty"`
 	AdvertisedRoute []string               `protobuf:"bytes,3,rep,name=advertisedRoute,proto3" json:"advertisedRoute,omitempty"`
 }
