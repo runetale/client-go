@@ -29,9 +29,9 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeServiceClient interface {
+	// todo:(snt) remove syncRemoteNodesConfig
 	SyncRemoteNodesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncNodesResponse, error)
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
-	// todo:(snt) remove syncRemoteNodesConfig
 	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
 }
 
@@ -77,9 +77,9 @@ func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, in *emptypb.Empty
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
 type NodeServiceServer interface {
+	// todo:(snt) remove syncRemoteNodesConfig
 	SyncRemoteNodesConfig(context.Context, *emptypb.Empty) (*SyncNodesResponse, error)
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
-	// todo:(snt) remove syncRemoteNodesConfig
 	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
 }
 
