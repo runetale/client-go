@@ -20,19 +20,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NodeService_SyncRemoteNodesConfig_FullMethodName = "/protos.NodeService/SyncRemoteNodesConfig"
-	NodeService_ComposeNode_FullMethodName           = "/protos.NodeService/ComposeNode"
-	NodeService_GetNetworkMap_FullMethodName         = "/protos.NodeService/GetNetworkMap"
+	NodeService_ComposeNode_FullMethodName   = "/protos.NodeService/ComposeNode"
+	NodeService_GetNetworkMap_FullMethodName = "/protos.NodeService/GetNetworkMap"
 )
 
 // NodeServiceClient is the client API for NodeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeServiceClient interface {
-	// todo:(snt) remove syncRemoteNodesConfig
-	SyncRemoteNodesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncNodesResponse, error)
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
-	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
+	GetNetworkMap(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error)
 }
 
 type nodeServiceClient struct {
@@ -41,16 +38,6 @@ type nodeServiceClient struct {
 
 func NewNodeServiceClient(cc grpc.ClientConnInterface) NodeServiceClient {
 	return &nodeServiceClient{cc}
-}
-
-func (c *nodeServiceClient) SyncRemoteNodesConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*SyncNodesResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(SyncNodesResponse)
-	err := c.cc.Invoke(ctx, NodeService_SyncRemoteNodesConfig_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *nodeServiceClient) ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error) {
@@ -63,24 +50,25 @@ func (c *nodeServiceClient) ComposeNode(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error) {
+func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(NetworkMapResponse)
-	err := c.cc.Invoke(ctx, NodeService_GetNetworkMap_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_GetNetworkMap_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[emptypb.Empty, NetworkMapResponse]{ClientStream: stream}
+	return x, nil
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NodeService_GetNetworkMapClient = grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse]
 
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
 type NodeServiceServer interface {
-	// todo:(snt) remove syncRemoteNodesConfig
-	SyncRemoteNodesConfig(context.Context, *emptypb.Empty) (*SyncNodesResponse, error)
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
-	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
+	GetNetworkMap(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error
 }
 
 // UnimplementedNodeServiceServer should be embedded to have
@@ -90,14 +78,11 @@ type NodeServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedNodeServiceServer struct{}
 
-func (UnimplementedNodeServiceServer) SyncRemoteNodesConfig(context.Context, *emptypb.Empty) (*SyncNodesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SyncRemoteNodesConfig not implemented")
-}
 func (UnimplementedNodeServiceServer) ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ComposeNode not implemented")
 }
-func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetNetworkMap not implemented")
+func (UnimplementedNodeServiceServer) GetNetworkMap(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method GetNetworkMap not implemented")
 }
 func (UnimplementedNodeServiceServer) testEmbeddedByValue() {}
 
@@ -119,24 +104,6 @@ func RegisterNodeServiceServer(s grpc.ServiceRegistrar, srv NodeServiceServer) {
 	s.RegisterService(&NodeService_ServiceDesc, srv)
 }
 
-func _NodeService_SyncRemoteNodesConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServiceServer).SyncRemoteNodesConfig(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: NodeService_SyncRemoteNodesConfig_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServiceServer).SyncRemoteNodesConfig(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _NodeService_ComposeNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
@@ -155,23 +122,12 @@ func _NodeService_ComposeNode_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NodeService_GetNetworkMap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodeServiceServer).GetNetworkMap(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: NodeService_GetNetworkMap_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServiceServer).GetNetworkMap(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
+func _NodeService_GetNetworkMap_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NodeServiceServer).GetNetworkMap(&grpc.GenericServerStream[emptypb.Empty, NetworkMapResponse]{ServerStream: stream})
 }
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NodeService_GetNetworkMapServer = grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]
 
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -181,18 +137,17 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*NodeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SyncRemoteNodesConfig",
-			Handler:    _NodeService_SyncRemoteNodesConfig_Handler,
-		},
-		{
 			MethodName: "ComposeNode",
 			Handler:    _NodeService_ComposeNode_Handler,
 		},
+	},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "GetNetworkMap",
-			Handler:    _NodeService_GetNetworkMap_Handler,
+			StreamName:    "GetNetworkMap",
+			Handler:       _NodeService_GetNetworkMap_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "runetale/runetale/v1/node.proto",
 }
