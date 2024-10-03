@@ -20,8 +20,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NodeService_ComposeNode_FullMethodName   = "/protos.NodeService/ComposeNode"
-	NodeService_GetNetworkMap_FullMethodName = "/protos.NodeService/GetNetworkMap"
+	NodeService_ComposeNode_FullMethodName            = "/protos.NodeService/ComposeNode"
+	NodeService_GetNetworkMap_FullMethodName          = "/protos.NodeService/GetNetworkMap"
+	NodeService_ConnectNetworkMapTable_FullMethodName = "/protos.NodeService/ConnectNetworkMapTable"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -29,7 +30,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeServiceClient interface {
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
-	GetNetworkMap(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error)
+	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
+	ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error)
 }
 
 type nodeServiceClient struct {
@@ -50,9 +52,19 @@ func (c *nodeServiceClient) ComposeNode(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error) {
+func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_GetNetworkMap_FullMethodName, cOpts...)
+	out := new(NetworkMapResponse)
+	err := c.cc.Invoke(ctx, NodeService_GetNetworkMap_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_ConnectNetworkMapTable_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,14 +73,15 @@ func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, opts ...grpc.Call
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NodeService_GetNetworkMapClient = grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse]
+type NodeService_ConnectNetworkMapTableClient = grpc.BidiStreamingClient[emptypb.Empty, NetworkMapResponse]
 
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
 type NodeServiceServer interface {
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
-	GetNetworkMap(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error
+	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
+	ConnectNetworkMapTable(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error
 }
 
 // UnimplementedNodeServiceServer should be embedded to have
@@ -81,8 +94,11 @@ type UnimplementedNodeServiceServer struct{}
 func (UnimplementedNodeServiceServer) ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ComposeNode not implemented")
 }
-func (UnimplementedNodeServiceServer) GetNetworkMap(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error {
-	return status.Errorf(codes.Unimplemented, "method GetNetworkMap not implemented")
+func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetNetworkMap not implemented")
+}
+func (UnimplementedNodeServiceServer) ConnectNetworkMapTable(grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method ConnectNetworkMapTable not implemented")
 }
 func (UnimplementedNodeServiceServer) testEmbeddedByValue() {}
 
@@ -122,12 +138,30 @@ func _NodeService_ComposeNode_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NodeService_GetNetworkMap_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NodeServiceServer).GetNetworkMap(&grpc.GenericServerStream[emptypb.Empty, NetworkMapResponse]{ServerStream: stream})
+func _NodeService_GetNetworkMap_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).GetNetworkMap(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_GetNetworkMap_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).GetNetworkMap(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_ConnectNetworkMapTable_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NodeServiceServer).ConnectNetworkMapTable(&grpc.GenericServerStream[emptypb.Empty, NetworkMapResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NodeService_GetNetworkMapServer = grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]
+type NodeService_ConnectNetworkMapTableServer = grpc.BidiStreamingServer[emptypb.Empty, NetworkMapResponse]
 
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -140,11 +174,15 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ComposeNode",
 			Handler:    _NodeService_ComposeNode_Handler,
 		},
+		{
+			MethodName: "GetNetworkMap",
+			Handler:    _NodeService_GetNetworkMap_Handler,
+		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "GetNetworkMap",
-			Handler:       _NodeService_GetNetworkMap_Handler,
+			StreamName:    "ConnectNetworkMapTable",
+			Handler:       _NodeService_ConnectNetworkMapTable_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
