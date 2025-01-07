@@ -24,6 +24,7 @@ const (
 	NegotiationService_Answer_FullMethodName    = "/protos.NegotiationService/Answer"
 	NegotiationService_Candidate_FullMethodName = "/protos.NegotiationService/Candidate"
 	NegotiationService_Connect_FullMethodName   = "/protos.NegotiationService/Connect"
+	NegotiationService_Join_FullMethodName      = "/protos.NegotiationService/Join"
 )
 
 // NegotiationServiceClient is the client API for NegotiationService service.
@@ -34,6 +35,7 @@ type NegotiationServiceClient interface {
 	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationRequest, NegotiationRequest], error)
+	Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type negotiationServiceClient struct {
@@ -87,6 +89,16 @@ func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.Cal
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NegotiationService_ConnectClient = grpc.BidiStreamingClient[NegotiationRequest, NegotiationRequest]
 
+func (c *negotiationServiceClient) Join(ctx context.Context, in *JoinRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, NegotiationService_Join_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NegotiationServiceServer is the server API for NegotiationService service.
 // All implementations should embed UnimplementedNegotiationServiceServer
 // for forward compatibility.
@@ -95,6 +107,7 @@ type NegotiationServiceServer interface {
 	Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error)
 	Connect(grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]) error
+	Join(context.Context, *JoinRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedNegotiationServiceServer should be embedded to have
@@ -115,6 +128,9 @@ func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *Candida
 }
 func (UnimplementedNegotiationServiceServer) Connect(grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
+}
+func (UnimplementedNegotiationServiceServer) Join(context.Context, *JoinRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Join not implemented")
 }
 func (UnimplementedNegotiationServiceServer) testEmbeddedByValue() {}
 
@@ -197,6 +213,24 @@ func _NegotiationService_Connect_Handler(srv interface{}, stream grpc.ServerStre
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NegotiationService_ConnectServer = grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]
 
+func _NegotiationService_Join_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(JoinRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NegotiationServiceServer).Join(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NegotiationService_Join_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NegotiationServiceServer).Join(ctx, req.(*JoinRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NegotiationService_ServiceDesc is the grpc.ServiceDesc for NegotiationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -215,6 +249,10 @@ var NegotiationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Candidate",
 			Handler:    _NegotiationService_Candidate_Handler,
+		},
+		{
+			MethodName: "Join",
+			Handler:    _NegotiationService_Join_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
