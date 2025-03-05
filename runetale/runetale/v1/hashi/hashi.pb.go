@@ -164,7 +164,7 @@ type PeerStatus struct {
 	PublicKey     string                 `protobuf:"bytes,2,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
 	Os            string                 `protobuf:"bytes,3,opt,name=os,proto3" json:"os,omitempty"`
 	HostName      string                 `protobuf:"bytes,4,opt,name=host_name,json=hostName,proto3" json:"host_name,omitempty"`
-	RunetaleIps   []string               `protobuf:"bytes,5,rep,name=runetale_ips,json=runetaleIps,proto3" json:"runetale_ips,omitempty"` // netip.Addr を文字列として扱う
+	RunetaleIps   []string               `protobuf:"bytes,5,rep,name=runetale_ips,json=RunetaleIPs,proto3" json:"runetale_ips,omitempty"` // netip.Addr を文字列として扱う
 	PeerApiUrl    []string               `protobuf:"bytes,6,rep,name=peer_api_url,json=peerApiUrl,proto3" json:"peer_api_url,omitempty"`
 	AllowedIps    []string               `protobuf:"bytes,7,rep,name=allowed_ips,json=allowedIps,proto3" json:"allowed_ips,omitempty"` // [netip.Prefix] を文字列のリストで表現
 	RxBytes       int64                  `protobuf:"varint,8,opt,name=rx_bytes,json=rxBytes,proto3" json:"rx_bytes,omitempty"`
@@ -440,6 +440,115 @@ func (x *CompactPeerStatus) GetLastHandshake() *timestamppb.Timestamp {
 	return nil
 }
 
+// Hashigo struct like, hashiog(梯子) is a bridge in Japanese.
+// 橋 are essential infrastructure in the world.
+// The same holds true in the world of Runetale.
+// A 橋 serves as the sole common pathway for a node, referenced through the API to enable flexible network configuration within Runetale.
+// There is also a double meaning with "Hashi(お箸, chopstick)" a part of Japanese culture.
+// Like using chopsticks, we carefully pick and fine-tune the settings with precision.
+type Hashigo struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ServerUrl string `protobuf:"bytes,1,opt,name=server_url,json=serverUrl,proto3" json:"server_url,omitempty"`
+	SignalUrl string `protobuf:"bytes,2,opt,name=signal_url,json=signalUrl,proto3" json:"signal_url,omitempty"`
+	// incoming packet all block
+	Barricade bool `protobuf:"varint,3,opt,name=barricade,proto3" json:"barricade,omitempty"`
+	// このノードがAdvertiseするRoutes
+	AdvertiseRoutes []string `protobuf:"bytes,4,rep,name=advertise_routes,json=advertiseRoutes,proto3" json:"advertise_routes,omitempty"` // netip.Prefix を文字列 (CIDR) に変換
+	// Whether to accept routes from subnet linker. Default: on
+	AcceptRoutes bool `protobuf:"varint,5,opt,name=accept_routes,json=acceptRoutes,proto3" json:"accept_routes,omitempty"`
+	// SNAT を無効にすると、Runetaleのトラフィックをサブネットリレーを
+	// ネットワークで追加の手動設定が必要になります。
+	// 基本的にはonにしておいてください。
+	SnatSubnetRoutes bool `protobuf:"varint,6,opt,name=snat_subnet_routes,json=snatSubnetRoutes,proto3" json:"snat_subnet_routes,omitempty"`
+	// linuxのfirewallをstatefulで扱うかどうかを設定します。
+	// デフォルトはONです。
+	StatefulFilter bool `protobuf:"varint,7,opt,name=stateful_filter,json=statefulFilter,proto3" json:"stateful_filter,omitempty"`
+}
+
+func (x *Hashigo) Reset() {
+	*x = Hashigo{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_hashi_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Hashigo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Hashigo) ProtoMessage() {}
+
+func (x *Hashigo) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_hashi_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Hashigo.ProtoReflect.Descriptor instead.
+func (*Hashigo) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_hashi_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Hashigo) GetServerUrl() string {
+	if x != nil {
+		return x.ServerUrl
+	}
+	return ""
+}
+
+func (x *Hashigo) GetSignalUrl() string {
+	if x != nil {
+		return x.SignalUrl
+	}
+	return ""
+}
+
+func (x *Hashigo) GetBarricade() bool {
+	if x != nil {
+		return x.Barricade
+	}
+	return false
+}
+
+func (x *Hashigo) GetAdvertiseRoutes() []string {
+	if x != nil {
+		return x.AdvertiseRoutes
+	}
+	return nil
+}
+
+func (x *Hashigo) GetAcceptRoutes() bool {
+	if x != nil {
+		return x.AcceptRoutes
+	}
+	return false
+}
+
+func (x *Hashigo) GetSnatSubnetRoutes() bool {
+	if x != nil {
+		return x.SnatSubnetRoutes
+	}
+	return false
+}
+
+func (x *Hashigo) GetStatefulFilter() bool {
+	if x != nil {
+		return x.StatefulFilter
+	}
+	return false
+}
+
 var File_runetale_runetale_v1_hashi_proto protoreflect.FileDescriptor
 
 var file_runetale_runetale_v1_hashi_proto_rawDesc = []byte{
@@ -480,8 +589,8 @@ var file_runetale_runetale_v1_hashi_proto_rawDesc = []byte{
 	0x52, 0x02, 0x6f, 0x73, 0x12, 0x1b, 0x0a, 0x09, 0x68, 0x6f, 0x73, 0x74, 0x5f, 0x6e, 0x61, 0x6d,
 	0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x08, 0x68, 0x6f, 0x73, 0x74, 0x4e, 0x61, 0x6d,
 	0x65, 0x12, 0x21, 0x0a, 0x0c, 0x72, 0x75, 0x6e, 0x65, 0x74, 0x61, 0x6c, 0x65, 0x5f, 0x69, 0x70,
-	0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0b, 0x72, 0x75, 0x6e, 0x65, 0x74, 0x61, 0x6c,
-	0x65, 0x49, 0x70, 0x73, 0x12, 0x20, 0x0a, 0x0c, 0x70, 0x65, 0x65, 0x72, 0x5f, 0x61, 0x70, 0x69,
+	0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0b, 0x52, 0x75, 0x6e, 0x65, 0x74, 0x61, 0x6c,
+	0x65, 0x49, 0x50, 0x73, 0x12, 0x20, 0x0a, 0x0c, 0x70, 0x65, 0x65, 0x72, 0x5f, 0x61, 0x70, 0x69,
 	0x5f, 0x75, 0x72, 0x6c, 0x18, 0x06, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0a, 0x70, 0x65, 0x65, 0x72,
 	0x41, 0x70, 0x69, 0x55, 0x72, 0x6c, 0x12, 0x1f, 0x0a, 0x0b, 0x61, 0x6c, 0x6c, 0x6f, 0x77, 0x65,
 	0x64, 0x5f, 0x69, 0x70, 0x73, 0x18, 0x07, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0a, 0x61, 0x6c, 0x6c,
@@ -525,8 +634,25 @@ var file_runetale_runetale_v1_hashi_proto_rawDesc = []byte{
 	0x68, 0x61, 0x6e, 0x64, 0x73, 0x68, 0x61, 0x6b, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
 	0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x0d, 0x6c, 0x61, 0x73,
-	0x74, 0x48, 0x61, 0x6e, 0x64, 0x73, 0x68, 0x61, 0x6b, 0x65, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f,
-	0x68, 0x61, 0x73, 0x68, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x48, 0x61, 0x6e, 0x64, 0x73, 0x68, 0x61, 0x6b, 0x65, 0x22, 0x8c, 0x02, 0x0a, 0x07, 0x48,
+	0x61, 0x73, 0x68, 0x69, 0x67, 0x6f, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72,
+	0x5f, 0x75, 0x72, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x65, 0x72, 0x76,
+	0x65, 0x72, 0x55, 0x72, 0x6c, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f,
+	0x75, 0x72, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x61,
+	0x6c, 0x55, 0x72, 0x6c, 0x12, 0x1c, 0x0a, 0x09, 0x62, 0x61, 0x72, 0x72, 0x69, 0x63, 0x61, 0x64,
+	0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x09, 0x62, 0x61, 0x72, 0x72, 0x69, 0x63, 0x61,
+	0x64, 0x65, 0x12, 0x29, 0x0a, 0x10, 0x61, 0x64, 0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x5f,
+	0x72, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x09, 0x52, 0x0f, 0x61, 0x64,
+	0x76, 0x65, 0x72, 0x74, 0x69, 0x73, 0x65, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x12, 0x23, 0x0a,
+	0x0d, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74, 0x5f, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x18, 0x05,
+	0x20, 0x01, 0x28, 0x08, 0x52, 0x0c, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74, 0x52, 0x6f, 0x75, 0x74,
+	0x65, 0x73, 0x12, 0x2c, 0x0a, 0x12, 0x73, 0x6e, 0x61, 0x74, 0x5f, 0x73, 0x75, 0x62, 0x6e, 0x65,
+	0x74, 0x5f, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x08, 0x52, 0x10,
+	0x73, 0x6e, 0x61, 0x74, 0x53, 0x75, 0x62, 0x6e, 0x65, 0x74, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x73,
+	0x12, 0x27, 0x0a, 0x0f, 0x73, 0x74, 0x61, 0x74, 0x65, 0x66, 0x75, 0x6c, 0x5f, 0x66, 0x69, 0x6c,
+	0x74, 0x65, 0x72, 0x18, 0x07, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0e, 0x73, 0x74, 0x61, 0x74, 0x65,
+	0x66, 0x75, 0x6c, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x42, 0x09, 0x5a, 0x07, 0x2e, 0x2f, 0x68,
+	0x61, 0x73, 0x68, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -541,25 +667,26 @@ func file_runetale_runetale_v1_hashi_proto_rawDescGZIP() []byte {
 	return file_runetale_runetale_v1_hashi_proto_rawDescData
 }
 
-var file_runetale_runetale_v1_hashi_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_runetale_runetale_v1_hashi_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_runetale_runetale_v1_hashi_proto_goTypes = []interface{}{
 	(*Endpoint)(nil),                  // 0: protos.Endpoint
 	(*Status)(nil),                    // 1: protos.Status
 	(*PeerStatus)(nil),                // 2: protos.PeerStatus
 	(*UserspacePeerEngineStatus)(nil), // 3: protos.UserspacePeerEngineStatus
 	(*CompactPeerStatus)(nil),         // 4: protos.CompactPeerStatus
-	nil,                               // 5: protos.Status.PeerEntry
-	(*timestamppb.Timestamp)(nil),     // 6: google.protobuf.Timestamp
+	(*Hashigo)(nil),                   // 5: protos.Hashigo
+	nil,                               // 6: protos.Status.PeerEntry
+	(*timestamppb.Timestamp)(nil),     // 7: google.protobuf.Timestamp
 }
 var file_runetale_runetale_v1_hashi_proto_depIdxs = []int32{
 	2, // 0: protos.Status.self:type_name -> protos.PeerStatus
-	5, // 1: protos.Status.peer:type_name -> protos.Status.PeerEntry
-	6, // 2: protos.PeerStatus.last_handshake:type_name -> google.protobuf.Timestamp
-	6, // 3: protos.PeerStatus.last_write:type_name -> google.protobuf.Timestamp
-	6, // 4: protos.UserspacePeerEngineStatus.got_at:type_name -> google.protobuf.Timestamp
+	6, // 1: protos.Status.peer:type_name -> protos.Status.PeerEntry
+	7, // 2: protos.PeerStatus.last_handshake:type_name -> google.protobuf.Timestamp
+	7, // 3: protos.PeerStatus.last_write:type_name -> google.protobuf.Timestamp
+	7, // 4: protos.UserspacePeerEngineStatus.got_at:type_name -> google.protobuf.Timestamp
 	4, // 5: protos.UserspacePeerEngineStatus.peers:type_name -> protos.CompactPeerStatus
 	0, // 6: protos.UserspacePeerEngineStatus.local_addrs:type_name -> protos.Endpoint
-	6, // 7: protos.CompactPeerStatus.last_handshake:type_name -> google.protobuf.Timestamp
+	7, // 7: protos.CompactPeerStatus.last_handshake:type_name -> google.protobuf.Timestamp
 	2, // 8: protos.Status.PeerEntry.value:type_name -> protos.PeerStatus
 	9, // [9:9] is the sub-list for method output_type
 	9, // [9:9] is the sub-list for method input_type
@@ -634,6 +761,18 @@ func file_runetale_runetale_v1_hashi_proto_init() {
 				return nil
 			}
 		}
+		file_runetale_runetale_v1_hashi_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Hashigo); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_runetale_runetale_v1_hashi_proto_msgTypes[1].OneofWrappers = []interface{}{}
 	file_runetale_runetale_v1_hashi_proto_msgTypes[2].OneofWrappers = []interface{}{}
@@ -643,7 +782,7 @@ func file_runetale_runetale_v1_hashi_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_runetale_runetale_v1_hashi_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
