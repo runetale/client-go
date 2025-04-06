@@ -39,11 +39,11 @@ const (
 // hashilocalbackendのgrpc serviceとして実装されます
 type HashiServiceClient interface {
 	Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
-	Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PingResult, error)
+	Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResult, error)
 	Login(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
 	Compose(ctx context.Context, in *ComposeRequest, opts ...grpc.CallOption) (*HashiStatus, error)
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
-	Stop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*HashiStatus, error)
 	Dial(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
 	GetHashigo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Hashigo, error)
 	PatchHashigo(ctx context.Context, in *HashigoRequest, opts ...grpc.CallOption) (*Hashigo, error)
@@ -67,7 +67,7 @@ func (c *hashiServiceClient) Status(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
-func (c *hashiServiceClient) Ping(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*PingResult, error) {
+func (c *hashiServiceClient) Ping(ctx context.Context, in *PingRequest, opts ...grpc.CallOption) (*PingResult, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PingResult)
 	err := c.cc.Invoke(ctx, HashiService_Ping_FullMethodName, in, out, cOpts...)
@@ -107,7 +107,7 @@ func (c *hashiServiceClient) Logout(ctx context.Context, in *emptypb.Empty, opts
 	return out, nil
 }
 
-func (c *hashiServiceClient) Stop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error) {
+func (c *hashiServiceClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*HashiStatus, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(HashiStatus)
 	err := c.cc.Invoke(ctx, HashiService_Stop_FullMethodName, in, out, cOpts...)
@@ -155,11 +155,11 @@ func (c *hashiServiceClient) PatchHashigo(ctx context.Context, in *HashigoReques
 // hashilocalbackendのgrpc serviceとして実装されます
 type HashiServiceServer interface {
 	Status(context.Context, *emptypb.Empty) (*HashiStatus, error)
-	Ping(context.Context, *emptypb.Empty) (*PingResult, error)
+	Ping(context.Context, *PingRequest) (*PingResult, error)
 	Login(context.Context, *emptypb.Empty) (*HashiStatus, error)
 	Compose(context.Context, *ComposeRequest) (*HashiStatus, error)
 	Logout(context.Context, *emptypb.Empty) (*HashiStatus, error)
-	Stop(context.Context, *emptypb.Empty) (*HashiStatus, error)
+	Stop(context.Context, *StopRequest) (*HashiStatus, error)
 	Dial(context.Context, *emptypb.Empty) (*HashiStatus, error)
 	GetHashigo(context.Context, *emptypb.Empty) (*Hashigo, error)
 	PatchHashigo(context.Context, *HashigoRequest) (*Hashigo, error)
@@ -175,7 +175,7 @@ type UnimplementedHashiServiceServer struct{}
 func (UnimplementedHashiServiceServer) Status(context.Context, *emptypb.Empty) (*HashiStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
-func (UnimplementedHashiServiceServer) Ping(context.Context, *emptypb.Empty) (*PingResult, error) {
+func (UnimplementedHashiServiceServer) Ping(context.Context, *PingRequest) (*PingResult, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Ping not implemented")
 }
 func (UnimplementedHashiServiceServer) Login(context.Context, *emptypb.Empty) (*HashiStatus, error) {
@@ -187,7 +187,7 @@ func (UnimplementedHashiServiceServer) Compose(context.Context, *ComposeRequest)
 func (UnimplementedHashiServiceServer) Logout(context.Context, *emptypb.Empty) (*HashiStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
-func (UnimplementedHashiServiceServer) Stop(context.Context, *emptypb.Empty) (*HashiStatus, error) {
+func (UnimplementedHashiServiceServer) Stop(context.Context, *StopRequest) (*HashiStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
 func (UnimplementedHashiServiceServer) Dial(context.Context, *emptypb.Empty) (*HashiStatus, error) {
@@ -238,7 +238,7 @@ func _HashiService_Status_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _HashiService_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(PingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -250,7 +250,7 @@ func _HashiService_Ping_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: HashiService_Ping_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashiServiceServer).Ping(ctx, req.(*emptypb.Empty))
+		return srv.(HashiServiceServer).Ping(ctx, req.(*PingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -310,7 +310,7 @@ func _HashiService_Logout_Handler(srv interface{}, ctx context.Context, dec func
 }
 
 func _HashiService_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(StopRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -322,7 +322,7 @@ func _HashiService_Stop_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: HashiService_Stop_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashiServiceServer).Stop(ctx, req.(*emptypb.Empty))
+		return srv.(HashiServiceServer).Stop(ctx, req.(*StopRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
