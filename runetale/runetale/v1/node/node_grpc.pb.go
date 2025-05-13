@@ -23,6 +23,7 @@ const (
 	NodeService_ComposeNode_FullMethodName            = "/protos.NodeService/ComposeNode"
 	NodeService_GetNetworkMap_FullMethodName          = "/protos.NodeService/GetNetworkMap"
 	NodeService_ConnectNetworkMapTable_FullMethodName = "/protos.NodeService/ConnectNetworkMapTable"
+	NodeService_UploadPacketFlowLog_FullMethodName    = "/protos.NodeService/UploadPacketFlowLog"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -32,6 +33,7 @@ type NodeServiceClient interface {
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
 	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
 	ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapResponse, NetworkMapResponse], error)
+	UploadPacketFlowLog(ctx context.Context, in *PacketFlowLogRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type nodeServiceClient struct {
@@ -75,6 +77,16 @@ func (c *nodeServiceClient) ConnectNetworkMapTable(ctx context.Context, opts ...
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NodeService_ConnectNetworkMapTableClient = grpc.BidiStreamingClient[NetworkMapResponse, NetworkMapResponse]
 
+func (c *nodeServiceClient) UploadPacketFlowLog(ctx context.Context, in *PacketFlowLogRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, NodeService_UploadPacketFlowLog_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
@@ -82,6 +94,7 @@ type NodeServiceServer interface {
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
 	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
 	ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]) error
+	UploadPacketFlowLog(context.Context, *PacketFlowLogRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedNodeServiceServer should be embedded to have
@@ -99,6 +112,9 @@ func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Em
 }
 func (UnimplementedNodeServiceServer) ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method ConnectNetworkMapTable not implemented")
+}
+func (UnimplementedNodeServiceServer) UploadPacketFlowLog(context.Context, *PacketFlowLogRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadPacketFlowLog not implemented")
 }
 func (UnimplementedNodeServiceServer) testEmbeddedByValue() {}
 
@@ -163,6 +179,24 @@ func _NodeService_ConnectNetworkMapTable_Handler(srv interface{}, stream grpc.Se
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NodeService_ConnectNetworkMapTableServer = grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]
 
+func _NodeService_UploadPacketFlowLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PacketFlowLogRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).UploadPacketFlowLog(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_UploadPacketFlowLog_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).UploadPacketFlowLog(ctx, req.(*PacketFlowLogRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -177,6 +211,10 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNetworkMap",
 			Handler:    _NodeService_GetNetworkMap_Handler,
+		},
+		{
+			MethodName: "UploadPacketFlowLog",
+			Handler:    _NodeService_UploadPacketFlowLog_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
