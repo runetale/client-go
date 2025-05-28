@@ -46,7 +46,7 @@ type HashiServiceClient interface {
 	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*HashiStatus, error)
 	Dial(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
 	GetHashigo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Hashigo, error)
-	PatchHashigo(ctx context.Context, in *HashigoRequest, opts ...grpc.CallOption) (*Hashigo, error)
+	PatchHashigo(ctx context.Context, in *HashigoConfigRequest, opts ...grpc.CallOption) (*Hashigo, error)
 }
 
 type hashiServiceClient struct {
@@ -137,7 +137,7 @@ func (c *hashiServiceClient) GetHashigo(ctx context.Context, in *emptypb.Empty, 
 	return out, nil
 }
 
-func (c *hashiServiceClient) PatchHashigo(ctx context.Context, in *HashigoRequest, opts ...grpc.CallOption) (*Hashigo, error) {
+func (c *hashiServiceClient) PatchHashigo(ctx context.Context, in *HashigoConfigRequest, opts ...grpc.CallOption) (*Hashigo, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Hashigo)
 	err := c.cc.Invoke(ctx, HashiService_PatchHashigo_FullMethodName, in, out, cOpts...)
@@ -162,7 +162,7 @@ type HashiServiceServer interface {
 	Stop(context.Context, *StopRequest) (*HashiStatus, error)
 	Dial(context.Context, *emptypb.Empty) (*HashiStatus, error)
 	GetHashigo(context.Context, *emptypb.Empty) (*Hashigo, error)
-	PatchHashigo(context.Context, *HashigoRequest) (*Hashigo, error)
+	PatchHashigo(context.Context, *HashigoConfigRequest) (*Hashigo, error)
 }
 
 // UnimplementedHashiServiceServer should be embedded to have
@@ -196,7 +196,7 @@ func (UnimplementedHashiServiceServer) Dial(context.Context, *emptypb.Empty) (*H
 func (UnimplementedHashiServiceServer) GetHashigo(context.Context, *emptypb.Empty) (*Hashigo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHashigo not implemented")
 }
-func (UnimplementedHashiServiceServer) PatchHashigo(context.Context, *HashigoRequest) (*Hashigo, error) {
+func (UnimplementedHashiServiceServer) PatchHashigo(context.Context, *HashigoConfigRequest) (*Hashigo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PatchHashigo not implemented")
 }
 func (UnimplementedHashiServiceServer) testEmbeddedByValue() {}
@@ -364,7 +364,7 @@ func _HashiService_GetHashigo_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _HashiService_PatchHashigo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HashigoRequest)
+	in := new(HashigoConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -376,7 +376,7 @@ func _HashiService_PatchHashigo_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: HashiService_PatchHashigo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashiServiceServer).PatchHashigo(ctx, req.(*HashigoRequest))
+		return srv.(HashiServiceServer).PatchHashigo(ctx, req.(*HashigoConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
