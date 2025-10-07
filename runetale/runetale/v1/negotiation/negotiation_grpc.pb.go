@@ -33,7 +33,7 @@ type NegotiationServiceClient interface {
 	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationRequest, NegotiationRequest], error)
+	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error)
 }
 
 type negotiationServiceClient struct {
@@ -74,18 +74,18 @@ func (c *negotiationServiceClient) Candidate(ctx context.Context, in *CandidateR
 	return out, nil
 }
 
-func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationRequest, NegotiationRequest], error) {
+func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &NegotiationService_ServiceDesc.Streams[0], NegotiationService_Connect_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[NegotiationRequest, NegotiationRequest]{ClientStream: stream}
+	x := &grpc.GenericClientStream[NegotiationMessage, NegotiationMessage]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NegotiationService_ConnectClient = grpc.BidiStreamingClient[NegotiationRequest, NegotiationRequest]
+type NegotiationService_ConnectClient = grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage]
 
 // NegotiationServiceServer is the server API for NegotiationService service.
 // All implementations should embed UnimplementedNegotiationServiceServer
@@ -94,7 +94,7 @@ type NegotiationServiceServer interface {
 	Offer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error)
-	Connect(grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]) error
+	Connect(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error
 }
 
 // UnimplementedNegotiationServiceServer should be embedded to have
@@ -113,7 +113,7 @@ func (UnimplementedNegotiationServiceServer) Answer(context.Context, *HandshakeR
 func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Candidate not implemented")
 }
-func (UnimplementedNegotiationServiceServer) Connect(grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]) error {
+func (UnimplementedNegotiationServiceServer) Connect(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 func (UnimplementedNegotiationServiceServer) testEmbeddedByValue() {}
@@ -191,11 +191,11 @@ func _NegotiationService_Candidate_Handler(srv interface{}, ctx context.Context,
 }
 
 func _NegotiationService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NegotiationServiceServer).Connect(&grpc.GenericServerStream[NegotiationRequest, NegotiationRequest]{ServerStream: stream})
+	return srv.(NegotiationServiceServer).Connect(&grpc.GenericServerStream[NegotiationMessage, NegotiationMessage]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NegotiationService_ConnectServer = grpc.BidiStreamingServer[NegotiationRequest, NegotiationRequest]
+type NegotiationService_ConnectServer = grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]
 
 // NegotiationService_ServiceDesc is the grpc.ServiceDesc for NegotiationService service.
 // It's only intended for direct use with grpc.RegisterService,
