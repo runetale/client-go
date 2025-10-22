@@ -20,15 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HashiService_Status_FullMethodName       = "/protos.HashiService/Status"
-	HashiService_Ping_FullMethodName         = "/protos.HashiService/Ping"
-	HashiService_Login_FullMethodName        = "/protos.HashiService/Login"
-	HashiService_Compose_FullMethodName      = "/protos.HashiService/Compose"
-	HashiService_Logout_FullMethodName       = "/protos.HashiService/Logout"
-	HashiService_Stop_FullMethodName         = "/protos.HashiService/Stop"
-	HashiService_Dial_FullMethodName         = "/protos.HashiService/Dial"
-	HashiService_GetHashigo_FullMethodName   = "/protos.HashiService/GetHashigo"
-	HashiService_PatchHashigo_FullMethodName = "/protos.HashiService/PatchHashigo"
+	HashiService_Status_FullMethodName  = "/protos.HashiService/Status"
+	HashiService_Ping_FullMethodName    = "/protos.HashiService/Ping"
+	HashiService_Login_FullMethodName   = "/protos.HashiService/Login"
+	HashiService_Compose_FullMethodName = "/protos.HashiService/Compose"
+	HashiService_Logout_FullMethodName  = "/protos.HashiService/Logout"
+	HashiService_Stop_FullMethodName    = "/protos.HashiService/Stop"
+	HashiService_Dial_FullMethodName    = "/protos.HashiService/Dial"
 )
 
 // HashiServiceClient is the client API for HashiService service.
@@ -45,8 +43,6 @@ type HashiServiceClient interface {
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
 	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*HashiStatus, error)
 	Dial(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
-	GetHashigo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Hashigo, error)
-	PatchHashigo(ctx context.Context, in *HashigoConfigRequest, opts ...grpc.CallOption) (*Hashigo, error)
 }
 
 type hashiServiceClient struct {
@@ -127,26 +123,6 @@ func (c *hashiServiceClient) Dial(ctx context.Context, in *emptypb.Empty, opts .
 	return out, nil
 }
 
-func (c *hashiServiceClient) GetHashigo(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Hashigo, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Hashigo)
-	err := c.cc.Invoke(ctx, HashiService_GetHashigo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hashiServiceClient) PatchHashigo(ctx context.Context, in *HashigoConfigRequest, opts ...grpc.CallOption) (*Hashigo, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Hashigo)
-	err := c.cc.Invoke(ctx, HashiService_PatchHashigo_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // HashiServiceServer is the server API for HashiService service.
 // All implementations should embed UnimplementedHashiServiceServer
 // for forward compatibility.
@@ -161,8 +137,6 @@ type HashiServiceServer interface {
 	Logout(context.Context, *emptypb.Empty) (*HashiStatus, error)
 	Stop(context.Context, *StopRequest) (*HashiStatus, error)
 	Dial(context.Context, *emptypb.Empty) (*HashiStatus, error)
-	GetHashigo(context.Context, *emptypb.Empty) (*Hashigo, error)
-	PatchHashigo(context.Context, *HashigoConfigRequest) (*Hashigo, error)
 }
 
 // UnimplementedHashiServiceServer should be embedded to have
@@ -192,12 +166,6 @@ func (UnimplementedHashiServiceServer) Stop(context.Context, *StopRequest) (*Has
 }
 func (UnimplementedHashiServiceServer) Dial(context.Context, *emptypb.Empty) (*HashiStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dial not implemented")
-}
-func (UnimplementedHashiServiceServer) GetHashigo(context.Context, *emptypb.Empty) (*Hashigo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetHashigo not implemented")
-}
-func (UnimplementedHashiServiceServer) PatchHashigo(context.Context, *HashigoConfigRequest) (*Hashigo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PatchHashigo not implemented")
 }
 func (UnimplementedHashiServiceServer) testEmbeddedByValue() {}
 
@@ -345,42 +313,6 @@ func _HashiService_Dial_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HashiService_GetHashigo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HashiServiceServer).GetHashigo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: HashiService_GetHashigo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashiServiceServer).GetHashigo(ctx, req.(*emptypb.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HashiService_PatchHashigo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(HashigoConfigRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HashiServiceServer).PatchHashigo(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: HashiService_PatchHashigo_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HashiServiceServer).PatchHashigo(ctx, req.(*HashigoConfigRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // HashiService_ServiceDesc is the grpc.ServiceDesc for HashiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -415,14 +347,6 @@ var HashiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Dial",
 			Handler:    _HashiService_Dial_Handler,
-		},
-		{
-			MethodName: "GetHashigo",
-			Handler:    _HashiService_GetHashigo_Handler,
-		},
-		{
-			MethodName: "PatchHashigo",
-			Handler:    _HashiService_PatchHashigo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
