@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	LoginService_LoginNode_FullMethodName     = "/protos.LoginService/LoginNode"
+	LoginService_Logout_FullMethodName        = "/protos.LoginService/Logout"
 	LoginService_LoginSession_FullMethodName  = "/protos.LoginService/LoginSession"
 	LoginService_GetInvitation_FullMethodName = "/protos.LoginService/GetInvitation"
 )
@@ -30,6 +31,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LoginServiceClient interface {
 	LoginNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*LoginNodeResponse, error)
+	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	LoginSession(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[emptypb.Empty, LoginSessionResponse], error)
 	GetInvitation(ctx context.Context, in *GetInvitationRequest, opts ...grpc.CallOption) (*GetInvitationResponse, error)
 }
@@ -46,6 +48,16 @@ func (c *loginServiceClient) LoginNode(ctx context.Context, in *emptypb.Empty, o
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(LoginNodeResponse)
 	err := c.cc.Invoke(ctx, LoginService_LoginNode_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *loginServiceClient) Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, LoginService_Logout_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +92,7 @@ func (c *loginServiceClient) GetInvitation(ctx context.Context, in *GetInvitatio
 // for forward compatibility.
 type LoginServiceServer interface {
 	LoginNode(context.Context, *emptypb.Empty) (*LoginNodeResponse, error)
+	Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	LoginSession(grpc.BidiStreamingServer[emptypb.Empty, LoginSessionResponse]) error
 	GetInvitation(context.Context, *GetInvitationRequest) (*GetInvitationResponse, error)
 }
@@ -93,6 +106,9 @@ type UnimplementedLoginServiceServer struct{}
 
 func (UnimplementedLoginServiceServer) LoginNode(context.Context, *emptypb.Empty) (*LoginNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginNode not implemented")
+}
+func (UnimplementedLoginServiceServer) Logout(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Logout not implemented")
 }
 func (UnimplementedLoginServiceServer) LoginSession(grpc.BidiStreamingServer[emptypb.Empty, LoginSessionResponse]) error {
 	return status.Errorf(codes.Unimplemented, "method LoginSession not implemented")
@@ -138,6 +154,24 @@ func _LoginService_LoginNode_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_Logout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).Logout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_Logout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).Logout(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _LoginService_LoginSession_Handler(srv interface{}, stream grpc.ServerStream) error {
 	return srv.(LoginServiceServer).LoginSession(&grpc.GenericServerStream[emptypb.Empty, LoginSessionResponse]{ServerStream: stream})
 }
@@ -173,6 +207,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "LoginNode",
 			Handler:    _LoginService_LoginNode_Handler,
+		},
+		{
+			MethodName: "Logout",
+			Handler:    _LoginService_Logout_Handler,
 		},
 		{
 			MethodName: "GetInvitation",
