@@ -20,13 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	HashiService_Status_FullMethodName  = "/protos.HashiService/Status"
-	HashiService_Ping_FullMethodName    = "/protos.HashiService/Ping"
-	HashiService_Login_FullMethodName   = "/protos.HashiService/Login"
-	HashiService_Compose_FullMethodName = "/protos.HashiService/Compose"
-	HashiService_Logout_FullMethodName  = "/protos.HashiService/Logout"
-	HashiService_Stop_FullMethodName    = "/protos.HashiService/Stop"
-	HashiService_Dial_FullMethodName    = "/protos.HashiService/Dial"
+	HashiService_Status_FullMethodName   = "/protos.HashiService/Status"
+	HashiService_Ping_FullMethodName     = "/protos.HashiService/Ping"
+	HashiService_Login_FullMethodName    = "/protos.HashiService/Login"
+	HashiService_Compose_FullMethodName  = "/protos.HashiService/Compose"
+	HashiService_Logout_FullMethodName   = "/protos.HashiService/Logout"
+	HashiService_Stop_FullMethodName     = "/protos.HashiService/Stop"
+	HashiService_Dial_FullMethodName     = "/protos.HashiService/Dial"
+	HashiService_NetCheck_FullMethodName = "/protos.HashiService/NetCheck"
 )
 
 // HashiServiceClient is the client API for HashiService service.
@@ -43,6 +44,7 @@ type HashiServiceClient interface {
 	Logout(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
 	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*HashiStatus, error)
 	Dial(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*HashiStatus, error)
+	NetCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetCheckReport, error)
 }
 
 type hashiServiceClient struct {
@@ -123,6 +125,16 @@ func (c *hashiServiceClient) Dial(ctx context.Context, in *emptypb.Empty, opts .
 	return out, nil
 }
 
+func (c *hashiServiceClient) NetCheck(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetCheckReport, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(NetCheckReport)
+	err := c.cc.Invoke(ctx, HashiService_NetCheck_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HashiServiceServer is the server API for HashiService service.
 // All implementations should embed UnimplementedHashiServiceServer
 // for forward compatibility.
@@ -137,6 +149,7 @@ type HashiServiceServer interface {
 	Logout(context.Context, *emptypb.Empty) (*HashiStatus, error)
 	Stop(context.Context, *StopRequest) (*HashiStatus, error)
 	Dial(context.Context, *emptypb.Empty) (*HashiStatus, error)
+	NetCheck(context.Context, *emptypb.Empty) (*NetCheckReport, error)
 }
 
 // UnimplementedHashiServiceServer should be embedded to have
@@ -166,6 +179,9 @@ func (UnimplementedHashiServiceServer) Stop(context.Context, *StopRequest) (*Has
 }
 func (UnimplementedHashiServiceServer) Dial(context.Context, *emptypb.Empty) (*HashiStatus, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Dial not implemented")
+}
+func (UnimplementedHashiServiceServer) NetCheck(context.Context, *emptypb.Empty) (*NetCheckReport, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method NetCheck not implemented")
 }
 func (UnimplementedHashiServiceServer) testEmbeddedByValue() {}
 
@@ -313,6 +329,24 @@ func _HashiService_Dial_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HashiService_NetCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HashiServiceServer).NetCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: HashiService_NetCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HashiServiceServer).NetCheck(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HashiService_ServiceDesc is the grpc.ServiceDesc for HashiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -347,6 +381,10 @@ var HashiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Dial",
 			Handler:    _HashiService_Dial_Handler,
+		},
+		{
+			MethodName: "NetCheck",
+			Handler:    _HashiService_NetCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
