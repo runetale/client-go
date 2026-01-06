@@ -33,6 +33,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	TelemetryService_UploadTelemetryBatch_FullMethodName = "/protos.TelemetryService/UploadTelemetryBatch"
+	TelemetryService_GetEvents_FullMethodName            = "/protos.TelemetryService/GetEvents"
+	TelemetryService_GetDailyCounts_FullMethodName       = "/protos.TelemetryService/GetDailyCounts"
 )
 
 // TelemetryServiceClient is the client API for TelemetryService service.
@@ -44,7 +46,12 @@ const (
 // Auth is performed out-of-band (e.g. gRPC metadata headers like node-key/wg-pub-key/rune-key),
 // consistent with other node/daemon RPCs.
 type TelemetryServiceClient interface {
+	// UploadTelemetryBatch receives telemetry events from clients.
 	UploadTelemetryBatch(ctx context.Context, in *TelemetryBatchRequest, opts ...grpc.CallOption) (*TelemetryBatchResponse, error)
+	// GetEvents retrieves stored telemetry events for analysis/debugging.
+	GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error)
+	// GetDailyCounts retrieves aggregated daily counts for dashboards/trends.
+	GetDailyCounts(ctx context.Context, in *GetDailyCountsRequest, opts ...grpc.CallOption) (*GetDailyCountsResponse, error)
 }
 
 type telemetryServiceClient struct {
@@ -65,6 +72,26 @@ func (c *telemetryServiceClient) UploadTelemetryBatch(ctx context.Context, in *T
 	return out, nil
 }
 
+func (c *telemetryServiceClient) GetEvents(ctx context.Context, in *GetEventsRequest, opts ...grpc.CallOption) (*GetEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetEventsResponse)
+	err := c.cc.Invoke(ctx, TelemetryService_GetEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *telemetryServiceClient) GetDailyCounts(ctx context.Context, in *GetDailyCountsRequest, opts ...grpc.CallOption) (*GetDailyCountsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDailyCountsResponse)
+	err := c.cc.Invoke(ctx, TelemetryService_GetDailyCounts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TelemetryServiceServer is the server API for TelemetryService service.
 // All implementations should embed UnimplementedTelemetryServiceServer
 // for forward compatibility.
@@ -74,7 +101,12 @@ func (c *telemetryServiceClient) UploadTelemetryBatch(ctx context.Context, in *T
 // Auth is performed out-of-band (e.g. gRPC metadata headers like node-key/wg-pub-key/rune-key),
 // consistent with other node/daemon RPCs.
 type TelemetryServiceServer interface {
+	// UploadTelemetryBatch receives telemetry events from clients.
 	UploadTelemetryBatch(context.Context, *TelemetryBatchRequest) (*TelemetryBatchResponse, error)
+	// GetEvents retrieves stored telemetry events for analysis/debugging.
+	GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error)
+	// GetDailyCounts retrieves aggregated daily counts for dashboards/trends.
+	GetDailyCounts(context.Context, *GetDailyCountsRequest) (*GetDailyCountsResponse, error)
 }
 
 // UnimplementedTelemetryServiceServer should be embedded to have
@@ -86,6 +118,12 @@ type UnimplementedTelemetryServiceServer struct{}
 
 func (UnimplementedTelemetryServiceServer) UploadTelemetryBatch(context.Context, *TelemetryBatchRequest) (*TelemetryBatchResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method UploadTelemetryBatch not implemented")
+}
+func (UnimplementedTelemetryServiceServer) GetEvents(context.Context, *GetEventsRequest) (*GetEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetEvents not implemented")
+}
+func (UnimplementedTelemetryServiceServer) GetDailyCounts(context.Context, *GetDailyCountsRequest) (*GetDailyCountsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetDailyCounts not implemented")
 }
 func (UnimplementedTelemetryServiceServer) testEmbeddedByValue() {}
 
@@ -125,6 +163,42 @@ func _TelemetryService_UploadTelemetryBatch_Handler(srv interface{}, ctx context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TelemetryService_GetEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TelemetryServiceServer).GetEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TelemetryService_GetEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TelemetryServiceServer).GetEvents(ctx, req.(*GetEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _TelemetryService_GetDailyCounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDailyCountsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TelemetryServiceServer).GetDailyCounts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TelemetryService_GetDailyCounts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TelemetryServiceServer).GetDailyCounts(ctx, req.(*GetDailyCountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TelemetryService_ServiceDesc is the grpc.ServiceDesc for TelemetryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -135,6 +209,14 @@ var TelemetryService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UploadTelemetryBatch",
 			Handler:    _TelemetryService_UploadTelemetryBatch_Handler,
+		},
+		{
+			MethodName: "GetEvents",
+			Handler:    _TelemetryService_GetEvents_Handler,
+		},
+		{
+			MethodName: "GetDailyCounts",
+			Handler:    _TelemetryService_GetDailyCounts_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
