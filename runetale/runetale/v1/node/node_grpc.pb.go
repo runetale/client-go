@@ -32,7 +32,7 @@ const (
 type NodeServiceClient interface {
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
 	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
-	ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapRequest, NetworkMapResponse], error)
+	ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapResponse, NetworkMapResponse], error)
 	UploadPacketFlowLog(ctx context.Context, in *PacketFlowLogRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -64,18 +64,18 @@ func (c *nodeServiceClient) GetNetworkMap(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
-func (c *nodeServiceClient) ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapRequest, NetworkMapResponse], error) {
+func (c *nodeServiceClient) ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapResponse, NetworkMapResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &NodeService_ServiceDesc.Streams[0], NodeService_ConnectNetworkMapTable_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[NetworkMapRequest, NetworkMapResponse]{ClientStream: stream}
+	x := &grpc.GenericClientStream[NetworkMapResponse, NetworkMapResponse]{ClientStream: stream}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NodeService_ConnectNetworkMapTableClient = grpc.BidiStreamingClient[NetworkMapRequest, NetworkMapResponse]
+type NodeService_ConnectNetworkMapTableClient = grpc.BidiStreamingClient[NetworkMapResponse, NetworkMapResponse]
 
 func (c *nodeServiceClient) UploadPacketFlowLog(ctx context.Context, in *PacketFlowLogRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -93,7 +93,7 @@ func (c *nodeServiceClient) UploadPacketFlowLog(ctx context.Context, in *PacketF
 type NodeServiceServer interface {
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
 	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
-	ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]) error
+	ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]) error
 	UploadPacketFlowLog(context.Context, *PacketFlowLogRequest) (*emptypb.Empty, error)
 }
 
@@ -110,7 +110,7 @@ func (UnimplementedNodeServiceServer) ComposeNode(context.Context, *emptypb.Empt
 func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetNetworkMap not implemented")
 }
-func (UnimplementedNodeServiceServer) ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]) error {
+func (UnimplementedNodeServiceServer) ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]) error {
 	return status.Error(codes.Unimplemented, "method ConnectNetworkMapTable not implemented")
 }
 func (UnimplementedNodeServiceServer) UploadPacketFlowLog(context.Context, *PacketFlowLogRequest) (*emptypb.Empty, error) {
@@ -173,11 +173,11 @@ func _NodeService_GetNetworkMap_Handler(srv interface{}, ctx context.Context, de
 }
 
 func _NodeService_ConnectNetworkMapTable_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NodeServiceServer).ConnectNetworkMapTable(&grpc.GenericServerStream[NetworkMapRequest, NetworkMapResponse]{ServerStream: stream})
+	return srv.(NodeServiceServer).ConnectNetworkMapTable(&grpc.GenericServerStream[NetworkMapResponse, NetworkMapResponse]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NodeService_ConnectNetworkMapTableServer = grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]
+type NodeService_ConnectNetworkMapTableServer = grpc.BidiStreamingServer[NetworkMapResponse, NetworkMapResponse]
 
 func _NodeService_UploadPacketFlowLog_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PacketFlowLogRequest)
