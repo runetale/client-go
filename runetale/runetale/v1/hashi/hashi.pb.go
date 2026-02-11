@@ -771,7 +771,6 @@ type NetCheckReport struct {
 	TurnLatency map[string]int64       `protobuf:"bytes,11,rep,name=turn_latency,json=turnLatency,proto3" json:"turn_latency,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"` // TURN server URI -> latency in milliseconds
 	Errors      []string               `protobuf:"bytes,12,rep,name=errors,proto3" json:"errors,omitempty"`                                                                                                                       // errors encountered during the check
 	// CERF relay latency per region. Key is "regionCode" (e.g. "tokyo"), value is latency in milliseconds.
-	// Until client-go is regenerated, CERF data is encoded into stun_latency with "cerf:<regionCode>" keys.
 	CerfLatency map[string]int64 `protobuf:"bytes,13,rep,name=cerf_latency,json=cerfLatency,proto3" json:"cerf_latency,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"varint,2,opt,name=value,proto3"`
 	// preferred_cerf_region is the region code of the nearest (lowest latency) CERF relay.
 	PreferredCerfRegion string `protobuf:"bytes,14,opt,name=preferred_cerf_region,json=preferredCerfRegion,proto3" json:"preferred_cerf_region,omitempty"`
