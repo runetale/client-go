@@ -19,26 +19,29 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LogWriterService_UploadLoglyphEntries_FullMethodName = "/logserver.LogWriterService/UploadLoglyphEntries"
-	LogWriterService_UploadOrbitBatch_FullMethodName     = "/logserver.LogWriterService/UploadOrbitBatch"
-	LogWriterService_UploadPacketFlowLogs_FullMethodName = "/logserver.LogWriterService/UploadPacketFlowLogs"
+	LogWriterService_StreamLogs_FullMethodName = "/logserver.LogWriterService/StreamLogs"
 )
 
 // LogWriterServiceClient is the client API for LogWriterService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
-// LogWriterService receives log uploads from client nodes.
-// Authentication: gRPC metadata "private-id" + "log-token" headers.
-// The log server validates the token signature, checks expiration,
-// and verifies that SHA-256(private-id) matches the token's public_id.
+// LogWriterService receives log uploads from client nodes via a single
+// bidirectional stream. All three log types (Loglyph, Orbit, PacketFlowLog)
+// are multiplexed over one persistent gRPC stream per client.
+//
+// Authentication: gRPC metadata "private-id" header.
+// The log server validates the format, computes log_stream_id = SHA-256(private-id),
+// and extracts optional telemetry IDs for admin correlation.
 type LogWriterServiceClient interface {
-	// UploadLoglyphEntries uploads client debug log entries.
-	UploadLoglyphEntries(ctx context.Context, in *LoglyphUploadRequest, opts ...grpc.CallOption) (*LoglyphUploadResponse, error)
-	// UploadOrbitBatch uploads a batch of telemetry events.
-	UploadOrbitBatch(ctx context.Context, in *OrbitBatchUploadRequest, opts ...grpc.CallOption) (*OrbitBatchUploadResponse, error)
-	// UploadPacketFlowLogs uploads network flow statistics.
-	UploadPacketFlowLogs(ctx context.Context, in *PacketFlowLogUploadRequest, opts ...grpc.CallOption) (*PacketFlowLogUploadResponse, error)
+	// StreamLogs is a bidirectional stream for uploading all log types.
+	// The client sends StreamLogRequest messages (containing one of the three
+	// log payloads) and receives StreamLogResponse messages (config updates
+	// and acknowledgements) from the server.
+	//
+	// On initial connection, the server sends a LogConfigUpdate with the
+	// current configuration for this client's tenant.
+	StreamLogs(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamLogRequest, StreamLogResponse], error)
 }
 
 type logWriterServiceClient struct {
@@ -49,51 +52,39 @@ func NewLogWriterServiceClient(cc grpc.ClientConnInterface) LogWriterServiceClie
 	return &logWriterServiceClient{cc}
 }
 
-func (c *logWriterServiceClient) UploadLoglyphEntries(ctx context.Context, in *LoglyphUploadRequest, opts ...grpc.CallOption) (*LoglyphUploadResponse, error) {
+func (c *logWriterServiceClient) StreamLogs(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[StreamLogRequest, StreamLogResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(LoglyphUploadResponse)
-	err := c.cc.Invoke(ctx, LogWriterService_UploadLoglyphEntries_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &LogWriterService_ServiceDesc.Streams[0], LogWriterService_StreamLogs_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[StreamLogRequest, StreamLogResponse]{ClientStream: stream}
+	return x, nil
 }
 
-func (c *logWriterServiceClient) UploadOrbitBatch(ctx context.Context, in *OrbitBatchUploadRequest, opts ...grpc.CallOption) (*OrbitBatchUploadResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrbitBatchUploadResponse)
-	err := c.cc.Invoke(ctx, LogWriterService_UploadOrbitBatch_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *logWriterServiceClient) UploadPacketFlowLogs(ctx context.Context, in *PacketFlowLogUploadRequest, opts ...grpc.CallOption) (*PacketFlowLogUploadResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PacketFlowLogUploadResponse)
-	err := c.cc.Invoke(ctx, LogWriterService_UploadPacketFlowLogs_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type LogWriterService_StreamLogsClient = grpc.BidiStreamingClient[StreamLogRequest, StreamLogResponse]
 
 // LogWriterServiceServer is the server API for LogWriterService service.
 // All implementations should embed UnimplementedLogWriterServiceServer
 // for forward compatibility.
 //
-// LogWriterService receives log uploads from client nodes.
-// Authentication: gRPC metadata "private-id" + "log-token" headers.
-// The log server validates the token signature, checks expiration,
-// and verifies that SHA-256(private-id) matches the token's public_id.
+// LogWriterService receives log uploads from client nodes via a single
+// bidirectional stream. All three log types (Loglyph, Orbit, PacketFlowLog)
+// are multiplexed over one persistent gRPC stream per client.
+//
+// Authentication: gRPC metadata "private-id" header.
+// The log server validates the format, computes log_stream_id = SHA-256(private-id),
+// and extracts optional telemetry IDs for admin correlation.
 type LogWriterServiceServer interface {
-	// UploadLoglyphEntries uploads client debug log entries.
-	UploadLoglyphEntries(context.Context, *LoglyphUploadRequest) (*LoglyphUploadResponse, error)
-	// UploadOrbitBatch uploads a batch of telemetry events.
-	UploadOrbitBatch(context.Context, *OrbitBatchUploadRequest) (*OrbitBatchUploadResponse, error)
-	// UploadPacketFlowLogs uploads network flow statistics.
-	UploadPacketFlowLogs(context.Context, *PacketFlowLogUploadRequest) (*PacketFlowLogUploadResponse, error)
+	// StreamLogs is a bidirectional stream for uploading all log types.
+	// The client sends StreamLogRequest messages (containing one of the three
+	// log payloads) and receives StreamLogResponse messages (config updates
+	// and acknowledgements) from the server.
+	//
+	// On initial connection, the server sends a LogConfigUpdate with the
+	// current configuration for this client's tenant.
+	StreamLogs(grpc.BidiStreamingServer[StreamLogRequest, StreamLogResponse]) error
 }
 
 // UnimplementedLogWriterServiceServer should be embedded to have
@@ -103,14 +94,8 @@ type LogWriterServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedLogWriterServiceServer struct{}
 
-func (UnimplementedLogWriterServiceServer) UploadLoglyphEntries(context.Context, *LoglyphUploadRequest) (*LoglyphUploadResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UploadLoglyphEntries not implemented")
-}
-func (UnimplementedLogWriterServiceServer) UploadOrbitBatch(context.Context, *OrbitBatchUploadRequest) (*OrbitBatchUploadResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UploadOrbitBatch not implemented")
-}
-func (UnimplementedLogWriterServiceServer) UploadPacketFlowLogs(context.Context, *PacketFlowLogUploadRequest) (*PacketFlowLogUploadResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method UploadPacketFlowLogs not implemented")
+func (UnimplementedLogWriterServiceServer) StreamLogs(grpc.BidiStreamingServer[StreamLogRequest, StreamLogResponse]) error {
+	return status.Error(codes.Unimplemented, "method StreamLogs not implemented")
 }
 func (UnimplementedLogWriterServiceServer) testEmbeddedByValue() {}
 
@@ -132,59 +117,12 @@ func RegisterLogWriterServiceServer(s grpc.ServiceRegistrar, srv LogWriterServic
 	s.RegisterService(&LogWriterService_ServiceDesc, srv)
 }
 
-func _LogWriterService_UploadLoglyphEntries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(LoglyphUploadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LogWriterServiceServer).UploadLoglyphEntries(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: LogWriterService_UploadLoglyphEntries_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogWriterServiceServer).UploadLoglyphEntries(ctx, req.(*LoglyphUploadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _LogWriterService_StreamLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(LogWriterServiceServer).StreamLogs(&grpc.GenericServerStream[StreamLogRequest, StreamLogResponse]{ServerStream: stream})
 }
 
-func _LogWriterService_UploadOrbitBatch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrbitBatchUploadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LogWriterServiceServer).UploadOrbitBatch(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: LogWriterService_UploadOrbitBatch_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogWriterServiceServer).UploadOrbitBatch(ctx, req.(*OrbitBatchUploadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _LogWriterService_UploadPacketFlowLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PacketFlowLogUploadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LogWriterServiceServer).UploadPacketFlowLogs(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: LogWriterService_UploadPacketFlowLogs_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LogWriterServiceServer).UploadPacketFlowLogs(ctx, req.(*PacketFlowLogUploadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type LogWriterService_StreamLogsServer = grpc.BidiStreamingServer[StreamLogRequest, StreamLogResponse]
 
 // LogWriterService_ServiceDesc is the grpc.ServiceDesc for LogWriterService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -192,20 +130,14 @@ func _LogWriterService_UploadPacketFlowLogs_Handler(srv interface{}, ctx context
 var LogWriterService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "logserver.LogWriterService",
 	HandlerType: (*LogWriterServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "UploadLoglyphEntries",
-			Handler:    _LogWriterService_UploadLoglyphEntries_Handler,
-		},
-		{
-			MethodName: "UploadOrbitBatch",
-			Handler:    _LogWriterService_UploadOrbitBatch_Handler,
-		},
-		{
-			MethodName: "UploadPacketFlowLogs",
-			Handler:    _LogWriterService_UploadPacketFlowLogs_Handler,
+			StreamName:    "StreamLogs",
+			Handler:       _LogWriterService_StreamLogs_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "runetale/runetale/v1/log_writer.proto",
 }

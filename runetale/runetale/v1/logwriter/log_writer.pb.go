@@ -243,6 +243,7 @@ func (FilterEvent_Result) EnumDescriptor() ([]byte, []int) {
 }
 
 // LoglyphUploadRequest contains a batch of client debug log entries.
+// Used inside StreamLogRequest.loglyph.
 type LoglyphUploadRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -412,7 +413,8 @@ func (x *LoglyphEntry) GetV() int32 {
 	return 0
 }
 
-// LoglyphUploadResponse is returned after processing a loglyph upload.
+// LoglyphUploadResponse is returned inside StreamLogResponse.ack
+// when processing loglyph entries. Kept for structured per-type feedback.
 type LoglyphUploadResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -480,8 +482,8 @@ func (x *LoglyphUploadResponse) GetReason() string {
 }
 
 // OrbitBatchUploadRequest contains a batch of telemetry events from a client.
-// Unlike the legacy OrbitBatchRequest, this does not include node_id;
-// the log server identifies the stream via log_stream_id (derived from private-id).
+// Used inside StreamLogRequest.orbit.
+// The log server identifies the stream via log_stream_id (derived from private-id).
 type OrbitBatchUploadRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -548,7 +550,8 @@ func (x *OrbitBatchUploadRequest) GetEvents() []*OrbitEvent {
 	return nil
 }
 
-// OrbitBatchUploadResponse is returned after processing a batch.
+// OrbitBatchUploadResponse is returned inside StreamLogResponse.ack
+// when processing orbit events. Kept for structured per-type feedback.
 type OrbitBatchUploadResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1138,8 +1141,8 @@ func (x *PathTransitionEvent) GetReason() string {
 }
 
 // PacketFlowLogUploadRequest contains network flow statistics from a client.
-// Unlike the legacy PacketFlowLogRequest, this does not include nodeId;
-// the log server identifies the stream via log_stream_id (derived from private-id).
+// Used inside StreamLogRequest.packet_flow.
+// The log server identifies the stream via log_stream_id (derived from private-id).
 //
 // Fields 8-11 embed node/tenant identity directly in the payload (A-plan).
 // This makes each log self-contained for SIEM export without requiring
@@ -1485,7 +1488,8 @@ func (x *PacketFlowEntry) GetRxBytes() uint64 {
 	return 0
 }
 
-// PacketFlowLogUploadResponse is returned after processing flow logs.
+// PacketFlowLogUploadResponse is returned inside StreamLogResponse.ack
+// when processing flow logs.
 type PacketFlowLogUploadResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -1532,6 +1536,366 @@ func (x *PacketFlowLogUploadResponse) GetAccepted() uint32 {
 		return x.Accepted
 	}
 	return 0
+}
+
+// StreamLogRequest is sent by the client on the StreamLogs bidirectional stream.
+// Each message carries exactly one log payload via the oneof field.
+type StreamLogRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Payload:
+	//
+	//	*StreamLogRequest_PacketFlow
+	//	*StreamLogRequest_Orbit
+	//	*StreamLogRequest_Loglyph
+	Payload isStreamLogRequest_Payload `protobuf_oneof:"payload"`
+	// sequence is a client-assigned monotonically increasing number.
+	// The server echoes it back in StreamAck for delivery confirmation.
+	Sequence uint64 `protobuf:"varint,10,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (x *StreamLogRequest) Reset() {
+	*x = StreamLogRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StreamLogRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamLogRequest) ProtoMessage() {}
+
+func (x *StreamLogRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamLogRequest.ProtoReflect.Descriptor instead.
+func (*StreamLogRequest) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_log_writer_proto_rawDescGZIP(), []int{16}
+}
+
+func (m *StreamLogRequest) GetPayload() isStreamLogRequest_Payload {
+	if m != nil {
+		return m.Payload
+	}
+	return nil
+}
+
+func (x *StreamLogRequest) GetPacketFlow() *PacketFlowLogUploadRequest {
+	if x, ok := x.GetPayload().(*StreamLogRequest_PacketFlow); ok {
+		return x.PacketFlow
+	}
+	return nil
+}
+
+func (x *StreamLogRequest) GetOrbit() *OrbitBatchUploadRequest {
+	if x, ok := x.GetPayload().(*StreamLogRequest_Orbit); ok {
+		return x.Orbit
+	}
+	return nil
+}
+
+func (x *StreamLogRequest) GetLoglyph() *LoglyphUploadRequest {
+	if x, ok := x.GetPayload().(*StreamLogRequest_Loglyph); ok {
+		return x.Loglyph
+	}
+	return nil
+}
+
+func (x *StreamLogRequest) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+type isStreamLogRequest_Payload interface {
+	isStreamLogRequest_Payload()
+}
+
+type StreamLogRequest_PacketFlow struct {
+	// packet_flow carries network flow statistics (60s summaries).
+	PacketFlow *PacketFlowLogUploadRequest `protobuf:"bytes,1,opt,name=packet_flow,json=packetFlow,proto3,oneof"`
+}
+
+type StreamLogRequest_Orbit struct {
+	// orbit carries a batch of telemetry events.
+	Orbit *OrbitBatchUploadRequest `protobuf:"bytes,2,opt,name=orbit,proto3,oneof"`
+}
+
+type StreamLogRequest_Loglyph struct {
+	// loglyph carries a batch of client debug log entries.
+	Loglyph *LoglyphUploadRequest `protobuf:"bytes,3,opt,name=loglyph,proto3,oneof"`
+}
+
+func (*StreamLogRequest_PacketFlow) isStreamLogRequest_Payload() {}
+
+func (*StreamLogRequest_Orbit) isStreamLogRequest_Payload() {}
+
+func (*StreamLogRequest_Loglyph) isStreamLogRequest_Payload() {}
+
+// StreamLogResponse is sent by the server on the StreamLogs bidirectional stream.
+// Each message carries either a configuration update or an acknowledgement.
+type StreamLogResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Directive:
+	//
+	//	*StreamLogResponse_Config
+	//	*StreamLogResponse_Ack
+	Directive isStreamLogResponse_Directive `protobuf_oneof:"directive"`
+}
+
+func (x *StreamLogResponse) Reset() {
+	*x = StreamLogResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StreamLogResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamLogResponse) ProtoMessage() {}
+
+func (x *StreamLogResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamLogResponse.ProtoReflect.Descriptor instead.
+func (*StreamLogResponse) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_log_writer_proto_rawDescGZIP(), []int{17}
+}
+
+func (m *StreamLogResponse) GetDirective() isStreamLogResponse_Directive {
+	if m != nil {
+		return m.Directive
+	}
+	return nil
+}
+
+func (x *StreamLogResponse) GetConfig() *LogConfigUpdate {
+	if x, ok := x.GetDirective().(*StreamLogResponse_Config); ok {
+		return x.Config
+	}
+	return nil
+}
+
+func (x *StreamLogResponse) GetAck() *StreamAck {
+	if x, ok := x.GetDirective().(*StreamLogResponse_Ack); ok {
+		return x.Ack
+	}
+	return nil
+}
+
+type isStreamLogResponse_Directive interface {
+	isStreamLogResponse_Directive()
+}
+
+type StreamLogResponse_Config struct {
+	// config is a server-pushed configuration update.
+	// Sent immediately on connection and whenever tenant config changes.
+	Config *LogConfigUpdate `protobuf:"bytes,1,opt,name=config,proto3,oneof"`
+}
+
+type StreamLogResponse_Ack struct {
+	// ack confirms receipt and processing of a client message.
+	Ack *StreamAck `protobuf:"bytes,2,opt,name=ack,proto3,oneof"`
+}
+
+func (*StreamLogResponse_Config) isStreamLogResponse_Directive() {}
+
+func (*StreamLogResponse_Ack) isStreamLogResponse_Directive() {}
+
+// LogConfigUpdate carries dynamic configuration from the server to the client.
+// Allows the server to adjust client logging behavior without binary updates.
+type LogConfigUpdate struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// poll_period_seconds is the interval between flow log collections.
+	// 0 means use client default (currently 60s).
+	PollPeriodSeconds uint32 `protobuf:"varint,1,opt,name=poll_period_seconds,json=pollPeriodSeconds,proto3" json:"poll_period_seconds,omitempty"`
+	// min_bytes_threshold is the minimum total bytes for a connection to be logged.
+	// 0 means use client default (currently 256 bytes).
+	MinBytesThreshold uint64 `protobuf:"varint,2,opt,name=min_bytes_threshold,json=minBytesThreshold,proto3" json:"min_bytes_threshold,omitempty"`
+	// netflow_enabled controls whether network flow logs are collected.
+	NetflowEnabled bool `protobuf:"varint,3,opt,name=netflow_enabled,json=netflowEnabled,proto3" json:"netflow_enabled,omitempty"`
+	// orbit_enabled controls whether orbit telemetry events are collected.
+	OrbitEnabled bool `protobuf:"varint,4,opt,name=orbit_enabled,json=orbitEnabled,proto3" json:"orbit_enabled,omitempty"`
+	// loglyph_enabled controls whether client debug logs are collected.
+	LoglyphEnabled bool `protobuf:"varint,5,opt,name=loglyph_enabled,json=loglyphEnabled,proto3" json:"loglyph_enabled,omitempty"`
+}
+
+func (x *LogConfigUpdate) Reset() {
+	*x = LogConfigUpdate{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[18]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *LogConfigUpdate) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogConfigUpdate) ProtoMessage() {}
+
+func (x *LogConfigUpdate) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[18]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogConfigUpdate.ProtoReflect.Descriptor instead.
+func (*LogConfigUpdate) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_log_writer_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *LogConfigUpdate) GetPollPeriodSeconds() uint32 {
+	if x != nil {
+		return x.PollPeriodSeconds
+	}
+	return 0
+}
+
+func (x *LogConfigUpdate) GetMinBytesThreshold() uint64 {
+	if x != nil {
+		return x.MinBytesThreshold
+	}
+	return 0
+}
+
+func (x *LogConfigUpdate) GetNetflowEnabled() bool {
+	if x != nil {
+		return x.NetflowEnabled
+	}
+	return false
+}
+
+func (x *LogConfigUpdate) GetOrbitEnabled() bool {
+	if x != nil {
+		return x.OrbitEnabled
+	}
+	return false
+}
+
+func (x *LogConfigUpdate) GetLoglyphEnabled() bool {
+	if x != nil {
+		return x.LoglyphEnabled
+	}
+	return false
+}
+
+// StreamAck confirms that the server has received and processed a client message.
+type StreamAck struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// sequence echoes the client's StreamLogRequest.sequence.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// accepted is the number of entries/events/logs successfully stored.
+	Accepted uint32 `protobuf:"varint,2,opt,name=accepted,proto3" json:"accepted,omitempty"`
+	// dropped is the number of entries/events/logs dropped (if any).
+	Dropped uint32 `protobuf:"varint,3,opt,name=dropped,proto3" json:"dropped,omitempty"`
+	// reason is set if any entries were dropped (e.g. "rate_limited", "too_large").
+	Reason string `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+}
+
+func (x *StreamAck) Reset() {
+	*x = StreamAck{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[19]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *StreamAck) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StreamAck) ProtoMessage() {}
+
+func (x *StreamAck) ProtoReflect() protoreflect.Message {
+	mi := &file_runetale_runetale_v1_log_writer_proto_msgTypes[19]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StreamAck.ProtoReflect.Descriptor instead.
+func (*StreamAck) Descriptor() ([]byte, []int) {
+	return file_runetale_runetale_v1_log_writer_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *StreamAck) GetSequence() uint64 {
+	if x != nil {
+		return x.Sequence
+	}
+	return 0
+}
+
+func (x *StreamAck) GetAccepted() uint32 {
+	if x != nil {
+		return x.Accepted
+	}
+	return 0
+}
+
+func (x *StreamAck) GetDropped() uint32 {
+	if x != nil {
+		return x.Dropped
+	}
+	return 0
+}
+
+func (x *StreamAck) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
 }
 
 var File_runetale_runetale_v1_log_writer_proto protoreflect.FileDescriptor
@@ -1741,35 +2105,68 @@ var file_runetale_runetale_v1_log_writer_proto_rawDesc = []byte{
 	0x6c, 0x6f, 0x77, 0x4c, 0x6f, 0x67, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70,
 	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74, 0x65, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x08, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74, 0x65, 0x64,
-	0x2a, 0x73, 0x0a, 0x09, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x70, 0x6f, 0x72, 0x74, 0x12, 0x15, 0x0a,
-	0x11, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x55, 0x4e, 0x4b, 0x4e, 0x4f,
-	0x57, 0x4e, 0x10, 0x00, 0x12, 0x11, 0x0a, 0x0d, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52,
-	0x54, 0x5f, 0x55, 0x44, 0x50, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d, 0x54, 0x52, 0x41, 0x4e, 0x53,
-	0x50, 0x4f, 0x52, 0x54, 0x5f, 0x49, 0x43, 0x45, 0x10, 0x02, 0x12, 0x12, 0x0a, 0x0e, 0x54, 0x52,
-	0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x43, 0x45, 0x52, 0x46, 0x10, 0x03, 0x12, 0x15,
-	0x0a, 0x11, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x43, 0x45, 0x52, 0x46,
-	0x5f, 0x57, 0x53, 0x10, 0x04, 0x32, 0xb7, 0x02, 0x0a, 0x10, 0x4c, 0x6f, 0x67, 0x57, 0x72, 0x69,
-	0x74, 0x65, 0x72, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x5b, 0x0a, 0x14, 0x55, 0x70,
-	0x6c, 0x6f, 0x61, 0x64, 0x4c, 0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x45, 0x6e, 0x74, 0x72, 0x69,
-	0x65, 0x73, 0x12, 0x1f, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4c,
-	0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e,
-	0x4c, 0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x5d, 0x0a, 0x10, 0x55, 0x70, 0x6c, 0x6f, 0x61,
-	0x64, 0x4f, 0x72, 0x62, 0x69, 0x74, 0x42, 0x61, 0x74, 0x63, 0x68, 0x12, 0x22, 0x2e, 0x6c, 0x6f,
-	0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4f, 0x72, 0x62, 0x69, 0x74, 0x42, 0x61, 0x74,
-	0x63, 0x68, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x23, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4f, 0x72, 0x62, 0x69,
-	0x74, 0x42, 0x61, 0x74, 0x63, 0x68, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x67, 0x0a, 0x14, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64,
-	0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x6f, 0x77, 0x4c, 0x6f, 0x67, 0x73, 0x12, 0x25,
-	0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65,
-	0x74, 0x46, 0x6c, 0x6f, 0x77, 0x4c, 0x6f, 0x67, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x26, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65,
-	0x72, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x6f, 0x77, 0x4c, 0x6f, 0x67, 0x55,
-	0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42,
-	0x0d, 0x5a, 0x0b, 0x2e, 0x2f, 0x6c, 0x6f, 0x67, 0x77, 0x72, 0x69, 0x74, 0x65, 0x72, 0x62, 0x06,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x22, 0xfc, 0x01, 0x0a, 0x10, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f, 0x67, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x48, 0x0a, 0x0b, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x5f,
+	0x66, 0x6c, 0x6f, 0x77, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x6c, 0x6f, 0x67,
+	0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x6f,
+	0x77, 0x4c, 0x6f, 0x67, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x48, 0x00, 0x52, 0x0a, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x6c, 0x6f, 0x77, 0x12,
+	0x3a, 0x0a, 0x05, 0x6f, 0x72, 0x62, 0x69, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22,
+	0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4f, 0x72, 0x62, 0x69, 0x74,
+	0x42, 0x61, 0x74, 0x63, 0x68, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x48, 0x00, 0x52, 0x05, 0x6f, 0x72, 0x62, 0x69, 0x74, 0x12, 0x3b, 0x0a, 0x07, 0x6c,
+	0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x6c,
+	0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x4c, 0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68,
+	0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x48, 0x00, 0x52,
+	0x07, 0x6c, 0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75,
+	0x65, 0x6e, 0x63, 0x65, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75,
+	0x65, 0x6e, 0x63, 0x65, 0x42, 0x09, 0x0a, 0x07, 0x70, 0x61, 0x79, 0x6c, 0x6f, 0x61, 0x64, 0x22,
+	0x80, 0x01, 0x0a, 0x11, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f, 0x67, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a, 0x06, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65, 0x72, 0x76, 0x65,
+	0x72, 0x2e, 0x4c, 0x6f, 0x67, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x48, 0x00, 0x52, 0x06, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x28, 0x0a, 0x03, 0x61,
+	0x63, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x41, 0x63, 0x6b, 0x48, 0x00,
+	0x52, 0x03, 0x61, 0x63, 0x6b, 0x42, 0x0b, 0x0a, 0x09, 0x64, 0x69, 0x72, 0x65, 0x63, 0x74, 0x69,
+	0x76, 0x65, 0x22, 0xe8, 0x01, 0x0a, 0x0f, 0x4c, 0x6f, 0x67, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x12, 0x2e, 0x0a, 0x13, 0x70, 0x6f, 0x6c, 0x6c, 0x5f, 0x70,
+	0x65, 0x72, 0x69, 0x6f, 0x64, 0x5f, 0x73, 0x65, 0x63, 0x6f, 0x6e, 0x64, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0d, 0x52, 0x11, 0x70, 0x6f, 0x6c, 0x6c, 0x50, 0x65, 0x72, 0x69, 0x6f, 0x64, 0x53,
+	0x65, 0x63, 0x6f, 0x6e, 0x64, 0x73, 0x12, 0x2e, 0x0a, 0x13, 0x6d, 0x69, 0x6e, 0x5f, 0x62, 0x79,
+	0x74, 0x65, 0x73, 0x5f, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x04, 0x52, 0x11, 0x6d, 0x69, 0x6e, 0x42, 0x79, 0x74, 0x65, 0x73, 0x54, 0x68, 0x72,
+	0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12, 0x27, 0x0a, 0x0f, 0x6e, 0x65, 0x74, 0x66, 0x6c, 0x6f,
+	0x77, 0x5f, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52,
+	0x0e, 0x6e, 0x65, 0x74, 0x66, 0x6c, 0x6f, 0x77, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x12,
+	0x23, 0x0a, 0x0d, 0x6f, 0x72, 0x62, 0x69, 0x74, 0x5f, 0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64,
+	0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0c, 0x6f, 0x72, 0x62, 0x69, 0x74, 0x45, 0x6e, 0x61,
+	0x62, 0x6c, 0x65, 0x64, 0x12, 0x27, 0x0a, 0x0f, 0x6c, 0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x5f,
+	0x65, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x18, 0x05, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0e, 0x6c,
+	0x6f, 0x67, 0x6c, 0x79, 0x70, 0x68, 0x45, 0x6e, 0x61, 0x62, 0x6c, 0x65, 0x64, 0x22, 0x75, 0x0a,
+	0x09, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x41, 0x63, 0x6b, 0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65,
+	0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x73, 0x65,
+	0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x12, 0x1a, 0x0a, 0x08, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74,
+	0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x08, 0x61, 0x63, 0x63, 0x65, 0x70, 0x74,
+	0x65, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x64, 0x72, 0x6f, 0x70, 0x70, 0x65, 0x64, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x0d, 0x52, 0x07, 0x64, 0x72, 0x6f, 0x70, 0x70, 0x65, 0x64, 0x12, 0x16, 0x0a, 0x06,
+	0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x72, 0x65,
+	0x61, 0x73, 0x6f, 0x6e, 0x2a, 0x73, 0x0a, 0x09, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x70, 0x6f, 0x72,
+	0x74, 0x12, 0x15, 0x0a, 0x11, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x55,
+	0x4e, 0x4b, 0x4e, 0x4f, 0x57, 0x4e, 0x10, 0x00, 0x12, 0x11, 0x0a, 0x0d, 0x54, 0x52, 0x41, 0x4e,
+	0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x55, 0x44, 0x50, 0x10, 0x01, 0x12, 0x11, 0x0a, 0x0d, 0x54,
+	0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x49, 0x43, 0x45, 0x10, 0x02, 0x12, 0x12,
+	0x0a, 0x0e, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f, 0x43, 0x45, 0x52, 0x46,
+	0x10, 0x03, 0x12, 0x15, 0x0a, 0x11, 0x54, 0x52, 0x41, 0x4e, 0x53, 0x50, 0x4f, 0x52, 0x54, 0x5f,
+	0x43, 0x45, 0x52, 0x46, 0x5f, 0x57, 0x53, 0x10, 0x04, 0x32, 0x61, 0x0a, 0x10, 0x4c, 0x6f, 0x67,
+	0x57, 0x72, 0x69, 0x74, 0x65, 0x72, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x4d, 0x0a,
+	0x0a, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f, 0x67, 0x73, 0x12, 0x1b, 0x2e, 0x6c, 0x6f,
+	0x67, 0x73, 0x65, 0x72, 0x76, 0x65, 0x72, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f,
+	0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x6c, 0x6f, 0x67, 0x73, 0x65,
+	0x72, 0x76, 0x65, 0x72, 0x2e, 0x53, 0x74, 0x72, 0x65, 0x61, 0x6d, 0x4c, 0x6f, 0x67, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x28, 0x01, 0x30, 0x01, 0x42, 0x0d, 0x5a, 0x0b,
+	0x2e, 0x2f, 0x6c, 0x6f, 0x67, 0x77, 0x72, 0x69, 0x74, 0x65, 0x72, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1785,7 +2182,7 @@ func file_runetale_runetale_v1_log_writer_proto_rawDescGZIP() []byte {
 }
 
 var file_runetale_runetale_v1_log_writer_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
-var file_runetale_runetale_v1_log_writer_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_runetale_runetale_v1_log_writer_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_runetale_runetale_v1_log_writer_proto_goTypes = []interface{}{
 	(Transport)(0),                      // 0: logserver.Transport
 	(CerfConnEvent_State)(0),            // 1: logserver.CerfConnEvent.State
@@ -1807,13 +2204,17 @@ var file_runetale_runetale_v1_log_writer_proto_goTypes = []interface{}{
 	(*FlowPeerInfo)(nil),                // 17: logserver.FlowPeerInfo
 	(*PacketFlowEntry)(nil),             // 18: logserver.PacketFlowEntry
 	(*PacketFlowLogUploadResponse)(nil), // 19: logserver.PacketFlowLogUploadResponse
-	(*timestamppb.Timestamp)(nil),       // 20: google.protobuf.Timestamp
+	(*StreamLogRequest)(nil),            // 20: logserver.StreamLogRequest
+	(*StreamLogResponse)(nil),           // 21: logserver.StreamLogResponse
+	(*LogConfigUpdate)(nil),             // 22: logserver.LogConfigUpdate
+	(*StreamAck)(nil),                   // 23: logserver.StreamAck
+	(*timestamppb.Timestamp)(nil),       // 24: google.protobuf.Timestamp
 }
 var file_runetale_runetale_v1_log_writer_proto_depIdxs = []int32{
 	5,  // 0: logserver.LoglyphUploadRequest.entries:type_name -> logserver.LoglyphEntry
-	20, // 1: logserver.LoglyphEntry.client_time:type_name -> google.protobuf.Timestamp
+	24, // 1: logserver.LoglyphEntry.client_time:type_name -> google.protobuf.Timestamp
 	9,  // 2: logserver.OrbitBatchUploadRequest.events:type_name -> logserver.OrbitEvent
-	20, // 3: logserver.OrbitEvent.at:type_name -> google.protobuf.Timestamp
+	24, // 3: logserver.OrbitEvent.at:type_name -> google.protobuf.Timestamp
 	0,  // 4: logserver.OrbitEvent.transport:type_name -> logserver.Transport
 	10, // 5: logserver.OrbitEvent.send_result:type_name -> logserver.SendResultEvent
 	11, // 6: logserver.OrbitEvent.recv_result:type_name -> logserver.RecvResultEvent
@@ -1831,17 +2232,18 @@ var file_runetale_runetale_v1_log_writer_proto_depIdxs = []int32{
 	18, // 18: logserver.PacketFlowLogUploadRequest.exit_node_traffic:type_name -> logserver.PacketFlowEntry
 	18, // 19: logserver.PacketFlowLogUploadRequest.transport_traffic:type_name -> logserver.PacketFlowEntry
 	17, // 20: logserver.PacketFlowLogUploadRequest.dst_peers:type_name -> logserver.FlowPeerInfo
-	4,  // 21: logserver.LogWriterService.UploadLoglyphEntries:input_type -> logserver.LoglyphUploadRequest
-	7,  // 22: logserver.LogWriterService.UploadOrbitBatch:input_type -> logserver.OrbitBatchUploadRequest
-	16, // 23: logserver.LogWriterService.UploadPacketFlowLogs:input_type -> logserver.PacketFlowLogUploadRequest
-	6,  // 24: logserver.LogWriterService.UploadLoglyphEntries:output_type -> logserver.LoglyphUploadResponse
-	8,  // 25: logserver.LogWriterService.UploadOrbitBatch:output_type -> logserver.OrbitBatchUploadResponse
-	19, // 26: logserver.LogWriterService.UploadPacketFlowLogs:output_type -> logserver.PacketFlowLogUploadResponse
-	24, // [24:27] is the sub-list for method output_type
-	21, // [21:24] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	16, // 21: logserver.StreamLogRequest.packet_flow:type_name -> logserver.PacketFlowLogUploadRequest
+	7,  // 22: logserver.StreamLogRequest.orbit:type_name -> logserver.OrbitBatchUploadRequest
+	4,  // 23: logserver.StreamLogRequest.loglyph:type_name -> logserver.LoglyphUploadRequest
+	22, // 24: logserver.StreamLogResponse.config:type_name -> logserver.LogConfigUpdate
+	23, // 25: logserver.StreamLogResponse.ack:type_name -> logserver.StreamAck
+	20, // 26: logserver.LogWriterService.StreamLogs:input_type -> logserver.StreamLogRequest
+	21, // 27: logserver.LogWriterService.StreamLogs:output_type -> logserver.StreamLogResponse
+	27, // [27:28] is the sub-list for method output_type
+	26, // [26:27] is the sub-list for method input_type
+	26, // [26:26] is the sub-list for extension type_name
+	26, // [26:26] is the sub-list for extension extendee
+	0,  // [0:26] is the sub-list for field type_name
 }
 
 func init() { file_runetale_runetale_v1_log_writer_proto_init() }
@@ -2042,6 +2444,54 @@ func file_runetale_runetale_v1_log_writer_proto_init() {
 				return nil
 			}
 		}
+		file_runetale_runetale_v1_log_writer_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StreamLogRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_runetale_runetale_v1_log_writer_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StreamLogResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_runetale_runetale_v1_log_writer_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*LogConfigUpdate); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_runetale_runetale_v1_log_writer_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*StreamAck); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_runetale_runetale_v1_log_writer_proto_msgTypes[5].OneofWrappers = []interface{}{
 		(*OrbitEvent_SendResult)(nil),
@@ -2051,13 +2501,22 @@ func file_runetale_runetale_v1_log_writer_proto_init() {
 		(*OrbitEvent_Filter)(nil),
 		(*OrbitEvent_PathTransition)(nil),
 	}
+	file_runetale_runetale_v1_log_writer_proto_msgTypes[16].OneofWrappers = []interface{}{
+		(*StreamLogRequest_PacketFlow)(nil),
+		(*StreamLogRequest_Orbit)(nil),
+		(*StreamLogRequest_Loglyph)(nil),
+	}
+	file_runetale_runetale_v1_log_writer_proto_msgTypes[17].OneofWrappers = []interface{}{
+		(*StreamLogResponse_Config)(nil),
+		(*StreamLogResponse_Ack)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_runetale_runetale_v1_log_writer_proto_rawDesc,
 			NumEnums:      4,
-			NumMessages:   16,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
