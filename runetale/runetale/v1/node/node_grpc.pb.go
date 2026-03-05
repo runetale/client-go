@@ -23,7 +23,7 @@ const (
 	NodeService_ComposeNode_FullMethodName            = "/protos.NodeService/ComposeNode"
 	NodeService_GetNetworkMap_FullMethodName          = "/protos.NodeService/GetNetworkMap"
 	NodeService_ConnectNetworkMapTable_FullMethodName = "/protos.NodeService/ConnectNetworkMapTable"
-	NodeService_RotateNodeKey_FullMethodName          = "/protos.NodeService/RotateNodeKey"
+	NodeService_RotateWgKey_FullMethodName            = "/protos.NodeService/RotateWgKey"
 	NodeService_NetworkLockInit_FullMethodName        = "/protos.NodeService/NetworkLockInit"
 	NodeService_NetworkLockSign_FullMethodName        = "/protos.NodeService/NetworkLockSign"
 	NodeService_NetworkLockDisable_FullMethodName     = "/protos.NodeService/NetworkLockDisable"
@@ -37,9 +37,10 @@ type NodeServiceClient interface {
 	ComposeNode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ComposeNodeResponse, error)
 	GetNetworkMap(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkMapResponse, error)
 	ConnectNetworkMapTable(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NetworkMapRequest, NetworkMapResponse], error)
-	// RotateNodeKey rotates the node's keys (NodeKey and WgPubKey) to new values.
+	// RotateWgKey rotates the node's WireGuard key pair.
+	// NodeKey remains unchanged; only WgPubKey is rotated.
 	// This is used for seamless key renewal without disconnecting the VPN.
-	RotateNodeKey(ctx context.Context, in *RotateNodeKeyRequest, opts ...grpc.CallOption) (*RotateNodeKeyResponse, error)
+	RotateWgKey(ctx context.Context, in *RotateWgKeyRequest, opts ...grpc.CallOption) (*RotateWgKeyResponse, error)
 	// Network Lock (TKA) RPCs
 	// NetworkLockInit enables Network Lock for the Runetale Network.
 	NetworkLockInit(ctx context.Context, in *NetworkLockInitRequest, opts ...grpc.CallOption) (*NetworkLockInitResponse, error)
@@ -92,10 +93,10 @@ func (c *nodeServiceClient) ConnectNetworkMapTable(ctx context.Context, opts ...
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NodeService_ConnectNetworkMapTableClient = grpc.BidiStreamingClient[NetworkMapRequest, NetworkMapResponse]
 
-func (c *nodeServiceClient) RotateNodeKey(ctx context.Context, in *RotateNodeKeyRequest, opts ...grpc.CallOption) (*RotateNodeKeyResponse, error) {
+func (c *nodeServiceClient) RotateWgKey(ctx context.Context, in *RotateWgKeyRequest, opts ...grpc.CallOption) (*RotateWgKeyResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(RotateNodeKeyResponse)
-	err := c.cc.Invoke(ctx, NodeService_RotateNodeKey_FullMethodName, in, out, cOpts...)
+	out := new(RotateWgKeyResponse)
+	err := c.cc.Invoke(ctx, NodeService_RotateWgKey_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,9 +150,10 @@ type NodeServiceServer interface {
 	ComposeNode(context.Context, *emptypb.Empty) (*ComposeNodeResponse, error)
 	GetNetworkMap(context.Context, *emptypb.Empty) (*NetworkMapResponse, error)
 	ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]) error
-	// RotateNodeKey rotates the node's keys (NodeKey and WgPubKey) to new values.
+	// RotateWgKey rotates the node's WireGuard key pair.
+	// NodeKey remains unchanged; only WgPubKey is rotated.
 	// This is used for seamless key renewal without disconnecting the VPN.
-	RotateNodeKey(context.Context, *RotateNodeKeyRequest) (*RotateNodeKeyResponse, error)
+	RotateWgKey(context.Context, *RotateWgKeyRequest) (*RotateWgKeyResponse, error)
 	// Network Lock (TKA) RPCs
 	// NetworkLockInit enables Network Lock for the Runetale Network.
 	NetworkLockInit(context.Context, *NetworkLockInitRequest) (*NetworkLockInitResponse, error)
@@ -179,8 +181,8 @@ func (UnimplementedNodeServiceServer) GetNetworkMap(context.Context, *emptypb.Em
 func (UnimplementedNodeServiceServer) ConnectNetworkMapTable(grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]) error {
 	return status.Error(codes.Unimplemented, "method ConnectNetworkMapTable not implemented")
 }
-func (UnimplementedNodeServiceServer) RotateNodeKey(context.Context, *RotateNodeKeyRequest) (*RotateNodeKeyResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method RotateNodeKey not implemented")
+func (UnimplementedNodeServiceServer) RotateWgKey(context.Context, *RotateWgKeyRequest) (*RotateWgKeyResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RotateWgKey not implemented")
 }
 func (UnimplementedNodeServiceServer) NetworkLockInit(context.Context, *NetworkLockInitRequest) (*NetworkLockInitResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NetworkLockInit not implemented")
@@ -257,20 +259,20 @@ func _NodeService_ConnectNetworkMapTable_Handler(srv interface{}, stream grpc.Se
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type NodeService_ConnectNetworkMapTableServer = grpc.BidiStreamingServer[NetworkMapRequest, NetworkMapResponse]
 
-func _NodeService_RotateNodeKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RotateNodeKeyRequest)
+func _NodeService_RotateWgKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RotateWgKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodeServiceServer).RotateNodeKey(ctx, in)
+		return srv.(NodeServiceServer).RotateWgKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: NodeService_RotateNodeKey_FullMethodName,
+		FullMethod: NodeService_RotateWgKey_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServiceServer).RotateNodeKey(ctx, req.(*RotateNodeKeyRequest))
+		return srv.(NodeServiceServer).RotateWgKey(ctx, req.(*RotateWgKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -363,8 +365,8 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _NodeService_GetNetworkMap_Handler,
 		},
 		{
-			MethodName: "RotateNodeKey",
-			Handler:    _NodeService_RotateNodeKey_Handler,
+			MethodName: "RotateWgKey",
+			Handler:    _NodeService_RotateWgKey_Handler,
 		},
 		{
 			MethodName: "NetworkLockInit",
