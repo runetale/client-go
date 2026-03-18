@@ -23,7 +23,7 @@ const (
 	NegotiationService_Offer_FullMethodName       = "/protos.NegotiationService/Offer"
 	NegotiationService_Answer_FullMethodName      = "/protos.NegotiationService/Answer"
 	NegotiationService_Candidate_FullMethodName   = "/protos.NegotiationService/Candidate"
-	NegotiationService_Connect_FullMethodName     = "/protos.NegotiationService/Connect"
+	NegotiationService_Negotiate_FullMethodName   = "/protos.NegotiationService/Negotiate"
 	NegotiationService_FleaMessage_FullMethodName = "/protos.NegotiationService/FleaMessage"
 )
 
@@ -34,7 +34,7 @@ type NegotiationServiceClient interface {
 	Offer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Answer(ctx context.Context, in *HandshakeRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Candidate(ctx context.Context, in *CandidateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error)
+	Negotiate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error)
 	FleaMessage(ctx context.Context, in *FleaPacketMessage, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -76,9 +76,9 @@ func (c *negotiationServiceClient) Candidate(ctx context.Context, in *CandidateR
 	return out, nil
 }
 
-func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error) {
+func (c *negotiationServiceClient) Negotiate(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &NegotiationService_ServiceDesc.Streams[0], NegotiationService_Connect_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &NegotiationService_ServiceDesc.Streams[0], NegotiationService_Negotiate_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (c *negotiationServiceClient) Connect(ctx context.Context, opts ...grpc.Cal
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NegotiationService_ConnectClient = grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage]
+type NegotiationService_NegotiateClient = grpc.BidiStreamingClient[NegotiationMessage, NegotiationMessage]
 
 func (c *negotiationServiceClient) FleaMessage(ctx context.Context, in *FleaPacketMessage, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -106,7 +106,7 @@ type NegotiationServiceServer interface {
 	Offer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Answer(context.Context, *HandshakeRequest) (*emptypb.Empty, error)
 	Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error)
-	Connect(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error
+	Negotiate(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error
 	FleaMessage(context.Context, *FleaPacketMessage) (*emptypb.Empty, error)
 }
 
@@ -126,8 +126,8 @@ func (UnimplementedNegotiationServiceServer) Answer(context.Context, *HandshakeR
 func (UnimplementedNegotiationServiceServer) Candidate(context.Context, *CandidateRequest) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Candidate not implemented")
 }
-func (UnimplementedNegotiationServiceServer) Connect(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error {
-	return status.Error(codes.Unimplemented, "method Connect not implemented")
+func (UnimplementedNegotiationServiceServer) Negotiate(grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]) error {
+	return status.Error(codes.Unimplemented, "method Negotiate not implemented")
 }
 func (UnimplementedNegotiationServiceServer) FleaMessage(context.Context, *FleaPacketMessage) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method FleaMessage not implemented")
@@ -206,12 +206,12 @@ func _NegotiationService_Candidate_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _NegotiationService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(NegotiationServiceServer).Connect(&grpc.GenericServerStream[NegotiationMessage, NegotiationMessage]{ServerStream: stream})
+func _NegotiationService_Negotiate_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(NegotiationServiceServer).Negotiate(&grpc.GenericServerStream[NegotiationMessage, NegotiationMessage]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type NegotiationService_ConnectServer = grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]
+type NegotiationService_NegotiateServer = grpc.BidiStreamingServer[NegotiationMessage, NegotiationMessage]
 
 func _NegotiationService_FleaMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FleaPacketMessage)
@@ -257,8 +257,8 @@ var NegotiationService_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Connect",
-			Handler:       _NegotiationService_Connect_Handler,
+			StreamName:    "Negotiate",
+			Handler:       _NegotiationService_Negotiate_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
