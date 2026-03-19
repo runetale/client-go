@@ -28,6 +28,13 @@ const (
 	NodeService_NetworkLockSign_FullMethodName        = "/protos.NodeService/NetworkLockSign"
 	NodeService_NetworkLockDisable_FullMethodName     = "/protos.NodeService/NetworkLockDisable"
 	NodeService_NetworkLockStatus_FullMethodName      = "/protos.NodeService/NetworkLockStatus"
+	NodeService_RegisterSession_FullMethodName        = "/protos.NodeService/RegisterSession"
+	NodeService_UpdateSessionState_FullMethodName     = "/protos.NodeService/UpdateSessionState"
+	NodeService_GetSession_FullMethodName             = "/protos.NodeService/GetSession"
+	NodeService_ListSessions_FullMethodName           = "/protos.NodeService/ListSessions"
+	NodeService_ResumeSession_FullMethodName          = "/protos.NodeService/ResumeSession"
+	NodeService_ShareSession_FullMethodName           = "/protos.NodeService/ShareSession"
+	NodeService_PublishSession_FullMethodName         = "/protos.NodeService/PublishSession"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -50,6 +57,21 @@ type NodeServiceClient interface {
 	NetworkLockDisable(ctx context.Context, in *NetworkLockDisableRequest, opts ...grpc.CallOption) (*NetworkLockDisableResponse, error)
 	// NetworkLockStatus returns the current Network Lock status.
 	NetworkLockStatus(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*NetworkLockStatusResponse, error)
+	// SSH Session Management RPCs
+	// RegisterSession registers a new SSH session with the server.
+	RegisterSession(ctx context.Context, in *RegisterSessionRequest, opts ...grpc.CallOption) (*RegisterSessionResponse, error)
+	// UpdateSessionState updates the state of an SSH session.
+	UpdateSessionState(ctx context.Context, in *UpdateSessionStateRequest, opts ...grpc.CallOption) (*UpdateSessionStateResponse, error)
+	// GetSession retrieves an SSH session by ID.
+	GetSession(ctx context.Context, in *GetSessionRequest, opts ...grpc.CallOption) (*GetSessionResponse, error)
+	// ListSessions lists SSH sessions for the current node.
+	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
+	// ResumeSession resumes a suspended SSH session.
+	ResumeSession(ctx context.Context, in *ResumeSessionRequest, opts ...grpc.CallOption) (*ResumeSessionResponse, error)
+	// ShareSession creates a share token for an SSH session.
+	ShareSession(ctx context.Context, in *ShareSessionRequest, opts ...grpc.CallOption) (*ShareSessionResponse, error)
+	// PublishSession publishes an SSH session to rune.host.
+	PublishSession(ctx context.Context, in *PublishSessionRequest, opts ...grpc.CallOption) (*PublishSessionResponse, error)
 }
 
 type nodeServiceClient struct {
@@ -143,6 +165,76 @@ func (c *nodeServiceClient) NetworkLockStatus(ctx context.Context, in *emptypb.E
 	return out, nil
 }
 
+func (c *nodeServiceClient) RegisterSession(ctx context.Context, in *RegisterSessionRequest, opts ...grpc.CallOption) (*RegisterSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterSessionResponse)
+	err := c.cc.Invoke(ctx, NodeService_RegisterSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) UpdateSessionState(ctx context.Context, in *UpdateSessionStateRequest, opts ...grpc.CallOption) (*UpdateSessionStateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSessionStateResponse)
+	err := c.cc.Invoke(ctx, NodeService_UpdateSessionState_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) GetSession(ctx context.Context, in *GetSessionRequest, opts ...grpc.CallOption) (*GetSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetSessionResponse)
+	err := c.cc.Invoke(ctx, NodeService_GetSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListSessionsResponse)
+	err := c.cc.Invoke(ctx, NodeService_ListSessions_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) ResumeSession(ctx context.Context, in *ResumeSessionRequest, opts ...grpc.CallOption) (*ResumeSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ResumeSessionResponse)
+	err := c.cc.Invoke(ctx, NodeService_ResumeSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) ShareSession(ctx context.Context, in *ShareSessionRequest, opts ...grpc.CallOption) (*ShareSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ShareSessionResponse)
+	err := c.cc.Invoke(ctx, NodeService_ShareSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodeServiceClient) PublishSession(ctx context.Context, in *PublishSessionRequest, opts ...grpc.CallOption) (*PublishSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishSessionResponse)
+	err := c.cc.Invoke(ctx, NodeService_PublishSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
@@ -163,6 +255,21 @@ type NodeServiceServer interface {
 	NetworkLockDisable(context.Context, *NetworkLockDisableRequest) (*NetworkLockDisableResponse, error)
 	// NetworkLockStatus returns the current Network Lock status.
 	NetworkLockStatus(context.Context, *emptypb.Empty) (*NetworkLockStatusResponse, error)
+	// SSH Session Management RPCs
+	// RegisterSession registers a new SSH session with the server.
+	RegisterSession(context.Context, *RegisterSessionRequest) (*RegisterSessionResponse, error)
+	// UpdateSessionState updates the state of an SSH session.
+	UpdateSessionState(context.Context, *UpdateSessionStateRequest) (*UpdateSessionStateResponse, error)
+	// GetSession retrieves an SSH session by ID.
+	GetSession(context.Context, *GetSessionRequest) (*GetSessionResponse, error)
+	// ListSessions lists SSH sessions for the current node.
+	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
+	// ResumeSession resumes a suspended SSH session.
+	ResumeSession(context.Context, *ResumeSessionRequest) (*ResumeSessionResponse, error)
+	// ShareSession creates a share token for an SSH session.
+	ShareSession(context.Context, *ShareSessionRequest) (*ShareSessionResponse, error)
+	// PublishSession publishes an SSH session to rune.host.
+	PublishSession(context.Context, *PublishSessionRequest) (*PublishSessionResponse, error)
 }
 
 // UnimplementedNodeServiceServer should be embedded to have
@@ -195,6 +302,27 @@ func (UnimplementedNodeServiceServer) NetworkLockDisable(context.Context, *Netwo
 }
 func (UnimplementedNodeServiceServer) NetworkLockStatus(context.Context, *emptypb.Empty) (*NetworkLockStatusResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method NetworkLockStatus not implemented")
+}
+func (UnimplementedNodeServiceServer) RegisterSession(context.Context, *RegisterSessionRequest) (*RegisterSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method RegisterSession not implemented")
+}
+func (UnimplementedNodeServiceServer) UpdateSessionState(context.Context, *UpdateSessionStateRequest) (*UpdateSessionStateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method UpdateSessionState not implemented")
+}
+func (UnimplementedNodeServiceServer) GetSession(context.Context, *GetSessionRequest) (*GetSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetSession not implemented")
+}
+func (UnimplementedNodeServiceServer) ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListSessions not implemented")
+}
+func (UnimplementedNodeServiceServer) ResumeSession(context.Context, *ResumeSessionRequest) (*ResumeSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ResumeSession not implemented")
+}
+func (UnimplementedNodeServiceServer) ShareSession(context.Context, *ShareSessionRequest) (*ShareSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ShareSession not implemented")
+}
+func (UnimplementedNodeServiceServer) PublishSession(context.Context, *PublishSessionRequest) (*PublishSessionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PublishSession not implemented")
 }
 func (UnimplementedNodeServiceServer) testEmbeddedByValue() {}
 
@@ -349,6 +477,132 @@ func _NodeService_NetworkLockStatus_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_RegisterSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).RegisterSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_RegisterSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).RegisterSession(ctx, req.(*RegisterSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_UpdateSessionState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSessionStateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).UpdateSessionState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_UpdateSessionState_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).UpdateSessionState(ctx, req.(*UpdateSessionStateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_GetSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).GetSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_GetSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).GetSession(ctx, req.(*GetSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_ListSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).ListSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_ListSessions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).ListSessions(ctx, req.(*ListSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_ResumeSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResumeSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).ResumeSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_ResumeSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).ResumeSession(ctx, req.(*ResumeSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_ShareSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ShareSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).ShareSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_ShareSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).ShareSession(ctx, req.(*ShareSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _NodeService_PublishSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).PublishSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_PublishSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).PublishSession(ctx, req.(*PublishSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -383,6 +637,34 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NetworkLockStatus",
 			Handler:    _NodeService_NetworkLockStatus_Handler,
+		},
+		{
+			MethodName: "RegisterSession",
+			Handler:    _NodeService_RegisterSession_Handler,
+		},
+		{
+			MethodName: "UpdateSessionState",
+			Handler:    _NodeService_UpdateSessionState_Handler,
+		},
+		{
+			MethodName: "GetSession",
+			Handler:    _NodeService_GetSession_Handler,
+		},
+		{
+			MethodName: "ListSessions",
+			Handler:    _NodeService_ListSessions_Handler,
+		},
+		{
+			MethodName: "ResumeSession",
+			Handler:    _NodeService_ResumeSession_Handler,
+		},
+		{
+			MethodName: "ShareSession",
+			Handler:    _NodeService_ShareSession_Handler,
+		},
+		{
+			MethodName: "PublishSession",
+			Handler:    _NodeService_PublishSession_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
