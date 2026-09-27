@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Runetale Inc.
+// SPDX-License-Identifier: Apache-2.0
+
 // dtos.proto
 //
 // This file defines the Protocol Buffers messages for REST API responses.
