@@ -38,6 +38,7 @@ const (
 	NodeService_ResumeSession_FullMethodName          = "/protos.NodeService/ResumeSession"
 	NodeService_ShareSession_FullMethodName           = "/protos.NodeService/ShareSession"
 	NodeService_PublishSession_FullMethodName         = "/protos.NodeService/PublishSession"
+	NodeService_SetDNSChallenge_FullMethodName        = "/protos.NodeService/SetDNSChallenge"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -75,6 +76,10 @@ type NodeServiceClient interface {
 	ShareSession(ctx context.Context, in *ShareSessionRequest, opts ...grpc.CallOption) (*ShareSessionResponse, error)
 	// PublishSession publishes an SSH session to rune.host.
 	PublishSession(ctx context.Context, in *PublishSessionRequest, opts ...grpc.CallOption) (*PublishSessionResponse, error)
+	// SetDNSChallenge writes, or with an empty value removes, the ACME DNS-01
+	// TXT record for one of the calling node's own names, so the node can get
+	// a certificate for it without holding DNS credentials.
+	SetDNSChallenge(ctx context.Context, in *SetDNSChallengeRequest, opts ...grpc.CallOption) (*SetDNSChallengeResponse, error)
 }
 
 type nodeServiceClient struct {
@@ -238,6 +243,16 @@ func (c *nodeServiceClient) PublishSession(ctx context.Context, in *PublishSessi
 	return out, nil
 }
 
+func (c *nodeServiceClient) SetDNSChallenge(ctx context.Context, in *SetDNSChallengeRequest, opts ...grpc.CallOption) (*SetDNSChallengeResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetDNSChallengeResponse)
+	err := c.cc.Invoke(ctx, NodeService_SetDNSChallenge_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // NodeServiceServer is the server API for NodeService service.
 // All implementations should embed UnimplementedNodeServiceServer
 // for forward compatibility.
@@ -273,6 +288,10 @@ type NodeServiceServer interface {
 	ShareSession(context.Context, *ShareSessionRequest) (*ShareSessionResponse, error)
 	// PublishSession publishes an SSH session to rune.host.
 	PublishSession(context.Context, *PublishSessionRequest) (*PublishSessionResponse, error)
+	// SetDNSChallenge writes, or with an empty value removes, the ACME DNS-01
+	// TXT record for one of the calling node's own names, so the node can get
+	// a certificate for it without holding DNS credentials.
+	SetDNSChallenge(context.Context, *SetDNSChallengeRequest) (*SetDNSChallengeResponse, error)
 }
 
 // UnimplementedNodeServiceServer should be embedded to have
@@ -326,6 +345,9 @@ func (UnimplementedNodeServiceServer) ShareSession(context.Context, *ShareSessio
 }
 func (UnimplementedNodeServiceServer) PublishSession(context.Context, *PublishSessionRequest) (*PublishSessionResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PublishSession not implemented")
+}
+func (UnimplementedNodeServiceServer) SetDNSChallenge(context.Context, *SetDNSChallengeRequest) (*SetDNSChallengeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method SetDNSChallenge not implemented")
 }
 func (UnimplementedNodeServiceServer) testEmbeddedByValue() {}
 
@@ -606,6 +628,24 @@ func _NodeService_PublishSession_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NodeService_SetDNSChallenge_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetDNSChallengeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodeServiceServer).SetDNSChallenge(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: NodeService_SetDNSChallenge_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodeServiceServer).SetDNSChallenge(ctx, req.(*SetDNSChallengeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -668,6 +708,10 @@ var NodeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PublishSession",
 			Handler:    _NodeService_PublishSession_Handler,
+		},
+		{
+			MethodName: "SetDNSChallenge",
+			Handler:    _NodeService_SetDNSChallenge_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
