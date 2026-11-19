@@ -1,0 +1,7 @@
+runetale client-go
+Copyright (c) 2026 Runetale Inc.
+
+This product includes software developed at Runetale Inc.
+
+The code under runetale/ is generated from runetale/proto, which is
+distributed under the Apache License 2.0.
